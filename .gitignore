@@ -1,0 +1,7 @@
+.vagrant
+build/
+log/
+node_modules/
+server/es5/
+server/public/dist/
+package.json

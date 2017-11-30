@@ -1,0 +1,244 @@
+a:focus, a:hover {
+   text-decoration: none;
+}
+
+.mainDiv{
+    padding-top: '27px'
+}
+
+.mainDiv .innerDiv  {
+    background-color: white;
+    border-width : 0px;
+    width : 230px;
+    left : 147px;
+    height : 249px;
+}
+
+.mainDiv .innerDiv .span {
+    font-style: normal;
+    font-size : 16px;
+    text-align: center;
+    font-weight: 600;
+    padding-left: 23px;
+}
+
+.mainDiv .innerDiv .span.activeSpan {
+    color: #515151;
+    cursor: pointer
+}
+
+.mainDiv .innerDiv .span.inActiveSpan  {
+     color: #999999;
+}
+
+.mainDiv .innerDiv .activeDescriptive {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 10px;
+    font-family: Open Sans;
+    font-weight: 400;
+    font-style: normal;
+    color: #515151;
+    text-align: center;
+    line-height: 18px;
+}
+.mainDiv .innerDiv .inActiveDescriptive {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 10px;
+    font-family: Open Sans;
+    font-weight: 400;
+    font-style: normal;
+    color: #515151;
+    text-align: center;
+    color: #999999
+}
+
+.mainDiv .innerDiv .span.transSearch {
+    padding-left: 50px;
+}
+
+.mainDiv .innerDiv .span.transSearch.activeSpan {
+    color: #515151;
+    cursor: pointer
+}
+
+.mainDiv .innerDiv .span.transSearch.inActiveSpan  {
+    color: #999999
+}
+
+.mainDiv .innerDiv .span.payload {
+    padding-left: 50px;
+}
+
+.mainDiv .innerDiv .span.payload {
+    color: #515151;
+    cursor: pointer;
+    padding-left: 62px;
+}
+
+.mainDiv .innerDiv .span.textSearch {
+    padding-left: 3px;
+}
+
+.mainDiv .innerDiv .span.textSearch.activeSpan {
+    color: #515151;
+    cursor: pointer
+}
+
+.mainDiv .innerDiv .span.textSearch.inActiveSpan  {
+    color: #999999
+}
+
+.mainDiv .innerDiv:hover {
+    border-width: 1px;
+    border-color: rgba(171, 243, 248, 1);
+    border-style: solid;
+}
+
+.mainDiv .dbActiveSpan {
+    padding-left: 196px;
+    float : left;
+    margin-top: -23px;
+}
+
+.mainDiv .innerDivinActive  {
+    background-color: white;
+    border-width : 0px;
+    width : 230px;
+    left : 147px;
+    height : 249px;
+}
+
+.mainDiv .innerDivinActive .span {
+    font-style: normal;
+    font-size : 16px;
+    text-align: center;
+    font-weight: 600;
+    padding-left: 23px;
+}
+
+.mainDiv .innerDivinActive .span.activeSpan {
+    color: #515151;
+    cursor: pointer
+}
+
+.mainDiv .innerDivinActive .span.inActiveSpan  {
+     color: #999999;
+}
+
+.mainDiv .innerDivinActive .activeDescriptive {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 10px;
+    font-family: Open Sans;
+    font-weight: 400;
+    font-style: normal;
+    color: #515151;
+    text-align: center;
+    line-height: 18px;
+}
+.mainDiv .innerDivinActive .inActiveDescriptive {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 10px;
+    font-family: Open Sans;
+    font-weight: 400;
+    font-style: normal;
+    color: #515151;
+    text-align: center;
+    color: #999999
+}
+
+.mainDiv .innerDivinActive .span.transSearch {
+    padding-left: 50px;
+}
+
+.mainDiv .innerDivinActive .span.transSearch.activeSpan {
+    color: #515151;
+    cursor: pointer
+}
+
+.mainDiv .innerDivinActive .span.transSearch.inActiveSpan  {
+    color: #999999
+}
+
+.mainDiv .innerDivinActive .span.payload {
+    padding-left: 50px;
+}
+
+.mainDiv .innerDivinActive .span.payload {
+    color: #515151;
+    cursor: pointer;
+    padding-left: 62px;
+}
+
+.mainDiv .innerDivinActive .span.textSearch {
+    padding-left: 3px;
+}
+
+.mainDiv .innerDivinActive .span.textSearch.activeSpan {
+    color: #515151;
+    cursor: pointer
+}
+
+.mainDiv .innerDivinActive .span.textSearch.inActiveSpan  {
+    color: #999999
+}
+
+.mainDiv .innerDivinActive:hover {
+    border-width: 0px;
+     
+}
+
+.fileContainer {
+    overflow: hidden;
+    position: relative;
+}
+
+.fileContainer [type=file] {
+    cursor: inherit;
+    display: block;
+    font-size: 999px;
+    filter: alpha(opacity=0);
+    min-height: 100%;
+    min-width: 100%;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    text-align: right;
+    top: 0;
+}
+
+.fileContainer {
+    background: rgba(0, 133, 200, 1);
+    float: left;
+    padding: .5em;
+    width: 150px;
+    height: 42px;
+    color:white;
+    border-radius: 5px;
+    padding-left: 30px;
+    font-weight: 100;
+    font-size: 17px;
+}
+
+.fileContainer:hover {
+    background: rgba(0, 114, 168, 1);
+}
+
+.fileContainer [type=file] {
+    cursor: pointer;
+}
+
+.fileName {
+    padding-left: 183px;
+    width: 381px;
+    height: 36px;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-size: 20px;
+    color: #515151;
+    padding-top: 5px;
+}

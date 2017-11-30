@@ -1,0 +1,17 @@
+/*
+ Configure all routings here
+*/
+import BackChainWebAPI from './BackChainWebAPI';
+
+export function router(app) {
+    app.get('/getLastestSyncedDate', BackChainWebAPI.getLastestSyncedDate);
+    app.get('/isInitialSyncDone', BackChainWebAPI.isInitialSyncDone);
+    app.post('/uploadzip', BackChainWebAPI.uploadZip);
+    app.get('/getTransactionById/:transId', BackChainWebAPI.getTransactionById);  
+    app.get('/getTransactionByBusineesTransactionId/:btId', BackChainWebAPI.getTransactionByBusineesTransactionId);  
+    app.get('/getTransactionByText/:searchText', BackChainWebAPI.getTransactionByText);
+    app.post('/saveBlockChainSettings', BackChainWebAPI.saveBlockChainSettings);	
+    app.get('/getApplicationSettings', BackChainWebAPI.getApplicationSettings);	
+    app.post('/startSyncFromCertainDate', BackChainWebAPI.startSyncFromCertainDate);
+    app.post('/consumeTransactionMessages', BackChainWebAPI.consumeTransactionMessages);
+ }
