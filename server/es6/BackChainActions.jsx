@@ -253,7 +253,7 @@ export default class BackChainActions {
                     transArr.forEach(element => {
                         store.transactions.push(element);
                     });
-                    store.verifications = transactionHelper.storeVerificationData(transArr,store.entNameOfLoggedUser,store);
+                    store.verifications = transactionHelper.storeVerificationData(transArr,store.entNameOfLoggedUser,store.oneBcClient);
                     store.canStartVerifying = true; //nothing to verify and no animation needed
                     callback();
                 }

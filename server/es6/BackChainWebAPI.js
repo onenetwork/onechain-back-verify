@@ -25,25 +25,6 @@ exports.isInitialSyncDone = function(req, res) {
     });
 };
 
-exports.uploadZip = function(req, res) {
-    payloadHelper.splitTransactions(req.body, function(error, result) {
-        let validTransactions = [];
-        for (let i = 0; i < result.length; i++) {
-            let verified = blockChainVerifier.verifyBlockChain(JSON.stringify(result[i]), null);// need to change null to the oneclient stored in props.store
-            if (i % 2 == 1) {
-                verified = false;
-            }
-            if (verified) {
-                validTransactions.push(result[i]);
-            }
-        }
-        res.json({
-            validTransactions: validTransactions
-        });
-    });
-
-};
-
 
 exports.getTransactionById = function(req, res) {
     let data = [];

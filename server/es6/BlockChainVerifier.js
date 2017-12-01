@@ -9,7 +9,7 @@ class BlockChainVerifier {
     }
 
     verifyBlockChain(stringifiedSlice, oneBcClient) {
-        return oneBcClient.verify(generateHash(stringifiedSlice));
+        return oneBcClient.verify(this.generateHash(stringifiedSlice));
     }
 }
 
