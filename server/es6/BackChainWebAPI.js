@@ -29,8 +29,7 @@ exports.uploadZip = function(req, res) {
     payloadHelper.splitTransactions(req.body, function(error, result) {
         let validTransactions = [];
         for (let i = 0; i < result.length; i++) {
-            let hashVal = blockChainVerifier.generateHash(JSON.stringify(result[i]));
-            let verified = blockChainVerifier.verifyBlockChain(hashVal, null);// need to change null to the oneclient stored in props.store
+            let verified = blockChainVerifier.verifyBlockChain(JSON.stringify(result[i]), null);// need to change null to the oneclient stored in props.store
             if (i % 2 == 1) {
                 verified = false;
             }

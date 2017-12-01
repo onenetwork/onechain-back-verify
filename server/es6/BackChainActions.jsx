@@ -69,7 +69,10 @@ export default class BackChainActions {
             result.result.forEach(element => {
                 store.transactions.push(element);
             });
-            store.verifications = transactionHelper.storeVerificationData(result.result, store.entNameOfLoggedUser, store.oneBcClient);   
+            // can give some errors here if oneBcClient settings are null
+            if (store.oneBcClient != null) {
+                store.verifications = transactionHelper.storeVerificationData(result.result, store.entNameOfLoggedUser, store.oneBcClient);
+            }
             if(result.result.length > 0) {
                 store.canStartVerifying = true; //nothing to verify and no animation needed
             }

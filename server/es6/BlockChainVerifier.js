@@ -8,20 +8,8 @@ class BlockChainVerifier {
         return hash;
     }
 
-    verifyBlockChain(hashCode, oneBcClient) {
-        return new Promise((resolve, reject) => {
-            if (oneBcClient != null) {
-                oneBcClient.verify(hashCode).then(function (verified) {
-                    if (verified) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                }).catch(function (error) {
-                    reject("Verification failed");
-                });
-            }
-        });
+    verifyBlockChain(stringifiedSlice, oneBcClient) {
+        return oneBcClient.verify(generateHash(stringifiedSlice));
     }
 }
 

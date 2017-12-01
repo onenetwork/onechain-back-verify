@@ -169,18 +169,19 @@ class TransactionHelper {
         return sliceIndex;
     }
 
-    storeVerificationData(transactions, entNameOfLoggedUser, oneBcClient){
+    storeVerificationData(transactions, entNameOfLoggedUser, oneBcClient) {
         let verifications = observable.map({});
-        let verificationPairs = this.extractSlicesToVerify(transactions,entNameOfLoggedUser);
+        let verificationPairs = this.extractSlicesToVerify(transactions, entNameOfLoggedUser);
         verificationPairs.forEach((stringifiedSlice, key) => {
             verifications.set(key, undefined);
-            blockChainVerifier.verifyBlockChain(blockChainVerifier.generateHash(stringifiedSlice), oneBcClient)
-            .then(function (result) {
-                verifications.set(key, result === true ? 'verified' : 'failed');
-            })
-            .catch(function (error) {
-                verifications.set(key, 'failed');
-            });
+            blockChainVerifier.verifyBlockChain(stringifiedSlice, oneBcClient)
+                .then(function (result) {
+                    verifications.set(key, result === true ? 'verified' : 'failed');
+                })
+                .catch(function (error) {
+                    // can give some error here
+                    verifications.set(key, 'failed');
+                });
         });
         return verifications;
     }
