@@ -10,7 +10,7 @@ class BackChainStore {
     @observable isInitialSetupDone = null;
     @observable authenticationToken = null;
     @observable lastSyncTimeInMillis = null;
-    @observable syncFailedMsg = '';
+    @observable syncFailed = false;
     @observable syncGoingOn = false;
     @observable blockChainUrl = null;
     @observable blockChainContractAddress = null;

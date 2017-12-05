@@ -33,8 +33,12 @@ import 'react-datetime/css/react-datetime.css';
 		
 		if(this.props.store.syncGoingOn == true && this.state.startSync) {
 			syncPopupBody = <SyncRefresh msgs = {["Refreshing your database.", "This may take a few minutes."]} btnName= "OK" closeModal = {this.closeModal}/>
-		} else if(this.props.store.syncGoingOn == false && this.state.startSync) {
+		} else if(this.props.store.syncGoingOn == false && this.state.startSync && this.props.store.syncFailed == false) {
 			syncPopupBody = <SyncDone msg = {"Your database has been successfully refreshed!"}/>
+		}
+
+		if(this.props.store.syncGoingOn == false && this.state.startSync && this.props.store.syncFailed == true) {
+			syncPopupBody = <SyncFailed msg = {"Sync Failed. Please Try Again Later!"}/>
 		}
 
 		return (
@@ -208,6 +212,17 @@ const SyncDone = (props) => {
 		<Row style={{paddingLeft:'90px'}}>
 			<Col style={{color:'#3c763d'}} md={1}><i className="fa fa-check-circle fa-4x fa-fw"></i></Col>
 			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
+				{props.msg}
+			</Col>
+		</Row>
+	)
+}
+
+const SyncFailed = (props) => {
+	return (
+		<Row style={{paddingLeft:'90px'}}>
+			<Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
+			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
 				{props.msg}
 			</Col>
 		</Row>

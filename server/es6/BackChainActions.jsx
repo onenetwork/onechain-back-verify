@@ -181,7 +181,6 @@ export default class BackChainActions {
 
     @action
     static toggleStartSyncModalView() {
-        store.syncFailedMsg = '';
         store.startSyncModalViewModalActive = !store.startSyncModalViewModalActive;
     }
 
@@ -302,6 +301,7 @@ export default class BackChainActions {
             if(result.consumeResult.success === true && result.consumeResult.syncDone === true) {
                 store.isInitialSyncDone = true;
                 store.syncGoingOn = false;
+                store.syncFailed = false;
                 store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
@@ -310,11 +310,11 @@ export default class BackChainActions {
                 }, 2000)
             } else {
                 store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
-                store.syncFailedMsg = 'Sync Failed. Please Try Again later';
+                store.syncFailed = true;
             }
         })
         .catch(function (err) {
-            store.syncFailedMsg = 'Sync Failed. Please Try Again later';
+            store.syncFailed = true;
         });
     }
 
@@ -342,18 +342,18 @@ export default class BackChainActions {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
-                store.syncFailedMsg = '';
+                store.syncFailed = false;
                 store.syncGoingOn = false;
                 store.startSyncModalViewModalActive = false; //Close the Modal
             } else {
                 store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
-                store.syncFailedMsg = 'Sync Failed. Please Try Again later';
+                store.syncFailed = true;
             }            
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
             store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
-            store.syncFailedMsg = 'Sync Failed. Please Try Again later';
+            store.syncFailed = true;
         });
     }
 }
