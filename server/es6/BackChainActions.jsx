@@ -56,7 +56,7 @@ export default class BackChainActions {
              uri = '/getTransactionById/' + id;
         }
         else if(searchCriteria == "btId") {
-            uri = '/getTransactionByBusineesTransactionId/' + id;
+            uri = '/getTransactionByBusinessTransactionId/' + id;
         }
 
 		fetch(uri, {method: 'GET'}).then(function(response) {

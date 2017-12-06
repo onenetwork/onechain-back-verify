@@ -34,8 +34,8 @@ exports.getTransactionById = function(req, res) {
     });
 };
 
-exports.getTransactionByBusineesTransactionId = function(req, res) {
-    transactionHelper.getTransactionByBusineesTransactionId(req.params.btId.split(','),function(error, result) {
+exports.getTransactionByBusinessTransactionId = function(req, res) {
+    transactionHelper.getTransactionByBusinessTransactionId(req.params.btId.split(','),function(error, result) {
         res.json({result : result});
     });
 };

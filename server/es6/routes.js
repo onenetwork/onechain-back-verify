@@ -7,7 +7,7 @@ export function router(app) {
     app.get('/getLastestSyncedDate', BackChainWebAPI.getLastestSyncedDate);
     app.get('/isInitialSyncDone', BackChainWebAPI.isInitialSyncDone);
     app.get('/getTransactionById/:transId', BackChainWebAPI.getTransactionById);  
-    app.get('/getTransactionByBusineesTransactionId/:btId', BackChainWebAPI.getTransactionByBusineesTransactionId);  
+    app.get('/getTransactionByBusinessTransactionId/:btId', BackChainWebAPI.getTransactionByBusinessTransactionId);  
     app.get('/getTransactionByText/:searchText', BackChainWebAPI.getTransactionByText);
     app.post('/saveBlockChainSettings', BackChainWebAPI.saveBlockChainSettings);	
     app.get('/getApplicationSettings', BackChainWebAPI.getApplicationSettings);	

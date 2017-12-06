@@ -94,14 +94,14 @@ import '../../public/css/homePage.css';
 						</Link>
 					</div>);
 		
-		const busineesTransIdImage = this.props.store.isInitialSyncDone == true ? "/images/business-transaction-search.png" :  "/images/business-transaction-search-grey.png";
+		const businessTransIdImage = this.props.store.isInitialSyncDone == true ? "/images/business-transaction-search.png" :  "/images/business-transaction-search-grey.png";
 		linkUrl  =  this.props.store.isInitialSyncDone == true ? "/search":"#"
 		className =  "span textSearch ";
 		let col4 = (<div  className = "mainDiv" style={{paddingTop: '27px'}}>  
 						<span  className = "dbActiveSpan"> <img src="/images/db-active.png" /></span>
 						<Link style={linkUrlStyle}   to={linkUrl}>
 							<div className={innerDiv}> 
-								<img  style={{paddingLeft: '75px',paddingTop: '22px'}} src= {busineesTransIdImage}/><br/><br/>
+								<img  style={{paddingLeft: '75px',paddingTop: '22px'}} src= {businessTransIdImage}/><br/><br/>
 								<span className = {className+activeOrInactiveClassName}>Business Transaction Search</span> <br/>
 								<p className ={descriptiveClassName}>Some descriptive text to be added here.Some descriptive text to be added here. </p>
 							</div>

@@ -23,7 +23,7 @@ class TransactionHelper {
             });
     }
 
-    getTransactionByBusineesTransactionId(btId, callback) {
+    getTransactionByBusinessTransactionId(btId, callback) {
         let result = dbconnectionManager.getConnection().collection('Transactions').find({
             "transactionSliceObjects": {
                 $elemMatch: {
