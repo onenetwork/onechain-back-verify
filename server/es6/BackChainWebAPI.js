@@ -68,12 +68,12 @@ exports.getApplicationSettings = function(req, res) {
 
  
 exports.startSyncFromCertainDate = function(req, res) {
-    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate)
-    .then(function(result) {
-        res.json(result);
-    })
-    .catch(function(error) {
-        res.json({success : false}); //You can pass an error mesage if needed
+    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, function(error, result) {
+        if(error) {
+            res.json({success : false});
+        } else {
+            res.json(result);
+        }
     });
 };
 

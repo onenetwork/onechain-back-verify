@@ -1,5 +1,7 @@
 import {dbconnectionManager} from './DBConnectionManager';
 import moment from 'moment';
+import {requestHelper} from './RequestHelper';
+import "isomorphic-fetch";
 
 /*
  Helper class contains synch related APIs
@@ -8,33 +10,32 @@ class SyncTransactionTaskHelper {
     
         constructor() {}
     
-        startSyncFromCertainDate(authenticationToken, startFromDate) {
-            /**
-             * - Backchain app does a one-time call to:
-                https://platform/oms/rest/backchain/v1/reset?date=20170801
-                - PLT populates kafka from the given PIT with all relevant ent & intersection slices starting at given date
-             */
-            //fetch by itself return promise so once the actual code is in place, go ahead and remove the promise and return what fetch returns
-            return new Promise((resolve, reject) => {
-                //Pseudo code
-                /**
-                 * let dateAsString = format(startFromDate, 'YYYYmmdd');
-                 * fetch(resetUrl, {method: 'POST'}).//pass the param in the body
-                 * .then() //handle success
-                 * .catch() //handle error
-                 */
-                let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYmmdd');
-                console.log('sync start date: ' + dateAsString);
-                let result = this.kafkaTest();
-                if(result) {
-                    this.updatechainOfCustody(authenticationToken, function(chainOfCustidy) {
-                        chainOfCustidy.success = 'success';
-                        resolve(chainOfCustidy);
-                    });
-                } else {
-                    reject();
-                }
-            }); 
+        startSyncFromCertainDate(authenticationToken, startFromDate, callback) {
+            let me = this;
+            let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYMMDD');
+            let params = {'date': dateAsString};
+            console.log('sync start date: ' + dateAsString);
+            
+            fetch('http://xipl9131.elogex.com/oms/rest/backchain/v1/reset', {
+                method: 'post',
+                headers: new Headers({
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Basic ' + new Buffer('ProgressiveRetailerVCAdmin' + ':' + 'password').toString('base64')
+                }),
+                body: requestHelper.jsonToUrlParams(params)
+            }).then(function(response) {
+                return response.json();
+            }).then(function(result) {
+                me.updatechainOfCustody(authenticationToken, function(chainOfCustidy) {
+                    chainOfCustidy.success = 'success';
+                    callback(null, chainOfCustidy);
+                });
+            }).catch(function (err) {
+                console.log(err);
+                callback(err, null)
+            });
         }
         updatechainOfCustody(authenticationToken, callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
@@ -103,11 +104,6 @@ class SyncTransactionTaskHelper {
                 console.error("Error occurred in isInitialSyncDone " + err);
                 callback(err, false);
             });
-        }
-
-        //kafka test function
-        kafkaTest() {
-         return true;   
         }
     }
 
