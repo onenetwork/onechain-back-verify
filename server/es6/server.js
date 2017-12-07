@@ -6,14 +6,15 @@ import bodyParser from 'body-parser';
 // import {receiveTransactionsTask} from './ReceiveTransactionsTask'
 
 (() => {
-    let url = "mongodb://localhost:27017/onechainverifier";
+    const url = "mongodb://localhost:27017";
+    const dbName = "onechainverifier";
     let app = express();
     app.use(bodyParser.urlencoded({
         extended: true
       }));
     router(app);
 
-    dbconnectionManager.connect(url, function(err) {
+    dbconnectionManager.connect(url, dbName, function(err) {
         if (err) {
             throw err;
         }

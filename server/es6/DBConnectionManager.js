@@ -11,17 +11,17 @@ class DBConnectionManager {
         };
     }
 
-    connect(url, done) {
+    connect(url, dbName, done) {
         let me = this;
         if (this.state.db) {
             return done();
         }
 
-        MongoClient.connect(url, function(err, db) {
+        MongoClient.connect(url, function(err, client) {
             if (err) {
                 return done(err);
             }
-            me.state.db = db;
+            me.state.db = client.db(dbName);
             me.createCollectionAndIndex();
             done();
         })
