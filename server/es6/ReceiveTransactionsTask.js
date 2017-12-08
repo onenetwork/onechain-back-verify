@@ -15,7 +15,7 @@ class ReceiveTransactionsTask {
 
   Call get messages should be smart enough to keep going when hasMorePages comes back as true. We will use size limit of 2014
      */
-    callGetMessages(authenticationToken) {
+    callGetMessages(authenticationToken, backChainURL) {
         return new Promise((resolve, reject) => {
             let lastSyncTimeInMillis = new Date().getTime();
             let settingsCollection = null;
@@ -44,14 +44,16 @@ class ReceiveTransactionsTask {
                 if(settingsCollection) {
                     settingsCollection.chainOfCustidy = {
                         "authenticationToken" : authenticationToken,
-                        "lastSyncTimeInMillis": lastSyncTimeInMillis
+                        "lastSyncTimeInMillis": lastSyncTimeInMillis,
+                        "backChainURL": backChainURL
                     }
                     writeValue = settingsCollection;
                 } else {
                     writeValue = { "type" : "applicationSettings",
                         chainOfCustidy: {
                             "authenticationToken" : authenticationToken,
-                            "lastSyncTimeInMillis": lastSyncTimeInMillis
+                            "lastSyncTimeInMillis": lastSyncTimeInMillis,
+                            "backChainURL": backChainURL
                         }
                     }
                 };
@@ -83,23 +85,23 @@ class ReceiveTransactionsTask {
         }
     }
 
-    consumeTransactionMessages(authenticationToken, callback) {
+    consumeTransactionMessages(authenticationToken, backChainURL, callback) {
         let me = this;
-        receiveTransactionsTask.callGetMessages(authenticationToken).then(function(response) {
+        receiveTransactionsTask.callGetMessages(authenticationToken, backChainURL).then(function(response) {
             return response;
         }).then(function(result) {
             console.log('hasMorePages: ' + result.hasMorePages);
             me.insertMessages(result.messages);
             if(result.hasMorePages) {
-                me.consumeTransactionMessages(authenticationToken);
+                me.consumeTransactionMessages(authenticationToken, backChainURL);
             } 
             else if(!result.hasMorePages) {
                 setTimeout(function() {
-                    me.consumeTransactionMessages(authenticationToken); /*Don't pass callback, because result already sent to client*/
+                    me.consumeTransactionMessages(authenticationToken, backChainURL); /*Don't pass callback, because result already sent to client*/
                 }, config.readFileTimeInMillis);
             }
             if(typeof callback !== 'undefined') {
-                callback(null, {syncDone : true, authenticationToken: authenticationToken, lastSyncTimeInMillis: result.lastSyncTimeInMillis});
+                callback(null, {syncDone : true, authenticationToken: authenticationToken, backChainURL: backChainURL, lastSyncTimeInMillis: result.lastSyncTimeInMillis});
             }
         }).catch(function (error) {
             console.log(error);

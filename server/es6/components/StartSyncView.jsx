@@ -54,6 +54,7 @@ class SyncForm extends React.Component {
 		super(props);
 		this.tokenInputVal = null;
 		this.startFromInputVal = null;
+		this.backChainURL = null;
 		this.closeModal = this.closeModal.bind(this);
 	}
 
@@ -72,12 +73,16 @@ class SyncForm extends React.Component {
 		this.startFromInputVal  = date;
 	}
 
+	listenURLChanges(event){
+		this.backChainURL  = event.target.value.trim();
+	}
+
 	startSync() {
 		this.props.startSync();
 		if(this.props.store.authenticationToken === null && !this.props.store.isInitialSyncDone) {
-			BackChainActions.startInitialSync(this.tokenInputVal);
+			BackChainActions.startInitialSync(this.tokenInputVal, this.backChainURL);
 		} else {
-			BackChainActions.startSyncFromCertainDate(this.tokenInputVal, this.startFromInputVal);
+			BackChainActions.startSyncFromCertainDate(this.tokenInputVal, this.startFromInputVal, this.backChainURL);
 		}
 	}
 
@@ -102,10 +107,17 @@ class SyncForm extends React.Component {
 		} else {
 			this.tokenInputVal = this.props.store.authenticationToken;
 			this.startFromInputVal = this.props.store.lastSyncTimeInMillis;
+			this.backChainURL = this.props.store.backChainURL;
 		}
 
 		return (
 			<div>
+				<Row>
+					<Col md={2}><div style={fieldProps.valueLabel}>Backchain URL: </div></Col>
+					<Col md={8}>
+						<FormControl type="text" defaultValue = {this.backChainURL} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder="Backchain URL" /><br/>
+					</Col>
+				</Row>
 				<Row>
 					<Col md={2}><div style={fieldProps.valueLabel}>Authentication Token: </div></Col>
 					<Col md={8}>

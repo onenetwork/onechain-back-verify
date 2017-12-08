@@ -68,7 +68,7 @@ exports.getApplicationSettings = function(req, res) {
 
  
 exports.startSyncFromCertainDate = function(req, res) {
-    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, function(error, result) {
+    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.backChainURL, function(error, result) {
         if(error) {
             res.json({success : false});
         } else {
@@ -78,7 +78,7 @@ exports.startSyncFromCertainDate = function(req, res) {
 };
 
 exports.consumeTransactionMessages = function(req, res) {
-    receiveTransactionsTask.consumeTransactionMessages(req.body.authenticationToken, function(error, result) {
+    receiveTransactionsTask.consumeTransactionMessages(req.body.authenticationToken, req.body.backChainURL, function(error, result) {
         if(error) {
             res.json({success : false});
         } else {
