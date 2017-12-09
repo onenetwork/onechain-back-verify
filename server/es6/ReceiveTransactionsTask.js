@@ -13,7 +13,7 @@ class ReceiveTransactionsTask {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache',
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + new Buffer('ProgressiveRetailerVCAdmin' + ':' + 'password').toString('base64')
+                'Authorization': 'Basic ' + new Buffer('ScottRepAnalyst' + ':' + 'password').toString('base64')
             })
         }).then(function(response) {
             return response.json();
@@ -34,13 +34,13 @@ class ReceiveTransactionsTask {
                     callback(error, {syncDone : false});
                 }
             } else {
-                console.log('hasMorePages: ' + result.hasMorePages);
+                let hasMorePages = result.hasMorePages || false;
                 me.insertMessages(result.transactionMessages);
                 let lastSyncTimeInMillis = me.insertOrUpdateSettings(authenticationToken, backChainURL);
 
-                if(result.hasMorePages) {
+                if(hasMorePages) {
                     me.consumeTransactionMessages(authenticationToken, backChainURL);
-                } else if(!result.hasMorePages) {
+                } else if(!hasMorePages) {
                     setTimeout(function() {
                         me.consumeTransactionMessages(authenticationToken, backChainURL); /*Don't pass callback, because result already sent to client*/
                     }, config.readFileTimeInMillis);
@@ -84,8 +84,14 @@ class ReceiveTransactionsTask {
             };
 
             dbconnectionManager.getConnection().collection("Settings").updateOne({type: 'applicationSettings'}, writeValue, { upsert: true }, function(err, res) {
-                if (err) throw err;
-                else if(res) console.log('Setting time updated successfully!');
+                if (err) {
+                    //throw err;
+                    //Error shouldn't bubble, we need to log and move on 
+                    console.error(err);
+                }
+                else if(res) {
+                    console.log('Setting time updated successfully!');
+                }
             });
         });
 
@@ -94,7 +100,7 @@ class ReceiveTransactionsTask {
 
     insertMessages(transMessages) {
         for (let i = 0; i < transMessages.length; i++) {
-            let document = transMessages[i];
+            let document = this.convertKafkaToMongoEntry(transMessages[i]);
             dbconnectionManager.getConnection().collection('Transactions').update({
                     "id": document.id
                 },
@@ -104,6 +110,21 @@ class ReceiveTransactionsTask {
             )
         }
     }
+
+    convertKafkaToMongoEntry(transMessage) {
+        let serializedList = transMessage.transactionsSlicesSerialized;
+        let transactionSliceObjects = [];
+        for (let i = 0; i < serializedList.length; i++) {
+            let serialized = serializedList[i];
+            transactionSliceObjects.push(JSON.parse(serialized));
+        }
+        transMessage.transactionSlices = transMessage.transactionsSlicesSerialized;
+        delete transMessage.transactionsSlicesSerialized;
+        delete transMessage.transactionsSlices;
+        transMessage.transactionSliceObjects = transactionSliceObjects;
+        return transMessage;
+    }
+
 }
 
 export const receiveTransactionsTask = new ReceiveTransactionsTask();
