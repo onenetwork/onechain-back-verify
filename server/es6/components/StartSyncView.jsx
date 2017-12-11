@@ -79,11 +79,7 @@ class SyncForm extends React.Component {
 
 	startSync() {
 		this.props.startSync();
-		if(this.props.store.authenticationToken === null && !this.props.store.isInitialSyncDone) {
-			BackChainActions.startInitialSync(this.tokenInputVal, this.chainOfCustodyUrl);
-		} else {
-			BackChainActions.startSyncFromCertainDate(this.tokenInputVal, this.startFromInputVal, this.chainOfCustodyUrl);
-		}
+		BackChainActions.startSync(this.tokenInputVal, this.startFromInputVal, this.chainOfCustodyUrl);
 	}
 
 	render() {

@@ -185,6 +185,15 @@ export default class BackChainActions {
     }
 
     @action
+    static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
+        if(store.authenticationToken === null && !store.isInitialSyncDone) {
+			this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
+		} else {
+			this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
+		}
+    }
+
+    @action
     static processApplicationSettings() {
         /**
          * If the value is null, it means db was never checked for the value.
