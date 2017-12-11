@@ -314,6 +314,7 @@ export default class BackChainActions {
             } else {
                 store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
                 store.syncFailed = true;
+                store.syncGoingOn = false;
             }
         })
         .catch(function (err) {
@@ -353,6 +354,7 @@ export default class BackChainActions {
             } else {
                 store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
                 store.syncFailed = true;
+                store.syncGoingOn = false;
             }            
         })
         .catch(function (err) {
