@@ -23,7 +23,7 @@ class SyncTransactionTaskHelper {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' + new Buffer('ProgressiveRetailerVCAdmin' + ':' + 'password').toString('base64')
+                    'Authorization': 'Basic ' + new Buffer('BackchainClient' + ':' + 'password').toString('base64')
                 }),
                 body: requestHelper.jsonToUrlParams(params)
             }).then(function(response) {
@@ -50,7 +50,7 @@ class SyncTransactionTaskHelper {
                         "chainOfCustodyUrl" : chainOfCustodyUrl
                     }
                     
-                    let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({}, result).then((resultSet) => {
+                    let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({}, {$set: result}).then((resultSet) => {
                     if (resultSet.modifiedCount > 0) {
                             console.log("Settings updated successfully ");
                             callback(result.chainOfCustidy);
@@ -82,7 +82,7 @@ class SyncTransactionTaskHelper {
                 }
                 if(result) {
                     result.chainOfCustidy.lastSyncTimeInMillis = lastSyncedDateInMillis;
-                    let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({type: 'applicationSettings'}, result).then((result) => {
+                    let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({type: 'applicationSettings'}, {$set:result}).then((result) => {
                         if (resultSet.modifiedCount > 0) {
                             console.log("lastSyncedDateInMillis updated successfully ");
                         }

@@ -83,7 +83,7 @@ class ReceiveTransactionsTask {
                 }
             };
 
-            dbconnectionManager.getConnection().collection("Settings").updateOne({type: 'applicationSettings'}, writeValue, { upsert: true }, function(err, res) {
+            dbconnectionManager.getConnection().collection("Settings").updateOne({type: 'applicationSettings'}, {$set: writeValue}, { upsert: true }, function(err, res) {
                 if (err) {
                     //throw err;
                     //Error shouldn't bubble, we need to log and move on 
