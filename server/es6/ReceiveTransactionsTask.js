@@ -6,8 +6,8 @@ import {backChainUtil} from  './BackChainUtil';
 class ReceiveTransactionsTask {
     constructor() {}
 
-    callGetMessages(authenticationToken, backChainURL, callback) {
-        fetch(backChainUtil.returnValidURL(backChainURL + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
+    callGetMessages(authenticationToken, chainOfCustodyUrl, callback) {
+        fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
             method: 'get',
             headers: new Headers({
                 'Cache-Control': 'no-cache',
@@ -25,9 +25,9 @@ class ReceiveTransactionsTask {
         });
     }
 
-    consumeTransactionMessages(authenticationToken, backChainURL, callback) {
+    consumeTransactionMessages(authenticationToken, chainOfCustodyUrl, callback) {
         let me = this;
-        this.callGetMessages(authenticationToken, backChainURL, function(error, result) {
+        this.callGetMessages(authenticationToken, chainOfCustodyUrl, function(error, result) {
             if(error) {
                 console.log(error);
                 if(typeof callback !== 'undefined') {
@@ -36,24 +36,24 @@ class ReceiveTransactionsTask {
             } else {
                 let hasMorePages = result.hasMorePages || false;
                 me.insertMessages(result.transactionMessages);
-                let lastSyncTimeInMillis = me.insertOrUpdateSettings(authenticationToken, backChainURL);
+                let lastSyncTimeInMillis = me.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
 
                 if(hasMorePages) {
-                    me.consumeTransactionMessages(authenticationToken, backChainURL);
+                    me.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl);
                 } else if(!hasMorePages) {
                     setTimeout(function() {
-                        me.consumeTransactionMessages(authenticationToken, backChainURL); /*Don't pass callback, because result already sent to client*/
+                        me.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl); /*Don't pass callback, because result already sent to client*/
                     }, config.readFileTimeInMillis);
                 }
 
                 if(typeof callback !== 'undefined') {
-                    callback(null, {syncDone : true, authenticationToken: authenticationToken, backChainURL: backChainURL, lastSyncTimeInMillis: lastSyncTimeInMillis});
+                    callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: lastSyncTimeInMillis});
                 }
             }
         });
     }
 
-    insertOrUpdateSettings(authenticationToken, backChainURL) {
+    insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl) {
         let lastSyncTimeInMillis = new Date().getTime();
         let settingsCollection = null;
 
@@ -69,7 +69,7 @@ class ReceiveTransactionsTask {
                 settingsCollection.chainOfCustidy = {
                     "authenticationToken" : authenticationToken,
                     "lastSyncTimeInMillis": lastSyncTimeInMillis,
-                    "backChainURL": backChainURL
+                    "chainOfCustodyUrl": chainOfCustodyUrl
                 }
                 writeValue = settingsCollection;
             } else {
@@ -78,7 +78,7 @@ class ReceiveTransactionsTask {
                     chainOfCustidy: {
                         "authenticationToken" : authenticationToken,
                         "lastSyncTimeInMillis": lastSyncTimeInMillis,
-                        "backChainURL": backChainURL
+                        "chainOfCustodyUrl": chainOfCustodyUrl
                     }
                 }
             };

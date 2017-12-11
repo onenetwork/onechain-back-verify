@@ -210,7 +210,7 @@ export default class BackChainActions {
                     result.settings.chainOfCustidy.authenticationToken) {
                     store.lastestSyncedDate = moment(result.settings.chainOfCustidy.lastSyncTimeInMillis).fromNow();
                     store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
-                    store.backChainURL = result.settings.chainOfCustidy.backChainURL;
+                    store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
                     store.lastSyncTimeInMillis = result.settings.chainOfCustidy.lastSyncTimeInMillis;
                   } else {
                       store.authenticationToken = null;
@@ -281,11 +281,11 @@ export default class BackChainActions {
     }
 
     @action
-    static startInitialSync(authenticationToken, backChainURL) {
+    static startInitialSync(authenticationToken, chainOfCustodyUrl) {
         store.syncGoingOn = true;
         let params = {
             'authenticationToken': authenticationToken,
-            'backChainURL': backChainURL
+            'chainOfCustodyUrl': chainOfCustodyUrl
         };
         fetch('/consumeTransactionMessages', {
             method: 'post',
@@ -307,7 +307,7 @@ export default class BackChainActions {
                 store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
-                store.backChainURL = result.consumeResult.backChainURL;
+                store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
                 setTimeout(function() {
                     store.startSyncModalViewModalActive = false; //Close the Modal
                 }, 2000)
@@ -323,12 +323,12 @@ export default class BackChainActions {
     }
 
     @action
-    static startSyncFromCertainDate(authenticationToken, startFromDate, backChainURL) {
+    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl) {
         store.syncGoingOn = true;
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
-            'backChainURL' : backChainURL
+            'chainOfCustodyUrl' : chainOfCustodyUrl
         };
         fetch('/startSyncFromCertainDate', {
             method: 'post',
@@ -349,7 +349,7 @@ export default class BackChainActions {
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.syncFailed = false;
                 store.syncGoingOn = false;
-                store.backChainURL = result.backChainURL;
+                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
                 store.startSyncModalViewModalActive = false; //Close the Modal
             } else {
                 store.startSyncModalViewModalActive = true; //Keep the modal open and display an error

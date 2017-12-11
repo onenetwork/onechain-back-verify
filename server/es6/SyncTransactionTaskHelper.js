@@ -11,13 +11,13 @@ class SyncTransactionTaskHelper {
     
         constructor() {}
 
-        startSyncFromCertainDate(authenticationToken, startFromDate, backChainURL, callback) {
+        startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
             let me = this;
             let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYMMDD');
             let params = {'date': dateAsString};
             console.log('sync start date: ' + dateAsString);
             
-            fetch(backChainUtil.returnValidURL(backChainURL + '/oms/rest/backchain/v1/reset'), {
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset'), {
                 method: 'post',
                 headers: new Headers({
                     'Cache-Control': 'no-cache',
@@ -29,7 +29,7 @@ class SyncTransactionTaskHelper {
             }).then(function(response) {
                 return response.json();
             }).then(function(result) {
-                me.updatechainOfCustody(authenticationToken, backChainURL, function(chainOfCustidy) {
+                me.updatechainOfCustody(authenticationToken, chainOfCustodyUrl, function(chainOfCustidy) {
                     chainOfCustidy.success = 'success';
                     callback(null, chainOfCustidy);
                 });
@@ -38,7 +38,7 @@ class SyncTransactionTaskHelper {
                 callback(err, null)
             });
         }
-        updatechainOfCustody(authenticationToken, backChainURL, callback) {
+        updatechainOfCustody(authenticationToken, chainOfCustodyUrl, callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
                 if (err) {
                     logger.error(err);
@@ -47,7 +47,7 @@ class SyncTransactionTaskHelper {
                     result.chainOfCustidy = {
                         "authenticationToken" : authenticationToken,
                         "lastSyncTimeInMillis" : new Date().getTime(),
-                        "backChainURL" : backChainURL
+                        "chainOfCustodyUrl" : chainOfCustodyUrl
                     }
                     
                     let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({}, result).then((resultSet) => {
