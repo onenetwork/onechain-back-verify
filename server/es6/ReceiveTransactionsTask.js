@@ -13,7 +13,7 @@ class ReceiveTransactionsTask {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache',
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + new Buffer('ScottRepAnalyst' + ':' + 'password').toString('base64')
+                'Authorization': 'token ' + authenticationToken
             })
         }).then(function(response) {
             return response.json();

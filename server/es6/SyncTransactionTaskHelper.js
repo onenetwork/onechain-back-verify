@@ -23,7 +23,7 @@ class SyncTransactionTaskHelper {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' + new Buffer('ProgressiveRetailerVCAdmin' + ':' + 'password').toString('base64')
+                    'Authorization': 'token ' + authenticationToken
                 }),
                 body: requestHelper.jsonToUrlParams(params)
             }).then(function(response) {
