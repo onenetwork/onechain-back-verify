@@ -4,6 +4,7 @@ import ListTransactionsView from './components/ListTransactionsView';
 import SearchByBusinessIdView from './components/SearchByBusinessIdView';
 import SearchByTransactionIdView from './components/SearchByTransactionIdView';
 import SearchByTextView from './components/SearchByTextView';
+import TrackAndVerifyView from './components/TrackAndVerifyView';
 import SetupView from './components/SetupView';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -16,7 +17,7 @@ const RoutedApp = () => (
     <Switch>
       {/* exact will match /index but not /index/2 etc */}
       <Route exat path="/index" render={(props) => (<HomeView store={backChainStore} {...props}/>)} />
-      <Route  path="/payload"  render={(props) => (<PayloadView store={backChainStore} {...props}/>)} />
+      <Route path="/payload" render={(props) => (<PayloadView store={backChainStore} {...props}/>)} />
       <Route path="/listTransactions" render={(props) => (<ListTransactionsView store={backChainStore} {...props}/>)} />  
       <Route path="/businessId" render={(props) => (<SearchByBusinessIdView store={backChainStore} {...props}/>)} />
       <Route path="/transactionId" render={(props) => (<SearchByTransactionIdView store={backChainStore} {...props}/>)} />
@@ -26,11 +27,22 @@ const RoutedApp = () => (
   </BrowserRouter>
 );
 
-(function(){
-  BackChainActions.init(backChainStore);
-  })()
+window.BackchainVerifyAPI = {
+  setup: (renderTo, options) => {
+    BackChainActions.init(backChainStore);
+    
+    options = options || {};
+    const componentToRender = options.showOnlyVerifyView
+      ? <TrackAndVerifyView store={backChainStore} hideProgressBar={true}/>
+      : <RoutedApp/>;
+    
+    if (typeof renderTo == 'string') {
+      renderTo = $(renderTo)[0];
+    }
+    ReactDOM.render(componentToRender, renderTo);
+  },
 
-ReactDOM.render(
-    <RoutedApp/>,
-    document.getElementById('root')
-);
+  loadTransactions: (transactions) => {
+    BackChainActions.loadTransactions(transactions);
+  }
+};

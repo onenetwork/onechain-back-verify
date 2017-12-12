@@ -13,7 +13,7 @@ const verifyImgProgressing = "/images/verify-progressing.png";
 const verifyImgVerified = "/images/verify-succeded.png";
 const verifyImgFailed = "/images/verify-failed.png";
 @observer export default class TrackAndVerifyView extends React.Component {
-	constructor(props) {
+    constructor(props) {
         super(props);
     }
     
@@ -36,15 +36,17 @@ const verifyImgFailed = "/images/verify-failed.png";
     }
 
     render() {
-        return (
-            <div>
-                <div>
-                    <ProgressBar now={this.props.store.verificationStatus.totalCompleted} />
-                    <img src={this.getProgressBarImg()} style={{position : 'relative', top: -58, transition: 'left .6s ease', left: this.calculateVerifyImgLeftPosition()  + '%'}}/>
-                </div>
-                <TransctionsTable store = {this.props.store} />
-            </div>
-		);
+        const progressBar = this.props.hideProgressBar
+            ? null
+            : <div>
+                <ProgressBar now={this.props.store.verificationStatus.totalCompleted} />
+                <img src={this.getProgressBarImg()} style={{position : 'relative', top: -58, transition: 'left .6s ease', left: this.calculateVerifyImgLeftPosition()  + '%'}}/>    
+            </div>;
+
+        return <div>
+            {progressBar}
+            <TransctionsTable store = {this.props.store} />
+        </div>;
     }
 }
 

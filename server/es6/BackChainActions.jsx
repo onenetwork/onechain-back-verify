@@ -39,44 +39,41 @@ export default class BackChainActions {
 
 
     /**
-     * Fetches transaction data and loads it into the store
+     * This method either loads provided array of transaction data, provided as the first argument,
+     * or fetches transaction data and loads it into the store, if there are 2 provided arguments (id and searchCriteria).
      * @param {*} id - either a transaction or business id
      * @param {*} searchCriteria - either "tnxId" or "btId"
      */
     @action
     static loadTransactions(id, searchCriteria) {
-        let uri = null;
-
-        store.loadingData = true;
         store.canStartVerifying = false;
         store.transactions.clear();
         store.verifications.clear();
+
+        if(arguments.length == 1 && Array.isArray(arguments[0])) {
+            loadTransactions(arguments[0]);
+            return;
+        }
         
+        let uri = null;
         if(searchCriteria == "tnxId") {
-             uri = '/getTransactionById/' + id;
+            uri = '/getTransactionById/' + id;
         }
         else if(searchCriteria == "btId") {
-            uri = '/getTransactionByBusinessTransactionId/' + id;
+            uri = '/getTransactionByBusineesTransactionId/' + id;
         }
 
-		fetch(uri, {method: 'GET'}).then(function(response) {
-			return response.json();
-		}, function(error) {
+        store.loadingData = true;
+        fetch(uri, {method: 'GET'}).then(function(response) {
+            return response.json();
+        }, function(error) {
             store.loadingData = false;
             store.error = "Couldn't load transactions. Please try again later";
-  			console.error('error getting transaction by transaction id');
-		}).then(function(result) {            
-            result.result.forEach(element => {
-                store.transactions.push(element);
-            });
-            // can give some errors here if oneBcClient settings are null
-            if (store.oneBcClient != null) {
-                store.verifications = transactionHelper.storeVerificationData(result.result, store.entNameOfLoggedUser, store.oneBcClient);
-            }
-            if(result.result.length > 0) {
-                store.canStartVerifying = true; //nothing to verify and no animation needed
-            }
-  		})
+              console.error('error getting transaction by transaction id');
+        }).then(function(result) {
+            store.loadingData = false;
+            loadTransactions(result.result);
+        });
     }
 
     @action
@@ -371,5 +368,16 @@ export default class BackChainActions {
             store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
             store.syncFailed = true;
         });
+    }
+}
+
+function loadTransactions(transactions) {
+    transactions.forEach(element => {
+        store.transactions.push(element);
+    });
+
+    store.verifications = transactionHelper.storeVerificationData(transactions, store.entNameOfLoggedUser, store);
+    if(transactions.length > 0) {
+        store.canStartVerifying = true; //nothing to verify and no animation needed
     }
 }
