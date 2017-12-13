@@ -198,7 +198,7 @@ const verifyImgFailed = "/images/verify-failed.png";
 
                 let displaytransId = transaction['id'];
                 if(displaytransId.length > 28) {
-                    displaytransId = (<OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={<Popover id={transaction['id']} className="txnpopover">{transaction['id']}</Popover>}>
+                    displaytransId = (<OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={<Popover id={transaction['id']} >{transaction['id']}</Popover>}>
                                         <span >{transaction['id'].substring(0,29) + '...'}</span>
                                       </OverlayTrigger>);
                 }
