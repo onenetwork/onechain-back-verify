@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
     sudo npm install --no-bin-links body-parser --save
     sudo npm install --no-bin-links cookie-parser --save
     sudo npm install --no-bin-links multer --save
-    sudo npm install --no-bin-links mongodb --save
+    sudo npm install --no-bin-links mongodb@2.2.33 --save
    
     #Install react packages
     sudo npm install --no-bin-links react --save
