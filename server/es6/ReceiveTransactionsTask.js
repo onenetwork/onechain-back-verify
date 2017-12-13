@@ -1,10 +1,13 @@
 import config from './config';
 import {transactionConsumer} from './TransactionConsumer';
 import {dbconnectionManager} from './DBConnectionManager';
+import {settingsHelper} from './SettingsHelper';
 import {backChainUtil} from  './BackChainUtil';
 
 class ReceiveTransactionsTask {
-    constructor() {}
+    constructor() {
+
+    }
 
     callGetMessages(authenticationToken, chainOfCustodyUrl, callback) {
         fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
@@ -40,12 +43,7 @@ class ReceiveTransactionsTask {
 
                 if(hasMorePages) {
                     me.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl);
-                } else if(!hasMorePages) {
-                    setTimeout(function() {
-                        me.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl); /*Don't pass callback, because result already sent to client*/
-                    }, config.readFileTimeInMillis);
                 }
-
                 if(typeof callback !== 'undefined') {
                     callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: lastSyncTimeInMillis});
                 }
@@ -53,17 +51,36 @@ class ReceiveTransactionsTask {
         });
     }
 
+    startTimer() {
+        const me = this;
+        settingsHelper.getApplicationSettings()
+        .then(function(result) {
+            if(typeof result != 'undefined' && typeof result.chainOfCustidy != 'undefined' && 
+            typeof result.chainOfCustidy.authenticationToken != 'undefined' && typeof result.chainOfCustidy.chainOfCustodyUrl != 'undefined') {
+                console.info('Chain of Custody data will be synced every ' + config.syncDataIntervalInMillis + ' milliseconds');
+                setInterval(function(){
+                    me.consumeTransactionMessages(result.chainOfCustidy.authenticationToken, result.chainOfCustidy.chainOfCustodyUrl);
+                }, config.syncDataIntervalInMillis);
+            }
+        })
+        .catch(function (err) {
+            console.error("Application Settings can't be read: " + err);
+        });  
+    }
+
     insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl) {
         let lastSyncTimeInMillis = new Date().getTime();
         let settingsCollection = null;
-
+        const me = this;
         /* finding settingsCollection, because there could be "blockChain" related setup already present */
         dbconnectionManager.getConnection().collection("Settings").findOne({type: 'applicationSettings'}, function(err, result) {
             if (err) throw err;
             if (result) {
                 settingsCollection = result;
             }
-
+            /* If the timer hasn't started yet, it's time to start. Only happens with a new instance*/
+            let startTheTimer = typeof settingsCollection.chainOfCustidy == 'undefined' || 
+            typeof settingsCollection.chainOfCustidy.chainOfCustodyUrl == 'undefined' || typeof settingsCollection.chainOfCustidy.authenticationToken == 'undefined'; 
             let writeValue = null;
             if(settingsCollection) {
                 settingsCollection.chainOfCustidy = {
@@ -90,6 +107,9 @@ class ReceiveTransactionsTask {
                     console.error(err);
                 }
                 else if(res) {
+                    if(startTheTimer) {
+                        me.startTimer();
+                    }
                     console.log('Setting time updated successfully!');
                 }
             });

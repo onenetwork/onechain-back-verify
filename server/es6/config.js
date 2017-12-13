@@ -1,1 +1,1 @@
-module.exports = {readFileTimeInMillis : 60000}
+module.exports = {syncDataIntervalInMillis : 60000}
