@@ -124,7 +124,7 @@
 /* overriding react popover component style*/
 .popover {
     border-color: rgba(45, 162, 191, 1);
-    max-width: unset;
+    display : inline-table !important;
 }
 .popover .popover-title {
     color: rgba(45, 162, 191, 1);
