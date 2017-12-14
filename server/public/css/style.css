@@ -145,11 +145,9 @@
 .popover.top>.arrow:after {
     border-top-color: rgba(45, 162, 191, 1);
 }
-.txnpopover {
-    left: 133.5938px !important;
-}
-.txnpopover .arrow {
-    left: 11% !important;
+.eventpopover .popover-content {
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 @media (min-width: 768px) {

@@ -229,7 +229,7 @@ const verifyImgFailed = "/images/verify-failed.png";
                         <td style={fieldProps.columns}>{transaction['date']}</td>
                         <td style={Object.assign({},fieldProps.columns, {cursor:'pointer'})}>
                         <div>
-                            <OverlayTrigger  rootClose trigger="click" placement="right" overlay={<Popover id= {i} title={<span><img style={{width: '18px',height:'18px'}} src="../images/event.svg"/>&nbsp;&nbsp;Events:</span>}>
+                            <OverlayTrigger rootClose trigger="click" placement="right" overlay={<Popover id= {i} arrowOffsetTop = '50' className='eventpopover' title={<span><img style={{width: '18px',height:'18px'}} src="../images/event.svg"/>&nbsp;&nbsp;Events:</span>}>
                             <ul style={{paddingLeft: '0px',listStyleType: 'none'}}>{eventList}</ul>
                             </Popover>}> 
                             <img style={{width: '23px',height:'23px'}} src="../images/event-badge.svg"/>
