@@ -10,12 +10,7 @@ class TransactionHelper {
         let result = dbconnectionManager.getConnection().collection('Transactions').findOne({
                 "id": transId
             }).then((result) => {
-                if (result) {
-                    callback(null, result);
-                }
-                else {
-                    callback(null, false);
-                }
+                callback(null, result);
             })
             .catch((err) => {
                 console.error("Error occurred while fetching transaction by tnxId." + err);
