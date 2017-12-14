@@ -31,7 +31,6 @@ import DisplayMessageView from "./DisplayMessageView";
 		let me = this;
 		BackChainActions.loadTransactions(this.businessIdInputVal, "btId", function(redirect) {
 			if(redirect == false) {
-				
 				me.props.store.displayMessageViewModalActive = true;
 			} else {
 				me.setState({redirect: redirect});

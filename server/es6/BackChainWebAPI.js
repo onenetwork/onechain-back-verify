@@ -29,7 +29,9 @@ exports.isInitialSyncDone = function(req, res) {
 exports.getTransactionById = function(req, res) {
     let data = [];
     transactionHelper.getTransactionById(req.params.transId, function(error, result) {
-        data.push(result);
+        if(result !== null) {
+            data.push(result);
+        }
         res.json({result : data});
     });
 };
