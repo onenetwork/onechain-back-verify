@@ -140,7 +140,12 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 						for(let k= 0; k < businessTransactions.length; k++) {
 							let dataJson= {}
 							dataJson.radio=<Radio style={fieldProps.radio}   name="businessTransaction" onChange={this.toggleCheckbox} value={businessTransactions[k].btid} />;
-							dataJson.modelLevelType =businessTransactions[k].ModelLevelType.split(".")[1];
+							if(businessTransactions[k].ModelLevelType.indexOf(".")!== -1) {
+								dataJson.modelLevelType = businessTransactions[k].ModelLevelType.split(".")[1];
+							}
+							else {
+								dataJson.modelLevelType = businessTransactions[k].ModelLevelType;
+							}
 							dataJson.btId =businessTransactions[k].btid;
 							data.push(dataJson);
 						}
