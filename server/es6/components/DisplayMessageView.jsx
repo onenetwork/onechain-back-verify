@@ -72,8 +72,8 @@ class DisplayMessagePopup extends React.Component {
 const DisplayFailedMsg = (props) => {
 	return (
 		<Row style={{paddingLeft:'50px'}}>
-			<Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
-			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
+			<Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-3x fa-fw"></i></Col>
+			<Col style={{paddingLeft:'30px', fontSize:'20px', color:'#515151', paddingTop: '8px'}} md={10}>
 				{props.msg}
 			</Col>
 		</Row>
