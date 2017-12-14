@@ -1,14 +1,15 @@
-import {Row,  Col, Button,FormControl} from 'react-bootstrap';
+import {Row,  Col, Button,FormControl, Modal} from 'react-bootstrap';
 import React, {Component} from 'react';
 import { Link,Redirect } from 'react-router-dom';
 import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
+import DisplayMessageView from "./DisplayMessageView";
 
 @observer export default class SearchByBusinessIdView extends React.Component {
     constructor(props) {
         super(props);
-		this.state = {redirect:false,verifyDisabled:true};
+		this.state = {redirect:null, verifyDisabled:true};
 		this.businessIdInputVal = null;
 	}
 
@@ -23,12 +24,19 @@ import HeaderView from "./HeaderView";
 		}
 		if (this.businessIdInputVal.length > 0  && event.charCode  == 13) {
 			this.loadTransactionsIntoStore();
-			this.setState({redirect: true});
 		}
 	}
 	
 	loadTransactionsIntoStore() {
-		BackChainActions.loadTransactions(this.businessIdInputVal, "btId");
+		let me = this;
+		BackChainActions.loadTransactions(this.businessIdInputVal, "btId", function(redirect) {
+			if(redirect == false) {
+				
+				me.props.store.displayMessageViewModalActive = true;
+			} else {
+				me.setState({redirect: redirect});
+			}
+		});
 	}
 
 	componentDidMount() {
@@ -43,8 +51,7 @@ import HeaderView from "./HeaderView";
 		}
 		if (this.state.redirect) {
             return <Redirect push to="/listTransactions" />;
-		} 
-		else {
+		} else {
 			let fieldProps = {
 				panelPadding : {
 					paddingLeft: '35px',
@@ -110,35 +117,47 @@ import HeaderView from "./HeaderView";
 			};
 			
 			return (
-				<div className={"panel panel-default"} onClick={this.props.action}>
-					<HeaderView store={this.props.store}/>
-					<div className={"panel-body"} style={fieldProps.panelBody}>
-						<Row>   
-							<img src="/images/business-transaction-id.png" style={fieldProps.logo}/> 
-							<span style={fieldProps.nameSpan}>
-								<strong style={fieldProps.nameColor}> 
-									Business Transaction ID
-								</strong> 
-							</span> 
-							<span style={fieldProps.subNameSpan}>Some descriptive text to be added here. Some descriptive text to be added here. Some descriptive text here.</span>
-						</Row> 
+				<div>	
+					<DisplayMessageViewPopup store={this.props.store}/>
 
-						<hr style={fieldProps.blankLine}/>		
-						<br/>
+					<div className={"panel panel-default"} onClick={this.props.action}>
+						<HeaderView store={this.props.store}/>
+						<div className={"panel-body"} style={fieldProps.panelBody}>
+							<Row>   
+								<img src="/images/business-transaction-id.png" style={fieldProps.logo}/> 
+								<span style={fieldProps.nameSpan}>
+									<strong style={fieldProps.nameColor}> 
+										Business Transaction ID
+									</strong> 
+								</span> 
+								<span style={fieldProps.subNameSpan}>Some descriptive text to be added here. Some descriptive text to be added here. Some descriptive text here.</span>
+							</Row> 
 
-						<Row style={fieldProps.panelBodyTitle}>
-							<div> <span style={fieldProps.browse}> Enter a Business Transaction ID to verify  </span>  </div>
+							<hr style={fieldProps.blankLine}/>		
 							<br/>
-							<FormControl type="text" style={fieldProps.inputBox} onKeyPress={this.listenKeyPress.bind(this)} onChange={this.listenKeyPress.bind(this)} placeholder="Business Transaction ID" />
-							<br/> <br/>
-							<Link to="/listTransactions"><Button disabled={this.state.verifyDisabled} className="btn btn-primary" style={fieldProps.button} onClick={this.loadTransactionsIntoStore.bind(this)}>Verfiy</Button></Link>
-							&nbsp; &nbsp; <Link  to="/index"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>		 
-						</Row>
-						 
+
+							<Row style={fieldProps.panelBodyTitle}>
+								<div> <span style={fieldProps.browse}> Enter a Business Transaction ID to verify  </span>  </div>
+								<br/>
+								<FormControl type="text" style={fieldProps.inputBox} onKeyPress={this.listenKeyPress.bind(this)} onChange={this.listenKeyPress.bind(this)} placeholder="Business Transaction ID" />
+								<br/> <br/>
+								<Button disabled={this.state.verifyDisabled} className="btn btn-primary" style={fieldProps.button} onClick={this.loadTransactionsIntoStore.bind(this)}>Verfiy</Button>
+								&nbsp; &nbsp; <Link  to="/index"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>		 
+							</Row>
+							
+						</div>
 					</div>
 				</div>
 			);
 			
 		} 
+    }
+}
+
+@observer class DisplayMessageViewPopup extends React.Component {
+    render() {
+        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
+                    <DisplayMessageView title = "Message" msg= "Result not found! Try again with different ID." store={this.props.store}/> 
+               </Modal>);
     }
 }

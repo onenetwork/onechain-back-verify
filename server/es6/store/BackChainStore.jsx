@@ -23,6 +23,7 @@ class BackChainStore {
     @observable error = null;
     @observable myAndDiffViewModalActive = false;
     @observable startSyncModalViewModalActive = false;
+    @observable displayMessageViewModalActive = false;
     @observable payload = observable([]);
     @observable viewTransactions = observable.map({});
     @observable myAndDiffViewModalType = null;

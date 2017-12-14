@@ -44,7 +44,7 @@ export default class BackChainActions {
      * @param {*} searchCriteria - either "tnxId" or "btId"
      */
     @action
-    static loadTransactions(id, searchCriteria) {
+    static loadTransactions(id, searchCriteria, callback) {
         let uri = null;
 
         store.loadingData = true;
@@ -65,7 +65,7 @@ export default class BackChainActions {
             store.loadingData = false;
             store.error = "Couldn't load transactions. Please try again later";
   			console.error('error getting transaction by transaction id');
-		}).then(function(result) {            
+		}).then(function(result) {     
             result.result.forEach(element => {
                 store.transactions.push(element);
             });
@@ -76,6 +76,12 @@ export default class BackChainActions {
             if(result.result.length > 0) {
                 store.canStartVerifying = true; //nothing to verify and no animation needed
             }
+
+            if(store.transactions.length > 0) {
+                callback(true);
+            } else {
+                callback(false);
+            } 
   		})
     }
 
@@ -182,6 +188,11 @@ export default class BackChainActions {
     @action
     static toggleStartSyncModalView() {
         store.startSyncModalViewModalActive = !store.startSyncModalViewModalActive;
+    }
+
+    @action
+    static toggleDisplayMessageView() {
+        store.displayMessageViewModalActive = !store.displayMessageViewModalActive;
     }
 
     @action
