@@ -7,7 +7,7 @@ import { observer } from 'mobx-react';
 import { Link } from 'react-router-dom';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
-
+import { Scrollbars } from 'react-custom-scrollbars';
 
 const verifyImgProgressing = "/images/verify-progressing.png";
 const verifyImgVerified = "/images/verify-succeded.png";
@@ -229,8 +229,13 @@ const verifyImgFailed = "/images/verify-failed.png";
                         <td style={fieldProps.columns}>{transaction['date']}</td>
                         <td style={Object.assign({},fieldProps.columns, {cursor:'pointer'})}>
                         <div>
-                            <OverlayTrigger rootClose trigger="click" placement="right" overlay={<Popover id= {i} arrowOffsetTop = '50' className='eventpopover' title={<span><img style={{width: '18px',height:'18px'}} src="../images/event.svg"/>&nbsp;&nbsp;Events:</span>}>
-                            <ul style={{paddingLeft: '0px',listStyleType: 'none'}}>{eventList}</ul>
+                            <OverlayTrigger rootClose trigger="click" placement="right" 
+                            overlay={<Popover id= {i} arrowOffsetTop = '50' title={<span><img style={{width: '18px',height:'18px'}} src="../images/event.svg"/>&nbsp;&nbsp;Events:</span>}>
+                                <ul style={{paddingLeft: '0px',listStyleType: 'none'}}>
+                                    <Scrollbars style={{ width: 115, height: (eventList.length * 18 > 200 ? 200 : eventList.length * 18) }}>
+                                        {eventList}
+                                    </Scrollbars>
+                                </ul>
                             </Popover>}> 
                             <img style={{width: '23px',height:'23px'}} src="../images/event-badge.svg"/>
                             </OverlayTrigger>

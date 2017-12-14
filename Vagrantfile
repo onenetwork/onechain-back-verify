@@ -97,6 +97,9 @@ Vagrant.configure("2") do |config|
 
     #Install datepicker it has dependancy on moment
     sudo npm install react-datetime --save
+
+    #custom Scrollbar
+	  sudo npm install react-custom-scrollbars --save
 	
 	#Table Pagination
 	sudo npm install --no-bin-links react-pagination-table --save-dev

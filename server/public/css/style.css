@@ -145,10 +145,6 @@
 .popover.top>.arrow:after {
     border-top-color: rgba(45, 162, 191, 1);
 }
-.eventpopover .popover-content {
-    max-height: 200px;
-    overflow-y: auto;
-}
 
 @media (min-width: 768px) {
     .transaction-preview-modal{	
