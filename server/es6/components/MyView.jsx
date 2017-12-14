@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Row,  Col, Button, Panel} from 'react-bootstrap';
-import JasonCommon from '../JasonCommon';
+import JsonCommon from '../JsonCommon';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
@@ -9,7 +9,7 @@ import BackChainActions from '../BackChainActions';
 export default class MyView extends React.Component {
   
   componentDidMount() {
-		JasonCommon.showCommon(this.props.store.viewTransactions.enterprise);
+		JsonCommon.showCommon(this.props.store.viewTransactions.enterprise);
   }
 
   downloadZip() {
@@ -46,7 +46,7 @@ export default class MyView extends React.Component {
 			borderBottomRightRadius: '10px',
 			borderBottomLeftRadius: '10px'
 		},
-		jasonPanel : {
+		jsonPanel : {
 			marginRight: '60px',
 	        marginLeft: '60px',
 	        marginBottom: '60px',
@@ -72,7 +72,7 @@ export default class MyView extends React.Component {
 					</span>
 				</p>
 				<br></br>
-				<pre id="json-renderer" style={fieldProps.jasonPanel}></pre>
+				<pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
 			  </div>
 		   </div>);
   }

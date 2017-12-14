@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Row,  Col, Button, Panel} from 'react-bootstrap';
-import JasonCommon from '../JasonCommon';
+import JsonCommon from '../JsonCommon';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
@@ -55,13 +55,13 @@ export default class DiffView extends React.Component {
       let element = evt.currentTarget.parentElement.getElementsByClassName('commonTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      JasonCommon.diffUsingJS(JSON.stringify(myViewObj, null, "\t"), JSON.stringify(partnerViewObj, null, "\t"), this.state.partnerEntName);
+      JsonCommon.diffUsingJS(JSON.stringify(myViewObj, null, "\t"), JSON.stringify(partnerViewObj, null, "\t"), this.state.partnerEntName);
     } else if (tabName === 'Common'){
       let element = evt.currentTarget.parentElement.getElementsByClassName('diffTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      let common  = JasonCommon.common(myViewObj,partnerViewObj)['value'];
-      JasonCommon.showCommon(common);
+      let common  = JsonCommon.common(myViewObj,partnerViewObj)['value'];
+      JsonCommon.showCommon(common);
     }
   }
 
@@ -94,7 +94,7 @@ export default class DiffView extends React.Component {
         borderBottomRightRadius: '10px',
         borderBottomLeftRadius: '10px'
       },
-      jasonPanel : {
+      jsonPanel : {
         backgroundColor: 'white',
         paddingLeft: '1.5em',
         paddingRight: '1.5em',
@@ -137,7 +137,7 @@ export default class DiffView extends React.Component {
                             <div id="diffoutput"></div>
                         </div>
                         <div id='Common' className="tabcontent">
-                            <pre id="json-renderer" style={fieldProps.jasonPanel}></pre>
+                            <pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
                         </div>
                     </div>);
               
