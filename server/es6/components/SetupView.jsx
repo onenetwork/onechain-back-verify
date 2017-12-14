@@ -1,21 +1,25 @@
 import React, {Component} from 'react';
 import { observer } from 'mobx-react';
-import { Row, Col, Button, Panel, FormControl } from 'react-bootstrap';
+import { Row, Col, Button, Panel, FormControl,Modal } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from './HeaderView';
 import oneBcClient from '@onenetwork/one-backchain-client';
+import StartSyncView from './StartSyncView';
+import DisplayMessageView from "./DisplayMessageView";
 
 @observer export default class SetupView extends React.Component {
 	constructor(props) {
 		super(props);
 	}
+	 
 
 	componentDidMount() {
 		BackChainActions.processApplicationSettings();
 	}
 
 	saveInitialConfig() {
+		let me = this;
 		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null || this.props.store.blockChainPrivateKey == null) {
 			alert('Please input all the following values');
 			return;
@@ -26,17 +30,24 @@ import oneBcClient from '@onenetwork/one-backchain-client';
 		}
 		try {
 			//verify if all inputs are valid
-	        oneBcClient({
+			let bcClient = oneBcClient({
 				blockchain: 'eth',
 				url: this.props.store.blockChainUrl,
 				contractAddress: this.props.store.blockChainContractAddress,
 				privateKey: this.props.store.blockChainPrivateKey
 			});
+			BackChainActions.verfiyBackChainSettings(bcClient,function(error,result){
+				if(error) {
+					me.props.store.displayMessageViewModalActive = true;
+				} else if(result) {
+					BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.blockChainPrivateKey);
+				}
+			});
 		} catch (e) {
 			alert(e);
 			return;
 		}
-	    BackChainActions.saveBlockChainSettings(this.props.store.blockChainUrl, this.props.store.blockChainContractAddress, this.props.store.blockChainPrivateKey);
+	   
 	}
 
 	blockChainUrl(event){
@@ -97,6 +108,7 @@ import oneBcClient from '@onenetwork/one-backchain-client';
 			}
 		};
 		let panelBody = (<div>
+			<DisplayMessageViewPopup store={this.props.store}/>
 			<p></p>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
@@ -134,4 +146,12 @@ import oneBcClient from '@onenetwork/one-backchain-client';
 			</div>
 		);
 	}
+}
+
+@observer class DisplayMessageViewPopup extends React.Component {
+    render() {
+        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
+                    <DisplayMessageView title = "Message" msg= {"Invalid Blockchain settings.Please try again."} store={this.props.store}/> 
+               </Modal>);
+    }
 }

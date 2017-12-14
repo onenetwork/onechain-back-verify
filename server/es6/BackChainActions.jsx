@@ -383,4 +383,19 @@ export default class BackChainActions {
             store.syncFailed = true;
         });
     }
+
+
+    @action 
+    static verfiyBackChainSettings(oneBcClient,callback) {
+        oneBcClient.getOrchestrator()
+        .then(function (result) {
+            return result;
+        })
+        .then(function (result) {
+            callback(null,result);
+        })
+        .catch(function (error) {
+            callback(error,null);       
+        });
+    }
 }
