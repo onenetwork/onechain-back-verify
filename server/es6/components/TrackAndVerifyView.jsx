@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import { Scrollbars } from 'react-custom-scrollbars';
+import '../../public/css/TrackAndVerify.css';
 
 const verifyImgProgressing = "/images/verify-progressing.png";
 const verifyImgVerified = "/images/verify-succeded.png";
@@ -133,15 +134,6 @@ const verifyImgFailed = "/images/verify-failed.png";
                 position: 'absolute',
                 marginLeft: '3px'
             },         
-            counter : {
-                display: 'inline-block',
-                fontSize: '10px',
-                position: 'relative',
-                left: '-10px',
-                bottom: '-5px',
-                color: 'white',
-                width: '6%'
-            }
         };
         
         const myViewLabel = 'My View';
@@ -153,7 +145,7 @@ const verifyImgFailed = "/images/verify-failed.png";
                  
             variableViewNames = Object.keys(this.props.store.viewsMap);
             variableViewNames.splice(variableViewNames.indexOf(myEntName), 1);
-
+            let eventCountCss = "counter3";
             for (let i = 0; i < this.props.store.transactions.length; i++) {
                 let transaction = this.props.store.transactions[i];
                 let executingUsers = [], viewsTransactions = [], downArrow = '', eventCount = null, eventList = [];
@@ -161,6 +153,11 @@ const verifyImgFailed = "/images/verify-failed.png";
                 for(let j = 0; j < transaction.transactionSliceObjects.length; j++) {
                     let transactionslice = transaction.transactionSliceObjects[j];
                         eventCount = transactionslice.businessTransactions.length;
+                        if(eventCount.toString().length == 1) {
+                            eventCountCss =  "counter1";
+                        } else if(eventCount.toString().length == 2) {
+                            eventCountCss =  "counter2";
+                        }
 
                     if(transactionslice.type == "Enterprise") {
                         for(let k = 0; k < transactionslice.businessTransactions.length; k++) {
@@ -237,9 +234,10 @@ const verifyImgFailed = "/images/verify-failed.png";
                                     </Scrollbars>
                                 </ul>
                             </Popover>}> 
-                            <img style={{width: '23px',height:'23px'}} src="../images/event-badge.svg"/>
+                            <img style={{width: '30px',height:'26px'}} src="../images/event-badge.svg"/>
                             </OverlayTrigger>
-                            <div style = {fieldProps.counter}>{eventCount}</div></div>
+                            <div className = {eventCountCss}>{eventCount}</div> 
+                            </div>  
                         </td>
                         <td style={fieldProps.columns}>{displayExecutingUsers}</td>
                         {viewsTransactions}
