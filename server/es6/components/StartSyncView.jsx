@@ -70,7 +70,7 @@ class SyncForm extends React.Component {
 	}
 
 	listenStartFromChanges(date){
-		this.startFromInputVal  = date;
+		this.startFromInputVal  = date.valueOf();
 	}
 
 	listenURLChanges(event){
