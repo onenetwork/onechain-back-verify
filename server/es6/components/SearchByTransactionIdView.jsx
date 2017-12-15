@@ -78,22 +78,13 @@ import DisplayMessageView from "./DisplayMessageView";
 					fontSize: '16px',
 					boxShadow: 'rgba(0, 0, 0, 0.75) 1px 2px 2px'
 				},
-				logo: {
-					position: 'relative',
-					left: '8%',
-					marginLeft: -55
-				},
 				nameSpan : {
-					marginLeft: '136px',
 					fontSize: '25px'
 				},
 				nameColor : {
 					color: '#5e5d5d'
 				},
 				subNameSpan : {
-					position: 'relative',
-					verticalAlign: '-22px',
-					left: '-15%',
 					fontFamily:'Open Sans'
 				},
 				blankLine : {
@@ -121,14 +112,20 @@ import DisplayMessageView from "./DisplayMessageView";
 					<div className={"panel panel-default"} onClick={this.props.action}>
 						<HeaderView store={this.props.store}/>
 						<div className={"panel-body"} style={fieldProps.panelBody}>
-						<Row>   
-							<img src="/images/transaction-id.png" style={fieldProps.logo}/> 
-							<span style={fieldProps.nameSpan}>
-								<strong style={fieldProps.nameColor}> 
-									Transaction ID
-								</strong> 
-							</span> 
-							<span style={fieldProps.subNameSpan}>Some descriptive text to be added here. Some descriptive text to be added here. Some descriptive text here.</span>
+						<Row>
+							<Col md={2} style={{paddingLeft:'37px'}}>   
+								<img src="/images/transaction-id.png"/>
+							</Col>
+							<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}> 
+								<span style={fieldProps.nameSpan}>
+									<strong style={fieldProps.nameColor}> 
+										Transaction ID
+									</strong> 
+								</span> <br/>
+								<span style={fieldProps.subNameSpan}>
+									This search returns the transaction associated with the given transaction Id and the transaction shall be verified with Block Chain. Transaction id can be found in a Payload file. This search will require the transaction to be existing in the local repository.
+								</span>
+							</Col>
 						</Row> 
 
 						<hr style={fieldProps.blankLine}/>

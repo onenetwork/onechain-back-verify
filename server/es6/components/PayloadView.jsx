@@ -104,22 +104,13 @@ import '../../public/css/payload.css';
 						fontSize: '16px',
 						boxShadow: 'rgba(0, 0, 0, 0.75) 1px 2px 2px'
 					},
-					logo: {
-						position: 'relative',
-						left: '8%',
-						marginLeft: -55
-					},
 					nameSpan : {
-						marginLeft: '136px',
 						fontSize: '25px'
 					},
 					nameColor : {
 						color: '#5e5d5d'
 					},
 					subNameSpan : {
-						position: 'relative',
-						verticalAlign: '-22px',
-						left: '-13%',
 						fontFamily:'Open Sans'
 					},
 					blankLine : {
@@ -147,13 +138,20 @@ import '../../public/css/payload.css';
 							<HeaderView store={this.props.store}/>
 							<div className={"panel-body"} style={fieldProps.panelBody}>
 							<div>
-								<Row>   <img src="/images/payload-file.png" style={fieldProps.logo}/> 
+								<Row>
+									<Col md={2} style={{paddingLeft:'37px'}}>   
+										<img src="/images/payload-file.png" />
+									</Col>
+									<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>  
 										<span style={fieldProps.nameSpan}>
 											<strong style={fieldProps.nameColor}> 
 												Payload File 
 											</strong> 
-										</span> 
-										<span style={fieldProps.subNameSpan}>Some descriptive text to be added here. Some descriptive text to be added here. Some descriptive text here.</span>
+										</span> <br/>
+										<span style={fieldProps.subNameSpan}>
+											This feature verifies the payload with Block Chain by hashing the payloads and comparing the values in Block Chain. If the payload information exists in the local repository, then the remaining information regarding the transaction shall be retrieved and verified as well.
+										</span>
+									</Col>
 								</Row> 
 
 								<hr style={fieldProps.blankLine}/>
