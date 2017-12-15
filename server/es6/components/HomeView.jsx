@@ -36,8 +36,7 @@ import '../../public/css/homePage.css';
 			},
 			panelBody : {
 				paddingTop: 60,
-				backgroundColor: 'white',
-				height: '460px'
+				backgroundColor: 'white'
 			},
 			button : {
 				height: '100px'
