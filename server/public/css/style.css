@@ -69,10 +69,6 @@
     background-color: rgba(225,251,253,1);
 }
 
- 
-
-
-
 .pagination-status {
     float: right;
 	padding-right: 44px;
@@ -148,10 +144,10 @@
 
 @media (min-width: 768px) {
     .transaction-preview-modal{	
-        width:750px !important;
+        width:50% !important;
     }
     .transaction-diff-preview-modal{	
-        width:1280px !important;
+        width:80% !important;
     }
     .modal-content{
         border-radius: 10px !important

@@ -68,9 +68,17 @@ exports.common = function(obj1, obj2) {
 }
 
 exports.diffUsingJS = function(base1, newtxt1, partnerEntName) {
+    var copyBase = JSON.parse(JSON.stringify(base1));
+    var copyNew = JSON.parse(JSON.stringify(newtxt1));
+    delete copyBase.transactionSlice['type'];
+    delete copyBase.transactionSlice['enterprise'];
+    delete copyBase.transactionSlice['enterprises'];
+    delete copyNew.transactionSlice['type'];
+    delete copyNew.transactionSlice['enterprise'];
+    delete copyNew.transactionSlice['enterprises'];  
     // get the baseText and newText values from the two textboxes, and split them into lines
-    var base = difflib.stringAsLines(base1);
-    var newtxt = difflib.stringAsLines(newtxt1);
+    var base = difflib.stringAsLines(JSON.stringify(copyBase, null, "\t"));
+    var newtxt = difflib.stringAsLines(JSON.stringify(copyNew, null, "\t"));
 
     // create a SequenceMatcher instance that diffs the two sets of lines
     var sm = new difflib.SequenceMatcher(base, newtxt);

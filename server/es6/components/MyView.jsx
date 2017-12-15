@@ -24,39 +24,40 @@ export default class MyView extends React.Component {
 		});
   }
 
-  render() {
-	let fieldProps = {
-		panelHeading : {
-			borderTopRightRadius: '10px',
-			borderTopLeftRadius: '10px',
-			backgroundColor: 'white'
-		 },
-		 panelTitle : {
-		   fontWeight: 'bold',
-		   display: 'inline-block',
-		   color: '#646464'
-		},
-		panel : {
-	        backgroundColor: 'rgba(250, 250, 250, 1)',
-			marginBottom: '0px',
-			borderRadius: '10px'
-		},
-		panelBody : {
-			padding: 20,
-			borderBottomRightRadius: '10px',
-			borderBottomLeftRadius: '10px'
-		},
-		jsonPanel : {
-			marginRight: '60px',
-	        marginLeft: '60px',
-	        marginBottom: '60px',
-	        backgroundColor: 'white',
-	        paddingLeft: '1.5em'
-		},
-		viewname:{
-			float:'right'
-		}
-	};
+	render() {
+		let fieldProps = {
+			panelHeading: {
+				borderTopRightRadius: '10px',
+				borderTopLeftRadius: '10px',
+				backgroundColor: 'white'
+			},
+			panelTitle: {
+				fontWeight: 'bold',
+				display: 'inline-block',
+				color: '#646464'
+			},
+			panel: {
+				backgroundColor: 'rgba(250, 250, 250, 1)',
+				marginBottom: '0px',
+				borderRadius: '10px'
+			},
+			panelBody: {
+				padding: 20,
+				borderBottomRightRadius: '10px',
+				borderBottomLeftRadius: '10px'
+			},
+			jsonPanel: {
+				marginRight: '40px',
+				marginLeft: '40px',
+				marginBottom: '20px',
+				backgroundColor: 'white',
+				paddingLeft: '1.5em',
+				height: '500px'
+			},
+			viewname: {
+				float: 'right'
+			}
+		};
   
     return (<div className={"panel panel-default"} style={fieldProps.panel}>
 			  <div className={"panel-heading"} style={fieldProps.panelHeading}>

@@ -5,6 +5,8 @@ import JsonCommon from '../JsonCommon';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { toJS } from 'mobx';
 
 export default class DiffView extends React.Component {
   constructor(props) {
@@ -55,12 +57,12 @@ export default class DiffView extends React.Component {
       let element = evt.currentTarget.parentElement.getElementsByClassName('commonTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      JsonCommon.diffUsingJS(JSON.stringify(myViewObj, null, "\t"), JSON.stringify(partnerViewObj, null, "\t"), this.state.partnerEntName);
+      JsonCommon.diffUsingJS(myViewObj, partnerViewObj, this.state.partnerEntName);
     } else if (tabName === 'Common'){
       let element = evt.currentTarget.parentElement.getElementsByClassName('diffTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      let common  = JsonCommon.common(myViewObj,partnerViewObj)['value'];
+      let common  = JsonCommon.common(myViewObj, partnerViewObj)['value'];
       JsonCommon.showCommon(common);
     }
   }
@@ -100,7 +102,8 @@ export default class DiffView extends React.Component {
         paddingRight: '1.5em',
         borderTopWidth: '2px',
         borderTopColor: 'rgba(0, 133, 200, 1)',
-        borderRadius: 'unset'
+        borderRadius: 'unset',
+        height: '700px'
       },
       viewname:{
         float:'right'
@@ -134,7 +137,7 @@ export default class DiffView extends React.Component {
                             </Col>
                         </Row>
                         <div id='Diff' className="tabcontent">
-                            <div id="diffoutput"></div>
+                            <Scrollbars id="diffoutput" style={{'overflow': 'scroll', height: 700}}></Scrollbars>
                         </div>
                         <div id='Common' className="tabcontent">
                             <pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
