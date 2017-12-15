@@ -26,3 +26,10 @@
     color: white;
     width: 6%;
 }
+.transactionIdCss {
+    width: 200px;
+    max-width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

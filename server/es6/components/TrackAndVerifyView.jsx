@@ -194,11 +194,9 @@ const verifyImgFailed = "/images/verify-failed.png";
                 }
 
                 let displaytransId = transaction['id'];
-                if(displaytransId.length > 28) {
-                    displaytransId = (<OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={<Popover id={transaction['id']} >{transaction['id']}</Popover>}>
-                                        <span >{transaction['id'].substring(0,29) + '...'}</span>
+                displaytransId = (<OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={<Popover id={transaction['id']} >{transaction['id']}</Popover>}>
+                                        <span className="transactionIdCss">{transaction['id']}</span>
                                       </OverlayTrigger>);
-                }
 
                 let displayExecutingUsers = Array.from(new Set(executingUsers));
                 if(displayExecutingUsers.length > 1) {
@@ -216,7 +214,7 @@ const verifyImgFailed = "/images/verify-failed.png";
 
                 transactionsToVerify.push(
                     <tr style = {{backgroundColor : i%2 ? 'rgba(250, 250, 250, 1)' : ''}} key={transaction['id']}> 
-                        <td style={{maxWidth: ' 154px', overflow: 'hidden', padding: '10px', fontSize: '12px', verticalAlign: 'top'}}>
+                        <td style={{maxWidth: ' 154px',padding: '10px', fontSize: '12px', verticalAlign: 'top'}}>
                                 <div style={{display: 'inline-flex'}}>
                                     <i style={{color: '#229978', fontSize: '14px'}} className="fa fa-handshake-o" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
                                         {displaytransId}
@@ -274,7 +272,7 @@ const verifyImgFailed = "/images/verify-failed.png";
         let tableHead = (
             <thead style={fieldProps.tableHeader}>
                 <tr>
-                    <th style={fieldProps.columns}>Transaction Id</th>
+                    <th style={fieldProps.columns}><span style={{paddingLeft:'27px'}}>Transaction Id</span></th>
                     <th style={fieldProps.columns}>Date/Time</th>
                     <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Events</th>
                     <th style={fieldProps.columns}>Executing User</th>
