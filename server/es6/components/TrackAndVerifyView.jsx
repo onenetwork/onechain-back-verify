@@ -162,7 +162,14 @@ const verifyImgFailed = "/images/verify-failed.png";
                     if(transactionslice.type == "Enterprise") {
                         for(let k = 0; k < transactionslice.businessTransactions.length; k++) {
                             executingUsers.push(transactionslice.businessTransactions[k].LastModifiedUser);
-                            eventList.push(<li key={i+j+k}><span style={{color:'#990000'}}>{transactionslice.businessTransactions[k].LastModifiedDate.date}</span>&nbsp;&nbsp;&nbsp;{transactionslice.businessTransactions[k].ActionName.split('.')[1]}</li>);
+                            let date = transactionslice.businessTransactions[k].LastModifiedDate.date;
+                            let actionName = transactionslice.businessTransactions[k].ActionName.split('.')[1];
+                            if(date.toString().length + actionName.length < 29) {
+                                eventList.push(<li key={i+j+k}><span style={{color:'#990000',display:'inline'}}>{date}</span> <span style={{display:'inline'}}>&nbsp;&nbsp;&nbsp;{actionName}</span></li>);
+                            }
+                            else {
+                            eventList.push(<li key={i+j+k}><span style={{color:'#990000'}}>{date}</span><br></br><span>{actionName}</span></li>);
+                            }  
                         }
                         viewsTransactions.push(<td key = {transaction['id'] + myViewLabel} txnid = {transaction['id']} style={fieldProps.columns}>
                             <div>{this.getVerificationIcon(transaction['id'], myEntName)}&nbsp;&nbsp;<i onClick={this.storeTransactions.bind(this, transactionslice.type, null)}  style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file" aria-hidden="true"/></div>
@@ -227,7 +234,7 @@ const verifyImgFailed = "/images/verify-failed.png";
                             <OverlayTrigger rootClose trigger="click" placement="right" 
                             overlay={<Popover id= {i} arrowOffsetTop = '50' title={<span><img style={{width: '18px',height:'18px'}} src="../images/event.svg"/>&nbsp;&nbsp;Events:</span>}>
                                 <ul style={{paddingLeft: '0px',listStyleType: 'none'}}>
-                                    <Scrollbars style={{ width: 115, height: (eventList.length * 18 > 200 ? 200 : eventList.length * 18) }}>
+                                    <Scrollbars style={{ width: 223, height: (eventList.length * 18 > 200 ? 200 : eventList.length * 18) }}>
                                         {eventList}
                                     </Scrollbars>
                                 </ul>
