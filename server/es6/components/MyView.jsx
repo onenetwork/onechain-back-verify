@@ -8,21 +8,9 @@ import BackChainActions from '../BackChainActions';
 
 export default class MyView extends React.Component {
   
-  componentDidMount() {
+  	componentDidMount() {
 		JsonCommon.showCommon(this.props.store.viewTransactions.enterprise);
-  }
-
-  downloadZip() {
-		let zip = new JSZip();
-		let file = zip.file("payload.json", JSON.stringify(this.props.store.payload));
-		file.generateAsync({
-			type: "blob"
-		}).then(function(blob) {
-			filesaver.saveAs(blob, "payload.zip");
-		}, function(err) {
-			console.log("error occurred while generating zip file " + err);
-		});
-  }
+ 	}
 
 	render() {
 		let fieldProps = {
@@ -53,28 +41,21 @@ export default class MyView extends React.Component {
 				backgroundColor: 'white',
 				paddingLeft: '1.5em',
 				height: '500px'
-			},
-			viewname: {
-				float: 'right'
 			}
 		};
   
-    return (<div className={"panel panel-default"} style={fieldProps.panel}>
-			  <div className={"panel-heading"} style={fieldProps.panelHeading}>
-				<div className="panel-title" style={fieldProps.panelTitle}>Event Details: My View</div>
-				<i onClick={BackChainActions.toggleMyAndDiffView} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
-			  </div>
-			  <div className={"panel-body"} style={fieldProps.panelBody}>
-				<p style={{fontSize: '12px', color: '#646464'}}>
-					<strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
-					<span style={fieldProps.viewname}>
-						<i style={{color: '#229978', fontSize: '16px', cursor: 'pointer'}} className="fa fa-paperclip" aria-hidden="true" onClick={this.downloadZip.bind(this)}/>
-						<strong> My View</strong>
-					</span>
-				</p>
-				<br></br>
-				<pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
-			  </div>
-		   </div>);
+    	return (<div className={"panel panel-default"} style={fieldProps.panel}>
+					<div className={"panel-heading"} style={fieldProps.panelHeading}>
+						<div className="panel-title" style={fieldProps.panelTitle}>Event Details: My View</div>
+						<i onClick={BackChainActions.toggleMyAndDiffView} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
+					</div>
+					<div className={"panel-body"} style={fieldProps.panelBody}>
+						<p style={{fontSize: '12px', color: '#646464'}}>
+							<strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
+						</p>
+						<br></br>
+						<pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
+					</div>
+				</div>);
   }
 }

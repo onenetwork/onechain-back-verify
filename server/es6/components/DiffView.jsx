@@ -19,18 +19,6 @@ export default class DiffView extends React.Component {
     document.getElementById("defaultOpen").click();
   }
 
-  downloadZip() {
-    let zip = new JSZip();
-    let file = zip.file("payload.json", JSON.stringify(this.props.store.payload));
-    file.generateAsync({
-      type: "blob"
-    }).then(function(blob) {
-      filesaver.saveAs(blob, "payload.zip");
-    }, function(err) {
-      console.log("error occurred while generating zip file " + err);
-    });
-  }
-
   openTab(tabName, myViewObj, partnerViewObj, evt) {
     // Declare all variables
     let i, tabcontent, tablinks;
@@ -105,9 +93,6 @@ export default class DiffView extends React.Component {
         borderRadius: 'unset',
         height: '700px'
       },
-      viewname:{
-        float:'right'
-      },
       tablinks: {
         borderTopLeftRadius: '8px',
         borderTopRightRadius:'8px',
@@ -120,9 +105,9 @@ export default class DiffView extends React.Component {
     this.findPartnerEntName(this.props.store.viewTransactions.intersection);
 
     let panelBody = (<div style={fieldProps.panelBody}>
-                        <p style={{fontSize: '12px', color: '#646464'}}><strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span><span style={fieldProps.viewname}>
-                          <i style={{color: '#229978', fontSize: '16px', cursor: 'pointer'}} className="fa fa-paperclip" aria-hidden="true" onClick={this.downloadZip.bind(this)}/>
-                          <strong style={{fontSize: '12px', color: '#646464'}}>{this.state.partnerEntName}&nbsp;&nbsp;Intersection</strong></span></p>
+                        <p style={{fontSize: '12px', color: '#646464'}}>
+                          <strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
+                        </p>
                         <p></p>
                         <Row style={{marginLeft: '0px'}}>
                             <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} id="defaultOpen" style={Object.assign({},fieldProps.tablinks,{color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>

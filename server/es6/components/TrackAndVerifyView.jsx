@@ -51,17 +51,6 @@ const verifyImgFailed = "/images/verify-failed.png";
 
 @observer class TransctionsTable extends React.Component {
 
-    getVerificationIcon(transId, entName) {
-        let state = this.props.store.verifications.get(transId + "_" + entName);
-        if(!state || state == 'verifying') {
-            return '';
-        } else if(state == 'failed') {
-            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#d9443f'}} className="fa fa-exclamation-circle " aria-hidden="true" />;
-        } else if(state == 'verified') {
-            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#229978'}} className="fa fa-check-circle" aria-hidden="true" />;
-        }
-    }
-
     getVerificationHeaderIcon(transIds, entName) {
         if(!transIds || transIds.length == 0) {
             return <i style={{color : 'blue'}} className="fa fa-check-circle" aria-hidden="true" />;
@@ -87,22 +76,14 @@ const verifyImgFailed = "/images/verify-failed.png";
         }
     }
 
-    storeTransactions(type, partnerEntName, event) {
-        BackChainActions.toggleMyAndDiffView();
-        BackChainActions.loadViewTransactionsById(type, partnerEntName, event.currentTarget.parentElement.parentElement.getAttribute('txnid').split(','));
-        BackChainActions.zipTransactionsByIds(type, partnerEntName, event.currentTarget.parentElement.parentElement.getAttribute('txnid').split(','),function(){
-        });
-    }
-
-    downloadZip (event) {
-        let me = this;
-        let type = event.currentTarget.parentElement.parentElement.getAttribute('type');
-        let partnerName = event.currentTarget.parentElement.parentElement.getAttribute('partnername');
-        let txnids = event.currentTarget.parentElement.parentElement.getAttribute('txnids');
+    downloadZip (payload, event) {
+        let type = event.currentTarget.getAttribute('type');
+        let partnerName = event.currentTarget.getAttribute('partnername');
+        let txnids = event.currentTarget.getAttribute('txnids');
         BackChainActions.zipTransactionsByIds(type, partnerName, txnids.split(','),function(){
             let zip = new JSZip();
-            let file = zip.file("payload.json", JSON.stringify(me.props.store.payload));
-        
+            let file = zip.file("payload.json", JSON.stringify(payload));
+            
             file.generateAsync({
                 type: "blob"
             }).then(function(blob) {
@@ -111,7 +92,6 @@ const verifyImgFailed = "/images/verify-failed.png";
                 console.log("error occurred while generating zip file " + err);
             });
         });
-
     }
 
     render() {
@@ -160,6 +140,11 @@ const verifyImgFailed = "/images/verify-failed.png";
                         }
 
                     if(transactionslice.type == "Enterprise") {
+                        let transactionDetails = {
+                            transactionId : transaction['id'],
+                            myEntName : myEntName, 
+                            transactionSliceType : transactionslice.type
+                        }
                         for(let k = 0; k < transactionslice.businessTransactions.length; k++) {
                             executingUsers.push(transactionslice.businessTransactions[k].LastModifiedUser);
                             let date = transactionslice.businessTransactions[k].LastModifiedDate.date;
@@ -171,9 +156,11 @@ const verifyImgFailed = "/images/verify-failed.png";
                             eventList.push(<li key={i+j+k}><span style={{color:'#990000'}}>{date}</span><br></br><span>{actionName}</span></li>);
                             }  
                         }
-                        viewsTransactions.push(<td key = {transaction['id'] + myViewLabel} txnid = {transaction['id']} style={fieldProps.columns}>
-                            <div>{this.getVerificationIcon(transaction['id'], myEntName)}&nbsp;&nbsp;<i onClick={this.storeTransactions.bind(this, transactionslice.type, null)}  style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file" aria-hidden="true"/></div>
-                        </td>);
+                        viewsTransactions.push(
+                            <td key = {transaction['id'] + myViewLabel} txnid = {transaction['id']} style={fieldProps.columns}>
+                                <ViewOrDownloadTxn store = {this.props.store} downloadZip = {this.downloadZip}  transactionDetails = {transactionDetails} />
+                            </td>
+                        );
                     }
 
                     if(transactionslice.type == "Intersection" && ((transactionslice.enterprises).indexOf(myEntName) > -1)) {
@@ -182,9 +169,17 @@ const verifyImgFailed = "/images/verify-failed.png";
 
                         for(let k = 0; k < variableViewNames.length; k++) {
                             if(variableViewNames[k] == partnerEntName) {
-                                viewsTransactions.push(<td key = {transaction['id'] +''+partnerEntName} txnid = {transaction['id']} style={Object.assign({},fieldProps.columns,{paddingLeft: '18px'})}>
-                                    <div>{this.getVerificationIcon(transaction['id'], partnerEntName)}&nbsp;&nbsp;<i onClick={this.storeTransactions.bind(this, transactionslice.type, partnerEntName)} style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file" aria-hidden="true"/></div>
-                                </td>);
+                                let transactionDetails = {
+                                    transactionId : transaction['id'],
+                                    partnerEntName : partnerEntName, 
+                                    transactionSliceType : transactionslice.type
+                                }
+
+                                viewsTransactions.push(
+                                    <td key = {transaction['id'] +''+partnerEntName} txnid = {transaction['id']} style={Object.assign({},fieldProps.columns,{paddingLeft: '18px'})}>
+                                        <ViewOrDownloadTxn store = {this.props.store} downloadZip = {this.downloadZip} transactionDetails = {transactionDetails} />
+                                    </td>
+                                );
                             } else {
                                 /* Insert blank td for views doesn't belong to current transaction */
                                 viewsTransactions.push(<td key = {transaction['id'] +''+variableViewNames[k]}></td>);
@@ -262,16 +257,15 @@ const verifyImgFailed = "/images/verify-failed.png";
                 colStyle = {padding: '7px'};
                 divStyle = {padding: '3px 0px 0px 11px'};
                 circleIcon = <span className="fa-stack"><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" /><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style = {{paddingLeft: '10px'}} /></span>;
-            }
-            else{
+            } else {
                 type = "Enterprise"
             }
             views.push(
-            <th key={key} type={type} partnername={key} txnids={this.props.store.viewsMap[key].join()} style={Object.assign({}, fieldProps.columns, colStyle)}>
+            <th key={key} style={Object.assign({}, fieldProps.columns, colStyle)}>
                 {circleIcon}
                 {key}
                 <div style={divStyle}>{this.getVerificationHeaderIcon(this.props.store.viewsMap[key], key)}&nbsp;&nbsp;
-                <i style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file-archive-o" aria-hidden="true" onClick={this.downloadZip.bind(this)}/></div>
+                <i type={type} partnername={key} txnids={this.props.store.viewsMap[key].join()} style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file-archive-o" aria-hidden="true" onClick={this.downloadZip.bind(this, this.props.store.payload)}/></div>
             </th>);
         }
         
@@ -321,4 +315,62 @@ const verifyImgFailed = "/images/verify-failed.png";
                 {previewComponent} 
                </Modal>);
     }
+}
+
+const ViewOrDownloadTxn = (props) => {
+
+    let transactionId = props.transactionDetails.transactionId;
+    let myEntName = props.transactionDetails.myEntName;
+    let transactionSliceType = props.transactionDetails.transactionSliceType;
+    let partnerEntName = props.transactionDetails.partnerEntName;
+    let entNameForViwe = transactionSliceType == "Intersection" ? partnerEntName : myEntName;
+
+    function getVerificationIcon() {
+        let state = props.store.verifications.get(transactionId + "_" + entNameForViwe);
+        if(!state || state == 'verifying') {
+            return '';
+        } else if(state == 'failed') {
+            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#d9443f'}} className="fa fa-exclamation-circle " aria-hidden="true" />;
+        } else if(state == 'verified') {
+            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#229978'}} className="fa fa-check-circle" aria-hidden="true" />;
+        }
+    }
+    
+    function storeTransactions(event) {
+        BackChainActions.toggleMyAndDiffView();
+        BackChainActions.loadViewTransactionsById(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','));
+        BackChainActions.zipTransactionsByIds(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','),function(){
+        });
+    }
+
+    function downloadZip(event) {
+        props.downloadZip(props.store.payload, event);
+    }
+
+    return(
+        <div>
+            {getVerificationIcon()}&nbsp;&nbsp;
+            <OverlayTrigger rootClose trigger="click" placement="right" 
+                overlay={<Popover id={transactionId + entNameForViwe} style = {{width: '100px', fontWeight: '600', padding: '5px', lineHeight: '25px', zIndex: '0'}}>
+                            <Row txnid = {transactionId} onClick={storeTransactions.bind(this)} style = {{color: 'rgba(45, 162, 191, 1)', cursor:'pointer'}}>
+                                <Col md={1}>
+                                    <i className="fa fa-eye" aria-hidden="true"></i>
+                                </Col>&nbsp;
+                                <Col md={1} style = {{paddingLeft: '5px'}}>
+                                    View
+                                </Col>
+                            </Row>
+                            <Row type= {transactionSliceType} partnername= {entNameForViwe} txnids= {transactionId} style = {{color: 'rgba(45, 162, 191, 1)', cursor:'pointer'}} onClick={downloadZip.bind(this)}>
+                                <Col md={1}>
+                                    <i className="fa fa-download" aria-hidden="true"></i>
+                                </Col>&nbsp;
+                                <Col md={1} style = {{paddingLeft: '5px'}}>
+                                    Download
+                                </Col>
+                            </Row>
+                        </Popover>}>
+                    <i style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file" aria-hidden="true"/>
+            </OverlayTrigger>
+        </div>
+    );
 }
