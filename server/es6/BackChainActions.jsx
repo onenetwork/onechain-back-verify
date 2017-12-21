@@ -211,7 +211,7 @@ export default class BackChainActions {
          * If it's not null, there's no need to go to the db anymore. 
          * User have to go to /setup page and enter credentials to set it to true(@saveBlockChainSettings), 
          * otherwise it will stay as false.
-         */       
+         */
         if(store.isInitialSetupDone == null) {
             fetch('/getApplicationSettings', { method: 'GET'}).then(function(response) {
                 return response.json();
@@ -225,6 +225,7 @@ export default class BackChainActions {
                     store.blockChainPrivateKey = result.settings.blockChain.privateKey;
                 } else {
                     store.isInitialSetupDone = false;
+                    store.mode = result.settings.mode;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {

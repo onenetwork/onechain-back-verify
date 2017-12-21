@@ -28,6 +28,7 @@ class BackChainStore {
     @observable viewTransactions = observable.map({});
     @observable myAndDiffViewModalType = null;
     @observable chainOfCustodyUrl = null;
+    @observable mode = null;
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;
         let viewsMap = {};

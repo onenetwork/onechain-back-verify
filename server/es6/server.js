@@ -14,7 +14,13 @@ import {receiveTransactionsTask} from './ReceiveTransactionsTask'
       }));
     router(app);
 
-    dbconnectionManager.connect(url, dbName, function(err) {
+    let myArgs = process.argv.slice(2); 
+    let mode = "dev";
+    if(myArgs.toString().indexOf('=') !== -1) {
+        mode = myArgs.toString().split("=")[1];
+    }
+
+    dbconnectionManager.connect(url, dbName,mode, function(err) {
         if (err) {
             throw err;
         }
@@ -31,6 +37,6 @@ import {receiveTransactionsTask} from './ReceiveTransactionsTask'
         });
         
         receiveTransactionsTask.startTimer();
-
+        
     });
 })();
