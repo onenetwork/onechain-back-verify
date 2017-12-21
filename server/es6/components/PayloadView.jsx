@@ -170,7 +170,7 @@ import '../../public/css/payload.css';
 											<div id="fileName" className="fileName">No file chosen</div>
 											< br /> < br /> 
 											<Button  className="btn btn-primary" disabled={this.state.verifyDisabled}  style = {fieldProps.button} type="submit">Verify</Button> 
-											&nbsp; &nbsp; <Link  to="/index"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>
+											&nbsp; &nbsp; <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>
 										</form>
 									</div> 
 								</Row > 

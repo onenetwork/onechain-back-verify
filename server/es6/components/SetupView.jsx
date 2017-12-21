@@ -69,7 +69,7 @@ import DisplaySyncView from "./DisplaySyncView"
 
 	render() {
 		if (this.props.store.isInitialSetupDone === true) {
-        	return <Redirect push to="/index" />;
+        	return <Redirect push to="/home" />;
 		} 
 		let fieldProps = {
 			panelPadding: {

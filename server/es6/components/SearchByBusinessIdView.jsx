@@ -138,7 +138,7 @@ import DisplayMessageView from "./DisplayMessageView";
 								<FormControl type="text" style={fieldProps.inputBox} onKeyPress={this.listenKeyPress.bind(this)} onChange={this.listenKeyPress.bind(this)} placeholder="Business Transaction ID" />
 								<br/> <br/>
 								<Button disabled={this.state.verifyDisabled} className="btn btn-primary" style={fieldProps.button} onClick={this.loadTransactionsIntoStore.bind(this)}>Verfiy</Button>
-								&nbsp; &nbsp; <Link  to="/index"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>		 
+								&nbsp; &nbsp; <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>		 
 							</Row>
 							
 						</div>
