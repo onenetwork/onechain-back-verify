@@ -55,9 +55,6 @@ class DBConnectionManager {
                     me.state.db.collection(collinfo.name).createIndex({
                         tnxId: 1
                     });
-                    me.state.db.collection(collinfo.name).createIndex({
-                        "$**":"text"
-                    });
                     console.log('Index created');
                 } else {
                     me.state.db.createCollection("Transactions", {}, function(error, collection) {
@@ -69,9 +66,6 @@ class DBConnectionManager {
                             });
                             collection.createIndex({
                                 tnxId: 1
-                            });
-                            collection.createIndex({
-                                 "$**":"text" 
                             });
                             console.log('collection and Index created');
                         }

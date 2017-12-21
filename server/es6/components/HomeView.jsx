@@ -14,7 +14,6 @@ import '../../public/css/homePage.css';
 	componentDidMount() {
 		BackChainActions.isInitialSyncDone();
 		BackChainActions.processApplicationSettings();
-
 	}
 
 	render() {
@@ -25,9 +24,10 @@ import '../../public/css/homePage.css';
 		}
 		let fieldProps = {
 			panelPadding : {
-				backgroundImage : this.props.store.isInitialSyncDone == true ? "url('/images/blue-shadow.png')" :  "url('/images/grey-blue-shadow.png')",
+				backgroundColor : 'rgba(208, 233, 240, 1)',
 				width: '103%',
-				height: '100%'
+				height: '100%',
+				borderRadius: '10px'
 			},
 			panelBodyTitle : {
 				paddingLeft: '20px',	
@@ -35,7 +35,7 @@ import '../../public/css/homePage.css';
 				color: '#515151'
 			},
 			panelBody : {
-				paddingTop: 60,
+				padding: '70px 0px 20px 80px',
 				backgroundColor: 'white'
 			},
 			button : {
@@ -44,6 +44,14 @@ import '../../public/css/homePage.css';
 			panelDefault : {
 				borderStyle : 'none'
 			},
+			dbNsyncIcon : {
+				backgroundColor: 'white',
+				marginTop: '28px',
+				width: '70px',
+				height: '70px',
+				borderRadius: '5px',
+				cursor: 'pointer'
+			}
 		};
 
 		const businessTransImage = this.props.store.isInitialSyncDone == true ? "/images/business-transaction-id.png" :  "/images/business-transaction-id-grey.png";
@@ -56,13 +64,14 @@ import '../../public/css/homePage.css';
 		if(linkUrl=="#") {
 			linkUrlStyle =  {cursor: "default"};
 		}
-		let col1 = (<div  className = "mainDiv"  style={{paddingTop: '27px'}}>  
-						<span  className = "dbActiveSpan"> <img src="/images/db-active.png" /></span>
+		let businessTxnId = (<div  className = "mainDiv"  style={{paddingTop: '27px'}}>
 						<Link style={linkUrlStyle}  to={linkUrl}>
 						 	<div className={innerDiv}> 
 								<img  style={{paddingLeft: '52px',paddingTop: '5px'}} src ={businessTransImage}/><br/><br/>
 								<span className = {className+activeOrInactiveClassName} >Business Transaction ID</span> <br/>
-								<p className = {descriptiveClassName}>Some descriptive text to be added here.Some descriptive text to be added here. </p>
+								<p className = {descriptiveClassName}>
+									This search returns all the transactions associated with the given Business transaction Id and the transactions shall be verified with Block Chain. Business transaction id can be found in a Payload file. This search will require the transactions to be existing in the local repository.
+								</p>
 							</div>
 						</Link>
 					</div>);
@@ -70,50 +79,55 @@ import '../../public/css/homePage.css';
 		const transIdImage = this.props.store.isInitialSyncDone == true ? "/images/transaction-id.png" :  "/images/transaction-id-grey.png";
 		linkUrl  =  this.props.store.isInitialSyncDone == true ? "/transactionId":"#"
 		className =  "span transSearch ";
-		let col2 = (<div className = "mainDiv" style={{paddingTop: '27px'}}>  
-						<span className = "dbActiveSpan"> <img src="/images/db-active.png" /></span>
+		let txnId = (<div className = "mainDiv" style={{paddingTop: '27px'}}>
 						<Link style={linkUrlStyle}   to={linkUrl}>
-							<div className={innerDiv}> 
+							<div className={innerDiv} style={{minHeight: '325px'}}> 
 								<img  style={{paddingLeft: '52px',paddingTop: '5px'}} src= {transIdImage}/><br/><br/>
 								<span className = {className+activeOrInactiveClassName}>Transaction ID</span> <br/>
-								<p className = {descriptiveClassName}>Some descriptive text to be added here.Some descriptive text to be added here. </p>
+								<p className = {descriptiveClassName}>
+									This search returns the transaction associated with the given transaction Id and the transaction shall be verified with Block Chain. Transaction id can be found in a Payload file. This search will require the transaction to be existing in the local repository.
+								</p>
 							</div>
 						</Link>
 					</div>);
 		
 		className =  "span payload ";
-		let col3 = (<div className = "mainDiv" style={{paddingTop: '27px'}}>  
-						<span className = "dbActiveSpan"> <img src="/images/payload-active.png" /></span>
+		let payload = (<div className = "mainDiv" style={{padding: '25px 0px 25px 0px'}}>  
+						<span className = "dbActiveSpan"></span>
 						<Link to="/payload">
 							<div  className="innerDiv" > 
 								<img  style={{paddingLeft: '57px',paddingTop: '5px'}} src="/images/payload-file.png" /><br/><br/>
 								<span className={className}>Payload File</span> <br/>
-								<p className = "activeDescriptive">Some descriptive text to be added here.Some descriptive text to be added here. </p>
+								<p className = "activeDescriptive">
+									This feature verifies the payload with Block Chain by hashing the payloads and comparing the values in Block Chain. If the payload information exists in the local repository, then the remaining information regarding the transaction shall be retrieved and verified as well.
+								</p>
 							</div>
 						</Link>
 					</div>);
-		
-		const businessTransIdImage = this.props.store.isInitialSyncDone == true ? "/images/business-transaction-search.png" :  "/images/business-transaction-search-grey.png";
-		linkUrl  =  this.props.store.isInitialSyncDone == true ? "/search":"#"
-		className =  "span textSearch ";
-		let col4 = (<div  className = "mainDiv" style={{paddingTop: '27px'}}>  
-						<span  className = "dbActiveSpan"> <img src="/images/db-active.png" /></span>
-						<Link style={linkUrlStyle}   to={linkUrl}>
-							<div className={innerDiv}> 
-								<img  style={{paddingLeft: '75px',paddingTop: '22px'}} src= {businessTransIdImage}/><br/><br/>
-								<span className = {className+activeOrInactiveClassName}>Business Transaction Search</span> <br/>
-								<p className ={descriptiveClassName}>Some descriptive text to be added here.Some descriptive text to be added here. </p>
-							</div>
-						</Link>
-					</div>);
-		
-		let panelBody = (<div style={{height: '100%'}}>
+
+		let dbIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
+								<span>
+									<i style ={{color: 'rgba(0, 112, 255, 0.77)', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
+									<i style ={{color: '#008075', fontSize: '1.2em'}} className="fa fa-check-circle" aria-hidden="true"></i>
+								</span>
+							</div>);
+
+		let syncIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '15px 8px'}, fieldProps.dbNsyncIcon)}>
+							<span style = {{paddingLeft: '13px', color: 'rgba(0, 112, 255, 0.77)'}}>
+								<i style ={{fontSize: '2em'}} className="fa fa-refresh" aria-hidden="true"></i>
+								<br/>
+								<span style = {{fontSize: '11px',fontWeight: '600'}}>Sync Info</span>
+							</span>
+						</div>);					
+		/*Note: For now we are not removing text based search related code & SearchByTextView.jsx.*/
+		let panelBody = (<div style={{height: '100%', width: '92%'}}>
 								<Row style={fieldProps.panelBodyTitle}>Verify my transaction with:</Row><br/>
 								<Row style={fieldProps.panelPadding}>
-									<Col style={{float:'Left',paddingLeft:'46px',paddingTop: '21px'}}>{col1}</Col>
-									<Col style={{float:'Left',paddingLeft:'20px',paddingTop: '21px'}}>{col2}</Col>
-									<Col style={{float:'Left',paddingLeft:'20px',paddingTop: '21px'}}>{col3}</Col>
-									<Col style={{float:'Left',paddingLeft:'20px',paddingTop: '21px'}}>{col4}</Col>
+									<Col style={{float:'Left',paddingLeft:'20px',backgroundColor:'rgba(217, 216, 208, 1)',width:'310px',borderTopLeftRadius:'10px',borderBottomLeftRadius:'10px'}}>{payload}</Col>
+									<Col style={{float:'Left',paddingLeft:'20px'}}>{businessTxnId}</Col>
+									<Col style={{float:'Left',paddingLeft:'20px'}}>{txnId}</Col>
+									<Col style={{float:'Left',paddingLeft:'20px'}}>{dbIcon}</Col>
+									<Col style={{float:'Left',paddingLeft:'20px'}}>{syncIcon}</Col>
 								</Row>
 						</div>);
         return (

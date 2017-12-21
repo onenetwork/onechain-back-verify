@@ -9,8 +9,10 @@ a:focus, a:hover {
 .mainDiv .innerDiv  {
     background-color: white;
     border-width : 0px;
-    width : 230px;
+    width : 270px;
     left : 147px;
+    border-radius : 10px;
+    padding : 10px 0px 10px 0px;
 }
 
 .mainDiv .innerDiv .span {
@@ -91,7 +93,7 @@ a:focus, a:hover {
 
 .mainDiv .innerDiv:hover {
     border-width: 1px;
-    border-color: rgba(171, 243, 248, 1);
+    border-color: rgba(245, 2, 2, 0.842);
     border-style: solid;
 }
 
@@ -171,19 +173,6 @@ a:focus, a:hover {
     padding-left: 62px;
 }
 
-.mainDiv .innerDivinActive .span.textSearch {
-    padding-left: 3px;
-}
-
-.mainDiv .innerDivinActive .span.textSearch.activeSpan {
-    color: #515151;
-    cursor: pointer
-}
-
-.mainDiv .innerDivinActive .span.textSearch.inActiveSpan  {
-    color: #999999
-}
-
 .mainDiv .innerDivinActive:hover {
     border-width: 0px;
      
@@ -239,4 +228,10 @@ a:focus, a:hover {
     font-size: 20px;
     color: #515151;
     padding-top: 5px;
+}
+
+.dbNsyncIcon:hover {
+    border-color: #00a8ff;
+    border-style: solid;
+    border-width: 1px;
 }

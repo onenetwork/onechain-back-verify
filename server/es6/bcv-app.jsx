@@ -3,7 +3,6 @@ import PayloadView from './components/PayloadView';
 import ListTransactionsView from './components/ListTransactionsView';
 import SearchByBusinessIdView from './components/SearchByBusinessIdView';
 import SearchByTransactionIdView from './components/SearchByTransactionIdView';
-import SearchByTextView from './components/SearchByTextView';
 import SetupView from './components/SetupView';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -20,7 +19,6 @@ const RoutedApp = () => (
       <Route path="/listTransactions" render={(props) => (<ListTransactionsView store={backChainStore} {...props}/>)} />  
       <Route path="/businessId" render={(props) => (<SearchByBusinessIdView store={backChainStore} {...props}/>)} />
       <Route path="/transactionId" render={(props) => (<SearchByTransactionIdView store={backChainStore} {...props}/>)} />
-      <Route path="/search" render={(props) => (<SearchByTextView store={backChainStore} {...props}/>)} />
       <Route path="/setup" render={(props) => (<SetupView store={backChainStore} {...props}/>)} />      
     </Switch>
   </BrowserRouter>
