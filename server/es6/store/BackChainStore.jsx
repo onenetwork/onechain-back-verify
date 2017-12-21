@@ -16,7 +16,7 @@ class BackChainStore {
     @observable blockChainContractAddress = null;
     @observable blockChainPrivateKey = null;
     @observable businessTransactionTextSearch = null;
-    @observable entNameOfLoggedUser = "CarrierA";
+    @observable entNameOfLoggedUser = null;
     @observable transactions = observable([]);
     @observable verifications = observable.map({});
     @observable canStartVerifying = false;

@@ -29,7 +29,7 @@ class SyncTransactionTaskHelper {
             }).then(function(response) {
                 return response.json();
             }).then(function(result) {
-                me.updatechainOfCustody(authenticationToken, chainOfCustodyUrl, function(chainOfCustidy) {
+                me.updatechainOfCustody(authenticationToken, chainOfCustodyUrl,result.entName, function(chainOfCustidy) {
                     chainOfCustidy.success = 'success';
                     callback(null, chainOfCustidy);
                 });
@@ -38,7 +38,7 @@ class SyncTransactionTaskHelper {
                 callback(err, null)
             });
         }
-        updatechainOfCustody(authenticationToken, chainOfCustodyUrl, callback) {
+        updatechainOfCustody(authenticationToken, chainOfCustodyUrl,entName, callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
                 if (err) {
                     logger.error(err);
@@ -47,7 +47,8 @@ class SyncTransactionTaskHelper {
                     result.chainOfCustidy = {
                         "authenticationToken" : authenticationToken,
                         "lastSyncTimeInMillis" : new Date().getTime(),
-                        "chainOfCustodyUrl" : chainOfCustodyUrl
+                        "chainOfCustodyUrl" : chainOfCustodyUrl,
+                        "enterpriseName":entName
                     }
                     
                     let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({}, {$set: result}).then((resultSet) => {

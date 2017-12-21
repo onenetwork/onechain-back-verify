@@ -233,6 +233,7 @@ export default class BackChainActions {
                     store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
                     store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
                     store.lastSyncTimeInMillis = result.settings.chainOfCustidy.lastSyncTimeInMillis;
+                    store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
                   } else {
                       store.authenticationToken = null;
                 }
