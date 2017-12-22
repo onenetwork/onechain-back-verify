@@ -13,7 +13,7 @@ a:focus, a:hover {
     left : 147px;
     border-radius : 10px;
     padding : 10px 15px 10px 25px;
-    min-height: 360px;
+    min-height: 340px;
 }
 
 .mainDiv .innerDiv .span {
@@ -97,8 +97,11 @@ a:focus, a:hover {
 .mainDiv .innerDivinActive  {
     background-color: white;
     border-width : 0px;
-    width : 230px;
+    width : 270px;
     left : 147px;
+    border-radius : 10px;
+    padding : 10px 15px 10px 25px;
+    min-height : 340px;
 }
 
 .mainDiv .innerDivinActive .span {
