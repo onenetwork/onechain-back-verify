@@ -95,7 +95,7 @@ a:focus, a:hover {
 }
 
 .mainDiv .innerDivinActive  {
-    background-color: white;
+    background-color: rgba(240, 241, 244, 1);
     border-width : 0px;
     width : 270px;
     left : 147px;
