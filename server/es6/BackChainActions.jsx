@@ -400,4 +400,22 @@ export default class BackChainActions {
             callback(error,null);       
         });
     }
+
+    @action 
+    static syncStatisticsInfo() {
+        fetch('/getSyncStatisticsInfo', {method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                let statisticsInfo = result.statisticsInfo;
+                store.gapExists = statisticsInfo.gapExists;
+                store.syncStatisticsExists = statisticsInfo.syncStatisticsExists;
+            }
+        })
+        .catch(function (err) {
+            console.log('in error');
+        });
+    }
 }

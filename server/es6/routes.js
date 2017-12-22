@@ -13,4 +13,5 @@ export function router(app) {
     app.get('/getApplicationSettings', BackChainWebAPI.getApplicationSettings);	
     app.post('/startSyncFromCertainDate', BackChainWebAPI.startSyncFromCertainDate);
     app.post('/consumeTransactionMessages', BackChainWebAPI.consumeTransactionMessages);
+    app.get('/getSyncStatisticsInfo', BackChainWebAPI.getSyncStatisticsInfo);
  }

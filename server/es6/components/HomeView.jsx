@@ -14,6 +14,7 @@ import '../../public/css/homePage.css';
 	componentDidMount() {
 		BackChainActions.isInitialSyncDone();
 		BackChainActions.processApplicationSettings();
+		BackChainActions.syncStatisticsInfo();
 	}
 
 	render() {
@@ -105,10 +106,20 @@ import '../../public/css/homePage.css';
 						</Link>
 					</div>);
 
+		let iconAssociatedWithDB = null;
+		if(!this.props.store.syncStatisticsExists) {
+			iconAssociatedWithDB = <i style ={{color: '#cb0000', fontSize: '1.2em'}} className="fa fa-ban" aria-hidden="true"></i>;
+		} else if(this.props.store.syncStatisticsExists) {
+			if(this.props.store.gapExists) {
+				iconAssociatedWithDB = <i style ={{color: '#ef941b', fontSize: '1.2em'}} className="fa fa-exclamation-circle" aria-hidden="true"></i>;
+			} else {
+				iconAssociatedWithDB = <i style ={{color: '#249a79', fontSize: '1.2em'}} className="fa fa-check-circle" aria-hidden="true"></i>;
+			}
+		}
 		let dbIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
 								<span>
 									<i style ={{color: '#3d82c9', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
-									<i style ={{color: '#249a79', fontSize: '1.2em'}} className="fa fa-check-circle" aria-hidden="true"></i>
+									{iconAssociatedWithDB}
 								</span>
 							</div>);
 

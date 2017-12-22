@@ -29,6 +29,8 @@ class BackChainStore {
     @observable myAndDiffViewModalType = null;
     @observable chainOfCustodyUrl = null;
     @observable mode = null;
+    @observable gapExists = false;
+    @observable syncStatisticsExists = false;
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;
         let viewsMap = {};

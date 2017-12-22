@@ -89,3 +89,13 @@ exports.consumeTransactionMessages = function(req, res) {
         }
     });
 }
+
+exports.getSyncStatisticsInfo = function(req, res) {
+    settingsHelper.getSyncStatisticsInfo()
+    .then(function (result) {
+        res.json({success: true, statisticsInfo: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
+    });
+}
