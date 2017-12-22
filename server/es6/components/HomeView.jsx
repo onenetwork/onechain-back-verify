@@ -81,7 +81,7 @@ import '../../public/css/homePage.css';
 		className =  "span transSearch ";
 		let txnId = (<div className = "mainDiv" style={{paddingTop: '27px'}}>
 						<Link style={linkUrlStyle}   to={linkUrl}>
-							<div className={innerDiv} style={{minHeight: '325px'}}> 
+							<div className={innerDiv}> 
 								<img  style={{paddingLeft: '52px',paddingTop: '5px'}} src= {transIdImage}/><br/><br/>
 								<span className = {className+activeOrInactiveClassName}>Transaction ID</span> <br/>
 								<p className = {descriptiveClassName}>
@@ -107,13 +107,13 @@ import '../../public/css/homePage.css';
 
 		let dbIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
 								<span>
-									<i style ={{color: 'rgba(0, 112, 255, 0.77)', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
-									<i style ={{color: '#008075', fontSize: '1.2em'}} className="fa fa-check-circle" aria-hidden="true"></i>
+									<i style ={{color: '#3d82c9', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
+									<i style ={{color: '#249a79', fontSize: '1.2em'}} className="fa fa-check-circle" aria-hidden="true"></i>
 								</span>
 							</div>);
 
 		let syncIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '15px 8px'}, fieldProps.dbNsyncIcon)}>
-							<span style = {{paddingLeft: '13px', color: 'rgba(0, 112, 255, 0.77)'}}>
+							<span style = {{paddingLeft: '13px', color: '#3d82c9'}}>
 								<i style ={{fontSize: '2em'}} className="fa fa-refresh" aria-hidden="true"></i>
 								<br/>
 								<span style = {{fontSize: '11px',fontWeight: '600'}}>Sync Info</span>
