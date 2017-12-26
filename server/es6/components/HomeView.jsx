@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import {Row,  Col, Button, Panel} from 'react-bootstrap';
+import {Row,  Col, Button, Panel,Tooltip,OverlayTrigger} from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
@@ -107,21 +107,33 @@ import '../../public/css/homePage.css';
 					</div>);
 
 		let iconAssociatedWithDB = null;
+		let toolTipText = null;
 		if(!this.props.store.syncStatisticsExists) {
 			iconAssociatedWithDB = <i style ={{color: '#cb0000', fontSize: '1.2em'}} className="fa fa-ban" aria-hidden="true"></i>;
+			toolTipText = "You’re not connected to OneNetwork’s Chain Of Custody to get transaction data. You can click on the icon and establish a connection.";
 		} else if(this.props.store.syncStatisticsExists) {
 			if(this.props.store.gapExists) {
 				iconAssociatedWithDB = <i style ={{color: '#ef941b', fontSize: '1.2em'}} className="fa fa-exclamation-circle" aria-hidden="true"></i>;
+				toolTipText = "Your database has gaps of missing data. You can fill those gaps by visiting Sync Statistics page.";
 			} else {
 				iconAssociatedWithDB = <i style ={{color: '#249a79', fontSize: '1.2em'}} className="fa fa-check-circle" aria-hidden="true"></i>;
+				toolTipText = "You’re fully synced with OneNetwork’s Chain of Custody.";
 			}
 		}
-		let dbIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
+
+		const tooltip = (
+			<Tooltip id="tooltip">{toolTipText}</Tooltip>
+		  );
+
+		let dbIcon = (<div>  <OverlayTrigger  placement="top" trigger="click" overlay={tooltip}>  
+								<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
 								<span>
 									<i style ={{color: '#3d82c9', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
 									{iconAssociatedWithDB}
 								</span>
-							</div>);
+								</div> 
+							</OverlayTrigger>
+					 </div> );
 
 		let syncIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '15px 8px'}, fieldProps.dbNsyncIcon)}>
 							<span style = {{paddingLeft: '13px', color: '#3d82c9'}}>
