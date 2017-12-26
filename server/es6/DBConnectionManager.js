@@ -78,7 +78,7 @@ class DBConnectionManager {
             })
             .next(function(err, collinfo) {
                 if (!collinfo) {
-                    me.state.db.createCollection("Transactions", {}, function(error, collection) {
+                    me.state.db.createCollection("Settings", {}, function(error, collection) {
                         if (error) {
                             console.error("error while creating Settings collection");
                         } else {

@@ -86,7 +86,8 @@ class ReceiveTransactionsTask {
                 settingsCollection.chainOfCustidy = {
                     "authenticationToken" : authenticationToken,
                     "lastSyncTimeInMillis": lastSyncTimeInMillis,
-                    "chainOfCustodyUrl": chainOfCustodyUrl
+                    "chainOfCustodyUrl": chainOfCustodyUrl,
+                    "enterpriseName":settingsCollection.chainOfCustidy.enterpriseName
                 }
                 writeValue = settingsCollection;
             } else {

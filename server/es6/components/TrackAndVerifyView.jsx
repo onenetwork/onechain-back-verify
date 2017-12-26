@@ -117,14 +117,17 @@ const verifyImgFailed = "/images/verify-failed.png";
         };
         
         const myViewLabel = 'My View';
-        const myEntName = this.props.store.entNameOfLoggedUser;
+        let myEntName = this.props.store.entNameOfLoggedUser;
         let transactionsToVerify = [], views = [];
         
         if(this.props.store.transactions.length > 0) {
             let variableViewNames = [];
-                 
             variableViewNames = Object.keys(this.props.store.viewsMap);
-            variableViewNames.splice(variableViewNames.indexOf(myEntName), 1);
+            myEntName = this.props.store.entNameOfLoggedUser;
+            if(variableViewNames.indexOf(myEntName) > -1) {
+                variableViewNames.splice(variableViewNames.indexOf(myEntName), 1);
+            }
+
             let eventCountCss = "counter3";
             for (let i = 0; i < this.props.store.transactions.length; i++) {
                 let transaction = this.props.store.transactions[i];
@@ -140,6 +143,7 @@ const verifyImgFailed = "/images/verify-failed.png";
                         }
 
                     if(transactionslice.type == "Enterprise") {
+                       
                         let transactionDetails = {
                             transactionId : transaction['id'],
                             myEntName : myEntName, 
@@ -163,12 +167,16 @@ const verifyImgFailed = "/images/verify-failed.png";
                         );
                     }
 
-                    if(transactionslice.type == "Intersection" && ((transactionslice.enterprises).indexOf(myEntName) > -1)) {
+                    if(transactionslice.type == "Intersection") {
                         let logInUserEntIndex = (transactionslice.enterprises).indexOf(myEntName);
                         let partnerEntName = logInUserEntIndex == 0 ?  transactionslice.enterprises[1] : transactionslice.enterprises[0];
-
+                        if(this.props.store.isInitialSyncDone == null || this.props.store.isInitialSyncDone == false) {
+                            partnerEntName =  transactionslice.enterprises[0] +" & "+ transactionslice.enterprises[1];
+                        }
+                         
                         for(let k = 0; k < variableViewNames.length; k++) {
                             if(variableViewNames[k] == partnerEntName) {
+                                partnerEntName = logInUserEntIndex == 0 ?  transactionslice.enterprises[1] : transactionslice.enterprises[0];
                                 let transactionDetails = {
                                     transactionId : transaction['id'],
                                     partnerEntName : partnerEntName, 

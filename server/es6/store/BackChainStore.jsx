@@ -39,27 +39,48 @@ class BackChainStore {
             if (transaction) {
                 for (let j = 0; j < transaction.transactionSliceObjects.length; j++) {
                     let transactionslice = transaction.transactionSliceObjects[j];
-
-                    if (transactionslice.type == "Enterprise" && transactionslice.enterprise == myEntName) {
-                        if (myEntName in viewsMap) {
-                            viewsMap[myEntName].push(transaction.id);
-                            viewsMap[myEntName] = Array.from(new Set(viewsMap[myEntName]));
-                        } else {
-                            viewsMap[myEntName] = [transaction.id];
+                    // myView 
+                    if(transactionslice.type == "Enterprise") {
+                        if(this.isInitialSyncDone == null || this.isInitialSyncDone == false) {
+                            if (transactionslice.enterprise in viewsMap) {
+                                viewsMap[transactionslice.enterprise].push(transaction.id);
+                                viewsMap[transactionslice.enterprise] = Array.from(new Set(viewsMap[transactionslice.enterprise]));
+                            } else {
+                                viewsMap[transactionslice.enterprise] = [transaction.id];
+                            }
+                            this.entNameOfLoggedUser = transactionslice.enterprise; /***/
+                        } else if (transactionslice.enterprise == myEntName) {
+                            if (myEntName in viewsMap) {
+                                viewsMap[myEntName].push(transaction.id);
+                                viewsMap[myEntName] = Array.from(new Set(viewsMap[myEntName]));
+                            } else {
+                                viewsMap[myEntName] = [transaction.id];
+                            }
                         }
                     }
+                    // intersection
+                    if(transactionslice.type == "Intersection") {
+                        if(this.isInitialSyncDone == null || this.isInitialSyncDone == false) {
+                            let partnerEntName =  transactionslice.enterprises[0] +" & "+ transactionslice.enterprises[1];
+                            
+                            if (partnerEntName in viewsMap) {
+                                viewsMap[partnerEntName].push(transaction.id);
+                                viewsMap[partnerEntName] = Array.from(new Set(viewsMap[partnerEntName]));
+                            } else {
+                                viewsMap[partnerEntName] = [transaction.id];
+                            }
+                        } else if (((transactionslice.enterprises).indexOf(myEntName) > -1)) {
+                                let logInUserEntIndex = (transactionslice.enterprises).indexOf(myEntName);
+                                let partnerEntName = logInUserEntIndex == 0 ? transactionslice.enterprises[1] : transactionslice.enterprises[0];
 
-                    if (transactionslice.type == "Intersection" && ((transactionslice.enterprises).indexOf(myEntName) > -1)) {
-                        let logInUserEntIndex = (transactionslice.enterprises).indexOf(myEntName);
-                        let partnerEntName = logInUserEntIndex == 0 ? transactionslice.enterprises[1] : transactionslice.enterprises[0];
-
-                        if (partnerEntName in viewsMap) {
-                            viewsMap[partnerEntName].push(transaction.id);
-                            viewsMap[partnerEntName] = Array.from(new Set(viewsMap[partnerEntName]));
-                        } else {
-                            viewsMap[partnerEntName] = [transaction.id];
+                                if (partnerEntName in viewsMap) {
+                                    viewsMap[partnerEntName].push(transaction.id);
+                                    viewsMap[partnerEntName] = Array.from(new Set(viewsMap[partnerEntName]));
+                                } else {
+                                    viewsMap[partnerEntName] = [transaction.id];
+                                }
+                            }
                         }
-                    }
                 }
             }
         });
