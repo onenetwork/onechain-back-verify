@@ -122,10 +122,14 @@ import '../../public/css/homePage.css';
 		}
 
 		const tooltip = (
-			<Tooltip id="tooltip">{toolTipText}</Tooltip>
+			 
+			<div id="tooltip" role="tooltip"  className="fade in tooltip top" style={{top: '229px', left: '1014.5px'}}>
+				<div className="tooltip-arrow" style={{left: '50%'}}></div>
+				<div className="tooltip-inner" style={{backgroundColor: '#208093',textAlign: 'left' }}>{toolTipText}</div>
+			</div>
 		  );
 
-		let dbIcon = (<div>  <OverlayTrigger  placement="top" trigger="click" overlay={tooltip}>  
+		let dbIcon = (<div>  <OverlayTrigger  placement="top" overlay={tooltip}>  
 								<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
 								<span>
 									<i style ={{color: '#3d82c9', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
