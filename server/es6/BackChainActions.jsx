@@ -5,6 +5,7 @@ import {requestHelper} from './RequestHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import moment from 'moment';
 import "isomorphic-fetch";
+import config from './config';
 
 let store;
 export default class BackChainActions {
@@ -226,6 +227,9 @@ export default class BackChainActions {
                 } else {
                     store.isInitialSetupDone = false;
                     store.mode = result.settings.mode;
+                    store.blockChainUrl=config.blockChainUrl;
+                    store.blockChainContractAddress=config.blockChainContractAddress;
+                    store.blockChainPrivateKey=config.blockChainpPrivateKey;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {
@@ -236,6 +240,7 @@ export default class BackChainActions {
                     store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
                   } else {
                       store.authenticationToken = null;
+                      store.chainOfCustodyUrl=config.chainOfCustodyUrl;
                 }
             }).catch(function(error) {
                 store.isInitialSetupDone = null;

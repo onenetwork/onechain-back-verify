@@ -100,6 +100,7 @@ class SyncForm extends React.Component {
 
 		if(!this.props.store.authenticationToken) {
 			this.startFromInputVal = moment().startOf('year');
+			this.chainOfCustodyUrl = this.props.store.chainOfCustodyUrl;
 		} else {
 			this.tokenInputVal = this.props.store.authenticationToken;
 			this.startFromInputVal = this.props.store.lastSyncTimeInMillis;

@@ -118,26 +118,26 @@ import DisplaySyncView from "./DisplaySyncView"
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder="e.g. http://localhost:8545" />					
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl}/>					
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Contract Address: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder="e.g. 0xc5d4b021858a17828532e484b915149af5e1b138" />
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Private Key: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder="e.g. 0x8ad0132f808d0830c533d7673cd689b7fde2d349ff0610e5c04ceb9d6efb4eb1" />					
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder={this.props.store.blockChainPrivateKey} value = {this.props.store.blockChainPrivateKey} />					
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}></Col>
 				<Col md={8}>
 					<div>
-							<button onClick={this.saveInitialConfig.bind(this)} style={fieldProps.buttonStyle}>
+							<button onClick={this.saveInitialConfig.bind(this)} style={fieldProps.buttonStyle} className="btn btn-primary">
 							<span>Enter</span>
 							</button>
 					</div>
