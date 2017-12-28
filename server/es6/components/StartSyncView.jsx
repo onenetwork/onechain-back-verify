@@ -6,7 +6,6 @@ import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import moment from 'moment';
 import Datetime from 'react-datetime';
-
 import 'react-datetime/css/react-datetime.css';
 
 @observer export default class StartSyncView extends React.Component {
@@ -52,9 +51,6 @@ import 'react-datetime/css/react-datetime.css';
 class SyncForm extends React.Component {
 	constructor(props) {
 		super(props);
-		this.tokenInputVal = null;
-		this.startFromInputVal = null;
-		this.chainOfCustodyUrl = null;
 		this.closeModal = this.closeModal.bind(this);
 	}
 
@@ -63,23 +59,23 @@ class SyncForm extends React.Component {
 	}
 
 	listenTokenChanges(event){
-		this.tokenInputVal  = event.target.value.trim();		
-		if (this.tokenInputVal.length > 0 && event.charCode  == 13) {
+		this.props.store.authenticationToken  = event.target.value.trim();		
+		if ( this.props.store.authenticationToken.length > 0 && event.charCode  == 13) {
 			this.startSync();
 		}
 	}
 
 	listenStartFromChanges(date){
-		this.startFromInputVal  = date.valueOf();
+		this.props.store.lastSyncTimeInMillis  = date.valueOf();
 	}
 
 	listenURLChanges(event){
-		this.chainOfCustodyUrl  = event.target.value.trim();
+		this.props.store.chainOfCustodyUrl  = event.target.value.trim();
 	}
 
 	startSync() {
 		this.props.startSync();
-		BackChainActions.startSync(this.tokenInputVal, this.startFromInputVal, this.chainOfCustodyUrl);
+		BackChainActions.startSync(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
 	}
 
 	render() {
@@ -99,32 +95,27 @@ class SyncForm extends React.Component {
 		};
 
 		if(!this.props.store.authenticationToken) {
-			this.startFromInputVal = moment().startOf('year');
-			this.chainOfCustodyUrl = this.props.store.chainOfCustodyUrl;
-		} else {
-			this.tokenInputVal = this.props.store.authenticationToken;
-			this.startFromInputVal = this.props.store.lastSyncTimeInMillis;
-			this.chainOfCustodyUrl = this.props.store.chainOfCustodyUrl;
-		}
+			this.props.store.lastSyncTimeInMillis = moment().startOf('year');
+		} 
 
 		return (
 			<div>
 				<Row>
 					<Col md={2}><div style={fieldProps.valueLabel}>URL: </div></Col>
 					<Col md={8}>
-						<FormControl type="text" defaultValue = {this.chainOfCustodyUrl} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder="Backchain URL" /><br/>
+						<FormControl type="text" defaultValue = {this.props.store.chainOfCustodyUrl} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder={this.props.store.chainOfCustodyUrl} /><br/>
 					</Col>
 				</Row>
 				<Row>
 					<Col md={2}><div style={fieldProps.valueLabel}>Authentication Token: </div></Col>
 					<Col md={8}>
-						<FormControl type="text" defaultValue = {this.tokenInputVal} onKeyPress={this.listenTokenChanges.bind(this)} onChange={this.listenTokenChanges.bind(this)} placeholder="Authentication Token" /><br/>
+						<FormControl type="text" defaultValue = {this.props.store.authenticationToken} onKeyPress={this.listenTokenChanges.bind(this)} onChange={this.listenTokenChanges.bind(this)} placeholder="Authentication Token" /><br/>
 					</Col>
 				</Row>
 				<Row>
 					<Col md={2}><div style={fieldProps.valueLabel}>Start From: </div></Col>
 					<Col md={8}>
-						<Datetime defaultValue={this.startFromInputVal} inputProps={{placeholder: "Start From Date"}} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false}/>
+						<Datetime defaultValue={this.props.store.lastSyncTimeInMillis} inputProps={{placeholder: "Start From Date"}} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false}/>
 						<br/>
 					</Col>
 				</Row>
