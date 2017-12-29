@@ -1,6 +1,7 @@
 import {dbconnectionManager} from './DBConnectionManager';
 import {blockChainVerifier} from './BlockChainVerifier';
 import { observable} from 'mobx';
+import {Long} from 'mongodb';
 
 class TransactionHelper {
 
@@ -179,6 +180,32 @@ class TransactionHelper {
                 });
         });
         return verifications;
+    }
+
+    getTransactionsBySequenceNos(sequenceNos) {
+        for(let i = 0; i < sequenceNos.length; i++) {
+            if(Number.isSafeInteger(Number(sequenceNos[i]))) {
+                sequenceNos[i] = parseInt(sequenceNos[i]);
+            } else {
+                sequenceNos[i] = Long.fromString(sequenceNos[i]);
+            }
+        }
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('Transactions').find({ 
+                    "txnSequenceNo": { 
+                        $in: sequenceNos
+                    }
+            })
+            .sort({ "txnSequenceNo": 1 })
+            .toArray(function(err, result) {
+                if (err) {
+                    console.error("Error occurred while fetching transations by sequencenos." + err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
     }
 }
 

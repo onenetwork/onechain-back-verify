@@ -31,6 +31,10 @@ class BackChainStore {
     @observable mode = null;
     @observable gapExists = false;
     @observable syncStatisticsExists = false;
+    @observable syncStatistics = null;
+    @observable selectedGapsForSync = [];
+    @observable syncStatisticsReport = [];
+
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;
         let viewsMap = {};

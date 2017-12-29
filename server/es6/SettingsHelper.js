@@ -40,6 +40,19 @@ class SettingsHelper {
         });
     }
 
+    getSyncStatistics() {
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('SyncStatistics').findOne({})
+            .then(function (result) {
+                if (result) {
+                    resolve(result);
+                } else {
+                    reject("Couldn't fetch SyncStatistics");
+                }
+            });
+        });
+    }
+
 }
 
 export const settingsHelper = new SettingsHelper();

@@ -99,3 +99,23 @@ exports.getSyncStatisticsInfo = function(req, res) {
         res.json({success: false});
     });
 }
+
+exports.getSyncStatistics = function(req, res) {
+    settingsHelper.getSyncStatistics()
+    .then(function (result) {
+        res.json({success: true, statistics: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
+    });
+}
+
+exports.getTransactionsBySequenceNos = function(req, res) {
+    transactionHelper.getTransactionsBySequenceNos(JSON.parse(req.params.sequenceNos))
+    .then(function (result) {
+        res.json({success: true, txns: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
+    });
+}

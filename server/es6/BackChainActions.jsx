@@ -420,7 +420,42 @@ export default class BackChainActions {
             }
         })
         .catch(function (err) {
-            console.log('in error');
+            console.log('getSyncStatisticsInfo error');
+        });
+    }
+
+    @action
+    static getSyncStatistics(callback) {
+        fetch('/getSyncStatistics', {method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                store.syncStatistics = result.statistics;
+                callback(null, result.statistics);
+            }
+        })
+        .catch(function (err) {
+            callback(err, null);
+            console.log('getSyncStatistics error');
+        });
+    }
+
+    @action
+    static getTransactionsBySequenceNos(sequenceNoArr, callback) {
+        fetch('/getTransactionsBySequenceNos/' + JSON.stringify(sequenceNoArr), { method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                callback(null, result.txns);
+            }
+        })
+        .catch(function (err) {
+            callback(err, null);
+            console.log('getSyncStatistics error');
         });
     }
 }
