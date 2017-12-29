@@ -75,11 +75,11 @@ import moment from 'moment';
                             for(let i = 0; i < result.length; i++) {
                                 let transaction = result[i];
                                 if(transaction.txnSequenceNo == txn.fromSeqNo) {
-                                    syncStatistics.fromDate = transaction.date;
+                                    syncStatistics.fromDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY A');
                                     syncStatistics.fromSeqNo = transaction.txnSequenceNo;
                                     isFromSeqMatch = true;
                                 } else if(transaction.txnSequenceNo == txn.toSeqNo) {
-                                    syncStatistics.toDate = transaction.date;
+                                    syncStatistics.toDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY A');
                                     syncStatistics.toSeqNo = transaction.txnSequenceNo;
                                     isToSeqMatch = true;
                                 }
@@ -128,6 +128,7 @@ import moment from 'moment';
         };
         
         let syncStatisticsReportUI = [];
+        let gapSize = 0;
         for(let i=0; i < this.props.store.syncStatisticsReport.length; i++) {
             let syncStatisticsReport = this.props.store.syncStatisticsReport[i];
             if(syncStatisticsReport.type == "fullsync") {
@@ -137,6 +138,7 @@ import moment from 'moment';
                 syncStatisticsReportUI.push(<VerticalLine key={'vertical'} verticlHeight = {this.props.store.syncStatisticsReport.length-2}/>);
             }
             if(syncStatisticsReport.type == "gap") {
+                gapSize++;
                 syncStatisticsReportUI.push(<Gap key={i + 'gap'} syncStatisticsReport = {syncStatisticsReport} selectedGaps = {this.selectedGaps} store = {this.props.store} />);
             }
         }
@@ -161,7 +163,7 @@ import moment from 'moment';
                                 <Row>
                                     <Col md={1} style={{width: '6%', color: '#ef941b'}}> <i style ={{fontSize: '2.5em'}} className="fa fa-exclamation-circle" aria-hidden="true"></i></Col>
                                     <Col>
-                                        <span style={{color: '#ef941b', fontSize: '1.3em', fontWeight: 700}}> There are 3 sequence gaps. </span> <br/>
+                                        <span style={{color: '#ef941b', fontSize: '1.3em', fontWeight: 700}}> There are {gapSize} sequence gaps. </span> <br/>
                                         Click one or more to sync and close the sequence  gaps.
                                     </Col>
                                 </Row>
