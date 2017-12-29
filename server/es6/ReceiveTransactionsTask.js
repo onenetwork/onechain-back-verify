@@ -120,8 +120,21 @@ class ReceiveTransactionsTask {
     }
 
     insertMessages(transMessages) {
+        let transactionsById = {};
         for (let i = 0; i < transMessages.length; i++) {
-            let document = this.convertKafkaToMongoEntry(transMessages[i]);
+            let transMessage = transMessages[i];
+            transactionsById[transMessage.id] = transactionsById[transMessage.id] || {
+                id: transMessage.id,
+                transactionSlices: [],
+                transactionSliceObjects: [],
+                transactionSliceHashes: []
+            };
+
+            let document = transactionsById[transMessage.id];
+            document.transactionSlices.push(transMessage.transactionSliceString);
+            document.transactionSliceObjects.push(JSON.parse(transMessage.transactionSliceString));
+            document.transactionSliceHashes.push(transMessage.transactionSliceHash);
+
             dbconnectionManager.getConnection().collection('Transactions').update({
                     "id": document.id
                 },
@@ -130,20 +143,6 @@ class ReceiveTransactionsTask {
                 }
             )
         }
-    }
-
-    convertKafkaToMongoEntry(transMessage) {
-        let serializedList = transMessage.transactionsSlicesSerialized;
-        let transactionSliceObjects = [];
-        for (let i = 0; i < serializedList.length; i++) {
-            let serialized = serializedList[i];
-            transactionSliceObjects.push(JSON.parse(serialized));
-        }
-        transMessage.transactionSlices = transMessage.transactionsSlicesSerialized;
-        delete transMessage.transactionsSlicesSerialized;
-        delete transMessage.transactionsSlices;
-        transMessage.transactionSliceObjects = transactionSliceObjects;
-        return transMessage;
     }
 
 }
