@@ -38,8 +38,9 @@ import moment from 'moment';
             let noOfGapRecords = (new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).valueOf();
             let fromGapDate = gap.fromDateInMillis;
             let toGapDate = gap.toDateInMillis;
-            
-            allTransactionsArr.push({type : "gap", fromSeqNo : gap.fromSequenceNo, toSeqNo : gap.toSequenceNo, noOfGaps : noOfGapRecords, syncMsg : gap.toDateInMillis, fromDate : fromGapDate, toDate : toGapDate});
+            let hrs = me.returnDiffInHrsMins(fromGapDate, toGapDate).hours + 'hrs';
+            let mins = me.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
+            allTransactionsArr.push({type : "gap", fromSeqNo : gap.fromSequenceNo, toSeqNo : gap.toSequenceNo, noOfGaps : noOfGapRecords, syncMsg : hrs + ' ' + mins, fromDate : fromGapDate, toDate : toGapDate});
 
             earliestSyncSequenceNo = ((new BigNumber(gapToSequenceNo)).plus(new BigNumber(1))).valueOf();
             
@@ -69,17 +70,19 @@ import moment from 'moment';
                         let txn = allTransactionsArr[i];
                         let isFromSeqMatch = false, isToSeqMatch = false;
                         if(txn.type == 'gap') {
+                            txn.fromDate = moment(new Date(txn.fromDate)).format('MMM DD,YYYY HH:mm A');
+                            txn.toDate = moment(new Date(txn.toDate)).format('MMM DD,YYYY HH:mm A');
                             me.props.store.syncStatisticsReport.push(txn);
                         } else {
                             let syncStatistics = {type : 'fullsync', syncMsg : 'Full Sync', fromDate : '', toDate : '', fromSeqNo : '', toSeqNo:'', noOfGaps:''};
                             for(let i = 0; i < result.length; i++) {
                                 let transaction = result[i];
                                 if(transaction.txnSequenceNo == txn.fromSeqNo) {
-                                    syncStatistics.fromDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY A');
+                                    syncStatistics.fromDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY HH:mm A');
                                     syncStatistics.fromSeqNo = transaction.txnSequenceNo;
                                     isFromSeqMatch = true;
                                 } else if(transaction.txnSequenceNo == txn.toSeqNo) {
-                                    syncStatistics.toDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY A');
+                                    syncStatistics.toDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY HH:mm A');
                                     syncStatistics.toSeqNo = transaction.txnSequenceNo;
                                     isToSeqMatch = true;
                                 }
@@ -109,6 +112,16 @@ import moment from 'moment';
             currentGapDOM.style.backgroundColor = "#f88b8b";
         }
         console.log(this.store.selectedGapsForSync);
+    }
+
+    returnDiffInHrsMins(toMillis, fromMillis) {
+        let minDiff = (toMillis - fromMillis)/60000;
+        if (minDiff < 0) {
+            minDiff *= -1;
+        }
+        const hours = Math.floor(minDiff/60);
+        const mins =  Math.floor(minDiff%60);
+        return {hours: hours, mins: mins};
     }
 
     render() {
@@ -186,7 +199,7 @@ const FullSync = (props) => {
     let fieldProps = {
         syncSuccessInfo : {
             marginLeft: '3.7em',
-            width: '144px',
+            width: '200px',
             height: '40px',
             lineHeight: '40px',
             fontSize: '13px',
@@ -224,7 +237,7 @@ const FullSync = (props) => {
                     <i style = {{fontSize : '18px', color: 'rgba(0, 133, 200, 1)', display: 'block', float: 'left', marginTop: '10px'}} className="fa fa-circle" aria-hidden="true" />
                     <span style={{display: 'block', float: 'right'}}>{props.syncStatisticsReport.syncMsg}</span> &nbsp;
                 </Col>
-                <Col md={6} style={Object.assign({}, fieldProps.syncDate, { width: '370px'})}>
+                <Col md={6} style={Object.assign({}, fieldProps.syncDate, { width: '335px'})}>
                     &nbsp; {props.syncStatisticsReport.fromDate}&nbsp;<span>-</span>{props.syncStatisticsReport.toDate}
                 </Col>
             </Row>
@@ -237,7 +250,7 @@ const Gap = (props) => {
     let fieldProps = {
         gapInfo : {
             marginLeft: '68px',
-            width: '123px',
+            width: '180px',
             height: '40px',
             lineHeight: '40px',
             fontSize: '13px',
@@ -278,7 +291,7 @@ const Gap = (props) => {
 		<div>
             <Row style={{marginLeft: '0px'}}>
                 <Col md={6} style={fieldProps.gapInfo}>
-                    <span style={{display: 'block', float: 'right'}}>{props.syncStatisticsReport.syncMsg}&nbsp;{props.syncStatisticsReport.noOfGaps}</span> &nbsp;
+                    <span style={{display: 'block', float: 'right'}}>{props.syncStatisticsReport.syncMsg}&nbsp;{props.syncStatisticsReport.noOfGaps}&nbsp;records</span> &nbsp;
                 </Col>
                 <Col md={6} onClick={selectedGaps.bind(this)} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo} style={Object.assign({}, fieldProps.syncDate, {width: '370px'})}>
                     &nbsp;{props.syncStatisticsReport.fromDate}&nbsp;<span>-</span>{props.syncStatisticsReport.toDate}
