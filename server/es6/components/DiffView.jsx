@@ -113,7 +113,7 @@ export default class DiffView extends React.Component {
                             <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} id="defaultOpen" style={Object.assign({},fieldProps.tablinks,{color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
                               <span style={{verticalAlign : 'sub'}}>Difference</span>
                             </Col>
-                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} style={Object.assign({},fieldProps.tablinks,{marginLeft:'2px', width:'unset',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} style={Object.assign({},fieldProps.tablinks,{marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                               <span className="fa-stack">
                                 &nbsp;&nbsp;&nbsp;<i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
                                 &nbsp;&nbsp;&nbsp;&nbsp;
