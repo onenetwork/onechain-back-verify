@@ -1,10 +1,11 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import {Row,  Col, Button, Panel,Tooltip,OverlayTrigger} from 'react-bootstrap';
+import {Row,  Col, Button, Panel,Tooltip,OverlayTrigger,Modal} from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import '../../public/css/homePage.css';
+import DBSyncView from "./DBSyncView";
 
 @observer export default class HomeView extends React.Component {
 	constructor(props) {
@@ -15,6 +16,14 @@ import '../../public/css/homePage.css';
 		BackChainActions.isInitialSyncDone();
 		BackChainActions.processApplicationSettings();
 		BackChainActions.syncStatisticsInfo();
+	}
+
+	divClick(callBack) {
+		// TODO@Ravi : somehow call back is coming in this function when close button of modal is clicked
+		// so given a name to button
+		if(callBack.target.name!="closeModal") {
+			BackChainActions.toggleDBSyncModalViewActive();
+		}
 	}
 
 	render() {
@@ -108,17 +117,22 @@ import '../../public/css/homePage.css';
 
 		let iconAssociatedWithDB = null;
 		let toolTipText = null;
+		let dbSync = "";
 		if(!this.props.store.syncStatisticsExists) {
 			iconAssociatedWithDB = <i style ={{color: '#cb0000', fontSize: '1.2em'}} className="fa fa-ban" aria-hidden="true"></i>;
 			toolTipText = "You’re not connected to OneNetwork’s Chain Of Custody to get transaction data. You can click on the icon and establish a connection.";
 		} else if(this.props.store.syncStatisticsExists) {
+			let syncType=null;
 			if(this.props.store.gapExists) {
+				syncType="gap";
 				iconAssociatedWithDB = <i style ={{color: '#ef941b', fontSize: '1.2em'}} className="fa fa-exclamation-circle" aria-hidden="true"></i>;
 				toolTipText = "Your database has gaps of missing data. You can fill those gaps by visiting Sync Statistics page.";
 			} else {
+				syncType="full";
 				iconAssociatedWithDB = <i style ={{color: '#249a79', fontSize: '1.2em'}} className="fa fa-check-circle" aria-hidden="true"></i>;
 				toolTipText = "You’re fully synced with OneNetwork’s Chain of Custody.";
 			}
+			dbSync = <DBSyncViewModal store={this.props.store}  syncType={syncType}/>
 		}
 
 		const tooltip = (
@@ -129,7 +143,9 @@ import '../../public/css/homePage.css';
 			</div>
 		  );
 
-		let dbIcon = (<div>  <OverlayTrigger  placement="top" overlay={tooltip}>  
+		let dbIcon = (<div onClick={this.divClick}>
+							  {dbSync}
+							  <OverlayTrigger  placement="top" overlay={tooltip}>  
 								<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
 								<span>
 									<i style ={{color: '#3d82c9', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
@@ -163,5 +179,13 @@ import '../../public/css/homePage.css';
 				<div className={"panel-body"} style={fieldProps.panelBody}>{panelBody}</div>
 		  	</div>
 		);
+    }
+}
+
+@observer class DBSyncViewModal extends React.Component {
+    render() {
+        return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.dbSyncModalViewActive} onHide={BackChainActions.toggleDBSyncModalViewActive}>
+                    <DBSyncView store={this.props.store} syncType={this.props.syncType} /> 
+               </Modal>);
     }
 }

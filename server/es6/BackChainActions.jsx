@@ -190,6 +190,11 @@ export default class BackChainActions {
     static toggleDisplayMessageView() {
         store.displayMessageViewModalActive = !store.displayMessageViewModalActive;
     }
+    
+    @action
+    static toggleDBSyncModalViewActive() {
+        store.dbSyncModalViewActive = !store.dbSyncModalViewActive;
+    }
 
     @action
     static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
