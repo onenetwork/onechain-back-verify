@@ -35,26 +35,19 @@ require("babel-polyfill");
                textAlign: this.props.size == 'big' ? 'center' : 'left',
                marginTop: -20
             },
-            databaseInfoDiv: {
-                width: '100%',
-                textAlign: 'right'
-            },
             inlineLogo: {
                 float: 'left',
-                padding: 10,
+                padding: '38px 30px 10px 25px',
                 marginTop: -10,
                 paddingRight: '30px'
             },
             mainDiv : {
-                marginTop: '20px',
+                marginTop: '54px',
                 marginBottom: '20px'
             },
             h3 : {
                 marginTop: '10px',
                 fontSize: '17px'
-            },
-            databaseInfoDivSpan : {
-                fontSize:'14px'
             }
 
         };
@@ -63,10 +56,7 @@ require("babel-polyfill");
             return (
                 <div  >
                     <div className={"panel-heading"} style={fieldProps.logoPanel}>
-                        <div style={fieldProps.mainDiv}>
-                            <div style={fieldProps.databaseInfoDiv}>
-                                    <span style={fieldProps.databaseInfoDivSpan}> {lastSynced} </span> &nbsp; &nbsp;
-                            </div>                  
+                        <div style={fieldProps.mainDiv}>                
                             <div style={fieldProps.mainInfoDiv}>
                                 <img src="/images/BVtext.png"  /> 
                                 <h3 style={fieldProps.h3}>Revolutionizing the Supply Chain</h3>
@@ -81,14 +71,11 @@ require("babel-polyfill");
                 <div>
                     <div className={"panel-heading"} style={fieldProps.logoPanel}>
                         <div>
-                            <div style={fieldProps.databaseInfoDiv}>
-                            <span style={fieldProps.databaseInfoDivSpan}> {lastSynced} </span> &nbsp; &nbsp;
-                            </div>                  
                             <div style={fieldProps.mainInfoDiv}>
                                 <div style={fieldProps.inlineLogo}>
                                     <img src="/images/transparent_sml_logo.png"/>
                                 </div>
-                                <div  style={{paddingTop: '5px'}} >
+                                <div  style={{paddingTop: '35px'}} >
                                     <img  style={{paddingBottom: '5px'}} src="/images/BVtext_sm.png"/> <br/>
                                     <span style={{fontSize: '14px'}}>Revolutionizing the Supply Chain</span>
                                 </div>                            
