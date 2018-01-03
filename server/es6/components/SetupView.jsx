@@ -5,7 +5,6 @@ import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from './HeaderView';
 import oneBcClient from '@onenetwork/one-backchain-client';
-import StartSyncView from './StartSyncView';
 import DisplayMessageView from "./DisplayMessageView";
 import DisplaySyncView from "./DisplaySyncView"
 
