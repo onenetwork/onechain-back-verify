@@ -11,13 +11,8 @@ import 'react-datetime/css/react-datetime.css';
 @observer export default class StartSyncView extends React.Component {
 	constructor(props) {
 		super(props);
-		this.closeModal = this.closeModal.bind(this);
 		this.startSync = this.startSync.bind(this);
 		this.state = {startSync: false}
-	}
-
-	closeModal() {
-		this.props.store.startSyncModalViewModalActive = false;
 	}
 
 	startSync() {
@@ -27,11 +22,11 @@ import 'react-datetime/css/react-datetime.css';
 	render() {
 		let syncPopupBody = null;
 		if(!this.state.startSync) {
-			syncPopupBody = <SyncForm closeModal = {this.closeModal} startSync = {this.startSync} store = {this.props.store}/>;
+			syncPopupBody = <SyncForm startSync = {this.startSync} store = {this.props.store}/>;
 		} 
 		
 		if(this.props.store.syncGoingOn == true && this.state.startSync) {
-			syncPopupBody = <SyncRefresh msgs = {["Refreshing your database.", "This may take a few minutes."]} btnName= "OK" closeModal = {this.closeModal}/>
+			syncPopupBody = <SyncRefresh msgs = {["Refreshing your database.", "This may take a few minutes."]} btnName= "OK"/>
 		} else if(this.props.store.syncGoingOn == false && this.state.startSync && this.props.store.syncFailed == false) {
 			syncPopupBody = <SyncDone msg = {"Your database has been successfully refreshed!"}/>
 		}
@@ -42,6 +37,7 @@ import 'react-datetime/css/react-datetime.css';
 
 		return (
 			<div>
+				<HeaderView store={this.props.store} size="big"/>
 				<SyncPopup title = "Sync My Database with One Network's Chain of Custody" body = {syncPopupBody} />
 			</div>
 		)
@@ -51,11 +47,6 @@ import 'react-datetime/css/react-datetime.css';
 class SyncForm extends React.Component {
 	constructor(props) {
 		super(props);
-		this.closeModal = this.closeModal.bind(this);
-	}
-
-	closeModal() {
-		this.props.closeModal();
 	}
 
 	listenTokenChanges(event){
@@ -80,12 +71,6 @@ class SyncForm extends React.Component {
 
 	render() {
 		let fieldProps = {
-			valueLabel: {
-				fontFamily: 'Open Sans',
-				fontWeight: 400,
-				fontStyle: 'normal',
-				fontSize: '15px'
-			},
 			button : {
 				height: '35px',
 				boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
@@ -101,30 +86,18 @@ class SyncForm extends React.Component {
 		return (
 			<div>
 				<Row>
-					<Col md={2}><div style={fieldProps.valueLabel}>URL: </div></Col>
-					<Col md={8}>
-						<FormControl type="text" defaultValue = {this.props.store.chainOfCustodyUrl} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder={this.props.store.chainOfCustodyUrl} /><br/>
-					</Col>
+					<FormControl type="text" defaultValue = {this.props.store.chainOfCustodyUrl} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder={this.props.store.chainOfCustodyUrl} /><br/>
 				</Row>
 				<Row>
-					<Col md={2}><div style={fieldProps.valueLabel}>Authentication Token: </div></Col>
-					<Col md={8}>
-						<FormControl type="text" defaultValue = {this.props.store.authenticationToken} onKeyPress={this.listenTokenChanges.bind(this)} onChange={this.listenTokenChanges.bind(this)} placeholder="Authentication Token" /><br/>
-					</Col>
+					<FormControl type="text" defaultValue = {this.props.store.authenticationToken} onKeyPress={this.listenTokenChanges.bind(this)} onChange={this.listenTokenChanges.bind(this)} placeholder="Oauth Token" /><br/>
 				</Row>
 				<Row>
-					<Col md={2}><div style={fieldProps.valueLabel}>Start From: </div></Col>
-					<Col md={8}>
-						<Datetime defaultValue={this.props.store.lastSyncTimeInMillis} inputProps={{placeholder: "Start From Date"}} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false}/>
-						<br/>
-					</Col>
+					<Datetime defaultValue={this.props.store.lastSyncTimeInMillis} inputProps={{placeholder: "mm/dd/yyyy"}} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false}/>
+					<br/>
 				</Row>
 				<Row>
-					<Col md={2}></Col>
-					<Col md={8}>
-						<Button bsStyle="primary" style={fieldProps.button} onClick={this.startSync.bind(this)}>Start Sync</Button>
-						<Button style={Object.assign({}, {marginLeft:'10px',color:'#0078D7',borderColor:'#0078D7'}, fieldProps.button)} onClick={this.closeModal}>Cancel</Button>
-					</Col>
+					<Button bsStyle="primary" style={fieldProps.button} onClick={this.startSync.bind(this)}>Start Sync</Button>
+					<Button style={Object.assign({}, {marginLeft:'10px',color:'#0078D7',borderColor:'#0078D7'}, fieldProps.button)}>Cancel</Button>
 				</Row>
 			</div>
 		)
@@ -136,13 +109,11 @@ const SyncPopup = (props) => {
 		panel : {
 			backgroundColor: 'rgba(250, 250, 250, 1)',
 			border:'none',
-			marginBottom: 'unset',
-			borderRadius: '8px'
+			marginBottom: 'unset'
 		},
-		panelHeading : {
-			borderTopLeftRadius: '7px',
-			borderTopRightRadius: '7px',
-			backgroundColor: 'white',
+		panelBodyTitle : {	
+			fontSize: '22px',
+			color: '#515151'
 		},
 		panelTitle : {
 			fontWeight: 'bold',
@@ -150,24 +121,29 @@ const SyncPopup = (props) => {
 			color: '#646464'
 		},
 		panelBody: {
-			paddingTop: 40,
-			paddingBottom: 40,
-			backgroundColor: 'white',
-			borderRadius: '8px'
+			padding: '70px 0px 20px 80px',
+			backgroundColor: 'white'
 		}
 	};
 
+	let panelBody = (<div style={{height: '100%', width: '92%'}}>
+						<Row style={fieldProps.panelBodyTitle}>
+							<Col md={1} style={{width: '5%', height: '30px'}}>
+							<span>
+								<i className="fa fa-database" aria-hidden="true"></i>&nbsp;&nbsp;
+							</span>
+							</Col>
+							<Col> {props.title} </Col>
+						</Row><hr/><br/>
+						<Row style={{padding : '0em 30em 1em 2.2em'}}>
+							{props.body}
+						</Row>
+					</div>);
+
 	return (
 		<div className={"panel panel-default"} style={fieldProps.panel}>
-			<div className={"panel-heading"} style={fieldProps.panelHeading}>
-			<div className="panel-title" style={fieldProps.panelTitle}>
-				<i className="fa fa-database" aria-hidden="true"></i>&nbsp;&nbsp;
-				{props.title}
-			</div>
-				<i onClick={BackChainActions.toggleStartSyncModalView} className="fa fa-times" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
-			</div>
 			<div className={"panel-body"} style={fieldProps.panelBody}>
-				{props.body}
+				{panelBody}
 			</div>
 		</div>
 	);
@@ -181,10 +157,6 @@ const SyncRefresh = (props) => {
 			fontStyle: 'normal',
 			fontSize: '16px'
 		}
-	}
-	
-	function closeModal() {
-		props.closeModal();
 	}
 
 	return (
@@ -200,7 +172,7 @@ const SyncRefresh = (props) => {
 			<Row>
 				<Col md={5}></Col>
 				<Col md={2}>
-					<Button bsStyle="primary" style={Object.assign({}, fieldProps.button, {width: '80px'})} onClick={closeModal.bind(this)}> {props.btnName} </Button>
+					<Button bsStyle="primary" style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
 				</Col>
 			</Row>
 		</div>

@@ -187,11 +187,6 @@ export default class BackChainActions {
     }
 
     @action
-    static toggleStartSyncModalView() {
-        store.startSyncModalViewModalActive = !store.startSyncModalViewModalActive;
-    }
-
-    @action
     static toggleDisplayMessageView() {
         store.displayMessageViewModalActive = !store.displayMessageViewModalActive;
     }
@@ -335,11 +330,7 @@ export default class BackChainActions {
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
                 store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
-                setTimeout(function() {
-                    store.startSyncModalViewModalActive = false; //Close the Modal
-                }, 2000)
             } else {
-                store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
                 store.syncFailed = true;
                 store.syncGoingOn = false;
             }
@@ -377,16 +368,13 @@ export default class BackChainActions {
                 store.syncFailed = false;
                 store.syncGoingOn = false;
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
-                store.startSyncModalViewModalActive = false; //Close the Modal
             } else {
-                store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
                 store.syncFailed = true;
                 store.syncGoingOn = false;
             }            
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
-            store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
             store.syncFailed = true;
         });
     }

@@ -62,14 +62,10 @@ require("babel-polyfill");
         if(this.props.size == 'big') {
             return (
                 <div  >
-                    <StartSyncModalView store={this.props.store}/>
                     <div className={"panel-heading"} style={fieldProps.logoPanel}>
                         <div style={fieldProps.mainDiv}>
                             <div style={fieldProps.databaseInfoDiv}>
-                                    <span style={fieldProps.databaseInfoDivSpan}> {lastSynced} </span> &nbsp; &nbsp; 
-                                    <span style={{cursor: 'pointer'}} onClick={BackChainActions.toggleStartSyncModalView}>
-                                        <img src="/images/db-refresh-header.png"  /> 
-                                    </span>
+                                    <span style={fieldProps.databaseInfoDivSpan}> {lastSynced} </span> &nbsp; &nbsp;
                             </div>                  
                             <div style={fieldProps.mainInfoDiv}>
                                 <img src="/images/BVtext.png"  /> 
@@ -83,14 +79,10 @@ require("babel-polyfill");
         } else {
             return (
                 <div>
-                    <StartSyncModalView store={this.props.store}/>
                     <div className={"panel-heading"} style={fieldProps.logoPanel}>
                         <div>
                             <div style={fieldProps.databaseInfoDiv}>
-                            <span style={fieldProps.databaseInfoDivSpan}> {lastSynced} </span> &nbsp; &nbsp;  
-                                    <span style={{cursor: 'pointer'}} onClick={BackChainActions.toggleStartSyncModalView} >
-                                     <img src="/images/db-refresh-header.png"  />
-                                    </span>
+                            <span style={fieldProps.databaseInfoDivSpan}> {lastSynced} </span> &nbsp; &nbsp;
                             </div>                  
                             <div style={fieldProps.mainInfoDiv}>
                                 <div style={fieldProps.inlineLogo}>
@@ -107,13 +99,5 @@ require("babel-polyfill");
             );
         }
         
-    }
-}
-
-@observer class StartSyncModalView extends React.Component {
-    render() {
-        return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.startSyncModalViewModalActive} onHide={BackChainActions.toggleStartSyncModalView}>
-                    <StartSyncView store={this.props.store}/> 
-               </Modal>);
     }
 }

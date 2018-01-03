@@ -5,6 +5,7 @@ import SearchByBusinessIdView from './components/SearchByBusinessIdView';
 import SearchByTransactionIdView from './components/SearchByTransactionIdView';
 import SetupView from './components/SetupView';
 import SyncStatisticsView from './components/SyncStatisticsView';
+import StartSyncView from './components/StartSyncView';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch, Redirect} from 'react-router-dom';
@@ -23,6 +24,7 @@ const RoutedApp = () => (
       <Route path="/transactionId" render={(props) => (<SearchByTransactionIdView store={backChainStore} {...props}/>)} />
       <Route path="/setup" render={(props) => (<SetupView store={backChainStore} {...props}/>)} />
       <Route path="/syncStatistics" render={(props) => (<SyncStatisticsView store={backChainStore} {...props}/>)} />
+      <Route path="/startSync" render={(props) => (<StartSyncView store={backChainStore} {...props}/>)} />
       {/*<Route component={404 Not Found}/> we can create a component for all non existing pages, this is like the else condition if not matching any of the above*/}
     </Switch>
   </BrowserRouter>

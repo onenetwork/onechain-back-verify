@@ -205,7 +205,7 @@ import DisplaySyncView from "./DisplaySyncView"
 
 @observer class DisplayDataSyncPopup extends React.Component {
     render() {
-        return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
+        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
                   <DisplaySyncView  store={this.props.store}/>
                </Modal>);
     }
