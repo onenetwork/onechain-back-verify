@@ -47,6 +47,7 @@ import 'react-datetime/css/react-datetime.css';
 class SyncForm extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {showOauthInfo :  false}
 	}
 
 	listenTokenChanges(event){
@@ -69,6 +70,18 @@ class SyncForm extends React.Component {
 		BackChainActions.startSync(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
 	}
 
+	onHover() {
+		this.setState(function(prevState) {
+			return {showOauthInfo: true};
+		});
+    }
+
+    onHoverOut() {
+		this.setState(function(prevState) {
+			return {showOauthInfo: false};
+		});
+	}
+	
 	render() {
 		let fieldProps = {
 			button : {
@@ -86,18 +99,33 @@ class SyncForm extends React.Component {
 		return (
 			<div>
 				<Row>
-					<FormControl type="text" defaultValue = {this.props.store.chainOfCustodyUrl} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder={this.props.store.chainOfCustodyUrl} /><br/>
-				</Row>
+					<Col md={8}>
+						<FormControl style={{height : '40px'}} type="text" defaultValue = {this.props.store.chainOfCustodyUrl} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder={this.props.store.chainOfCustodyUrl == null ? 'One Network Chain of Custody URL' : this.props.store.chainOfCustodyUrl} />
+					</Col>
+				</Row><br/>
 				<Row>
-					<FormControl type="text" defaultValue = {this.props.store.authenticationToken} onKeyPress={this.listenTokenChanges.bind(this)} onChange={this.listenTokenChanges.bind(this)} placeholder="Oauth Token" /><br/>
-				</Row>
+					<Col md={5}>
+						<FormControl style={{height : '40px'}} type="text" defaultValue = {this.props.store.authenticationToken} onKeyPress={this.listenTokenChanges.bind(this)} onChange={this.listenTokenChanges.bind(this)} placeholder="Oauth Token" />
+					</Col>
+					<Col md={1} style={{paddingLeft: '0px', width: '3%'}} onMouseOver = {this.onHover.bind(this)} onMouseOut = {this.onHoverOut.bind(this)}>
+						<i style = {{fontSize: '21px', color: 'rgb(0, 133, 200)'}} className="fa fa-info-circle"  aria-hidden="true"/>
+					</Col>
+					{this.state.showOauthInfo && 
+						<Col md={6} style={{backgroundColor: 'rgb(215, 235, 242)', borderRadius: '5px',zIndex: 1}}>
+							If you do not know your oauth token, you can learn about it at onenetwork.com by going to chain of Custody> What's my oauth token?
+						</Col>
+					}
+				</Row><br/>
 				<Row>
-					<Datetime defaultValue={this.props.store.lastSyncTimeInMillis} inputProps={{placeholder: "mm/dd/yyyy"}} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false}/>
-					<br/>
-				</Row>
+					<Col md={5}>
+						<Datetime defaultValue={this.props.store.lastSyncTimeInMillis} inputProps={{placeholder: "mm/dd/yyyy"}} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false}/>
+					</Col>
+				</Row><br/>
 				<Row>
-					<Button bsStyle="primary" style={fieldProps.button} onClick={this.startSync.bind(this)}>Start Sync</Button>
-					<Button style={Object.assign({}, {marginLeft:'10px',color:'#0078D7',borderColor:'#0078D7'}, fieldProps.button)}>Cancel</Button>
+					<Col md={5}>
+						<Button bsStyle="primary" style={fieldProps.button} onClick={this.startSync.bind(this)}>Start Sync</Button>
+						<Button style={Object.assign({}, {marginLeft:'10px',color:'#0078D7',borderColor:'#0078D7'}, fieldProps.button)}>Cancel</Button>
+					</Col>
 				</Row>
 			</div>
 		)
@@ -135,7 +163,7 @@ const SyncPopup = (props) => {
 							</Col>
 							<Col> {props.title} </Col>
 						</Row><hr/><br/>
-						<Row style={{padding : '0em 30em 1em 2.2em'}}>
+						<Row style = {{paddingLeft: '15px'}}>
 							{props.body}
 						</Row>
 					</div>);
