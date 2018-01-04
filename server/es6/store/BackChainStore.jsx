@@ -29,6 +29,7 @@ class BackChainStore {
     @observable chainOfCustodyUrl = null;
     @observable mode = null;
     @observable gapExists = false;
+    @observable noOfGaps = 0;
     @observable syncStatisticsExists = false;
     @observable syncStatistics = null;
     @observable selectedGapsForSync = [];

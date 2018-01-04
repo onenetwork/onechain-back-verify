@@ -28,7 +28,7 @@ class SettingsHelper {
                     connection.collection('SyncStatistics').findOne({})
                     .then(function (result) {
                         if (result) {
-                            resolve({syncStatisticsExists:true, gapExists: result.gaps.length > 0 ? true : false });
+                            resolve({syncStatisticsExists:true, noOfGaps: result.gaps.length, gapExists: result.gaps.length > 0 ? true : false });
                         } else {
                             reject("Couldn't fetch SyncStatistics value");
                         }

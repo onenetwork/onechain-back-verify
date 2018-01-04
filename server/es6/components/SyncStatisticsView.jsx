@@ -66,6 +66,7 @@ import moment from 'moment';
             fullSyncTrxnsNos,
             function(error, result) {
                 if(!error) {
+                    me.props.store.syncStatisticsReport.splice(0, me.props.store.syncStatisticsReport.length);
                     for(let i = 0; i < allTransactionsArr.length; i++) {
                         let txn = allTransactionsArr[i];
                         let isFromSeqMatch = false, isToSeqMatch = false;

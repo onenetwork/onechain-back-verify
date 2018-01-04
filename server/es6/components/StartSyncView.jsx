@@ -98,6 +98,12 @@ class SyncForm extends React.Component {
 
 		return (
 			<div>
+				<Row style={{paddingLeft: '15px'}}>
+					<Col style={{backgroundColor : 'rgba(253, 244, 181, 1)', borderRadius: '5px', lineHeight: '40px', width: '64.66%',paddingLeft: '0px'}} md={8}>
+						<Col md={1} style={{paddingTop: '2px', width: '7%'}}><i className="fa fa-exclamation-circle" aria-hidden="true" style={{fontSize: '1.5em', color : "#F19500"}}/></Col>
+						<Col>Your database has {this.props.store.noOfGaps} sequence gaps of missing data. <b><Link to={"/syncStatistics"}>Show Sequence Gaps</Link></b></Col>
+					</Col>
+				</Row><br/>
 				<Row>
 					<Col md={8}>
 						<FormControl style={{height : '40px'}} type="text" defaultValue = {this.props.store.chainOfCustodyUrl} onKeyPress={this.listenURLChanges.bind(this)} onChange={this.listenURLChanges.bind(this)} placeholder={this.props.store.chainOfCustodyUrl == null ? 'One Network Chain of Custody URL' : this.props.store.chainOfCustodyUrl} />
@@ -112,7 +118,7 @@ class SyncForm extends React.Component {
 					</Col>
 					{this.state.showOauthInfo && 
 						<Col md={6} style={{backgroundColor: 'rgb(215, 235, 242)', borderRadius: '5px',zIndex: 1}}>
-							If you do not know your oauth token, you can learn about it at onenetwork.com by going to chain of Custody> What's my oauth token?
+							If you do not know your oauth token, you can learn about it at onenetwork. com by going to chain of Custody> What's my oauth token?
 						</Col>
 					}
 				</Row><br/>
@@ -124,7 +130,7 @@ class SyncForm extends React.Component {
 				<Row>
 					<Col md={5}>
 						<Button bsStyle="primary" style={fieldProps.button} onClick={this.startSync.bind(this)}>Start Sync</Button>
-						<Button style={Object.assign({}, {marginLeft:'10px',color:'#0078D7',borderColor:'#0078D7'}, fieldProps.button)}>Cancel</Button>
+						<Link to={"/home"}><Button style={Object.assign({}, {marginLeft:'10px',color:'#0078D7',borderColor:'#0078D7'}, fieldProps.button)}>Cancel</Button></Link>
 					</Col>
 				</Row>
 			</div>

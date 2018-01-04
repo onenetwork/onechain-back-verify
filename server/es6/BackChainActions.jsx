@@ -410,6 +410,7 @@ export default class BackChainActions {
                 let statisticsInfo = result.statisticsInfo;
                 store.gapExists = statisticsInfo.gapExists;
                 store.syncStatisticsExists = statisticsInfo.syncStatisticsExists;
+                store.noOfGaps = statisticsInfo.noOfGaps;
             }
         })
         .catch(function (err) {

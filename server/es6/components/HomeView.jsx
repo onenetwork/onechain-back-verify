@@ -155,13 +155,13 @@ import DBSyncView from "./DBSyncView";
 							</OverlayTrigger>
 					 </div> );
 
-		let syncIcon = (<div className="dbNsyncIcon" style={Object.assign({}, {padding: '15px 8px'}, fieldProps.dbNsyncIcon)}>
+		let syncIcon = (<Link to={"/syncStatistics"}><div className="dbNsyncIcon" style={Object.assign({}, {padding: '15px 8px'}, fieldProps.dbNsyncIcon)}>
 							<span style = {{paddingLeft: '13px', color: '#3d82c9'}}>
 								<i style ={{fontSize: '2em'}} className="fa fa-refresh" aria-hidden="true"></i>
 								<br/>
 								<span style = {{fontSize: '11px',fontWeight: '600'}}>Sync Info</span>
 							</span>
-						</div>);					
+						</div></Link>);					
 		/*Note: For now we are not removing text based search related code & SearchByTextView.jsx.*/
 		let panelBody = (<div style={{height: '100%', width: '92%'}}>
 								<Row style={fieldProps.panelBodyTitle}>Verify my transaction with:</Row><br/>
