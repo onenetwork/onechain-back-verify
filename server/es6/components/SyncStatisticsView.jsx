@@ -5,6 +5,7 @@ import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import {BigNumber} from 'bignumber.js';
 import moment from 'moment';
+import {Link} from 'react-router-dom';
 
 @observer export default class SyncStatisticsView extends React.Component {
     constructor(props) {
@@ -25,29 +26,37 @@ import moment from 'moment';
         let latestSyncSequenceNo = syncStatistics.latestSyncSequenceNo;
         let me = this;
         let allTransactionsArr = [];
-        for(let i = 0; i < syncStatistics.gaps.length; i++) {
-            let gap = syncStatistics.gaps[i];
-            let gapFromSequenceNo = gap.fromSequenceNo;
-            let gapToSequenceNo = gap.toSequenceNo;
-            let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
-            if(sequenceNoDiff.greaterThan(new BigNumber(0))) {
-                let uptoSequenceNo = ((new BigNumber(gapFromSequenceNo)).minus(new BigNumber(1)));
-                allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : uptoSequenceNo.valueOf()});
-            } 
-            
-            let noOfGapRecords = (new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).valueOf();
-            let fromGapDate = gap.fromDateInMillis;
-            let toGapDate = gap.toDateInMillis;
-            let hrs = me.returnDiffInHrsMins(fromGapDate, toGapDate).hours + 'hrs';
-            let mins = me.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
-            allTransactionsArr.push({type : "gap", fromSeqNo : gap.fromSequenceNo, toSeqNo : gap.toSequenceNo, noOfGaps : noOfGapRecords, syncMsg : hrs + ' ' + mins, fromDate : fromGapDate, toDate : toGapDate});
+        if(syncStatistics.gaps.length >0) {
+            for(let i = 0; i < syncStatistics.gaps.length; i++) {
+                let gap = syncStatistics.gaps[i];
+                let gapFromSequenceNo = gap.fromSequenceNo;
+                let gapToSequenceNo = gap.toSequenceNo;
+                let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
+                if(sequenceNoDiff.greaterThan(new BigNumber(0))) {
+                    let uptoSequenceNo = ((new BigNumber(gapFromSequenceNo)).minus(new BigNumber(1)));
+                    allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : uptoSequenceNo.valueOf()});
+                } 
+                
+                let noOfGapRecords = (new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).valueOf();
+                let fromGapDate = gap.fromDateInMillis;
+                let toGapDate = gap.toDateInMillis;
+                let hrs = me.returnDiffInHrsMins(fromGapDate, toGapDate).hours + 'hrs';
+                let mins = me.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
+                allTransactionsArr.push({type : "gap", fromSeqNo : gap.fromSequenceNo, toSeqNo : gap.toSequenceNo, noOfGaps : noOfGapRecords, syncMsg : 'Sequence Gap',time:hrs + ' ' + mins, fromDate : fromGapDate, toDate : toGapDate});
 
-            earliestSyncSequenceNo = ((new BigNumber(gapToSequenceNo)).plus(new BigNumber(1))).valueOf();
-            
-            if((i+1 == syncStatistics.gaps.length) && (new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo)))) {
-                allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
-                this.syncStatisticsReport(allTransactionsArr);
+                earliestSyncSequenceNo = ((new BigNumber(gapToSequenceNo)).plus(new BigNumber(1))).valueOf();
+                
+                if((i+1 == syncStatistics.gaps.length) && (new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo)))) {
+                    allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
+                    this.syncStatisticsReport(allTransactionsArr);
+                }
             }
+        } else {
+            let fullSyncTrxnsNos = [];
+            allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
+            fullSyncTrxnsNos.push(syncStatistics.earliestSyncSequenceNo);
+            fullSyncTrxnsNos.push(syncStatistics.latestSyncSequenceNo);
+            this.getTransactionsBySequenceNos(fullSyncTrxnsNos,allTransactionsArr);
         }
     }
 
@@ -61,7 +70,11 @@ import moment from 'moment';
                 fullSyncTrxnsNos.push(txn.toSeqNo);
             }
         }
+        this.getTransactionsBySequenceNos(fullSyncTrxnsNos,allTransactionsArr);
+    }
 
+    getTransactionsBySequenceNos(fullSyncTrxnsNos,allTransactionsArr) {
+        let me = this;
         BackChainActions.getTransactionsBySequenceNos(
             fullSyncTrxnsNos,
             function(error, result) {
@@ -108,9 +121,26 @@ import moment from 'moment';
         if(selectedGapsForSync.indexOf(clickedGap) > -1) {
             selectedGapsForSync.splice(selectedGapsForSync.indexOf(clickedGap), 1);
             currentGapDOM.style.backgroundColor = "#fccfcf";
+            if(currentGapDOM.nextElementSibling){
+                currentGapDOM.nextElementSibling.style.backgroundColor= "#fccfcf";
+            } else {
+                currentGapDOM.previousSibling.style.backgroundColor= "#fccfcf";
+            } 
+           
         } else {
             selectedGapsForSync.push(clickedGap);
             currentGapDOM.style.backgroundColor = "#f88b8b";
+            if(currentGapDOM.nextElementSibling){
+                currentGapDOM.nextElementSibling.style.backgroundColor= "#f88b8b";
+            } else {
+                currentGapDOM.previousSibling.style.backgroundColor= "#f88b8b";
+            }
+        }
+        if(selectedGapsForSync.length >0) {
+            document.getElementById("syncSelectedGap").disabled = false;
+        }
+        else {
+            document.getElementById("syncSelectedGap").disabled = true;
         }
         console.log(this.store.selectedGapsForSync);
     }
@@ -148,7 +178,7 @@ import moment from 'moment';
             if(syncStatisticsReport.type == "fullsync") {
                 syncStatisticsReportUI.push(<FullSync key={i + 'full'} syncStatisticsReport = {syncStatisticsReport}/>);
             }
-            if(i==0) {
+            if(this.props.store.syncStatisticsReport.length!=1 && i==0) {
                 syncStatisticsReportUI.push(<VerticalLine key={'vertical'} verticlHeight = {this.props.store.syncStatisticsReport.length-2}/>);
             }
             if(syncStatisticsReport.type == "gap") {
@@ -163,7 +193,30 @@ import moment from 'moment';
             </div>
         );
 
-        let panelBody = (<div style={{height: '100%', width: '92%'}}>
+        let panelBody = "";
+        let isFullSynced=false;
+        if(this.props.store.syncStatisticsReport.length==1) {
+            isFullSynced = true;
+            panelBody = (<div style={{height: '100%', width: '92%'}}>
+                            <Row style={fieldProps.panelBodyTitle}>
+                                <Col md={1} style={{width: '7%'}}>
+                                <span>
+                                    <i className="fa fa-database" aria-hidden="true">
+                                        &nbsp;<i className="fa fa-refresh" aria-hidden="true" style = {{fontSize: '13px'}}/>
+                                    </i>
+                                </span>
+                                </Col>
+                                <Col> Database Sync Statistics </Col>
+                            </Row><hr/><br/>
+                            <Row>
+                                <Col md={1} style={{width: '6%', color: '#229978'}}>  <i style ={{fontSize: '2.5em'}} className="fa fa-check-circle" aria-hidden="true"></i></Col>
+                                <Col>
+                                    <span style={{color: '#229978', fontSize: '1.3em', fontWeight: 700}}>Your DB is fully synced.</span> <br/>
+                                </Col>
+                            </Row>
+                        </div>);
+        } else {
+            panelBody = (<div style={{height: '100%', width: '92%'}}>
                                 <Row style={fieldProps.panelBodyTitle}>
                                     <Col md={1} style={{width: '7%'}}>
                                     <span>
@@ -182,6 +235,7 @@ import moment from 'moment';
                                     </Col>
                                 </Row>
                         </div>);
+        }
 
         return(
             <div className={"panel panel-default"} style={fieldProps.panelDefault}>
@@ -189,7 +243,7 @@ import moment from 'moment';
                 <div className={"panel-body"} style={fieldProps.panelBody}>
                     {panelBody}<br/>
                     {latestNEarliestSync}<br/>
-                    <SyncGapButtons selectedGapsLbl = {"Sync Selected Gaps"} allGapsLbl = {"Sync All Gaps"}/>
+                    <SyncGapButtons selectedGapsLbl = {"Sync Selected Gaps"} allGapsLbl = {"Sync All Gaps"} isFullSynced={isFullSynced}/>
                 </div>
 		  	</div>
         )
@@ -200,23 +254,11 @@ const FullSync = (props) => {
     let fieldProps = {
         syncSuccessInfo : {
             marginLeft: '3.7em',
-            width: '200px',
-            height: '40px',
-            lineHeight: '40px',
-            fontSize: '13px',
+            width: '364px',
+            height: '53px',
+            fontSize: '12px',
             backgroundColor: 'rgba(215, 235, 242, 1)',
-            boxSizing: 'border-box',
-            borderWidth: '2px',
-            borderStyle: 'solid',
-            borderColor: 'rgba(0, 133, 200, 1)',
-            borderLeft: '0px',
-            borderTop: '0px',
-            borderBottom: '0px',
-            borderRadius: '20px',
-            borderTopLeftRadius: '0px',
-            borderTopRightRadius: '0px',
-            borderBottomRightRadius: '0px',
-            borderBottomLeftRadius:'0px'
+            borderRadius: '0px 20px 20px 0px',
         },
         syncDate : {
             borderWidth: '0px',
@@ -236,10 +278,8 @@ const FullSync = (props) => {
             <Row style={{marginLeft: '0px'}}>
                 <Col md={6} style={fieldProps.syncSuccessInfo}>
                     <i style = {{fontSize : '18px', color: 'rgba(0, 133, 200, 1)', display: 'block', float: 'left', marginTop: '10px'}} className="fa fa-circle" aria-hidden="true" />
-                    <span style={{display: 'block', float: 'right'}}>{props.syncStatisticsReport.syncMsg}</span> &nbsp;
-                </Col>
-                <Col md={6} style={Object.assign({}, fieldProps.syncDate, { width: '335px'})}>
-                    &nbsp; {props.syncStatisticsReport.fromDate}&nbsp;<span>-</span>{props.syncStatisticsReport.toDate}
+                    <span style={{paddingLeft:'35px',paddingTop:'10px',fontWeight:'700',display: 'block'}}>{props.syncStatisticsReport.syncMsg}</span> 
+                    <span style={{paddingLeft:'19px'}}>{props.syncStatisticsReport.fromDate}&nbsp;<span>-</span>{props.syncStatisticsReport.toDate}</span> 
                 </Col>
             </Row>
             <br/>
@@ -250,11 +290,10 @@ const FullSync = (props) => {
 const Gap = (props) => {
     let fieldProps = {
         gapInfo : {
-            marginLeft: '68px',
-            width: '180px',
-            height: '40px',
-            lineHeight: '40px',
-            fontSize: '13px',
+            marginLeft: '65px',
+            width: '337px',
+            height: '53px',
+            fontSize: '12px',
             backgroundColor: 'rgba(252, 207, 207, 1)',
             boxSizing: 'border-box',
             borderWidth: '0px 2px 0px 4px',
@@ -267,12 +306,12 @@ const Gap = (props) => {
             borderBottomColor: 'initial',
             borderLeftColor: 'rgba(243, 91, 90, 1)',
             borderRadius: '0px',
-            zIndex: '1'
+            zIndex: '1',
+            cursor: 'pointer'
         },
         syncDate : {
             borderWidth: '0px',
-            height: '40px',
-            lineHeight: '40px',
+            height: '53px',
             border: 'none',
             borderRadius: '20px',
             borderTopLeftRadius: '0px',
@@ -287,15 +326,17 @@ const Gap = (props) => {
     function selectedGaps(event) {
         props.selectedGaps(event);
     }
-
+      
 	return (
 		<div>
             <Row style={{marginLeft: '0px'}}>
-                <Col md={6} style={fieldProps.gapInfo}>
-                    <span style={{display: 'block', float: 'right'}}>{props.syncStatisticsReport.syncMsg}&nbsp;{props.syncStatisticsReport.noOfGaps}&nbsp;records</span> &nbsp;
+                <Col md={6} style={fieldProps.gapInfo}  onClick={selectedGaps.bind(this)} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo}>
+                    <span style={{display: 'block', fontWeight:'700', paddingLeft: '8px', paddingTop:'10px'}}>{props.syncStatisticsReport.syncMsg}</span>
+                    <span style={{paddingLeft:'8px'}}>{props.syncStatisticsReport.fromDate}&nbsp;<span>-</span>{props.syncStatisticsReport.toDate}</span>
                 </Col>
-                <Col md={6} onClick={selectedGaps.bind(this)} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo} style={Object.assign({}, fieldProps.syncDate, {width: '370px'})}>
-                    &nbsp;{props.syncStatisticsReport.fromDate}&nbsp;<span>-</span>{props.syncStatisticsReport.toDate}
+                <Col md={3} onClick={selectedGaps.bind(this)} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo} style={Object.assign({}, fieldProps.syncDate, {width: '150px'})}>
+                <span style={{paddingTop:'10px',display: 'block'}}><i className="fa fa-clock-o" aria-hidden="true"></i>&nbsp;&nbsp;{props.syncStatisticsReport.time}</span>
+                <span><i className="fa fa-files-o" aria-hidden="true"></i>&nbsp;&nbsp;{props.syncStatisticsReport.noOfGaps}&nbsp;records</span>
                 </Col>
             </Row>
             <br/>
@@ -314,7 +355,7 @@ const VerticalLine = (props) => {
     }
     let verticlHeight = props.verticlHeight;
 	return (
-		<div style={Object.assign({}, fieldProps.verticalLine, {height: verticlHeight > 0 ? 60 * (verticlHeight + 1) : 60, left: verticlHeight == 0 ? 262 : 253 })}/>
+		<div style={Object.assign({}, fieldProps.verticalLine, {height: verticlHeight > 0 ? 72 * (verticlHeight + 1) : 72, left: verticlHeight == 0 ? 262 : 250 })}/>
 	)
 }
 
@@ -328,6 +369,14 @@ const SyncGapButtons = (props) => {
             backgroundColor: 'rgba(0, 133, 200, 1)',
             color: 'white',
             borderWidth: '0px'
+        },
+        cancelButton: {
+            padding: '7px 23px',
+            color: 'rgb(0, 120, 215)',
+            borderColor: 'rgb(0, 120, 215)',
+            fontSize: '16px',
+            boxShadow: 'rgba(0, 0, 0, 0.75) 1px 2px 2px',
+            height: '35px'
         }
     }
 
@@ -339,15 +388,30 @@ const SyncGapButtons = (props) => {
         event.currentTarget.style.backgroundColor = 'rgba(0, 133, 200, 1)';
     }
 
-	return (
-		<div>
-            <Row>
-                <Col md={1} style={{width: '6%'}}></Col>
-                <Col>
-                    <Button style={fieldProps.button} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.selectedGapsLbl}</Button>&nbsp;
-                    <Button style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
-                </Col>
-            </Row>
-        </div>
-	)
+    if(props.isFullSynced) {
+        return (
+            <div>
+                <Row>
+                    <Col md={1} style={{width: '6%'}}></Col>
+                    <Col>
+                        <Link to="/home"><Button  style = {fieldProps.button} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>Backchain Verify Home</Button></Link>
+                    </Col>
+                </Row>
+            </div>
+        )
+
+    }else {
+        return (
+            <div>
+                <Row>
+                    <Col md={1} style={{width: '6%'}}></Col>
+                    <Col>
+                        <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>	&nbsp;&nbsp;
+                        <Button disabled={true} id="syncSelectedGap" style={fieldProps.button} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.selectedGapsLbl}</Button>&nbsp;
+                        <Button style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
+                    </Col>
+                </Row>
+            </div>
+        )
+    }
 }
