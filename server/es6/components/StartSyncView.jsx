@@ -12,28 +12,32 @@ import 'react-datetime/css/react-datetime.css';
 	constructor(props) {
 		super(props);
 		this.startSync = this.startSync.bind(this);
-		this.state = {startSync: false}
+		// this.state = {startSync: false}
 	}
 
 	startSync() {
-		this.state.startSync = true;
+		// this.state.startSync = true;
+		this.props.store.startSync = true;
 	}
 
 	render() {
+		if(this.props.store.startSync) {
+			return <Redirect push to="/home" />;
+		}
 		let syncPopupBody = null;
-		if(!this.state.startSync) {
+		// if(!this.state.startSync) {
 			syncPopupBody = <SyncForm startSync = {this.startSync} store = {this.props.store}/>;
-		} 
+		// } 
 		
-		if(this.props.store.syncGoingOn == true && this.state.startSync) {
-			syncPopupBody = <SyncRefresh msgs = {["Refreshing your database.", "This may take a few minutes."]} btnName= "OK"/>
-		} else if(this.props.store.syncGoingOn == false && this.state.startSync && this.props.store.syncFailed == false) {
-			syncPopupBody = <SyncDone msg = {"Your database has been successfully refreshed!"}/>
-		}
+		// if(this.props.store.syncGoingOn == true && this.state.startSync) {
+		// 	syncPopupBody = <SyncRefresh msgs = {["Refreshing your database.", "This may take a few minutes."]} btnName= "OK"/>
+		// } else if(this.props.store.syncGoingOn == false && this.state.startSync && this.props.store.syncFailed == false) {
+		// 	syncPopupBody = <SyncDone msg = {"Your database has been successfully refreshed!"}/>
+		// }
 
-		if(this.props.store.syncGoingOn == false && this.state.startSync && this.props.store.syncFailed == true) {
-			syncPopupBody = <SyncFailed msg = {"Sync Failed. Please Try Again Later!"}/>
-		}
+		// if(this.props.store.syncGoingOn == false && this.state.startSync && this.props.store.syncFailed == true) {
+		// 	syncPopupBody = <SyncFailed msg = {"Sync Failed. Please Try Again Later!"}/>
+		// }
 
 		return (
 			<div>
@@ -183,54 +187,54 @@ const SyncPopup = (props) => {
 	);
 }
 
-const SyncRefresh = (props) => {
-	let fieldProps = {
-		button : {
-			height: '35px',
-			boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
-			fontStyle: 'normal',
-			fontSize: '16px'
-		}
-	}
+// const SyncRefresh = (props) => {
+// 	let fieldProps = {
+// 		button : {
+// 			height: '35px',
+// 			boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+// 			fontStyle: 'normal',
+// 			fontSize: '16px'
+// 		}
+// 	}
 
-	return (
-		<div>
-			<Row style={{paddingLeft:'90px'}}>
-				<Col style={{color:'#0085C8'}} md={1}><i className="fa fa-refresh fa-spin fa-4x fa-fw"></i></Col>
-				<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
-					{props.msgs.map(i => {
-						return <div key={i}>{i}</div>;
-					})}
-				</Col>
-			</Row><br/>
-			<Row>
-				<Col md={5}></Col>
-				<Col md={2}>
-					<Button bsStyle="primary" style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
-				</Col>
-			</Row>
-		</div>
-	)
-}
+// 	return (
+// 		<div>
+// 			<Row style={{paddingLeft:'90px'}}>
+// 				<Col style={{color:'#0085C8'}} md={1}><i className="fa fa-refresh fa-spin fa-4x fa-fw"></i></Col>
+// 				<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
+// 					{props.msgs.map(i => {
+// 						return <div key={i}>{i}</div>;
+// 					})}
+// 				</Col>
+// 			</Row><br/>
+// 			<Row>
+// 				<Col md={5}></Col>
+// 				<Col md={2}>
+// 					<Button bsStyle="primary" style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
+// 				</Col>
+// 			</Row>
+// 		</div>
+// 	)
+// }
 
-const SyncDone = (props) => {
-	return (
-		<Row style={{paddingLeft:'90px'}}>
-			<Col style={{color:'#3c763d'}} md={1}><i className="fa fa-check-circle fa-4x fa-fw"></i></Col>
-			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
-				{props.msg}
-			</Col>
-		</Row>
-	)
-}
+// const SyncDone = (props) => {
+// 	return (
+// 		<Row style={{paddingLeft:'90px'}}>
+// 			<Col style={{color:'#3c763d'}} md={1}><i className="fa fa-check-circle fa-4x fa-fw"></i></Col>
+// 			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
+// 				{props.msg}
+// 			</Col>
+// 		</Row>
+// 	)
+// }
 
-const SyncFailed = (props) => {
-	return (
-		<Row style={{paddingLeft:'90px'}}>
-			<Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
-			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
-				{props.msg}
-			</Col>
-		</Row>
-	)
-}
+// const SyncFailed = (props) => {
+// 	return (
+// 		<Row style={{paddingLeft:'90px'}}>
+// 			<Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
+// 			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
+// 				{props.msg}
+// 			</Col>
+// 		</Row>
+// 	)
+// }

@@ -197,6 +197,12 @@ export default class BackChainActions {
     }
 
     @action
+    static toggleStartSyncModalView() {
+        store.startSyncViewModalActive = !store.startSyncViewModalActive;
+        console.log(store.startSyncViewModalActive);
+    }
+
+    @action
     static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
         if(store.authenticationToken === null && !store.isInitialSyncDone) {
 			this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
@@ -331,6 +337,7 @@ export default class BackChainActions {
                 store.isInitialSyncDone = true;
                 store.syncGoingOn = false;
                 store.syncFailed = false;
+                store.startSync = false;
                 store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
@@ -338,10 +345,12 @@ export default class BackChainActions {
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
+                store.startSync = false;
             }
         })
         .catch(function (err) {
             store.syncFailed = true;
+            store.startSync = false;
         });
     }
 
@@ -372,15 +381,18 @@ export default class BackChainActions {
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.syncFailed = false;
                 store.syncGoingOn = false;
+                store.startSync = false;
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
+                store.startSync = false;
             }            
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
             store.syncFailed = true;
+            store.startSync = false;
         });
     }
 

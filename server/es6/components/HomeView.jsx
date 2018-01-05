@@ -27,6 +27,11 @@ import DBSyncView from "./DBSyncView";
 	}
 
 	render() {
+		let syncPop = '';
+		if(this.props.store.startSync) {
+			syncPop = <StartSyncViewModal store={this.props.store} />
+			BackChainActions.toggleStartSyncModalView();
+		}
 		if(this.props.store.isInitialSetupDone === null) {
 			return null;
 		} else if(this.props.store.isInitialSetupDone === false) {
@@ -176,7 +181,10 @@ import DBSyncView from "./DBSyncView";
         return (
 			<div className={"panel panel-default"} style={fieldProps.panelDefault} onClick={this.props.action}>
 				<HeaderView store={this.props.store} size="big"/>
-				<div className={"panel-body"} style={fieldProps.panelBody}>{panelBody}</div>
+				<div className={"panel-body"} style={fieldProps.panelBody}>
+					{panelBody}
+					{syncPop}
+				</div>
 		  	</div>
 		);
     }
@@ -184,8 +192,79 @@ import DBSyncView from "./DBSyncView";
 
 @observer class DBSyncViewModal extends React.Component {
     render() {
-        return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.dbSyncModalViewActive} onHide={BackChainActions.toggleDBSyncModalViewActive}>
+        return(<Modal dialogClassName = {"db-sync-modal"} show={this.props.store.dbSyncModalViewActive} onHide={BackChainActions.toggleDBSyncModalViewActive}>
                     <DBSyncView store={this.props.store} syncType={this.props.syncType} /> 
-               </Modal>);
+			   	</Modal>);
     }
+}
+@observer class StartSyncViewModal extends React.Component {
+    render() {
+        return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.startSyncViewModalActive} onHide={BackChainActions.toggleStartSyncModalView}>
+			   		<StartSyncPopup store={this.props.store} /> 
+		  		</Modal>);
+    }
+}
+
+class StartSyncPopup extends React.Component {
+    constructor(props) {
+        super(props);
+       
+    }
+
+    render() {
+		console.log("SyncRefresh");
+	return (<SyncRefresh msgs = {["Refreshing your database.", "This may take a few minutes."]} btnName= "OK"/>);
+    }
+}
+
+const SyncRefresh = (props) => {
+	let fieldProps = {
+		button : {
+			height: '35px',
+			boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+			fontStyle: 'normal',
+			fontSize: '16px'
+		}
+	}
+
+	return (
+		<div>
+			<Row style={{paddingLeft:'90px'}}>
+				<Col style={{color:'#0085C8'}} md={1}><i className="fa fa-refresh fa-spin fa-4x fa-fw"></i></Col>
+				<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
+					{props.msgs.map(i => {
+						return <div key={i}>{i}</div>;
+					})}
+				</Col>
+			</Row><br/>
+			<Row>
+				<Col md={5}></Col>
+				<Col md={2}>
+					<Button bsStyle="primary" style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
+				</Col>
+			</Row>
+		</div>
+	)
+}
+
+const SyncDone = (props) => {
+	return (
+		<Row style={{paddingLeft:'90px'}}>
+			<Col style={{color:'#3c763d'}} md={1}><i className="fa fa-check-circle fa-4x fa-fw"></i></Col>
+			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
+				{props.msg}
+			</Col>
+		</Row>
+	)
+}
+
+const SyncFailed = (props) => {
+	return (
+		<Row style={{paddingLeft:'90px'}}>
+			<Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
+			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
+				{props.msg}
+			</Col>
+		</Row>
+	)
 }
