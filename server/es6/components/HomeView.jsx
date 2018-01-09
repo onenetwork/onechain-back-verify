@@ -28,10 +28,8 @@ import DBSyncView from "./DBSyncView";
 
 	render() {
 		let syncPop = '';
-		if(this.props.store.startSync) {
-			syncPop = <StartSyncViewModal store={this.props.store} />
-			BackChainActions.toggleStartSyncModalView();
-		}
+		syncPop = <StartSyncViewModal store={this.props.store} />
+
 		if(this.props.store.isInitialSetupDone === null) {
 			return null;
 		} else if(this.props.store.isInitialSetupDone === false) {
@@ -123,11 +121,13 @@ import DBSyncView from "./DBSyncView";
 		let iconAssociatedWithDB = null;
 		let toolTipText = null;
 		let dbSync = "";
-		if(!this.props.store.syncStatisticsExists) {
+		let syncType = null;
+		if (!this.props.store.syncStatisticsExists) {
+			syncType="notConnected"
 			iconAssociatedWithDB = <i style ={{color: '#cb0000', fontSize: '1.2em'}} className="fa fa-ban" aria-hidden="true"></i>;
 			toolTipText = "You’re not connected to OneNetwork’s Chain Of Custody to get transaction data. You can click on the icon and establish a connection.";
+			dbSync = <DBSyncViewModal store={this.props.store} syncType={syncType} />
 		} else if(this.props.store.syncStatisticsExists) {
-			let syncType=null;
 			if(this.props.store.gapExists) {
 				syncType="gap";
 				iconAssociatedWithDB = <i style ={{color: '#ef941b', fontSize: '1.2em'}} className="fa fa-exclamation-circle" aria-hidden="true"></i>;
@@ -205,15 +205,23 @@ import DBSyncView from "./DBSyncView";
     }
 }
 
+@observer
 class StartSyncPopup extends React.Component {
     constructor(props) {
         super(props);
-       
     }
 
     render() {
-		console.log("SyncRefresh");
-	return (<SyncRefresh msgs = {["Refreshing your database.", "This may take a few minutes."]} btnName= "OK"/>);
+		let syncPopupBody = "";
+		
+		if (this.props.store.syncGoingOn && this.props.store.startSync) {
+			syncPopupBody = <SyncRefresh msgs={["Refreshing your database.", "This may take a few minutes."]} btnName="OK" closeModal={this.closeModal} />
+		} else if (this.props.store.syncGoingOn == false && this.props.store.syncFailed == false) {
+			syncPopupBody = <SyncDone msg={"Your database has been successfully refreshed!"} btnName="OK" closeModal={this.closeModal}  />
+		} else if (this.props.store.syncFailed ) {
+			syncPopupBody = <SyncFailed msg={"Sync Failed. Please Try Again Later!"} btnName="OK" closeModal={this.closeModal}  />
+		}
+		return syncPopupBody;
     }
 }
 
@@ -226,10 +234,9 @@ const SyncRefresh = (props) => {
 			fontSize: '16px'
 		}
 	}
-
 	return (
 		<div>
-			<Row style={{paddingLeft:'90px'}}>
+			<Row style={{ paddingLeft: '90px',paddingTop:'53px'}}>
 				<Col style={{color:'#0085C8'}} md={1}><i className="fa fa-refresh fa-spin fa-4x fa-fw"></i></Col>
 				<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
 					{props.msgs.map(i => {
@@ -237,10 +244,10 @@ const SyncRefresh = (props) => {
 					})}
 				</Col>
 			</Row><br/>
-			<Row>
+			<Row style={{ paddingBottom: '33px' }}> 
 				<Col md={5}></Col>
 				<Col md={2}>
-					<Button bsStyle="primary" style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
+					<Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
 				</Col>
 			</Row>
 		</div>
@@ -248,23 +255,55 @@ const SyncRefresh = (props) => {
 }
 
 const SyncDone = (props) => {
+	let fieldProps = {
+		button: {
+			height: '35px',
+			boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+			fontStyle: 'normal',
+			fontSize: '16px'
+		}
+	}
 	return (
-		<Row style={{paddingLeft:'90px'}}>
+		<div>
+			<Row style={{ paddingLeft: '90px', paddingTop: '53px'}}>
 			<Col style={{color:'#3c763d'}} md={1}><i className="fa fa-check-circle fa-4x fa-fw"></i></Col>
 			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
 				{props.msg}
 			</Col>
+		</Row> <br />
+		<Row style={{ paddingBottom: '33px' }}>
+			<Col md={5}></Col>
+			<Col md={2}>
+					<Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
+			</Col>
 		</Row>
+		</div >	
 	)
 }
 
 const SyncFailed = (props) => {
+	let fieldProps = {
+		button: {
+			height: '35px',
+			boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+			fontStyle: 'normal',
+			fontSize: '16px'
+		}
+	}
 	return (
-		<Row style={{paddingLeft:'90px'}}>
+		<div>
+		<Row style={{ paddingLeft: '90px', paddingTop: '53px'}}>
 			<Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
 			<Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
 				{props.msg}
 			</Col>
-		</Row>
+		</Row><br/>
+		<Row style={{ paddingBottom: '33px' }}>
+			<Col md={5}></Col>
+			<Col md={2}>
+					<Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
+			</Col>
+			</Row>
+		</div>	
 	)
 }

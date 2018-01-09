@@ -199,12 +199,11 @@ export default class BackChainActions {
     @action
     static toggleStartSyncModalView() {
         store.startSyncViewModalActive = !store.startSyncViewModalActive;
-        console.log(store.startSyncViewModalActive);
     }
 
     @action
     static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
-        if(store.authenticationToken === null && !store.isInitialSyncDone) {
+        if(!store.isInitialSyncDone) {
 			this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
 		} else {
 			this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
@@ -315,7 +314,9 @@ export default class BackChainActions {
 
     @action
     static startInitialSync(authenticationToken, chainOfCustodyUrl) {
+        store.startSync = true;
         store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'chainOfCustodyUrl': chainOfCustodyUrl
@@ -338,6 +339,7 @@ export default class BackChainActions {
                 store.syncGoingOn = false;
                 store.syncFailed = false;
                 store.startSync = false;
+                store.startSyncViewModalActive = true;
                 store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
@@ -346,17 +348,21 @@ export default class BackChainActions {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
                 store.startSync = false;
+                store.startSyncViewModalActive = true;
             }
         })
         .catch(function (err) {
             store.syncFailed = true;
             store.startSync = false;
+            store.startSyncViewModalActive = true;
         });
     }
 
     @action
     static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl) {
+        store.startSync = true;
         store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
@@ -374,25 +380,29 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-        .then(function(result) { 
+            .then(function (result) { 
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
+                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
                 store.syncFailed = false;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
+                store.startSyncViewModalActive = true; 
+                store.isInitialSyncDone = true;
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
                 store.startSync = false;
+                store.startSyncViewModalActive = true;  
             }            
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
             store.syncFailed = true;
             store.startSync = false;
+            store.startSyncViewModalActive = true;  
         });
     }
 
