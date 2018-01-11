@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Row,  Col, Button, Panel} from 'react-bootstrap';
-import JsonCommon from '../JsonCommon';
+import JsonHelper from '../JsonHelper';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
@@ -9,7 +9,7 @@ import BackChainActions from '../BackChainActions';
 export default class MyView extends React.Component {
   
   	componentDidMount() {
-		JsonCommon.showCommon(this.props.store.viewTransactions.enterprise);
+		JsonHelper.showCommon(this.props.store.viewTransactions.enterprise);
  	}
 
 	render() {

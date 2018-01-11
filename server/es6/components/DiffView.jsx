@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Row,  Col, Button, Panel} from 'react-bootstrap';
-import JsonCommon from '../JsonCommon';
+import JsonHelper from '../JsonHelper';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { toJS } from 'mobx';
+const intersect = require('object.intersect');
 
 export default class DiffView extends React.Component {
   constructor(props) {
@@ -41,17 +41,26 @@ export default class DiffView extends React.Component {
     evt.currentTarget.style.backgroundColor = 'rgba(0, 133, 200, 1)';
     evt.currentTarget.style.color = 'white';
 
+    var copymyView = JSON.parse(JSON.stringify(myViewObj));
+    var copypartnerView = JSON.parse(JSON.stringify(partnerViewObj));
+    delete copymyView.transactionSlice['type'];
+    delete copymyView.transactionSlice['enterprise'];
+    delete copymyView.transactionSlice['enterprises'];
+    delete copypartnerView.transactionSlice['type'];
+    delete copypartnerView.transactionSlice['enterprise'];
+    delete copypartnerView.transactionSlice['enterprises'];  
+
     if(tabName === 'Diff') {
       let element = evt.currentTarget.parentElement.getElementsByClassName('commonTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      JsonCommon.diffUsingJS(myViewObj, partnerViewObj, this.state.partnerEntName);
+      JsonHelper.diffUsingJS(copymyView, copypartnerView, this.state.partnerEntName);
     } else if (tabName === 'Common'){
       let element = evt.currentTarget.parentElement.getElementsByClassName('diffTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      let common  = JsonCommon.common(myViewObj, partnerViewObj)['value'];
-      JsonCommon.showCommon(common);
+      let common  = intersect(copymyView, copypartnerView);
+      JsonHelper.showCommon(common);
     }
   }
 
@@ -86,7 +95,7 @@ export default class DiffView extends React.Component {
       },
       jsonPanel : {
         backgroundColor: 'white',
-        paddingLeft: '1.5em',
+        paddingLeft: '4em',
         paddingRight: '1.5em',
         borderTopWidth: '2px',
         borderTopColor: 'rgba(0, 133, 200, 1)',

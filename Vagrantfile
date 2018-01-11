@@ -83,8 +83,8 @@ Vagrant.configure("2") do |config|
     #Install fetch packages
     sudo npm install --no-bin-links whatwg-fetch --save
    
-    #Install Jquery json viewer
-    sudo npm install --no-bin-links jquery.json-viewer --save
+    #Install object.intersect library
+    sudo npm install --no-bin-links object.intersect --save	
    
     #Install jszip for ZIP files
     sudo npm install --no-bin-links jszip --save

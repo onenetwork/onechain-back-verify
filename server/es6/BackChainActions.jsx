@@ -6,6 +6,7 @@ import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import moment from 'moment';
 import "isomorphic-fetch";
 import config from './config';
+import { observable } from 'mobx';
 
 let store;
 export default class BackChainActions {
@@ -96,7 +97,7 @@ export default class BackChainActions {
                     for(let j=0; j<transactionSliceObjects.length; j++) {
                         /* Always add transactionSlice in viewTransactions no matter @param type is Enterprise or Intersection*/
                         if(transactionSliceObjects[j].type == "Enterprise") {
-                            let newJson = {};
+                            let newJson = observable({});
                             newJson.id = id;
                             newJson.transactionSlice = transactionSliceObjects[j];
                             store.viewTransactions.enterprise = newJson;
@@ -105,7 +106,7 @@ export default class BackChainActions {
                                 && transactionSliceObjects[j].type == "Intersection"
                                     && ( transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 
                                         &&  transactionSliceObjects[j].enterprises.indexOf(partnerEntName) > -1)) {
-                                let newJson = {};
+                                let newJson = observable({});
                                 newJson.id = id;
                                 newJson.transactionSlice = transactionSliceObjects[j];
                                 store.viewTransactions.intersection = newJson;
