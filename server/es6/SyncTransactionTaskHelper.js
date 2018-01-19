@@ -14,18 +14,16 @@ class SyncTransactionTaskHelper {
         startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
             let me = this;
             let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYMMDD');
-            let params = {'date': dateAsString};
             console.log('sync start date: ' + dateAsString);
             
-            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset'), {
-                method: 'post',
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset?date=' + dateAsString), {
+                method: 'get',
                 headers: new Headers({
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'Authorization': 'token ' + authenticationToken
-                }),
-                body: requestHelper.jsonToUrlParams(params)
+                })
             }).then(function(response) {
                 return response.json();
             }).then(function(result) {

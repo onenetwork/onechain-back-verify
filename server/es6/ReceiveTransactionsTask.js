@@ -120,6 +120,7 @@ class ReceiveTransactionsTask {
     }
 
     insertMessages(transMessages) {
+        /*
         for (let i = 0; i < transMessages.length; i++) {
             let document = this.convertKafkaToMongoEntry(transMessages[i]);
             dbconnectionManager.getConnection().collection('Transactions').update({
@@ -130,8 +131,41 @@ class ReceiveTransactionsTask {
                 }
             )
         }
+        */
+        for (let i = 0; i < transMessages.length; i++) {
+            let transMessage = transMessages[i];
+            dbconnectionManager.getConnection().collection('Transactions').findOne({
+                "id": transMessage.id
+            }).then((result) => {
+                let transactionInDb = result || 
+                {
+                    id: transMessage.id,
+                    transactionSlices: [],
+                    transactionSliceObjects: [],
+                    transactionSliceHashes: []
+                };
+                if(transactionInDb.transactionSliceHashes.indexOf(transMessage.transactionSliceHash) < 0) {
+                    transactionInDb.transactionSlices.push(transMessage.transactionSliceString);
+                    transactionInDb.transactionSliceObjects.push(JSON.parse(transMessage.transactionSliceString));
+                    transactionInDb.transactionSliceHashes.push(transMessage.transactionSliceHash);
+                    dbconnectionManager.getConnection().collection('Transactions').update(
+                        {
+                            "id": transactionInDb.id
+                        },
+                        transactionInDb , {
+                            upsert: true
+                        }
+                    )
+                }                
+            })
+            .catch((err) => {
+                console.error("Error occurred while fetching transaction by tnxId [" + transMessage.id + "]" + err);
+                callback(err, null);
+            });
+        }
     }
 
+    //Remove once the changes are complete
     convertKafkaToMongoEntry(transMessage) {
         let serializedList = transMessage.transactionsSlicesSerialized;
         let transactionSliceObjects = [];
