@@ -16,7 +16,7 @@ class SyncTransactionTaskHelper {
             let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYMMDD');
             console.log('sync start date: ' + dateAsString);
             
-            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset?date=' + dateAsString), {
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset?fromDate=' + dateAsString), {
                 method: 'get',
                 headers: new Headers({
                     'Cache-Control': 'no-cache',

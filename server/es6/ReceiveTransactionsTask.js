@@ -21,7 +21,9 @@ class ReceiveTransactionsTask {
         }).then(function(response) {
             return response.json();
         }).then(function(result) {
-            console.log(result);
+            if(result && result.transactionMessages) {
+                console.log("Received " + result.transactionMessages.length + " messages");
+            }            
             callback(null, result);
         }).catch(function (err) {
             callback(err, null);
@@ -37,16 +39,23 @@ class ReceiveTransactionsTask {
                     callback(error, {syncDone : false});
                 }
             } else {
-                let hasMorePages = result.hasMorePages || false;
-                me.insertMessages(result.transactionMessages);
-                let lastSyncTimeInMillis = me.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
-
-                if(hasMorePages) {
-                    me.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl);
-                }
-                if(typeof callback !== 'undefined') {
-                    callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: lastSyncTimeInMillis});
-                }
+                if(result.transactionMessages.length == 0) {
+                    //Skip
+                    if(typeof callback !== 'undefined') {
+                        callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: new Date().getTime()});
+                    }
+                } else {
+                    let hasMorePages = result.hasMorePages || false;
+                    me.insertMessages(result.transactionMessages);
+                    let lastSyncTimeInMillis = me.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
+    
+                    if(hasMorePages) {
+                        me.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl);
+                    }
+                    if(typeof callback !== 'undefined') {
+                        callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: lastSyncTimeInMillis});
+                    }
+                }                
             }
         });
     }
@@ -117,67 +126,66 @@ class ReceiveTransactionsTask {
         });
 
         return lastSyncTimeInMillis;
-    }
+    }    
 
     insertMessages(transMessages) {
-        /*
-        for (let i = 0; i < transMessages.length; i++) {
-            let document = this.convertKafkaToMongoEntry(transMessages[i]);
-            dbconnectionManager.getConnection().collection('Transactions').update({
-                    "id": document.id
-                },
-                 document , {
-                    upsert: true
-                }
-            )
-        }
-        */
-        for (let i = 0; i < transMessages.length; i++) {
-            let transMessage = transMessages[i];
-            dbconnectionManager.getConnection().collection('Transactions').findOne({
-                "id": transMessage.id
-            }).then((result) => {
-                let transactionInDb = result || 
-                {
-                    id: transMessage.id,
-                    transactionSlices: [],
-                    transactionSliceObjects: [],
-                    transactionSliceHashes: []
-                };
-                if(transactionInDb.transactionSliceHashes.indexOf(transMessage.transactionSliceHash) < 0) {
-                    transactionInDb.transactionSlices.push(transMessage.transactionSliceString);
-                    transactionInDb.transactionSliceObjects.push(JSON.parse(transMessage.transactionSliceString));
-                    transactionInDb.transactionSliceHashes.push(transMessage.transactionSliceHash);
-                    dbconnectionManager.getConnection().collection('Transactions').update(
+        const inMemoryTnx = {}; //To prevent race conditions, maintain and in memory object. If db returns null, we should look at in-memory to prevent override of db
+        settingsHelper.getSyncStatistics()
+        .then((syncStatistics) => {
+            syncStatistics = syncStatistics || 
+            {  
+                "earliestSyncDateInMillis": null,
+                "earliestSyncSequenceNo": null,
+                "latestSyncDateInMillis": null,
+                "latestSyncSequenceNo": null,
+                "gaps": []
+            };
+            for (let i = 0; i < transMessages.length; i++) {
+                let transMessage = transMessages[i]; 
+                //Need to have closure to make sure promise doesn't use the latest message in transMessages array.
+                //Take a look at https://stackoverflow.com/questions/31061516/how-to-pass-a-local-variable-to-a-promise-done-function
+                (function(txnMsg){
+                    dbconnectionManager.getConnection().collection('Transactions').findOne({
+                        "id": txnMsg.id
+                    }).then((result) => {
+                        let transactionInDb = result || inMemoryTnx[txnMsg.id] || 
                         {
-                            "id": transactionInDb.id
-                        },
-                        transactionInDb , {
-                            upsert: true
-                        }
-                    )
-                }                
-            })
-            .catch((err) => {
-                console.error("Error occurred while fetching transaction by tnxId [" + transMessage.id + "]" + err);
-                callback(err, null);
-            });
-        }
-    }
-
-    //Remove once the changes are complete
-    convertKafkaToMongoEntry(transMessage) {
-        let serializedList = transMessage.transactionsSlicesSerialized;
-        let transactionSliceObjects = [];
-        for (let i = 0; i < serializedList.length; i++) {
-            let serialized = serializedList[i];
-            transactionSliceObjects.push(JSON.parse(serialized));
-        }
-        transMessage.transactionSlices = transMessage.transactionsSlicesSerialized;
-        delete transMessage.transactionsSlicesSerialized;
-        delete transMessage.transactionsSlices;
-        transMessage.transactionSliceObjects = transactionSliceObjects;
-        return transMessage;
+                            id: txnMsg.id,
+                            transactionSlices: [],
+                            transactionSliceObjects: [],
+                            transactionSliceHashes: [],
+                            sequenceNos: []
+                        };
+                        if(transactionInDb.transactionSliceHashes.indexOf(txnMsg.transactionSliceHash) < 0) {
+                            settingsHelper.modifySyncStatsObject(syncStatistics, txnMsg); //This message is new so update db and stats
+                            settingsHelper.updateSyncStatistics(syncStatistics);
+                            transactionInDb.transactionSlices.push(txnMsg.transactionSliceString);
+                            transactionInDb.transactionSliceObjects.push(JSON.parse(txnMsg.transactionSliceString));
+                            transactionInDb.transactionSliceHashes.push(txnMsg.transactionSliceHash);
+                            transactionInDb.sequenceNos.push(txnMsg.sequence);
+                            inMemoryTnx[txnMsg.id] = transactionInDb;
+                            dbconnectionManager.getConnection().collection('Transactions').update(
+                                {
+                                    "id": transactionInDb.id
+                                },
+                                transactionInDb , {
+                                    upsert: true
+                                }
+                            )
+                        }                
+                    })
+                    .catch((err) => {
+                        console.error("Error occurred while fetching transaction by tnxId [" + txnMsg.id + "]" + err);
+                        callback(err, null);
+                    });
+                })(transMessage);                
+            }
+        })
+        .catch((err) => {
+            console.error("Error occurred while fetching transaction by tnxId [" + transMessage.id + "]" + err);
+            callback(err, null);
+        });
+        
     }
 
 }

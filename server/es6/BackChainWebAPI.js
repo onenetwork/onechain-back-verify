@@ -103,7 +103,11 @@ exports.getSyncStatisticsInfo = function(req, res) {
 exports.getSyncStatistics = function(req, res) {
     settingsHelper.getSyncStatistics()
     .then(function (result) {
-        res.json({success: true, statistics: result});
+        if(result) {
+            res.json({success: true, statistics: result});
+        } else {
+            res.json({success: false});
+        }        
     })
     .catch(function (error) {
         res.json({success: false});
