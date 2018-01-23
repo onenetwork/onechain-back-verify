@@ -2,6 +2,8 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
+    "es6-object-assign": "^1.1.0",
+    "es6-promise": "^4.2.2",
     "express": "^4.16.2",
     "jszip": "^3.1.4",
     "mobx": "^3.3.1",
@@ -15,6 +17,7 @@
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
+    "@onenetwork/one-backchain-client": "^0.1.2",
     "babel": "^6.23.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.2",
@@ -29,11 +32,19 @@
     "babel-preset-stage-0": "^6.24.1",
     "babel-preset-stage-1": "^6.24.1",
     "babelify": "^8.0.0",
+    "bignumber.js": "^5.0.0",
     "browserify": "^14.5.0",
+    "browserify-css": "^0.14.0",
     "browserify-shim": "^3.8.14",
     "browserify-transform-tools": "^1.7.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.0",
     "vinyl-source-stream": "^1.1.0"
+    "moment": "^2.20.1",
+    "mongodb": "^2.2.34",
+    "object.intersect": "0.0.3",
+    "react-custom-scrollbars": "^4.2.1",
+    "react-datetime": "^2.11.1",
+    "timers-browserify": "^2.0.4"
   }
 }
