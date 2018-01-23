@@ -48,8 +48,6 @@ export default class BackChainActions {
      */
     @action
     static loadTransactions(id, searchCriteria, callback) {
-        let uri = null;
-
         store.canStartVerifying = false;
         store.transactions.clear();
         store.verifications.clear();
@@ -82,15 +80,14 @@ export default class BackChainActions {
 
     @action
     static loadTransactionsAux(transactions, callback) {
-        transactions.forEach(element => {
-            store.transactions.push(element);
-        });
-        // can give some errors here if oneBcClient settings are null
+        transactions.forEach(element => store.transactions.push(element));
+
         if (store.oneBcClient != null) {
-            store.verifications = transactionHelper.storeVerificationData(transactions, store.entNameOfLoggedUser, store.oneBcClient);
+            store.verifications = transactionHelper.generateVerificationData(transactions, store.entNameOfLoggedUser, store.oneBcClient);
         }
+
         if(transactions.length > 0) {
-            store.canStartVerifying = true; //nothing to verify and no animation needed
+            store.canStartVerifying = true; // nothing to verify and no animation needed
         }
 
         callback(store.transactions.length > 0);
@@ -102,22 +99,22 @@ export default class BackChainActions {
         store.transactions.forEach(transElement => {
                 if(transElement.id == id) {
                     let id = transElement.id;
-                    let transactionSliceObjects =transElement.transactionSliceObjects;
-                    for(let j=0; j<transactionSliceObjects.length; j++) {
+                    let transactionSlices =transElement.transactionSlices;
+                    for(let j=0; j<transactionSlices.length; j++) {
                         /* Always add transactionSlice in viewTransactions no matter @param type is Enterprise or Intersection*/
-                        if(transactionSliceObjects[j].type == "Enterprise") {
+                        if(transactionSlices[j].type == "Enterprise") {
                             let newJson = observable({});
                             newJson.id = id;
-                            newJson.transactionSlice = transactionSliceObjects[j];
+                            newJson.transactionSlice = transactionSlices[j];
                             store.viewTransactions.enterprise = newJson;
                         }
                         if(type == "Intersection"
-                                && transactionSliceObjects[j].type == "Intersection"
-                                    && ( transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1
-                                        &&  transactionSliceObjects[j].enterprises.indexOf(partnerEntName) > -1)) {
+                                && transactionSlices[j].type == "Intersection"
+                                    && ( transactionSlices[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1
+                                        &&  transactionSlices[j].enterprises.indexOf(partnerEntName) > -1)) {
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = transactionSliceObjects[j];
+                                newJson.transactionSlice = transactionSlices[j];
                                 store.viewTransactions.intersection = newJson;
                         }
                     }
@@ -133,17 +130,17 @@ export default class BackChainActions {
             for (let index in ids) {
                 if (transElement.id == ids[index]) {
                     let id = transElement.id;
-                    let transactionSliceObjects = transElement.transactionSliceObjects;
-                    for (let j = 0; j < transactionSliceObjects.length; j++) {
-                        if (type == transactionSliceObjects[j].type) {
-                            if (transactionSliceObjects[j].type == "Enterprise") {
+                    let transactionSlices = transElement.transactionSlices;
+                    for (let j = 0; j < transactionSlices.length; j++) {
+                        if (type == transactionSlices[j].type) {
+                            if (transactionSlices[j].type == "Enterprise") {
                                 let newJson = {};
                                 newJson.id = id;
                                 newJson.transactionSlice = transElement.transactionSlices[j];
                                 store.payload.push(newJson);
-                            } else if (transactionSliceObjects[j].type == "Intersection" &&
-                                (transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 &&
-                                    transactionSliceObjects[j].enterprises.indexOf(partnerEntName) > -1)) {
+                            } else if (transactionSlices[j].type == "Intersection" &&
+                                (transactionSlices[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 &&
+                                transactionSlices[j].enterprises.indexOf(partnerEntName) > -1)) {
                                 let newJson = {};
                                 newJson.id = id;
                                 newJson.transactionSlice = transElement.transactionSlices[j];
@@ -281,18 +278,18 @@ export default class BackChainActions {
                     transaction = transaction[0];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
                     if (index != null) {
-                        transaction.transactionSlices[index] = payload.transactionSlice;
-                        transaction.transactionSliceObjects[index] = JSON.parse(payload.transactionSlice);
+                        transaction.transactionSliceStrings[index] = payload.transactionSlice;
+                        transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
                     } else {
-                        transaction.transactionSlices.push(payload.transactionSlice);
-                        transaction.transactionSliceObjects.push(JSON.parse(payload.transactionSlice));
+                        transaction.transactionSliceStrings.push(payload.transactionSlice);
+                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
                     }
                     transArr.push(transaction);
                 } else {
                     transArr.push({
                         id: payload.id,
-                        transactionSlices: [payload.transactionSlice],
-                        transactionSliceObjects: [JSON.parse(payload.transactionSlice)]
+                        transactionSliceStrings: [payload.transactionSlice],
+                        transactionSlices: [JSON.parse(payload.transactionSlice)]
                     });
                 }
 
@@ -409,7 +406,6 @@ export default class BackChainActions {
             store.startSyncViewModalActive = true;
         });
     }
-
 
     @action
     static verfiyBackChainSettings(oneBcClient,callback) {

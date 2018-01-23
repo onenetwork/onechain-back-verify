@@ -4,12 +4,12 @@ import { settingsHelper } from './SettingsHelper';
 class BlockChainVerifier {
 
     generateHash(jsonString) {
-        const hash = '0x' + crypto.createHash('sha256').update(jsonString).digest('hex');
-        return hash;
+        return crypto.createHash('sha256').update(jsonString).digest('hex');
     }
 
-    verifyBlockChain(stringifiedSlice, oneBcClient) {
-        return oneBcClient.verify(this.generateHash(stringifiedSlice));
+    verifyHash(hash, oneBcClient) {
+        if(hash.indexOf('0x') != 0) hash = '0x' + hash;
+        return oneBcClient.verify(hash);
     }
 }
 

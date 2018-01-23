@@ -1,5 +1,6 @@
 import React from 'react';
 import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Popover, ProgressBar, Modal} from 'react-bootstrap';
+import { toJS } from 'mobx';
 import MyView from './MyView';
 import DiffView from './DiffView';
 import BackChainActions from '../BackChainActions';
@@ -138,30 +139,32 @@ const verifyImgFailed = "/images/verify-failed.png";
             }
 
             let eventCountCss = "counter3";
-            for (let i = 0; i < this.props.store.transactions.length; i++) {
-                let transaction = this.props.store.transactions[i];
+            const transactions = toJS(this.props.store.transactions);
+            for (let i = 0; i < transactions.length; i++) {
+                let transaction = transactions[i];
                 let executingUsers = [], viewsTransactions = [], downArrow = '', eventCount = null, eventList = [];
                 if(transaction){
-                for(let j = 0; j < transaction.transactionSliceObjects.length; j++) {
-                    let transactionslice = transaction.transactionSliceObjects[j];
-                        eventCount = transactionslice.businessTransactions.length;
-                        if(eventCount.toString().length == 1) {
-                            eventCountCss =  "counter1";
-                        } else if(eventCount.toString().length == 2) {
-                            eventCountCss =  "counter2";
-                        }
-
-                    if(transactionslice.type == "Enterprise") {
-
+                for(let j = 0; j < transaction.transactionSlices.length; j++) {
+                    let transactionSlice = transaction.transactionSlices[j];
+                    /*
+                    let eventCount = transactionSlice.businessTransactions.length;
+                    if(eventCount.toString().length == 1) {
+                        eventCountCss =  "counter1";
+                    } else if(eventCount.toString().length == 2) {
+                        eventCountCss =  "counter2";
+                    }
+                    */
+                    if(transactionSlice.type == "Enterprise") {
                         let transactionDetails = {
                             transactionId : transaction['id'],
                             myEntName : myEntName,
-                            transactionSliceType : transactionslice.type
+                            transactionSliceType : transactionSlice.type
                         }
-                        for(let k = 0; k < transactionslice.businessTransactions.length; k++) {
-                            executingUsers.push(transactionslice.businessTransactions[k].LastModifiedUser);
-                            let date = transactionslice.businessTransactions[k].LastModifiedDate.date;
-                            let actionName = transactionslice.businessTransactions[k].ActionName.split('.')[1];
+                        /*
+                        for(let k = 0; k < transactionSlice.businessTransactions.length; k++) {
+                            executingUsers.push(transactionSlice.businessTransactions[k].LastModifiedUser);
+                            let date = transactionSlice.businessTransactions[k].LastModifiedDate.date;
+                            let actionName = transactionSlice.businessTransactions[k].ActionName.split('.')[1];
                             if(date.toString().length + actionName.length < 29) {
                                 eventList.push(<li key={i+j+k}><span style={{color:'#990000',display:'inline'}}>{date}</span> <span style={{display:'inline'}}>&nbsp;&nbsp;&nbsp;{actionName}</span></li>);
                             }
@@ -169,27 +172,27 @@ const verifyImgFailed = "/images/verify-failed.png";
                             eventList.push(<li key={i+j+k}><span style={{color:'#990000'}}>{date}</span><br></br><span>{actionName}</span></li>);
                             }
                         }
+                        */
                         viewsTransactions.push(
                             <td key = {transaction['id'] + myViewLabel} txnid = {transaction['id']} style={fieldProps.columns}>
                                 <ViewOrDownloadTxn store = {this.props.store} downloadZip = {this.downloadZip}  transactionDetails = {transactionDetails} />
                             </td>
                         );
                     }
-
-                    if(transactionslice.type == "Intersection") {
-                        let logInUserEntIndex = (transactionslice.enterprises).indexOf(myEntName);
-                        let partnerEntName = logInUserEntIndex == 0 ?  transactionslice.enterprises[1] : transactionslice.enterprises[0];
+                    else if(transactionSlice.type == "Intersection") {
+                        let logInUserEntIndex = (transactionSlice.enterprises).indexOf(myEntName);
+                        let partnerEntName = logInUserEntIndex == 0 ?  transactionSlice.enterprises[1] : transactionSlice.enterprises[0];
                         if(this.props.store.isInitialSyncDone == null || this.props.store.isInitialSyncDone == false) {
-                            partnerEntName =  transactionslice.enterprises[0] +" & "+ transactionslice.enterprises[1];
+                            partnerEntName =  transactionSlice.enterprises[0] +" & "+ transactionSlice.enterprises[1];
                         }
 
                         for(let k = 0; k < variableViewNames.length; k++) {
                             if(variableViewNames[k] == partnerEntName) {
-                                partnerEntName = logInUserEntIndex == 0 ?  transactionslice.enterprises[1] : transactionslice.enterprises[0];
+                                partnerEntName = logInUserEntIndex == 0 ?  transactionSlice.enterprises[1] : transactionSlice.enterprises[0];
                                 let transactionDetails = {
                                     transactionId : transaction['id'],
                                     partnerEntName : partnerEntName,
-                                    transactionSliceType : transactionslice.type
+                                    transactionSliceType : transactionSlice.type
                                 }
 
                                 viewsTransactions.push(
