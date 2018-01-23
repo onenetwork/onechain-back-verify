@@ -52,11 +52,16 @@ import {Link} from 'react-router-dom';
                 }
             }
         } else {
-            let fullSyncTrxnsNos = [];
-            allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
-            fullSyncTrxnsNos.push(syncStatistics.earliestSyncSequenceNo);
-            fullSyncTrxnsNos.push(syncStatistics.latestSyncSequenceNo);
-            this.getTransactionsBySequenceNos(fullSyncTrxnsNos,allTransactionsArr);
+            let syncReport = {
+                type : 'fullsync', 
+                syncMsg : 'Full Sync', 
+                fromDate : moment(new Date(syncStatistics.earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                toDate : moment(new Date(syncStatistics.latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                fromSeqNo : earliestSyncSequenceNo, 
+                toSeqNo : latestSyncSequenceNo, 
+                noOfGaps : ''
+            };
+            me.props.store.syncStatisticsReport.push(syncReport);
         }
     }
 
