@@ -204,10 +204,16 @@ export default class BackChainActions {
 
     @action
     static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
-        if(!store.isInitialSyncDone) {
-			this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
-		} else {
-			this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
+        if (!store.isInitialSyncDone) {
+            let me = this;
+            this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl, function (req, res) {
+                const _this = me;
+                if (res == true) {
+                    _this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
+                }
+            });
+        } else {
+            this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
 		}
     }
 
@@ -315,9 +321,6 @@ export default class BackChainActions {
 
     @action
     static startInitialSync(authenticationToken, chainOfCustodyUrl) {
-        store.startSync = true;
-        store.syncGoingOn = true;
-        store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'chainOfCustodyUrl': chainOfCustodyUrl
@@ -336,31 +339,19 @@ export default class BackChainActions {
         })
         .then(function(result) {
             if(result.consumeResult.success === true && result.consumeResult.syncDone === true) {
-                store.isInitialSyncDone = true;
-                store.syncGoingOn = false;
-                store.syncFailed = false;
-                store.startSync = false;
-                store.startSyncViewModalActive = true;
                 store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
                 store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
-            } else {
-                store.syncFailed = true;
-                store.syncGoingOn = false;
-                store.startSync = false;
-                store.startSyncViewModalActive = true;
-            }
+            } 
         })
         .catch(function (err) {
-            store.syncFailed = true;
-            store.startSync = false;
-            store.startSyncViewModalActive = true;
+            log.error("Error occured in startInitialSync.");
         });
     }
 
     @action
-    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl) {
+    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl,callback) {
         store.startSync = true;
         store.syncGoingOn = true;
         store.startSyncViewModalActive = true;
@@ -392,6 +383,9 @@ export default class BackChainActions {
                 store.startSync = false;
                 store.startSyncViewModalActive = true; 
                 store.isInitialSyncDone = true;
+                if(callback){
+                    callback(null,true);  
+                }
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
