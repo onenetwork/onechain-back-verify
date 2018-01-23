@@ -41,7 +41,8 @@ export default class BackChainActions {
 
 
     /**
-     * Fetches transaction data and loads it into the store
+     * This method either loads provided array of transaction data, provided as the first argument,
+     * or fetches transaction data and loads it into the store, if there are 2 provided arguments (id and searchCriteria).
      * @param {*} id - either a transaction or business id
      * @param {*} searchCriteria - either "tnxId" or "btId"
      */
@@ -49,11 +50,16 @@ export default class BackChainActions {
     static loadTransactions(id, searchCriteria, callback) {
         let uri = null;
 
-        store.loadingData = true;
         store.canStartVerifying = false;
         store.transactions.clear();
         store.verifications.clear();
-        
+
+        if(arguments.length == 1 && Array.isArray(arguments[0])) {
+            BackChainActions.loadTransactionsAux(arguments[0], callback);
+            return;
+        }
+
+        let uri = null;
         if(searchCriteria == "tnxId") {
              uri = '/getTransactionById/' + id;
         }
@@ -61,30 +67,33 @@ export default class BackChainActions {
             uri = '/getTransactionByBusinessTransactionId/' + id;
         }
 
+        store.loadingData = true;
 		fetch(uri, {method: 'GET'}).then(function(response) {
 			return response.json();
 		}, function(error) {
             store.loadingData = false;
             store.error = "Couldn't load transactions. Please try again later";
   			console.error('error getting transaction by transaction id');
-		}).then(function(result) {     
-            result.result.forEach(element => {
-                store.transactions.push(element);
-            });
-            // can give some errors here if oneBcClient settings are null
-            if (store.oneBcClient != null) {
-                store.verifications = transactionHelper.storeVerificationData(result.result, store.entNameOfLoggedUser, store.oneBcClient);
-            }
-            if(result.result.length > 0) {
-                store.canStartVerifying = true; //nothing to verify and no animation needed
-            }
+		}).then(function(result) {
+            store.loadingData = false;
+            BackChainActions.loadTransactionsAux(result.result, callback);
+  		});
+    }
 
-            if(store.transactions.length > 0) {
-                callback(true);
-            } else {
-                callback(false);
-            } 
-  		})
+    @action
+    static loadTransactionsAux(transactions, callback) {
+        transactions.forEach(element => {
+            store.transactions.push(element);
+        });
+        // can give some errors here if oneBcClient settings are null
+        if (store.oneBcClient != null) {
+            store.verifications = transactionHelper.storeVerificationData(transactions, store.entNameOfLoggedUser, store.oneBcClient);
+        }
+        if(transactions.length > 0) {
+            store.canStartVerifying = true; //nothing to verify and no animation needed
+        }
+
+        callback(store.transactions.length > 0);
     }
 
     @action
@@ -104,7 +113,7 @@ export default class BackChainActions {
                         }
                         if(type == "Intersection"
                                 && transactionSliceObjects[j].type == "Intersection"
-                                    && ( transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 
+                                    && ( transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1
                                         &&  transactionSliceObjects[j].enterprises.indexOf(partnerEntName) > -1)) {
                                 let newJson = observable({});
                                 newJson.id = id;
@@ -112,7 +121,7 @@ export default class BackChainActions {
                                 store.viewTransactions.intersection = newJson;
                         }
                     }
-                }               
+                }
         })
     }
 
@@ -142,7 +151,7 @@ export default class BackChainActions {
                             }
                         }
                     }
-                   
+
                 }
             }
         })
@@ -191,7 +200,7 @@ export default class BackChainActions {
     static toggleDisplayMessageView() {
         store.displayMessageViewModalActive = !store.displayMessageViewModalActive;
     }
-    
+
     @action
     static toggleDBSyncModalViewActive() {
         store.dbSyncModalViewActive = !store.dbSyncModalViewActive;
@@ -221,8 +230,8 @@ export default class BackChainActions {
     static processApplicationSettings() {
         /**
          * If the value is null, it means db was never checked for the value.
-         * If it's not null, there's no need to go to the db anymore. 
-         * User have to go to /setup page and enter credentials to set it to true(@saveBlockChainSettings), 
+         * If it's not null, there's no need to go to the db anymore.
+         * User have to go to /setup page and enter credentials to set it to true(@saveBlockChainSettings),
          * otherwise it will stay as false.
          */
         if(store.isInitialSetupDone == null) {
@@ -261,7 +270,7 @@ export default class BackChainActions {
         }
     }
 
-    @action 
+    @action
     static mergeUploadedPayloadWithDb(payloads, callback) {
         let transArr = [];
         let payloadLength = payloads.length;
@@ -286,7 +295,7 @@ export default class BackChainActions {
                         transactionSliceObjects: [JSON.parse(payload.transactionSlice)]
                     });
                 }
-    
+
                 if (i == payloadLength && transArr.length > 0) {
                     store.transactions.clear();
                     transArr.forEach(element => {
@@ -300,7 +309,7 @@ export default class BackChainActions {
             })
         })
     }
-     
+
     @action
     static findTransaction(transId, callback) {
         let uri = '/getTransactionById/' + transId;
@@ -343,7 +352,7 @@ export default class BackChainActions {
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
                 store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
-            } 
+            }
         })
         .catch(function (err) {
             log.error("Error occured in startInitialSync.");
@@ -372,7 +381,7 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-            .then(function (result) { 
+            .then(function (result) {
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
@@ -381,28 +390,28 @@ export default class BackChainActions {
                 store.syncFailed = false;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true; 
+                store.startSyncViewModalActive = true;
                 store.isInitialSyncDone = true;
                 if(callback){
-                    callback(null,true);  
+                    callback(null,true);
                 }
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true;  
-            }            
+                store.startSyncViewModalActive = true;
+            }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
             store.syncFailed = true;
             store.startSync = false;
-            store.startSyncViewModalActive = true;  
+            store.startSyncViewModalActive = true;
         });
     }
 
 
-    @action 
+    @action
     static verfiyBackChainSettings(oneBcClient,callback) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
@@ -412,11 +421,11 @@ export default class BackChainActions {
             callback(null,result);
         })
         .catch(function (error) {
-            callback(error,null);       
+            callback(error,null);
         });
     }
 
-    @action 
+    @action
     static syncStatisticsInfo() {
         fetch('/getSyncStatisticsInfo', {method: 'GET'})
         .then(function(response) {
