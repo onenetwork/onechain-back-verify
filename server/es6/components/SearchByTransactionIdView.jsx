@@ -1,14 +1,15 @@
-import {Row,  Col, Button, FormControl} from 'react-bootstrap';
+import {Row,  Col, Button, FormControl, Modal} from 'react-bootstrap';
 import React, {Component} from 'react';
 import BackChainActions from '../BackChainActions';
 import { Link,Redirect } from 'react-router-dom';
 import { observer } from 'mobx-react';
 import HeaderView from "./HeaderView";
+import DisplayMessageView from "./DisplayMessageView";
 
 @observer export default class SearchByTransactionIdView extends React.Component {
     constructor(props) {
         super(props);
-		this.state = {redirect:false,verifyDisabled:true};
+		this.state = {redirect:null,verifyDisabled:true};
 		this.transactionIdInputVal = null;
 	}
 
@@ -22,12 +23,18 @@ import HeaderView from "./HeaderView";
 		}
 		if (this.transactionIdInputVal.length >0 && event.charCode  == 13) {
 			this.loadTransactionIntoStore();
-			this.setState({redirect: true});
 		}
 	}
 
 	loadTransactionIntoStore() {
-		BackChainActions.loadTransactions(this.transactionIdInputVal, "tnxId");
+		let me = this;
+		BackChainActions.loadTransactions(this.transactionIdInputVal, "tnxId", function(redirect) {
+			if(redirect == false) {
+				me.props.store.displayMessageViewModalActive = true;
+			} else {
+				me.setState({redirect: redirect});
+			}
+		});
 	}
 
 	componentDidMount() {
@@ -71,22 +78,13 @@ import HeaderView from "./HeaderView";
 					fontSize: '16px',
 					boxShadow: 'rgba(0, 0, 0, 0.75) 1px 2px 2px'
 				},
-				logo: {
-					position: 'relative',
-					left: '8%',
-					marginLeft: -55
-				},
 				nameSpan : {
-					marginLeft: '136px',
 					fontSize: '25px'
 				},
 				nameColor : {
 					color: '#5e5d5d'
 				},
 				subNameSpan : {
-					position: 'relative',
-					verticalAlign: '-22px',
-					left: '-15%',
 					fontFamily:'Open Sans'
 				},
 				blankLine : {
@@ -108,36 +106,54 @@ import HeaderView from "./HeaderView";
 			};
 			
 			return (
-				<div className={"panel panel-default"} onClick={this.props.action}>
-					<HeaderView store={this.props.store}/>
-					<div className={"panel-body"} style={fieldProps.panelBody}>
-					<Row>   
-						<img src="/images/transaction-id.png" style={fieldProps.logo}/> 
-						<span style={fieldProps.nameSpan}>
-							<strong style={fieldProps.nameColor}> 
-								Transaction ID
-							</strong> 
-						</span> 
-						<span style={fieldProps.subNameSpan}>Some descriptive text to be added here. Some descriptive text to be added here. Some descriptive text here.</span>
-					</Row> 
+				<div>
+					<DisplayMessageViewPopup store={this.props.store}/>
 
-					<hr style={fieldProps.blankLine}/>
-								
-					<br/>
+					<div className={"panel panel-default"} onClick={this.props.action}>
+						<HeaderView store={this.props.store}/>
+						<div className={"panel-body"} style={fieldProps.panelBody}>
+						<Row>
+							<Col md={2} style={{paddingLeft:'37px'}}>   
+								<img src="/images/transaction-id.png"/>
+							</Col>
+							<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}> 
+								<span style={fieldProps.nameSpan}>
+									<strong style={fieldProps.nameColor}> 
+										Transaction ID
+									</strong> 
+								</span> <br/>
+								<span style={fieldProps.subNameSpan}>
+									This search returns the transaction associated with the given transaction Id and the transaction shall be verified with Block Chain. Transaction id can be found in a Payload file. This search will require the transaction to be existing in the local repository.
+								</span>
+							</Col>
+						</Row> 
 
-					<Row style={fieldProps.panelBodyTitle}>
-						<div> <span style={fieldProps.browse}> Enter a Transaction ID to verify  </span>  </div>
+						<hr style={fieldProps.blankLine}/>
+									
 						<br/>
-						<FormControl type="text"   style={fieldProps.inputBox} onKeyPress={this.listenKeyPress.bind(this)} onChange={this.listenKeyPress.bind(this)}  placeholder="Transaction ID" />
-						<br/> <br/>
-						<Link to="/listTransactions"><Button disabled={this.state.verifyDisabled} className="btn btn-primary" style={fieldProps.button} onClick={this.loadTransactionIntoStore.bind(this)}>Verfiy</Button></Link>
-						&nbsp; &nbsp; <Link  to="/index"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>
-					</Row>
-								
+
+						<Row style={fieldProps.panelBodyTitle}>
+							<div> <span style={fieldProps.browse}> Enter a Transaction ID to verify  </span>  </div>
+							<br/>
+							<FormControl type="text"   style={fieldProps.inputBox} onKeyPress={this.listenKeyPress.bind(this)} onChange={this.listenKeyPress.bind(this)}  placeholder="Transaction ID" />
+							<br/> <br/>
+							<Button disabled={this.state.verifyDisabled} className="btn btn-primary" style={fieldProps.button} onClick={this.loadTransactionIntoStore.bind(this)}>Verfiy</Button>
+							&nbsp; &nbsp; <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>
+						</Row>
+									
+						</div>
 					</div>
 				</div>
 			);
 
 		}
+    }
+}
+
+@observer class DisplayMessageViewPopup extends React.Component {
+    render() {
+        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
+                    <DisplayMessageView title = "Message" msg= "Result not found! Try again with different ID." store={this.props.store}/> 
+               </Modal>);
     }
 }

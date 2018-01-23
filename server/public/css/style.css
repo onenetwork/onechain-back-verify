@@ -69,10 +69,6 @@
     background-color: rgba(225,251,253,1);
 }
 
- 
-
-
-
 .pagination-status {
     float: right;
 	padding-right: 44px;
@@ -124,7 +120,7 @@
 /* overriding react popover component style*/
 .popover {
     border-color: rgba(45, 162, 191, 1);
-    max-width: unset;
+    display : inline-table !important;
 }
 .popover .popover-title {
     color: rgba(45, 162, 191, 1);
@@ -145,19 +141,13 @@
 .popover.top>.arrow:after {
     border-top-color: rgba(45, 162, 191, 1);
 }
-.txnpopover {
-    left: 133.5938px !important;
-}
-.txnpopover .arrow {
-    left: 11% !important;
-}
 
 @media (min-width: 768px) {
     .transaction-preview-modal{	
-        width:750px !important;
+        width:50% !important;
     }
     .transaction-diff-preview-modal{	
-        width:1280px !important;
+        width:80% !important;
     }
     .modal-content{
         border-radius: 10px !important

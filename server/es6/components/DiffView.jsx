@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Row,  Col, Button, Panel} from 'react-bootstrap';
-import JasonCommon from '../JasonCommon';
+import JsonHelper from '../JsonHelper';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
+import { Scrollbars } from 'react-custom-scrollbars';
+const intersect = require('object.intersect');
 
 export default class DiffView extends React.Component {
   constructor(props) {
@@ -15,18 +17,6 @@ export default class DiffView extends React.Component {
   
   componentDidMount() {
     document.getElementById("defaultOpen").click();
-  }
-
-  downloadZip() {
-    let zip = new JSZip();
-    let file = zip.file("payload.json", JSON.stringify(this.props.store.payload));
-    file.generateAsync({
-      type: "blob"
-    }).then(function(blob) {
-      filesaver.saveAs(blob, "payload.zip");
-    }, function(err) {
-      console.log("error occurred while generating zip file " + err);
-    });
   }
 
   openTab(tabName, myViewObj, partnerViewObj, evt) {
@@ -51,17 +41,26 @@ export default class DiffView extends React.Component {
     evt.currentTarget.style.backgroundColor = 'rgba(0, 133, 200, 1)';
     evt.currentTarget.style.color = 'white';
 
+    var copymyView = JSON.parse(JSON.stringify(myViewObj));
+    var copypartnerView = JSON.parse(JSON.stringify(partnerViewObj));
+    delete copymyView.transactionSlice['type'];
+    delete copymyView.transactionSlice['enterprise'];
+    delete copymyView.transactionSlice['enterprises'];
+    delete copypartnerView.transactionSlice['type'];
+    delete copypartnerView.transactionSlice['enterprise'];
+    delete copypartnerView.transactionSlice['enterprises'];  
+
     if(tabName === 'Diff') {
       let element = evt.currentTarget.parentElement.getElementsByClassName('commonTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      JasonCommon.diffUsingJS(JSON.stringify(myViewObj, null, "\t"), JSON.stringify(partnerViewObj, null, "\t"), this.state.partnerEntName);
+      JsonHelper.diffUsingJS(copymyView, copypartnerView, this.state.partnerEntName);
     } else if (tabName === 'Common'){
       let element = evt.currentTarget.parentElement.getElementsByClassName('diffTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      let common  = JasonCommon.common(myViewObj,partnerViewObj)['value'];
-      JasonCommon.showCommon(common);
+      let common  = intersect(copymyView, copypartnerView);
+      JsonHelper.showCommon(common);
     }
   }
 
@@ -94,16 +93,14 @@ export default class DiffView extends React.Component {
         borderBottomRightRadius: '10px',
         borderBottomLeftRadius: '10px'
       },
-      jasonPanel : {
+      jsonPanel : {
         backgroundColor: 'white',
-        paddingLeft: '1.5em',
+        paddingLeft: '4em',
         paddingRight: '1.5em',
         borderTopWidth: '2px',
         borderTopColor: 'rgba(0, 133, 200, 1)',
-        borderRadius: 'unset'
-      },
-      viewname:{
-        float:'right'
+        borderRadius: 'unset',
+        height: '700px'
       },
       tablinks: {
         borderTopLeftRadius: '8px',
@@ -117,15 +114,15 @@ export default class DiffView extends React.Component {
     this.findPartnerEntName(this.props.store.viewTransactions.intersection);
 
     let panelBody = (<div style={fieldProps.panelBody}>
-                        <p style={{fontSize: '12px', color: '#646464'}}><strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span><span style={fieldProps.viewname}>
-                          <i style={{color: '#229978', fontSize: '16px', cursor: 'pointer'}} className="fa fa-paperclip" aria-hidden="true" onClick={this.downloadZip.bind(this)}/>
-                          <strong style={{fontSize: '12px', color: '#646464'}}>{this.state.partnerEntName}&nbsp;&nbsp;Intersection</strong></span></p>
+                        <p style={{fontSize: '12px', color: '#646464'}}>
+                          <strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
+                        </p>
                         <p></p>
                         <Row style={{marginLeft: '0px'}}>
                             <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} id="defaultOpen" style={Object.assign({},fieldProps.tablinks,{color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
                               <span style={{verticalAlign : 'sub'}}>Difference</span>
                             </Col>
-                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} style={Object.assign({},fieldProps.tablinks,{marginLeft:'2px', width:'unset',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} style={Object.assign({},fieldProps.tablinks,{marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                               <span className="fa-stack">
                                 &nbsp;&nbsp;&nbsp;<i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
                                 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -134,10 +131,10 @@ export default class DiffView extends React.Component {
                             </Col>
                         </Row>
                         <div id='Diff' className="tabcontent">
-                            <div id="diffoutput"></div>
+                            <Scrollbars id="diffoutput" style={{'overflow': 'scroll', height: 700}}></Scrollbars>
                         </div>
                         <div id='Common' className="tabcontent">
-                            <pre id="json-renderer" style={fieldProps.jasonPanel}></pre>
+                            <pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
                         </div>
                     </div>);
               

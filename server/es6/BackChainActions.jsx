@@ -5,6 +5,8 @@ import {requestHelper} from './RequestHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import moment from 'moment';
 import "isomorphic-fetch";
+import config from './config';
+import { observable } from 'mobx';
 
 let store;
 export default class BackChainActions {
@@ -39,18 +41,19 @@ export default class BackChainActions {
 
 
     /**
-     * This method either loads provided array of transaction data, provided as the first argument,
-     * or fetches transaction data and loads it into the store, if there are 2 provided arguments (id and searchCriteria).
+     * Either loads array of transactions, provided as the first argument,
+     * or fetches transaction data and loads it into the store, if there are 3 provided arguments (id, searchCriteria and callback).
      * @param {*} id - either a transaction or business id
      * @param {*} searchCriteria - either "tnxId" or "btId"
      */
     @action
-    static loadTransactions(id, searchCriteria) {
+    static loadTransactions(id, searchCriteria, callback) {
+        store.loadingData = true;
         store.canStartVerifying = false;
         store.transactions.clear();
         store.verifications.clear();
 
-        if(arguments.length == 1 && Array.isArray(arguments[0])) {
+        if(Array.isArray(arguments[0])) {
             loadTransactions(arguments[0]);
             return;
         }
@@ -60,20 +63,33 @@ export default class BackChainActions {
             uri = '/getTransactionById/' + id;
         }
         else if(searchCriteria == "btId") {
-            uri = '/getTransactionByBusineesTransactionId/' + id;
+            uri = '/getTransactionByBusinessTransactionId/' + id;
         }
 
-        store.loadingData = true;
         fetch(uri, {method: 'GET'}).then(function(response) {
             return response.json();
         }, function(error) {
             store.loadingData = false;
             store.error = "Couldn't load transactions. Please try again later";
-              console.error('error getting transaction by transaction id');
-        }).then(function(result) {
-            store.loadingData = false;
-            loadTransactions(result.result);
-        });
+            console.error('error getting transaction by transaction id');
+        }).then(function(result) {     
+            result.result.forEach(element => {
+                store.transactions.push(element);
+            });
+            // can give some errors here if oneBcClient settings are null
+            if (store.oneBcClient != null) {
+                store.verifications = transactionHelper.storeVerificationData(result.result, store.entNameOfLoggedUser, store.oneBcClient);
+            }
+            if(result.result.length > 0) {
+                store.canStartVerifying = true; //nothing to verify and no animation needed
+            }
+
+            if(store.transactions.length > 0) {
+                callback(true);
+            } else {
+                callback(false);
+            } 
+          })
     }
 
     @action
@@ -86,7 +102,7 @@ export default class BackChainActions {
                     for(let j=0; j<transactionSliceObjects.length; j++) {
                         /* Always add transactionSlice in viewTransactions no matter @param type is Enterprise or Intersection*/
                         if(transactionSliceObjects[j].type == "Enterprise") {
-                            let newJson = {};
+                            let newJson = observable({});
                             newJson.id = id;
                             newJson.transactionSlice = transactionSliceObjects[j];
                             store.viewTransactions.enterprise = newJson;
@@ -95,7 +111,7 @@ export default class BackChainActions {
                                 && transactionSliceObjects[j].type == "Intersection"
                                     && ( transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 
                                         &&  transactionSliceObjects[j].enterprises.indexOf(partnerEntName) > -1)) {
-                                let newJson = {};
+                                let newJson = observable({});
                                 newJson.id = id;
                                 newJson.transactionSlice = transactionSliceObjects[j];
                                 store.viewTransactions.intersection = newJson;
@@ -168,7 +184,7 @@ export default class BackChainActions {
             store.blockChainUrl = null;
             store.blockChainContractAddress = null;
             store.blockChainPrivateKey = null;
-          });
+        });
     }
 
     @action
@@ -177,17 +193,27 @@ export default class BackChainActions {
     }
 
     @action
+    static toggleDisplayMessageView() {
+        store.displayMessageViewModalActive = !store.displayMessageViewModalActive;
+    }
+    
+    @action
+    static toggleDBSyncModalViewActive() {
+        store.dbSyncModalViewActive = !store.dbSyncModalViewActive;
+    }
+
+    @action
     static toggleStartSyncModalView() {
-        store.startSyncModalViewModalActive = !store.startSyncModalViewModalActive;
+        store.startSyncViewModalActive = !store.startSyncViewModalActive;
     }
 
     @action
     static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
-        if(store.authenticationToken === null && !store.isInitialSyncDone) {
-			this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
-		} else {
-			this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
-		}
+        if(!store.isInitialSyncDone) {
+            this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
+        } else {
+            this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
+        }
     }
 
     @action
@@ -197,7 +223,7 @@ export default class BackChainActions {
          * If it's not null, there's no need to go to the db anymore. 
          * User have to go to /setup page and enter credentials to set it to true(@saveBlockChainSettings), 
          * otherwise it will stay as false.
-         */       
+         */
         if(store.isInitialSetupDone == null) {
             fetch('/getApplicationSettings', { method: 'GET'}).then(function(response) {
                 return response.json();
@@ -211,6 +237,10 @@ export default class BackChainActions {
                     store.blockChainPrivateKey = result.settings.blockChain.privateKey;
                 } else {
                     store.isInitialSetupDone = false;
+                    store.mode = result.settings.mode;
+                    store.blockChainUrl=config.blockChainUrl;
+                    store.blockChainContractAddress=config.blockChainContractAddress;
+                    store.blockChainPrivateKey=config.blockChainpPrivateKey;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {
@@ -218,8 +248,10 @@ export default class BackChainActions {
                     store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
                     store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
                     store.lastSyncTimeInMillis = result.settings.chainOfCustidy.lastSyncTimeInMillis;
+                    store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
                   } else {
                       store.authenticationToken = null;
+                      store.chainOfCustodyUrl=config.chainOfCustodyUrl;
                 }
             }).catch(function(error) {
                 store.isInitialSetupDone = null;
@@ -288,7 +320,9 @@ export default class BackChainActions {
 
     @action
     static startInitialSync(authenticationToken, chainOfCustodyUrl) {
+        store.startSync = true;
         store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'chainOfCustodyUrl': chainOfCustodyUrl
@@ -310,27 +344,31 @@ export default class BackChainActions {
                 store.isInitialSyncDone = true;
                 store.syncGoingOn = false;
                 store.syncFailed = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;
                 store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
                 store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
-                setTimeout(function() {
-                    store.startSyncModalViewModalActive = false; //Close the Modal
-                }, 2000)
             } else {
-                store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
                 store.syncFailed = true;
                 store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;
             }
         })
         .catch(function (err) {
             store.syncFailed = true;
+            store.startSync = false;
+            store.startSyncViewModalActive = true;
         });
     }
 
     @action
     static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl) {
+        store.startSync = true;
         store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
@@ -348,36 +386,98 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-        .then(function(result) { 
+            .then(function (result) { 
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
+                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
                 store.syncFailed = false;
                 store.syncGoingOn = false;
-                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
-                store.startSyncModalViewModalActive = false; //Close the Modal
+                store.startSync = false;
+                store.startSyncViewModalActive = true; 
+                store.isInitialSyncDone = true;
             } else {
-                store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
                 store.syncFailed = true;
                 store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;  
             }            
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
-            store.startSyncModalViewModalActive = true; //Keep the modal open and display an error
             store.syncFailed = true;
+            store.startSync = false;
+            store.startSyncViewModalActive = true;  
         });
     }
-}
 
-function loadTransactions(transactions) {
-    transactions.forEach(element => {
-        store.transactions.push(element);
-    });
 
-    store.verifications = transactionHelper.storeVerificationData(transactions, store.entNameOfLoggedUser, store);
-    if(transactions.length > 0) {
-        store.canStartVerifying = true; //nothing to verify and no animation needed
+    @action 
+    static verfiyBackChainSettings(oneBcClient,callback) {
+        oneBcClient.getOrchestrator()
+        .then(function (result) {
+            return result;
+        })
+        .then(function (result) {
+            callback(null,result);
+        })
+        .catch(function (error) {
+            callback(error,null);       
+        });
+    }
+
+    @action 
+    static syncStatisticsInfo() {
+        fetch('/getSyncStatisticsInfo', {method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                let statisticsInfo = result.statisticsInfo;
+                store.gapExists = statisticsInfo.gapExists;
+                store.syncStatisticsExists = statisticsInfo.syncStatisticsExists;
+                store.noOfGaps = statisticsInfo.noOfGaps;
+            }
+        })
+        .catch(function (err) {
+            console.log('getSyncStatisticsInfo error');
+        });
+    }
+
+    @action
+    static getSyncStatistics(callback) {
+        fetch('/getSyncStatistics', {method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                store.syncStatistics = result.statistics;
+                callback(null, result.statistics);
+            }
+        })
+        .catch(function (err) {
+            callback(err, null);
+            console.log('getSyncStatistics error');
+        });
+    }
+
+    @action
+    static getTransactionsBySequenceNos(sequenceNoArr, callback) {
+        fetch('/getTransactionsBySequenceNos/' + JSON.stringify(sequenceNoArr), { method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                callback(null, result.txns);
+            }
+        })
+        .catch(function (err) {
+            callback(err, null);
+            console.log('getSyncStatistics error');
+        });
     }
 }

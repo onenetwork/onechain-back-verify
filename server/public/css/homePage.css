@@ -9,9 +9,11 @@ a:focus, a:hover {
 .mainDiv .innerDiv  {
     background-color: white;
     border-width : 0px;
-    width : 230px;
+    width : 270px;
     left : 147px;
-    height : 249px;
+    border-radius : 10px;
+    padding : 10px 15px 10px 25px;
+    min-height: 340px;
 }
 
 .mainDiv .innerDiv .span {
@@ -31,9 +33,9 @@ a:focus, a:hover {
      color: #999999;
 }
 
-.mainDiv .innerDiv .activeDescriptive {
-    padding-left: 24px;
-    padding-right: 24px;
+.mainDiv .innerDiv .activeDescriptive,  .mainDiv .innerDiv .inActiveDescriptive {
+    padding-left: 10px;
+    padding-right: 15px;
     padding-top: 10px;
     font-family: Open Sans;
     font-weight: 400;
@@ -43,14 +45,6 @@ a:focus, a:hover {
     line-height: 18px;
 }
 .mainDiv .innerDiv .inActiveDescriptive {
-    padding-left: 24px;
-    padding-right: 24px;
-    padding-top: 10px;
-    font-family: Open Sans;
-    font-weight: 400;
-    font-style: normal;
-    color: #515151;
-    text-align: center;
     color: #999999
 }
 
@@ -91,9 +85,7 @@ a:focus, a:hover {
 }
 
 .mainDiv .innerDiv:hover {
-    border-width: 1px;
-    border-color: rgba(171, 243, 248, 1);
-    border-style: solid;
+    box-shadow: inset 0 0 0 1px #e75a5a;
 }
 
 .mainDiv .dbActiveSpan {
@@ -103,11 +95,13 @@ a:focus, a:hover {
 }
 
 .mainDiv .innerDivinActive  {
-    background-color: white;
+    background-color: rgba(240, 241, 244, 1);
     border-width : 0px;
-    width : 230px;
+    width : 270px;
     left : 147px;
-    height : 249px;
+    border-radius : 10px;
+    padding : 10px 15px 10px 25px;
+    min-height : 340px;
 }
 
 .mainDiv .innerDivinActive .span {
@@ -127,9 +121,9 @@ a:focus, a:hover {
      color: #999999;
 }
 
-.mainDiv .innerDivinActive .activeDescriptive {
-    padding-left: 24px;
-    padding-right: 24px;
+.mainDiv .innerDivinActive .activeDescriptive, .mainDiv .innerDivinActive .inActiveDescriptive {
+    padding-left: 10px;
+    padding-right: 15px;
     padding-top: 10px;
     font-family: Open Sans;
     font-weight: 400;
@@ -139,14 +133,6 @@ a:focus, a:hover {
     line-height: 18px;
 }
 .mainDiv .innerDivinActive .inActiveDescriptive {
-    padding-left: 24px;
-    padding-right: 24px;
-    padding-top: 10px;
-    font-family: Open Sans;
-    font-weight: 400;
-    font-style: normal;
-    color: #515151;
-    text-align: center;
     color: #999999
 }
 
@@ -171,19 +157,6 @@ a:focus, a:hover {
     color: #515151;
     cursor: pointer;
     padding-left: 62px;
-}
-
-.mainDiv .innerDivinActive .span.textSearch {
-    padding-left: 3px;
-}
-
-.mainDiv .innerDivinActive .span.textSearch.activeSpan {
-    color: #515151;
-    cursor: pointer
-}
-
-.mainDiv .innerDivinActive .span.textSearch.inActiveSpan  {
-    color: #999999
 }
 
 .mainDiv .innerDivinActive:hover {
@@ -241,4 +214,8 @@ a:focus, a:hover {
     font-size: 20px;
     color: #515151;
     padding-top: 5px;
+}
+
+.dbNsyncIcon:hover {
+    box-shadow: inset 0 0 0 1px #3d82c9;
 }

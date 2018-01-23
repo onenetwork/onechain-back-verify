@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
     sudo npm install --no-bin-links body-parser --save
     sudo npm install --no-bin-links cookie-parser --save
     sudo npm install --no-bin-links multer --save
-    sudo npm install --no-bin-links mongodb --save
+    sudo npm install --no-bin-links mongodb@2.2.33 --save
    
     #Install react packages
     sudo npm install --no-bin-links react --save
@@ -83,8 +83,8 @@ Vagrant.configure("2") do |config|
     #Install fetch packages
     sudo npm install --no-bin-links whatwg-fetch --save
    
-    #Install Jquery json viewer
-    sudo npm install --no-bin-links jquery.json-viewer --save
+    #Install object.intersect library
+    sudo npm install --no-bin-links object.intersect --save	
    
     #Install jszip for ZIP files
     sudo npm install --no-bin-links jszip --save
@@ -97,7 +97,13 @@ Vagrant.configure("2") do |config|
 
     #Install datepicker it has dependancy on moment
     sudo npm install react-datetime --save
-	
+
+    #custom Scrollbar
+	  sudo npm install react-custom-scrollbars --save
+
+    #library for unsafe integers
+    sudo npm install bignumber.js --save
+
 	#Table Pagination
 	sudo npm install --no-bin-links react-pagination-table --save-dev
 	

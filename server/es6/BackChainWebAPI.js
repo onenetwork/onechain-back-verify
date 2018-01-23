@@ -29,7 +29,9 @@ exports.isInitialSyncDone = function(req, res) {
 exports.getTransactionById = function(req, res) {
     let data = [];
     transactionHelper.getTransactionById(req.params.transId, function(error, result) {
-        data.push(result);
+        if(result !== null) {
+            data.push(result);
+        }
         res.json({result : data});
     });
 };
@@ -85,5 +87,39 @@ exports.consumeTransactionMessages = function(req, res) {
             result.success = true;
             res.json({consumeResult : result});
         }
+    });
+}
+
+exports.getSyncStatisticsInfo = function(req, res) {
+    settingsHelper.getSyncStatisticsInfo()
+    .then(function (result) {
+        res.json({success: true, statisticsInfo: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
+    });
+}
+
+exports.getSyncStatistics = function(req, res) {
+    settingsHelper.getSyncStatistics()
+    .then(function (result) {
+        if(result) {
+            res.json({success: true, statistics: result});
+        } else {
+            res.json({success: false});
+        }        
+    })
+    .catch(function (error) {
+        res.json({success: false});
+    });
+}
+
+exports.getTransactionsBySequenceNos = function(req, res) {
+    transactionHelper.getTransactionsBySequenceNos(JSON.parse(req.params.sequenceNos))
+    .then(function (result) {
+        res.json({success: true, txns: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
     });
 }

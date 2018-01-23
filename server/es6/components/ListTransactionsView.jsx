@@ -42,7 +42,7 @@ import HeaderView from "./HeaderView";
 		let panelBody = (<div>
                             <Row style={fieldProps.panelBodyTitle}>
                                 <span style={{float:'left'}} > Verifications </span>
-                                <span style={{paddingLeft:'680px'}}><Link to="/index"> <Button className="btn btn-primary" bsSize="large" style={fieldProps.button}>Verify Another Transaction</Button> </Link> </span>
+                                <span style={{paddingLeft:'680px'}}><Link to="/home"> <Button className="btn btn-primary" bsSize="large" style={fieldProps.button}>Verify Another Transaction</Button> </Link> </span>
                             </Row><br/>
 						</div>);
         return (

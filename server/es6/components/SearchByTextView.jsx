@@ -82,13 +82,7 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 				FormControl : {
 					width : '30%'
 				},
-				logo: {
-					position: 'relative',
-					left: '8%',
-					marginLeft: -55
-				},
 				nameSpan : {
-					marginLeft: '136px',
 					fontSize: '25px'
 				},
 				nameColor : {
@@ -96,9 +90,6 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 					fontFamily :'Open Sans Semibold,Open Sans Regular,Open Sans',
 				},
 				subNameSpan : {
-					position: 'relative',
-					verticalAlign: '-22px',
-					left: '-27%',
 					fontFamily:'Open Sans'
 				},
 				blankLine : {
@@ -140,7 +131,12 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 						for(let k= 0; k < businessTransactions.length; k++) {
 							let dataJson= {}
 							dataJson.radio=<Radio style={fieldProps.radio}   name="businessTransaction" onChange={this.toggleCheckbox} value={businessTransactions[k].btid} />;
-							dataJson.modelLevelType =businessTransactions[k].ModelLevelType.split(".")[1];
+							if(businessTransactions[k].ModelLevelType.indexOf(".")!== -1) {
+								dataJson.modelLevelType = businessTransactions[k].ModelLevelType.split(".")[1];
+							}
+							else {
+								dataJson.modelLevelType = businessTransactions[k].ModelLevelType;
+							}
 							dataJson.btId =businessTransactions[k].btid;
 							data.push(dataJson);
 						}
@@ -184,14 +180,20 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 					<HeaderView store={this.props.store}/>
 						<div className={"panel-body"} style={fieldProps.panelBody}>
 							<div>
-								<Row> 
-									<img src="/images/business-transaction-search.png" style={fieldProps.logo}/> 
-									<span style={fieldProps.nameSpan}>
-										<strong style={fieldProps.nameColor}> 
-											Business Transaction Search
-										</strong> 
-									</span> 
-									<span style={fieldProps.subNameSpan}>Some descriptive text to be added here. Some descriptive text to be added here. Some descriptive text here.</span>
+								<Row>
+									<Col md={2} style={{paddingLeft:'37px'}}>  
+										<img src="/images/business-transaction-search.png" /> 
+									</Col>
+									<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}> 
+										<span style={fieldProps.nameSpan}>
+											<strong style={fieldProps.nameColor}> 
+												Business Transaction Search
+											</strong> 
+										</span> <br/>
+										<span style={fieldProps.subNameSpan}>
+											This search is a free form search that returns all transactions associated with a Business Transaction. . This search will require the transactions to be existing in the local repository.
+										</span>
+									</Col>
 								</Row> 
 								<hr style={fieldProps.blankLine}/>
 							</div>

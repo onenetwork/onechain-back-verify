@@ -1,0 +1,35 @@
+.counter1  {
+    display: inline-block;
+    font-size: 10px;
+    position: relative;
+    left: -14px;
+    bottom: -6px;
+    color: white;
+    width: 6%;
+}
+
+.counter2  {
+    display: inline-block;
+    font-size: 10px;
+    position: relative;
+    left: -16px;
+    bottom: -6px;
+    color: white;
+    width: 6%;
+}
+.counter3  {
+    display: inline-block;
+    font-size: 10px;
+    position: relative;
+    left: -19px;
+    bottom: -6px;
+    color: white;
+    width: 6%;
+}
+.transactionIdCss {
+    width: 200px;
+    max-width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

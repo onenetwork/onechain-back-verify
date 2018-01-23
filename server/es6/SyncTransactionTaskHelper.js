@@ -14,22 +14,20 @@ class SyncTransactionTaskHelper {
         startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
             let me = this;
             let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYMMDD');
-            let params = {'date': dateAsString};
             console.log('sync start date: ' + dateAsString);
             
-            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset'), {
-                method: 'post',
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset?fromDate=' + dateAsString), {
+                method: 'get',
                 headers: new Headers({
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' + new Buffer('ProgressiveRetailerVCAdmin' + ':' + 'password').toString('base64')
-                }),
-                body: requestHelper.jsonToUrlParams(params)
+                    'Authorization': 'token ' + authenticationToken
+                })
             }).then(function(response) {
                 return response.json();
             }).then(function(result) {
-                me.updatechainOfCustody(authenticationToken, chainOfCustodyUrl, function(chainOfCustidy) {
+                me.updatechainOfCustody(authenticationToken, chainOfCustodyUrl,result.entName, function(chainOfCustidy) {
                     chainOfCustidy.success = 'success';
                     callback(null, chainOfCustidy);
                 });
@@ -38,7 +36,7 @@ class SyncTransactionTaskHelper {
                 callback(err, null)
             });
         }
-        updatechainOfCustody(authenticationToken, chainOfCustodyUrl, callback) {
+        updatechainOfCustody(authenticationToken, chainOfCustodyUrl,entName, callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
                 if (err) {
                     logger.error(err);
@@ -47,7 +45,8 @@ class SyncTransactionTaskHelper {
                     result.chainOfCustidy = {
                         "authenticationToken" : authenticationToken,
                         "lastSyncTimeInMillis" : new Date().getTime(),
-                        "chainOfCustodyUrl" : chainOfCustodyUrl
+                        "chainOfCustodyUrl" : chainOfCustodyUrl,
+                        "enterpriseName":entName
                     }
                     
                     let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({}, {$set: result}).then((resultSet) => {

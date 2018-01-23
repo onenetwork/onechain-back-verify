@@ -3,7 +3,7 @@ import path from 'path';
 import {router} from "./routes";
 import {dbconnectionManager} from "./DBConnectionManager";
 import bodyParser from 'body-parser';
-// import {receiveTransactionsTask} from './ReceiveTransactionsTask'
+import {receiveTransactionsTask} from './ReceiveTransactionsTask'
 
 (() => {
     const url = "mongodb://localhost:27017";
@@ -14,7 +14,13 @@ import bodyParser from 'body-parser';
       }));
     router(app);
 
-    dbconnectionManager.connect(url, dbName, function(err) {
+    let myArgs = process.argv.slice(2); 
+    let mode = "dev";
+    if(myArgs.toString().indexOf('=') !== -1) {
+        mode = myArgs.toString().split("=")[1];
+    }
+
+    dbconnectionManager.connect(url, dbName,mode, function(err) {
         if (err) {
             throw err;
         }
@@ -30,7 +36,7 @@ import bodyParser from 'body-parser';
             res.sendFile(path.join(__dirname + "/../" + "index.html"));
         });
         
-    //    receiveTransactionsTask.callSetInterval();
-
+        receiveTransactionsTask.startTimer();
+        
     });
 })();

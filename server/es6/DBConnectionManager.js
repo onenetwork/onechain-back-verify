@@ -11,7 +11,7 @@ class DBConnectionManager {
         };
     }
 
-    connect(url, dbName, done) {
+    connect(url, dbName, mode, done) {
         let me = this;
         if (this.state.db) {
             return done();
@@ -23,6 +23,7 @@ class DBConnectionManager {
             }
             me.state.db = client.db(dbName);
             me.createCollectionAndIndex();
+            me.setMode(mode);
             done();
         })
     }
@@ -46,6 +47,7 @@ class DBConnectionManager {
                 name: 'Transactions'
             })
             .next(function(err, collinfo) {
+                console.log('Creating Index/Collection for Transactions');
                 if (collinfo) {
                     me.state.db.collection(collinfo.name).createIndex({
                         "transactionSlices.businessTransactions.btId": 1
@@ -53,9 +55,7 @@ class DBConnectionManager {
                     me.state.db.collection(collinfo.name).createIndex({
                         tnxId: 1
                     });
-                    me.state.db.collection(collinfo.name).createIndex({
-                        "$**":"text"
-                    });
+                    console.log('Index created');
                 } else {
                     me.state.db.createCollection("Transactions", {}, function(error, collection) {
                         if (error) {
@@ -67,14 +67,50 @@ class DBConnectionManager {
                             collection.createIndex({
                                 tnxId: 1
                             });
-                            collection.createIndex({
-                                 "$**":"text" 
-                            });
                             console.log('collection and Index created');
                         }
                     });
                 }
             });
+
+            me.state.db.listCollections({
+                name: 'Settings'
+            })
+            .next(function(err, collinfo) {
+                if (!collinfo) {
+                    me.state.db.createCollection("Settings", {}, function(error, collection) {
+                        if (error) {
+                            console.error("error while creating Settings collection");
+                        } else {
+                            console.log("Settings collection created successfully.")
+                        }
+                    }) 
+                }  
+            });
+    }
+
+    setMode(mode) {
+        let me = this;
+        me.state.db.collection('Settings').findOne({ type: 'applicationSettings' }, function (err, exist) {
+            let data = '';
+            if(exist) {
+                data = exist;
+                data.mode = mode;
+            } else {
+                data = {
+                    mode : mode,
+                    type: 'applicationSettings',
+                };
+            }
+            var result =  me.state.db.collection('Settings').update({ type: 'applicationSettings' }, data, { upsert: true }).then(function (result) {
+                if (result) {
+                    console.log("Mode has been set successfully");
+                }
+            }).catch(function (err) {
+                console.error("While setting mode in Settings collection" + err);
+                
+            });
+        })
     }
 }
 export const dbconnectionManager = new DBConnectionManager();
