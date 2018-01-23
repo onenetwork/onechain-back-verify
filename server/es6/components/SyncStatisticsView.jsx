@@ -44,10 +44,12 @@ import {Link} from 'react-router-dom';
                 let mins = me.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
                 allTransactionsArr.push({type : "gap", fromSeqNo : gap.fromSequenceNo, toSeqNo : gap.toSequenceNo, noOfGaps : noOfGapRecords, syncMsg : 'Sequence Gap',time:hrs + ' ' + mins, fromDate : fromGapDate, toDate : toGapDate});
 
-                earliestSyncSequenceNo = ((new BigNumber(gapToSequenceNo)).plus(new BigNumber(1))).valueOf();
+                earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
                 
-                if((i+1 == syncStatistics.gaps.length) && (new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo)))) {
-                    allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
+                if(i+1 == syncStatistics.gaps.length) {
+                    if(new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo))) {
+                        allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
+                    }
                     this.syncStatisticsReport(allTransactionsArr);
                 }
             }

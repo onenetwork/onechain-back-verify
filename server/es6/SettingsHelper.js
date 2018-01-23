@@ -1,4 +1,5 @@
 import { dbconnectionManager } from './DBConnectionManager';
+import {BigNumber} from 'bignumber.js';
 
 class SettingsHelper {
 
@@ -41,15 +42,24 @@ class SettingsHelper {
     }
 
     getSyncStatistics() {
+        let me = this;
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('SyncStatistics').findOne({})
             .then(function (result) {
+                if(result) {
+                    let sortedGaps = (result.gaps).sort(me.SortByFromSequenceNo);
+                    result.gaps = sortedGaps;
+                }
                 resolve(result); //result can be null. There's no need to fail call because db communication is successful
             })
             .catch((err) => {
                 reject("Couldn't fetch SyncStatistics");
             });
         });
+    }
+
+    SortByFromSequenceNo(firstGapObj, secondGapObj) {
+        return new BigNumber(firstGapObj.fromSequenceNo).minus(new BigNumber(secondGapObj.fromSequenceNo));
     }
 
     modifySyncStatsObject(syncStatistics, transMessage) { 
