@@ -23,7 +23,7 @@ Setup for Windows environments:
  
  After you are set up and have ssh-ed into vagrant, you're ready to start developing.
  
- * Run `gulp transpile build`, then run `node server/es5/server.js`.
+ * Run `gulp transpile && gulp build`, then run `node server/es5/server.js`.
  * After the server initializes, you can access it at: http://55.55.55.5:8081/
  
  **Note:** The first time you load BCV, it will display a Setup page asking for a Blockchain URL, Contract Address and Private Key. You should replace http://localhost with http://10.0.2.2 for the Blockchain URL when running the server inside vagrant.
