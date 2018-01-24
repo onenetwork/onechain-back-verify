@@ -16,12 +16,6 @@ class SyncTransactionTaskHelper {
             let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYMMDD');
             console.log('sync start date: ' + dateAsString);
 
-            let result = { "success": true, "entName": "ProgressiveRetailer" };
-            me.updatechainOfCustody(authenticationToken, chainOfCustodyUrl,result.entName, function(chainOfCustidy) {
-                chainOfCustidy.success = 'success';
-                callback(null, chainOfCustidy);
-            });
-            /*
             fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset?fromDate=' + dateAsString), {
                 method: 'get',
                 headers: new Headers({
@@ -41,7 +35,6 @@ class SyncTransactionTaskHelper {
                 console.log(err);
                 callback(err, null)
             });
-            */
         }
         updatechainOfCustody(authenticationToken, chainOfCustodyUrl,entName, callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {

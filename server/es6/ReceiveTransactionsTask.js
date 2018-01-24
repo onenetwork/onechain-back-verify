@@ -11,47 +11,6 @@ class ReceiveTransactionsTask {
     }
 
     callGetMessages(authenticationToken, chainOfCustodyUrl, callback) {
-        let result = {
-            "success":true,
-            "hasMorePages":false,
-            "transactionMessages":[
-               {
-                  "date":1516724694000,
-                  "sequence":1,
-                  "transactionSliceHash":"9d964e86f14cfcaec65818c76e1d755bba9581506b2e60cbd9ec86b6b4e99984",
-                  "transactionSliceString":"{\"businessTransactions\":[{\"LastModifiedDate\":{\"date\":\"2018-01-23T16:24:53\",\"tzId\":\"America/New_York\",\"tzCode\":\"EST\"},\"btid\":\"b912abcd3885fee4d16356665ddea6a665bf6bedd05a06d6c2c4b193c4d837c6\",\"ModelLevelType\":\"PTA.TestModel\",\"PtxVersion\":1,\"btref\":\"http://sdurkin:80/oms~PTA.TestModel~aaaabbbb~100\",\"ValueChainId\":100,\"TestModelKey\":\"aaaabbbb\",\"ActionName\":\"PTA.CreateTestModel\",\"Active\":true,\"LastModifiedUser\":\"ScottRepAnalyst\"}],\"enterprise\":\"ProgressiveRetailer\",\"type\":\"Enterprise\"}",
-                  "id":"a15e27c51be1ec0b1bbcebcea3578b9dd3bd131f54cf66262a046a15c264b096",
-                  "type": "Enterprise",
-                  "enterprise": "ProgressiveRetailer",
-                  "businessTransactionIds": ["b912abcd3885fee4d16356665ddea6a665bf6bedd05a06d6c2c4b193c4d837c6"]
-               },
-               {
-                  "date":1516724694000,
-                  "sequence":2,
-                  "transactionSliceHash":"e54bc1e0e28b4232ec8c1ac8a512461793f8470d65084bd2164896785f073c81",
-                  "transactionSliceString":"{\"businessTransactions\":[{\"LastModifiedDate\":{\"date\":\"2018-01-23T16:24:53\",\"tzId\":\"America/New_York\",\"tzCode\":\"EST\"},\"btid\":\"b912abcd3885fee4d16356665ddea6a665bf6bedd05a06d6c2c4b193c4d837c6\",\"ModelLevelType\":\"PTA.TestModel\",\"PtxVersion\":1,\"btref\":\"http://sdurkin:80/oms~PTA.TestModel~aaaabbbb~100\",\"ValueChainId\":100,\"TestModelKey\":\"aaaabbbb\",\"ActionName\":\"PTA.CreateTestModel\",\"Active\":true,\"LastModifiedUser\":\"ScottRepAnalyst\"}],\"type\":\"Intersection\",\"enterprises\":[\"Carrier A\",\"ProgressiveRetailer\"]}",
-                  "id":"a15e27c51be1ec0b1bbcebcea3578b9dd3bd131f54cf66262a046a15c264b096",
-                  "type": "Intersection",
-                  "enterprises": [ "ProgressiveRetailer", "CarrierA" ],
-                  "businessTransactionIds": ["b912abcd3885fee4d16356665ddea6a665bf6bedd05a06d6c2c4b193c4d837c6"]
-               },
-               {
-                "date":1516724694000,
-                "sequence":3,
-                "transactionSliceHash":"e54bc1e0e28b4232ec8c1ac8a512461793f8470d65084bd2164896785f073c81",
-                "transactionSliceString":"{\"businessTransactions\":[{\"LastModifiedDate\":{\"date\":\"2018-01-23T16:24:53\",\"tzId\":\"America/New_York\",\"tzCode\":\"EST\"},\"btid\":\"b912abcd3885fee4d16356665ddea6a665bf6bedd05a06d6c2c4b193c4d837c6\",\"ModelLevelType\":\"PTA.TestModel\",\"PtxVersion\":1,\"btref\":\"http://sdurkin:80/oms~PTA.TestModel~aaaabbbb~100\",\"ValueChainId\":100,\"TestModelKey\":\"aaaabbbb\",\"ActionName\":\"PTA.CreateTestModel\",\"Active\":false,\"LastModifiedUser\":\"ScottRepAnalyst\"}],\"type\":\"Enterprise\",\"enterprise\":\"ProgressiveRetailer\"]}",
-                "id":"a15e27c51be1ec0b1bbcebcea3578b9dd3bd131f54cf66262a046a15c264b096",
-                "type": "Enterprise",
-                "enterprise": "ProgressiveRetailer",
-                "businessTransactionIds": ["b912abcd3885fee4d16356665ddea6a665bf6bedd05a06d6c2c4b193c4d837c6"]
-             }
-           ]
-         };
-        if(result && result.transactionMessages) {
-            console.log("Received " + result.transactionMessages.length + " messages");
-        }
-        callback(null, result);
-        /*
         fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
             method: 'get',
             headers: new Headers({
@@ -70,7 +29,6 @@ class ReceiveTransactionsTask {
         }).catch(function (err) {
             callback(err, null);
         });
-        */
     }
 
     consumeTransactionMessages(authenticationToken, chainOfCustodyUrl, callback) {
@@ -214,9 +172,7 @@ class ReceiveTransactionsTask {
                 trueTransactionSliceHashes: []
             };
 
-            console.log("Received " + transMessage.transactionSliceHash);
             if(transactionInDb.transactionSliceHashes.indexOf(transMessage.transactionSliceHash) >= 0) {
-                console.log("Already in DB, skipping");
                 return;
             }
 
