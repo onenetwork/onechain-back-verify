@@ -6,6 +6,7 @@ import SearchByTransactionIdView from './components/SearchByTransactionIdView';
 import SetupView from './components/SetupView';
 import SyncStatisticsView from './components/SyncStatisticsView';
 import StartSyncView from './components/StartSyncView';
+import TrackAndVerifyView from './components/TrackAndVerifyView';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch, Redirect} from 'react-router-dom';
@@ -30,11 +31,23 @@ const RoutedApp = () => (
   </BrowserRouter>
 );
 
-(function(){
-  BackChainActions.init(backChainStore);
-  })()
 
-ReactDOM.render(
-    <RoutedApp/>,
-    document.getElementById('root')
-);
+window.BackchainVerifyAPI = {
+    setup: (renderTo, options) => {
+        BackChainActions.init(backChainStore);
+
+        options = options || {};
+        const componentToRender = options.showOnlyVerifyView
+            ? <TrackAndVerifyView store={backChainStore} hideProgressBar />
+            : <RoutedApp/>;
+
+        if (typeof renderTo == 'string') {
+            renderTo = $(renderTo)[0];
+        }
+        ReactDOM.render(componentToRender, renderTo);
+    },
+
+    loadTransactions: (transactions) => {
+        BackChainActions.loadTransactions(transactions);
+    }
+};

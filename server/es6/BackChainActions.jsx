@@ -41,19 +41,23 @@ export default class BackChainActions {
 
 
     /**
-     * Fetches transaction data and loads it into the store
+     * This method either loads provided array of transaction data, provided as the first argument,
+     * or fetches transaction data and loads it into the store, if there are 2 provided arguments (id and searchCriteria).
      * @param {*} id - either a transaction or business id
      * @param {*} searchCriteria - either "tnxId" or "btId"
      */
     @action
     static loadTransactions(id, searchCriteria, callback) {
-        let uri = null;
-
-        store.loadingData = true;
         store.canStartVerifying = false;
         store.transactions.clear();
         store.verifications.clear();
-        
+
+        if(arguments.length == 1 && Array.isArray(arguments[0])) {
+            BackChainActions.loadTransactionsAux(arguments[0], callback);
+            return;
+        }
+
+        let uri = null;
         if(searchCriteria == "tnxId") {
              uri = '/getTransactionById/' + id;
         }
@@ -61,30 +65,32 @@ export default class BackChainActions {
             uri = '/getTransactionByBusinessTransactionId/' + id;
         }
 
+        store.loadingData = true;
 		fetch(uri, {method: 'GET'}).then(function(response) {
 			return response.json();
 		}, function(error) {
             store.loadingData = false;
             store.error = "Couldn't load transactions. Please try again later";
   			console.error('error getting transaction by transaction id');
-		}).then(function(result) {     
-            result.result.forEach(element => {
-                store.transactions.push(element);
-            });
-            // can give some errors here if oneBcClient settings are null
-            if (store.oneBcClient != null) {
-                store.verifications = transactionHelper.storeVerificationData(result.result, store.entNameOfLoggedUser, store.oneBcClient);
-            }
-            if(result.result.length > 0) {
-                store.canStartVerifying = true; //nothing to verify and no animation needed
-            }
+		}).then(function(result) {
+            store.loadingData = false;
+            BackChainActions.loadTransactionsAux(result.result, callback);
+  		});
+    }
 
-            if(store.transactions.length > 0) {
-                callback(true);
-            } else {
-                callback(false);
-            } 
-  		})
+    @action
+    static loadTransactionsAux(transactions, callback) {
+        transactions.forEach(element => store.transactions.push(element));
+
+        if (store.oneBcClient != null) {
+            store.verifications = transactionHelper.generateVerificationData(transactions, store.entNameOfLoggedUser, store.oneBcClient);
+        }
+
+        if(transactions.length > 0) {
+            store.canStartVerifying = true; // nothing to verify and no animation needed
+        }
+
+        callback(store.transactions.length > 0);
     }
 
     @action
@@ -93,26 +99,26 @@ export default class BackChainActions {
         store.transactions.forEach(transElement => {
                 if(transElement.id == id) {
                     let id = transElement.id;
-                    let transactionSliceObjects =transElement.transactionSliceObjects;
-                    for(let j=0; j<transactionSliceObjects.length; j++) {
+                    let transactionSlices =transElement.transactionSlices;
+                    for(let j=0; j<transactionSlices.length; j++) {
                         /* Always add transactionSlice in viewTransactions no matter @param type is Enterprise or Intersection*/
-                        if(transactionSliceObjects[j].type == "Enterprise") {
+                        if(transactionSlices[j].type == "Enterprise") {
                             let newJson = observable({});
                             newJson.id = id;
-                            newJson.transactionSlice = transactionSliceObjects[j];
+                            newJson.transactionSlice = transactionSlices[j];
                             store.viewTransactions.enterprise = newJson;
                         }
                         if(type == "Intersection"
-                                && transactionSliceObjects[j].type == "Intersection"
-                                    && ( transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 
-                                        &&  transactionSliceObjects[j].enterprises.indexOf(partnerEntName) > -1)) {
+                                && transactionSlices[j].type == "Intersection"
+                                    && ( transactionSlices[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1
+                                        &&  transactionSlices[j].enterprises.indexOf(partnerEntName) > -1)) {
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = transactionSliceObjects[j];
+                                newJson.transactionSlice = transactionSlices[j];
                                 store.viewTransactions.intersection = newJson;
                         }
                     }
-                }               
+                }
         })
     }
 
@@ -124,17 +130,17 @@ export default class BackChainActions {
             for (let index in ids) {
                 if (transElement.id == ids[index]) {
                     let id = transElement.id;
-                    let transactionSliceObjects = transElement.transactionSliceObjects;
-                    for (let j = 0; j < transactionSliceObjects.length; j++) {
-                        if (type == transactionSliceObjects[j].type) {
-                            if (transactionSliceObjects[j].type == "Enterprise") {
+                    let transactionSlices = transElement.transactionSlices;
+                    for (let j = 0; j < transactionSlices.length; j++) {
+                        if (type == transactionSlices[j].type) {
+                            if (transactionSlices[j].type == "Enterprise") {
                                 let newJson = {};
                                 newJson.id = id;
                                 newJson.transactionSlice = transElement.transactionSlices[j];
                                 store.payload.push(newJson);
-                            } else if (transactionSliceObjects[j].type == "Intersection" &&
-                                (transactionSliceObjects[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 &&
-                                    transactionSliceObjects[j].enterprises.indexOf(partnerEntName) > -1)) {
+                            } else if (transactionSlices[j].type == "Intersection" &&
+                                (transactionSlices[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 &&
+                                transactionSlices[j].enterprises.indexOf(partnerEntName) > -1)) {
                                 let newJson = {};
                                 newJson.id = id;
                                 newJson.transactionSlice = transElement.transactionSlices[j];
@@ -142,7 +148,7 @@ export default class BackChainActions {
                             }
                         }
                     }
-                   
+
                 }
             }
         })
@@ -191,7 +197,7 @@ export default class BackChainActions {
     static toggleDisplayMessageView() {
         store.displayMessageViewModalActive = !store.displayMessageViewModalActive;
     }
-    
+
     @action
     static toggleDBSyncModalViewActive() {
         store.dbSyncModalViewActive = !store.dbSyncModalViewActive;
@@ -221,8 +227,8 @@ export default class BackChainActions {
     static processApplicationSettings() {
         /**
          * If the value is null, it means db was never checked for the value.
-         * If it's not null, there's no need to go to the db anymore. 
-         * User have to go to /setup page and enter credentials to set it to true(@saveBlockChainSettings), 
+         * If it's not null, there's no need to go to the db anymore.
+         * User have to go to /setup page and enter credentials to set it to true(@saveBlockChainSettings),
          * otherwise it will stay as false.
          */
         if(store.isInitialSetupDone == null) {
@@ -261,7 +267,7 @@ export default class BackChainActions {
         }
     }
 
-    @action 
+    @action
     static mergeUploadedPayloadWithDb(payloads, callback) {
         let transArr = [];
         let payloadLength = payloads.length;
@@ -272,21 +278,21 @@ export default class BackChainActions {
                     transaction = transaction[0];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
                     if (index != null) {
-                        transaction.transactionSlices[index] = payload.transactionSlice;
-                        transaction.transactionSliceObjects[index] = JSON.parse(payload.transactionSlice);
+                        transaction.transactionSliceStrings[index] = payload.transactionSlice;
+                        transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
                     } else {
-                        transaction.transactionSlices.push(payload.transactionSlice);
-                        transaction.transactionSliceObjects.push(JSON.parse(payload.transactionSlice));
+                        transaction.transactionSliceStrings.push(payload.transactionSlice);
+                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
                     }
                     transArr.push(transaction);
                 } else {
                     transArr.push({
                         id: payload.id,
-                        transactionSlices: [payload.transactionSlice],
-                        transactionSliceObjects: [JSON.parse(payload.transactionSlice)]
+                        transactionSliceStrings: [payload.transactionSlice],
+                        transactionSlices: [JSON.parse(payload.transactionSlice)]
                     });
                 }
-    
+
                 if (i == payloadLength && transArr.length > 0) {
                     store.transactions.clear();
                     transArr.forEach(element => {
@@ -300,7 +306,7 @@ export default class BackChainActions {
             })
         })
     }
-     
+
     @action
     static findTransaction(transId, callback) {
         let uri = '/getTransactionById/' + transId;
@@ -343,7 +349,7 @@ export default class BackChainActions {
                 store.authenticationToken = result.consumeResult.authenticationToken;
                 store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
                 store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
-            } 
+            }
         })
         .catch(function (err) {
             log.error("Error occured in startInitialSync.");
@@ -372,7 +378,7 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-            .then(function (result) { 
+            .then(function (result) {
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
@@ -381,28 +387,27 @@ export default class BackChainActions {
                 store.syncFailed = false;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true; 
+                store.startSyncViewModalActive = true;
                 store.isInitialSyncDone = true;
                 if(callback){
-                    callback(null,true);  
+                    callback(null,true);
                 }
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true;  
-            }            
+                store.startSyncViewModalActive = true;
+            }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
             store.syncFailed = true;
             store.startSync = false;
-            store.startSyncViewModalActive = true;  
+            store.startSyncViewModalActive = true;
         });
     }
 
-
-    @action 
+    @action
     static verfiyBackChainSettings(oneBcClient,callback) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
@@ -412,11 +417,11 @@ export default class BackChainActions {
             callback(null,result);
         })
         .catch(function (error) {
-            callback(error,null);       
+            callback(error,null);
         });
     }
 
-    @action 
+    @action
     static syncStatisticsInfo() {
         fetch('/getSyncStatisticsInfo', {method: 'GET'})
         .then(function(response) {

@@ -50,7 +50,7 @@ class DBConnectionManager {
                 console.log('Creating Index/Collection for Transactions');
                 if (collinfo) {
                     me.state.db.collection(collinfo.name).createIndex({
-                        "transactionSlices.businessTransactions.btId": 1
+                        "transactionSlices.businessTransactionIds": 1
                     });
                     me.state.db.collection(collinfo.name).createIndex({
                         tnxId: 1
@@ -62,7 +62,7 @@ class DBConnectionManager {
                             console.error("error while creating collection");
                         } else {
                             collection.createIndex({
-                                "transactionSlices.businessTransactions.btId": 1
+                                "transactionSlices.businessTransactionIds": 1
                             });
                             collection.createIndex({
                                 tnxId: 1
@@ -84,8 +84,8 @@ class DBConnectionManager {
                         } else {
                             console.log("Settings collection created successfully.")
                         }
-                    }) 
-                }  
+                    })
+                }
             });
     }
 
@@ -108,7 +108,7 @@ class DBConnectionManager {
                 }
             }).catch(function (err) {
                 console.error("While setting mode in Settings collection" + err);
-                
+
             });
         })
     }

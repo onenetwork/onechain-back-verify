@@ -21,13 +21,9 @@ class TransactionHelper {
 
     getTransactionByBusinessTransactionId(btId, callback) {
         let result = dbconnectionManager.getConnection().collection('Transactions').find({
-            "transactionSliceObjects": {
+            "transactionSlices": {
                 $elemMatch: {
-                    "businessTransactions": {
-                        $elemMatch: {
-                            "btid": {$in : btId} 
-                        }
-                    }
+                    "businessTransactionIds": {$in : btId}
                 }
             }
         }).sort({date:-1}).toArray(function(err, result) {
@@ -39,6 +35,8 @@ class TransactionHelper {
             }
         });
     }
+    /*
+    Currently unused:
 
     getTransactionByText(searchText, callback) {
         let result = dbconnectionManager.getConnection().collection('Transactions').find({
@@ -66,35 +64,7 @@ class TransactionHelper {
                 }
             });
     }
-
-    /**
-     * returns a map(Actual Map object) of
-     * <transaction.id>_<ent_name> : <stringified version of the slice>
-     * @param {*} transactions - list of slice objects which include my ent view and all others (full payload)
-     * @param {*} myEntName - name of the logged enterprise
-     */
-    extractSlicesToVerify(transactions, myEntName) {
-        let verificationPairs = new Map();
-        transactions.forEach(transaction => {
-            if (transaction) {
-                for (let j = 0; j < transaction.transactionSliceObjects.length; j++) {
-                    let tnxSliceObj = transaction.transactionSliceObjects[j];
-                    let tnxSliceStringified = transaction.transactionSlices[j];
-
-                    if (tnxSliceObj.type == "Enterprise" && tnxSliceObj.enterprise == myEntName) {
-                        verificationPairs.set(transaction.id + "_" + myEntName, tnxSliceStringified);
-                    }
-
-                    if (tnxSliceObj.type == "Intersection" && ((tnxSliceObj.enterprises).indexOf(myEntName) > -1)) {
-                        let logInUserEntIndex = (tnxSliceObj.enterprises).indexOf(myEntName);
-                        let partnerEntName = logInUserEntIndex == 0 ? tnxSliceObj.enterprises[1] : tnxSliceObj.enterprises[0];
-                        verificationPairs.set(transaction.id + "_" + partnerEntName, tnxSliceStringified);
-                    }
-                }
-            }
-        });
-        return verificationPairs;
-    }
+    */
 
     saveBlockChainSettings(config, callback) {
     // check if there is any saved value
@@ -130,10 +100,10 @@ class TransactionHelper {
                             'contractAddress': config.contractAddress,
                             'privateKey': config.privatekey
                         }
-    
+
                     };
                 }
-                
+
                 var result = dbconnectionManager.getConnection().collection('Settings').update({ type: 'applicationSettings' }, data, { upsert: true }).then(function (result) {
                     if (result) {
                         callback(null, true);
@@ -148,16 +118,16 @@ class TransactionHelper {
 
     findSliceInTransaction(transaction, transactionSlice,callback) {
         let tranSliceObj = JSON.parse(transactionSlice);
-        let transactionSliceObjects = transaction.transactionSliceObjects;
+        let transactionSlices = transaction.transactionSlices;
         let sliceIndex = null;
-        for (let index = 0; index < transactionSliceObjects.length; index++) {
-            if (transactionSliceObjects[index].type == "Enterprise" &&
-                tranSliceObj.type == transactionSliceObjects[index].type) {
+        for (let index = 0; index < transactionSlices.length; index++) {
+            if (transactionSlices[index].type == "Enterprise" &&
+                tranSliceObj.type == transactionSlices[index].type) {
                 sliceIndex = index;
                 break;
-            } else if (transactionSliceObjects[index].type == "Intersection" &&
-                (transactionSliceObjects[index].enterprises.indexOf(tranSliceObj.enterprises[0]) > -1 &&
-                    transactionSliceObjects[index].enterprises.indexOf(tranSliceObj.enterprises[1]) > -1)) {
+            } else if (transactionSlices[index].type == "Intersection" &&
+                (transactionSlices[index].enterprises.indexOf(tranSliceObj.enterprises[0]) > -1 &&
+                transactionSlices[index].enterprises.indexOf(tranSliceObj.enterprises[1]) > -1)) {
                 sliceIndex = index;
                 break;
             }
@@ -165,20 +135,38 @@ class TransactionHelper {
         return sliceIndex;
     }
 
-    storeVerificationData(transactions, entNameOfLoggedUser, oneBcClient) {
+    generateVerificationData(transactions, myEntName, oneBcClient) {
         let verifications = observable.map({});
-        let verificationPairs = this.extractSlicesToVerify(transactions, entNameOfLoggedUser);
-        verificationPairs.forEach((stringifiedSlice, key) => {
-            verifications.set(key, undefined);
-            blockChainVerifier.verifyBlockChain(stringifiedSlice, oneBcClient)
-                .then(function (result) {
-                    verifications.set(key, result === true ? 'verified' : 'failed');
-                })
-                .catch(function (error) {
-                    // can give some error here
-                    verifications.set(key, 'failed');
-                });
+
+        transactions.forEach(transaction => {
+            if (!transaction) {
+                return;
+            }
+
+            for (let i = 0; i < transaction.transactionSlices.length; i++) {
+                let sliceObj = transaction.transactionSlices[i];
+                let sliceHash = transaction.transactionSliceHashes[i];
+                let trueSliceHash = transaction.trueTransactionSliceHashes[i];
+
+                let key;
+                if (sliceObj.type == "Enterprise" && sliceObj.enterprise == myEntName) {
+                    key = transaction.id + "_" + myEntName;
+                }
+                else if (sliceObj.type == "Intersection" && ((sliceObj.enterprises).indexOf(myEntName) > -1)) {
+                    let myEntIndex = sliceObj.enterprises.indexOf(myEntName);
+                    let partnerEntName = myEntIndex == 0 ? sliceObj.enterprises[1] : sliceObj.enterprises[0];
+                    key = transaction.id + "_" + partnerEntName;
+                }
+
+                if(!key) {
+                    continue;
+                }
+
+                let verified = sliceHash === trueSliceHash && blockChainVerifier.verifyHash(sliceHash, oneBcClient);
+                verifications.set(key, verified ? 'verified' : 'failed');
+            }
         });
+
         return verifications;
     }
 
@@ -191,12 +179,12 @@ class TransactionHelper {
             }
         }
         return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('Transactions').find({ 
-                    "txnSequenceNo": { 
+            dbconnectionManager.getConnection().collection('Transactions').find({
+                    "transactions.transactionSlices.sequence": {
                         $in: sequenceNos
                     }
             })
-            .sort({ "txnSequenceNo": 1 })
+            .sort({ "sequence": 1 })
             .toArray(function(err, result) {
                 if (err) {
                     console.error("Error occurred while fetching transations by sequencenos." + err);
