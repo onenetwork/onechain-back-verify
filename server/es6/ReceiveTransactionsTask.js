@@ -4,6 +4,7 @@ import {dbconnectionManager} from './DBConnectionManager';
 import {settingsHelper} from './SettingsHelper';
 import {backChainUtil} from  './BackChainUtil';
 import { blockChainVerifier } from './BlockChainVerifier';
+import { syncTransactionTaskHelper } from './SyncTransactionTaskHelper';
 
 class ReceiveTransactionsTask {
     constructor() {
@@ -19,21 +20,20 @@ class ReceiveTransactionsTask {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': 'token ' + authenticationToken
             })
-        }).then(function(response) {
+        }).then(response => {
             return response.json();
-        }).then(function(result) {
+        }).then(result => {
             if(result && result.transactionMessages) {
                 console.log("Received " + result.transactionMessages.length + " messages");
             }
             callback(null, result);
-        }).catch(function (err) {
+        }).catch(err => {
             callback(err, null);
         });
     }
 
     consumeTransactionMessages(authenticationToken, chainOfCustodyUrl, callback) {
-        let me = this;
-        this.callGetMessages(authenticationToken, chainOfCustodyUrl, function(error, result) {
+        this.callGetMessages(authenticationToken, chainOfCustodyUrl, (error, result) => {
             if(error) {
                 console.log(error);
                 if(typeof callback !== 'undefined') {
@@ -47,11 +47,11 @@ class ReceiveTransactionsTask {
                     }
                 } else {
                     let hasMorePages = result.hasMorePages || false;
-                    me.insertMessages(result.transactionMessages);
-                    let lastSyncTimeInMillis = me.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
+                    this.insertMessages(result.transactionMessages);
+                    let lastSyncTimeInMillis = this.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
 
                     if(hasMorePages) {
-                        me.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl);
+                        this.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl);
                     }
                     if(typeof callback !== 'undefined') {
                         callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: lastSyncTimeInMillis});
@@ -62,18 +62,17 @@ class ReceiveTransactionsTask {
     }
 
     startTimer() {
-        const me = this;
         settingsHelper.getApplicationSettings()
-        .then(function(result) {
+        .then(result => {
             if(typeof result != 'undefined' && typeof result.chainOfCustidy != 'undefined' &&
             typeof result.chainOfCustidy.authenticationToken != 'undefined' && typeof result.chainOfCustidy.chainOfCustodyUrl != 'undefined') {
                 console.info('Chain of Custody data will be synced every ' + config.syncDataIntervalInMillis + ' milliseconds');
-                setInterval(function(){
-                    me.consumeTransactionMessages(result.chainOfCustidy.authenticationToken, result.chainOfCustidy.chainOfCustodyUrl);
+                setInterval(() => {
+                    this.consumeTransactionMessages(result.chainOfCustidy.authenticationToken, result.chainOfCustidy.chainOfCustodyUrl);
                 }, config.syncDataIntervalInMillis);
             }
         })
-        .catch(function (err) {
+        .catch(err => {
             console.error("Application Settings can't be read: " + err);
         });
     }
@@ -81,9 +80,11 @@ class ReceiveTransactionsTask {
     insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl) {
         let lastSyncTimeInMillis = new Date().getTime();
         let settingsCollection = null;
-        const me = this;
+
         /* finding settingsCollection, because there could be "blockChain" related setup already present */
-        dbconnectionManager.getConnection().collection("Settings").findOne({type: 'applicationSettings'}, function(err, result) {
+        dbconnectionManager.getConnection().collection("Settings").findOne({
+            type: 'applicationSettings'
+        }, (err, result) => {
             if (err) throw err;
             if (result) {
                 settingsCollection = result;
@@ -111,13 +112,19 @@ class ReceiveTransactionsTask {
                 }
             };
 
-            dbconnectionManager.getConnection().collection("Settings").updateOne({type: 'applicationSettings'}, {$set: writeValue}, { upsert: true }, function(err, res) {
+            dbconnectionManager.getConnection().collection("Settings").updateOne({
+                type: 'applicationSettings'
+            }, {
+                $set: writeValue
+            }, {
+                upsert: true
+            }, (err, res) => {
                 if (err) {
                     console.error(err);
                 }
                 else if(res) {
                     if(startTheTimer) {
-                        me.startTimer();
+                        this.startTimer();
                     }
                     console.log('Setting time updated successfully!');
                 }
@@ -128,12 +135,6 @@ class ReceiveTransactionsTask {
     }
 
     insertMessages(transMessages) {
-        const me = this;
-
-        // To prevent race conditions, maintain an in-memory object. If db
-        // returns null, we should look at in-memory object to prevent override of db.
-        const inMemoryTnx = {};
-
         settingsHelper.getSyncStatistics()
             .then((syncStatistics) => {
                 syncStatistics = syncStatistics || {
@@ -144,23 +145,29 @@ class ReceiveTransactionsTask {
                     "gaps": []
                 };
 
-                for (let i = 0; i < transMessages.length; i++) {
-                    me.insertMessage(transMessages[i], inMemoryTnx, syncStatistics);
+                let initialIdx = 0;
+                let condition = idx => {
+                    return idx < transMessages.length;
+                };
+                let action = idx => {
+                    return this.insertMessage(transMessages[idx], syncStatistics)
+                        .then(() => ++idx);
                 }
+
+                return backChainUtil.promiseFor(condition, action, initialIdx);
             })
             .catch((err) => {
-                console.error("Error occurred while fetching transaction by tnxId [" + transMessage.id + "]" + err);
+                console.error("Error occurred: " + err);
                 callback(err, null);
             });
 
     }
 
-    insertMessage(transMessage, inMemoryTnx, syncStatistics) {
-        const me = this;
-        dbconnectionManager.getConnection().collection('Transactions').findOne({
+    insertMessage(transMessage, syncStatistics) {
+        return dbconnectionManager.getConnection().collection('Transactions').findOne({
             "id": transMessage.id
-        }).then((result) => {
-            let transactionInDb = result || inMemoryTnx[transMessage.id] || {
+        }).then(result => {
+            let transactionInDb = result || {
                 id: transMessage.id,
                 date: transMessage.date,
                 transactionSlices: [],
@@ -169,7 +176,12 @@ class ReceiveTransactionsTask {
                 transactionSliceHashes: [],
 
                 // Hashes generated by BCV from the serialized slice
-                trueTransactionSliceHashes: []
+                trueTransactionSliceHashes: [],
+
+                // Extra information that is useful to have in the DB rather
+                // than in the GridStore.
+                eventCount: 0,
+                executingUsers: [],
             };
 
             if(transactionInDb.transactionSliceHashes.indexOf(transMessage.transactionSliceHash) >= 0) {
@@ -180,24 +192,36 @@ class ReceiveTransactionsTask {
             settingsHelper.modifySyncStatsObject(syncStatistics, transMessage);
             settingsHelper.updateSyncStatistics(syncStatistics);
 
-            let sliceInDb = {};
             let transactionSliceObj = JSON.parse(transMessage.transactionSliceString);
-            sliceInDb.businessTransactionIds = me.getBusinessTransactionIds(transactionSliceObj);
-            sliceInDb.sequence = transMessage.sequence;
-            sliceInDb.type = transactionSliceObj.type;
-            sliceInDb.enterprise = transactionSliceObj.enterprise;
-            sliceInDb.enterprises = transactionSliceObj.enterprises;
-            transactionInDb.transactionSlices.push(sliceInDb);
+            if(transactionSliceObj.type == 'Enterprise') {
+                transactionInDb.eventCount = this.getEventCount(transactionSliceObj);
+            }
+            transactionInDb.executingUsers = this.addExecutingUsers(transactionInDb.executingUsers, transactionSliceObj);
 
-            // TODO: save slice in GridFS, store payloadId in sliceInDb
+            // Save the slice in the GridStore.
+            return dbconnectionManager.saveSlice(transMessage.transactionSliceString).then(payloadId => {
+                let sliceInDb = {};
+                sliceInDb.payloadId = payloadId;
+                sliceInDb.sequence = transMessage.sequence;
+                sliceInDb.type = transactionSliceObj.type;
+                sliceInDb.enterprise = transactionSliceObj.enterprise;
+                sliceInDb.enterprises = transactionSliceObj.enterprises;
+                sliceInDb.businessTransactionIds = this.getBusinessTransactionIds(transactionSliceObj);
 
-            transactionInDb.transactionSliceHashes.push(transMessage.transactionSliceHash);
-            let trueSliceHash = blockChainVerifier.generateHash(transMessage.transactionSliceString);
-            transactionInDb.trueTransactionSliceHashes.push(trueSliceHash);
+                transactionInDb.transactionSlices.push(sliceInDb);
+                transactionInDb.transactionSliceHashes.push(transMessage.transactionSliceHash);
+                let trueSliceHash = blockChainVerifier.generateHash(transMessage.transactionSliceString);
+                transactionInDb.trueTransactionSliceHashes.push(trueSliceHash);
 
-            inMemoryTnx[transMessage.id] = transactionInDb;
+                return transactionInDb;
+            });
+        })
+        .then(transactionInDb => {
+            if(!transactionInDb) {
+                return;
+            }
 
-            dbconnectionManager.getConnection().collection('Transactions').update(
+            return dbconnectionManager.getConnection().collection('Transactions').update(
                 {
                     "id": transactionInDb.id
                 },
@@ -206,8 +230,7 @@ class ReceiveTransactionsTask {
                 });
         })
         .catch((err) => {
-            console.error("Error occurred while fetching transaction by tnxId [" + transMessage.id + "]" + err);
-            callback(err, null);
+            console.error("Error occurred while fetching transaction by tnxId [" + transMessage.id + "]: " + err);
         });
     }
 
@@ -217,6 +240,18 @@ class ReceiveTransactionsTask {
             businessTransactionIds.push(obj.businessTransactions[i].btid);
         }
         return businessTransactionIds;
+    }
+
+    getEventCount(transactionSliceObj) {
+        return transactionSliceObj.businessTransactions.length;
+    }
+
+    addExecutingUsers(existingExecutingUsers, transactionSliceObj) {
+        let executingUsers = new Set(existingExecutingUsers);
+        for(let i = 0; i < transactionSliceObj.businessTransactions.length; i++) {
+            executingUsers.add(transactionSliceObj.businessTransactions[i].LastModifiedUser);
+        }
+        return Array.from(executingUsers);
     }
 
 }

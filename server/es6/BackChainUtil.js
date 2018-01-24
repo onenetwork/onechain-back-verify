@@ -13,5 +13,19 @@ class BackChainUtil {
         console.log(url);
         return url;
     }
+
+    promiseFor(condition, action, value) {
+        return new Promise(resolve => {
+            if(!condition(value)) {
+                resolve();
+                return;
+            }
+
+            return action(value)
+                .then(backChainUtil.promiseFor.bind(null, condition, action))
+                .then(resolve);
+        });
+    };
+
 }
 export const backChainUtil = new BackChainUtil();

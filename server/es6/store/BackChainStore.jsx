@@ -21,6 +21,8 @@ class BackChainStore {
     @observable verifications = observable.map({});
     @observable canStartVerifying = false;
     @observable error = null;
+    @observable eventsTransactionId = null;
+    @observable events = observable([]);
     @observable myAndDiffViewModalActive = false;
     @observable displayMessageViewModalActive = false;
     @observable payload = observable([]);
