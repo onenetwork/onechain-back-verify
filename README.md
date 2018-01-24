@@ -26,4 +26,4 @@ Setup for Windows environments:
  * Run `gulp transpile && gulp build`, then run `node server/es5/server.js`.
  * After the server initializes, you can access it at: http://55.55.55.5:8081/
  
- **Note:** The first time you load BCV, it will display a Setup page asking for a Blockchain URL, Contract Address and Private Key. You should replace http://localhost with http://10.0.2.2 for the Blockchain URL when running the server inside vagrant.
+ **Note:** When you sync BCV with PLT, it will display a Sync My Database page asking for a URL, OAuth Token and Date. You should replace http://localhost with http://10.0.2.2 for the URL when running the server inside vagrant.
