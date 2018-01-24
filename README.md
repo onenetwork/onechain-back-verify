@@ -7,6 +7,7 @@ Licensed under the [Apache License, version 2.0](http://www.apache.org/licenses/
 ## Setup
 
 Setup for Windows environments:
+
  * install [VirtualBox](https://www.virtualbox.org/)
  * install [Vagrant](https://www.vagrantup.com/)
  * Run `vagrant plugin install vagrant-vbguest`
@@ -16,3 +17,13 @@ Setup for Windows environments:
  * Run `vagrant up` to provision and start the VM
  * Run `vagrant ssh` to connect to the VM
  * This will put you in `/vagrant`, which is bound to your local `onechain-back-verify` directory, and should be your location for executing commands and doing work
+ * Run `gulp init`.
+ 
+ ## Developing
+ 
+ After you are set up and have ssh-ed into vagrant, you're ready to start developing.
+ 
+ * Run `gulp transpile build`, then run `node server/es5/server.js`.
+ * After the server initializes, you can access it at: http://55.55.55.5:8081/
+ 
+ **Note:** The first time you load BCV, it will display a Setup page asking for a Blockchain URL, Contract Address and Private Key. You should replace http://localhost with http://10.0.2.2 for the Blockchain URL when running the server inside vagrant.
