@@ -4,6 +4,7 @@ import {blockChainVerifier} from './BlockChainVerifier';
 import {transactionHelper} from './TransactionHelper';
 import {settingsHelper} from './SettingsHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
+import { dbconnectionManager } from './DBConnectionManager';
 
 exports.getLastestSyncedDate = function(req, res) {
     syncTransactionTaskHelper.getLastestSyncedDate(function(error, result) {
@@ -54,8 +55,8 @@ exports.saveBlockChainSettings = function(req, res) {
             res.json({success : false});
         } else {
             res.json({success : result});
-        }        
-    });       
+        }
+    });
 };
 
 exports.getApplicationSettings = function(req, res) {
@@ -68,7 +69,7 @@ exports.getApplicationSettings = function(req, res) {
     });
 };
 
- 
+
 exports.startSyncFromCertainDate = function(req, res) {
     syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, function(error, result) {
         if(error) {
@@ -107,7 +108,7 @@ exports.getSyncStatistics = function(req, res) {
             res.json({success: true, statistics: result});
         } else {
             res.json({success: false});
-        }        
+        }
     })
     .catch(function (error) {
         res.json({success: false});
@@ -123,3 +124,15 @@ exports.getTransactionsBySequenceNos = function(req, res) {
         res.json({success: false});
     });
 }
+
+exports.getEventsForTransaction = function(req, res) {
+    transactionHelper.getEventsForTransaction(req.params.transId).then(events => {
+        res.json({ result: events });
+    });
+};
+
+exports.getTransactionSlice = function(req, res) {
+    dbconnectionManager.fetchSlice(req.params.payloadId).then(slice => {
+        res.json({ result: slice });
+    });
+};

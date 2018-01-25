@@ -12,7 +12,7 @@ import DisplaySyncView from "./DisplaySyncView"
 	constructor(props) {
 		super(props);
 	}
-	 
+
 
 	componentDidMount() {
 		BackChainActions.processApplicationSettings();
@@ -36,7 +36,7 @@ import DisplaySyncView from "./DisplaySyncView"
 				contractAddress: this.props.store.blockChainContractAddress,
 				privateKey: this.props.store.blockChainPrivateKey
 			});
-			BackChainActions.verfiyBackChainSettings(bcClient,function(error,result){
+			BackChainActions.verifyBackChainSettings(bcClient,function(error,result){
 				if(error) {
 					me.props.store.displayMessageViewModalActive = true;
 				} else if(result) {
@@ -47,7 +47,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			alert(e);
 			return;
 		}
-	   
+
 	}
 
 	displaySycPopup() {
@@ -69,7 +69,7 @@ import DisplaySyncView from "./DisplaySyncView"
 	render() {
 		if (this.props.store.isInitialSetupDone === true) {
         	return <Redirect push to="/home" />;
-		} 
+		}
 		let fieldProps = {
 			panelPadding: {
 				paddingLeft: '150px',
@@ -117,7 +117,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl}/>					
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl}/>
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
@@ -129,7 +129,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Private Key: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder={this.props.store.blockChainPrivateKey} value = {this.props.store.blockChainPrivateKey} />					
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder={this.props.store.blockChainPrivateKey} value = {this.props.store.blockChainPrivateKey} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
@@ -150,7 +150,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			<Row style={{paddingTop:'50px', paddingLeft: '150px', height: '40px',paddingBottom:'60px'}}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder="e.g. http://localhost:8545" />					
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder="e.g. http://localhost:8545" />
 				</Col>
 			</Row>
 
@@ -164,7 +164,7 @@ import DisplaySyncView from "./DisplaySyncView"
 				</div>
 				</div>
 			</Row>
-			
+
 			<Row  style={{paddingTop:'60px', paddingLeft: '135px', height: '40px'}}>
 				<Col md={2} style={{width: '177px'}}> </Col>
 				<Col md={8}>
@@ -198,7 +198,7 @@ import DisplaySyncView from "./DisplaySyncView"
 @observer class DisplayMessageViewPopup extends React.Component {
     render() {
         return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
-                    <DisplayMessageView title = "Message" msg= {"Invalid Blockchain settings.Please try again."} store={this.props.store}/> 
+                    <DisplayMessageView title = "Message" msg= {"Invalid Blockchain settings.Please try again."} store={this.props.store}/>
                </Modal>);
     }
 }

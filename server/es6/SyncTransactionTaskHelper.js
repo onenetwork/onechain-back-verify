@@ -8,14 +8,14 @@ import "isomorphic-fetch";
  Helper class contains synch related APIs
 */
 class SyncTransactionTaskHelper {
-    
+
         constructor() {}
 
         startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
             let me = this;
             let dateAsString = moment(new Date(parseInt(startFromDate,10))).format('YYYYMMDD');
             console.log('sync start date: ' + dateAsString);
-            
+
             fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset?fromDate=' + dateAsString), {
                 method: 'get',
                 headers: new Headers({
@@ -48,7 +48,7 @@ class SyncTransactionTaskHelper {
                         "chainOfCustodyUrl" : chainOfCustodyUrl,
                         "enterpriseName":entName
                     }
-                    
+
                     let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({}, {$set: result}).then((resultSet) => {
                     if (resultSet.modifiedCount > 0) {
                             console.log("Settings updated successfully ");
@@ -73,7 +73,7 @@ class SyncTransactionTaskHelper {
                     callback(err, null);
                 });
         }
-    
+
         setLastSyncedDate(lastSyncedDateInMillis) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
                 if (err) {
@@ -92,7 +92,7 @@ class SyncTransactionTaskHelper {
                 }
 			})
         }
-    
+
         isInitialSyncDone(callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({type: 'applicationSettings'}).then((result) => {
                 if (result && result.chainOfCustidy && result.chainOfCustidy.lastSyncTimeInMillis) {

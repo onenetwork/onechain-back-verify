@@ -7,13 +7,13 @@ import { TablePagination } from 'react-pagination-table';
 import HeaderView from "./HeaderView";
 const Header = ['',"Model Type", "Business Transaction ID" ];
 
- 
+
 @observer export default class SearchByTextView extends React.Component {
     constructor(props) {
 		super(props);
 		this.state = {redirect:false,transaction: {},verifyDisabled:true};
 	}
-	
+
 	businessTransactionTextSearch(event){
 		this.props.store.businessTransactionTextSearch = event.target.value.trim();
 		if (this.props.store.businessTransactionTextSearch.length > 0 && event.charCode  == 13) {
@@ -31,7 +31,7 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
         let me = this;
         let searchText =  me.props.store.businessTransactionTextSearch;
         let uri = '/getTransactionByText/'+searchText;
-        
+
 		fetch(uri, {method: 'GET'}).then(function(response) {
 			return response.json();
 		}, function(error) {
@@ -40,7 +40,7 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
             me.setState({ transaction: result});
   		})
 	}
-	
+
 	toggleCheckbox = evt => {
 		this.props.store.businessTransactionIdSearch=evt.target.value;
 		this.props.store.searchCriteria = 'btId';
@@ -50,8 +50,8 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 	componentDidMount() {
 		BackChainActions.processApplicationSettings();
 	}
-	
-	render() { 
+
+	render() {
            if (this.props.store.isInitialSetupDone == null) {
                 return null;
 			} else if (this.props.store.isInitialSetupDone === false) {
@@ -119,13 +119,13 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 
 			};
 
-			
+
 			let data=[];
 			let transactionsToVerify = [];
 			if (this.state.transaction.result) {
 				for (let i = 0; i < this.state.transaction.result.length; i++) {
 					let transaction = this.state.transaction.result[i];
-					let transactionSlices = transaction.transactionSliceObjects;
+					let transactionSlices = transaction.transactionSlices;
 					for (let j = 0; j < transactionSlices.length; j++) {
 						let businessTransactions = transactionSlices[j].businessTransactions;
 						for(let k= 0; k < businessTransactions.length; k++) {
@@ -153,21 +153,21 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 			let tablePanel = '';
 			if(this.state.transaction.result) {
 				tablePanel = (<div style={ {paddingLeft: '22px'}} >
-				
-				<TablePagination 
-					headers={ Header } 
-					data={ data } 
+
+				<TablePagination
+					headers={ Header }
+					data={ data }
 					columns="radio.modelLevelType.btId"
 					perPageItemCount={ 5 }
-					totalCount={ data.length } 
+					totalCount={ data.length }
 					arrayOption={ [[ "size", 'all', ' ']] }
 				/>
 				<Link  to="/listTransactions"><button  disabled={this.state.verifyDisabled} style = {fieldProps.button} onClick={this.loadTransactionsIntoStore.bind(this)} className="btn btn-primary" type="button">Select</button></Link>
 			   </div>);
 			}
-			
+
 			let panelHeader = (<div><div style={fieldProps.panelHeader}>Backchain Verify</div></div>);
-			
+
 			let panelBody = (<div>
 								<Row style={fieldProps.panelBodyTitle}>Search by Business Transaction</Row><br/>
 								<Row style={fieldProps.panelPadding}>
@@ -175,36 +175,36 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 								</Row>
 								{tablePanel}
 							</div>);
-	
+
 			return (<div className={"panel panel-default"} onClick={this.props.action}>
 					<HeaderView store={this.props.store}/>
 						<div className={"panel-body"} style={fieldProps.panelBody}>
 							<div>
 								<Row>
-									<Col md={2} style={{paddingLeft:'37px'}}>  
-										<img src="/images/business-transaction-search.png" /> 
+									<Col md={2} style={{paddingLeft:'37px'}}>
+										<img src="/images/business-transaction-search.png" />
 									</Col>
-									<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}> 
+									<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>
 										<span style={fieldProps.nameSpan}>
-											<strong style={fieldProps.nameColor}> 
+											<strong style={fieldProps.nameColor}>
 												Business Transaction Search
-											</strong> 
+											</strong>
 										</span> <br/>
 										<span style={fieldProps.subNameSpan}>
 											This search is a free form search that returns all transactions associated with a Business Transaction. . This search will require the transactions to be existing in the local repository.
 										</span>
 									</Col>
-								</Row> 
+								</Row>
 								<hr style={fieldProps.blankLine}/>
 							</div>
-							 
-							<Row style={fieldProps.panelBodyTitle}> 
+
+							<Row style={fieldProps.panelBodyTitle}>
 								<div> <span style={fieldProps.browse}> Search by entering a business transaction  </span>  </div>
 							 	<br/>
 								<FormControl type="text"   style={fieldProps.inputBox} onKeyPress={this.businessTransactionTextSearch.bind(this)}  onChange={this.businessTransactionTextSearch.bind(this)} placeholder="Business Transaction"  /><br/>
 							</Row>
 							{tablePanel}
-							 
+
 						</div>
 					</div>
 			);

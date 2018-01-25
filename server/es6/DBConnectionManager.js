@@ -1,4 +1,8 @@
-import {MongoClient} from 'mongodb';
+import {
+    MongoClient,
+    GridStore,
+    ObjectID
+} from 'mongodb';
 
 /*
  Singleton class which provides single database connection to allover the application
@@ -50,7 +54,7 @@ class DBConnectionManager {
                 console.log('Creating Index/Collection for Transactions');
                 if (collinfo) {
                     me.state.db.collection(collinfo.name).createIndex({
-                        "transactionSlices.businessTransactions.btId": 1
+                        "transactionSlices.businessTransactionIds": 1
                     });
                     me.state.db.collection(collinfo.name).createIndex({
                         tnxId: 1
@@ -62,7 +66,7 @@ class DBConnectionManager {
                             console.error("error while creating collection");
                         } else {
                             collection.createIndex({
-                                "transactionSlices.businessTransactions.btId": 1
+                                "transactionSlices.businessTransactionIds": 1
                             });
                             collection.createIndex({
                                 tnxId: 1
@@ -84,8 +88,8 @@ class DBConnectionManager {
                         } else {
                             console.log("Settings collection created successfully.")
                         }
-                    }) 
-                }  
+                    })
+                }
             });
     }
 
@@ -108,9 +112,62 @@ class DBConnectionManager {
                 }
             }).catch(function (err) {
                 console.error("While setting mode in Settings collection" + err);
-                
+
             });
         })
     }
+
+    saveSlice(slice, hash) {
+        const me = this;
+        return new Promise((resolve, reject) => {
+            let gridStore = new GridStore(me.state.db, new ObjectID(), hash, "w");
+            gridStore.open((err, _) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+
+                let buffer = new Buffer(slice);
+                gridStore.write(buffer, (err, _) => {
+                    if(err) {
+                        reject(err);
+                        return;
+                    }
+
+                    gridStore.close((err, file) => {
+                        if(err) {
+                            reject(err);
+                            return;
+                        }
+
+                        resolve(file._id);
+                    });
+                });
+            });
+        });
+    }
+
+    fetchSlice(payloadId) {
+        const me = this;
+        return new Promise((resolve, reject) => {
+            let gridStore = new GridStore(me.state.db, new ObjectID(payloadId), "r");
+            gridStore.open((err, _) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+
+                gridStore.read((err, buffer) => {
+                    if(err) {
+                        reject(err);
+                        return;
+                    }
+
+                    resolve(buffer.toString());
+                });
+            });
+        });
+    }
+
 }
 export const dbconnectionManager = new DBConnectionManager();

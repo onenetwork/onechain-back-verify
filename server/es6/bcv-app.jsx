@@ -3,10 +3,10 @@ import PayloadView from './components/PayloadView';
 import ListTransactionsView from './components/ListTransactionsView';
 import SearchByBusinessIdView from './components/SearchByBusinessIdView';
 import SearchByTransactionIdView from './components/SearchByTransactionIdView';
-import TrackAndVerifyView from './components/TrackAndVerifyView';
 import SetupView from './components/SetupView';
 import SyncStatisticsView from './components/SyncStatisticsView';
 import StartSyncView from './components/StartSyncView';
+import TrackAndVerifyView from './components/TrackAndVerifyView';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch, Redirect} from 'react-router-dom';
@@ -19,11 +19,11 @@ const RoutedApp = () => (
       {/* exact will match /home but not /home/2 etc */}
       <Route exact path="/"><Redirect from='/' to='/home'/></Route>
       <Route path="/home" render={(props) => (<HomeView store={backChainStore} {...props}/>)} />
-      <Route  path="/payload"  render={(props) => (<PayloadView store={backChainStore} {...props}/>)} />
-      <Route path="/listTransactions" render={(props) => (<ListTransactionsView store={backChainStore} {...props}/>)} />  
+      <Route path="/payload"  render={(props) => (<PayloadView store={backChainStore} {...props}/>)} />
+      <Route path="/listTransactions" render={(props) => (<ListTransactionsView store={backChainStore} {...props}/>)} />
       <Route path="/businessId" render={(props) => (<SearchByBusinessIdView store={backChainStore} {...props}/>)} />
       <Route path="/transactionId" render={(props) => (<SearchByTransactionIdView store={backChainStore} {...props}/>)} />
-      <Route path="/setup" render={(props) => (<SetupView store={backChainStore} {...props}/>)} />      
+      <Route path="/setup" render={(props) => (<SetupView store={backChainStore} {...props}/>)} />
       <Route path="/syncStatistics" render={(props) => (<SyncStatisticsView store={backChainStore} {...props}/>)} />
       <Route path="/startSync" render={(props) => (<StartSyncView store={backChainStore} {...props}/>)} />
       {/*<Route component={404 Not Found}/> we can create a component for all non existing pages, this is like the else condition if not matching any of the above*/}
@@ -31,22 +31,23 @@ const RoutedApp = () => (
   </BrowserRouter>
 );
 
+
 window.BackchainVerifyAPI = {
-  setup: (renderTo, options) => {
-  BackChainActions.init(backChainStore);
+    setup: (renderTo, options) => {
+        BackChainActions.init(backChainStore);
 
-    options = options || {};
-    const componentToRender = options.showOnlyVerifyView
-      ? <TrackAndVerifyView store={backChainStore} hideProgressBar={true}/>
-      : <RoutedApp/>;
-    
-    if (typeof renderTo == 'string') {
-      renderTo = $(renderTo)[0];
+        options = options || {};
+        const componentToRender = options.showOnlyVerifyView
+            ? <TrackAndVerifyView store={backChainStore} hideProgressBar />
+            : <RoutedApp/>;
+
+        if (typeof renderTo == 'string') {
+            renderTo = $(renderTo)[0];
+        }
+        ReactDOM.render(componentToRender, renderTo);
+    },
+
+    loadTransactions: (transactions) => {
+        BackChainActions.loadTransactions(transactions);
     }
-    ReactDOM.render(componentToRender, renderTo);
-  },
-
-  loadTransactions: (transactions) => {
-    BackChainActions.loadTransactions(transactions);
-  }
 };

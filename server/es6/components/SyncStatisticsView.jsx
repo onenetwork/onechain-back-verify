@@ -44,19 +44,26 @@ import {Link} from 'react-router-dom';
                 let mins = me.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
                 allTransactionsArr.push({type : "gap", fromSeqNo : gap.fromSequenceNo, toSeqNo : gap.toSequenceNo, noOfGaps : noOfGapRecords, syncMsg : 'Sequence Gap',time:hrs + ' ' + mins, fromDate : fromGapDate, toDate : toGapDate});
 
-                earliestSyncSequenceNo = ((new BigNumber(gapToSequenceNo)).plus(new BigNumber(1))).valueOf();
+                earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
                 
-                if((i+1 == syncStatistics.gaps.length) && (new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo)))) {
-                    allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
+                if(i+1 == syncStatistics.gaps.length) {
+                    if(new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo))) {
+                        allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
+                    }
                     this.syncStatisticsReport(allTransactionsArr);
                 }
             }
         } else {
-            let fullSyncTrxnsNos = [];
-            allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
-            fullSyncTrxnsNos.push(syncStatistics.earliestSyncSequenceNo);
-            fullSyncTrxnsNos.push(syncStatistics.latestSyncSequenceNo);
-            this.getTransactionsBySequenceNos(fullSyncTrxnsNos,allTransactionsArr);
+            let syncReport = {
+                type : 'fullsync', 
+                syncMsg : 'Full Sync', 
+                fromDate : moment(new Date(syncStatistics.earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                toDate : moment(new Date(syncStatistics.latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                fromSeqNo : earliestSyncSequenceNo, 
+                toSeqNo : latestSyncSequenceNo, 
+                noOfGaps : ''
+            };
+            me.props.store.syncStatisticsReport.push(syncReport);
         }
     }
 

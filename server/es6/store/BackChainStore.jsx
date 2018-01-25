@@ -21,6 +21,8 @@ class BackChainStore {
     @observable verifications = observable.map({});
     @observable canStartVerifying = false;
     @observable error = null;
+    @observable eventsTransactionId = null;
+    @observable events = observable([]);
     @observable myAndDiffViewModalActive = false;
     @observable displayMessageViewModalActive = false;
     @observable payload = observable([]);
@@ -44,50 +46,56 @@ class BackChainStore {
         /* viewsMap contains all viewnames with corresponding transaction ids */
         this.transactions.forEach(transaction => {
             if (transaction) {
-                for (let j = 0; j < transaction.transactionSliceObjects.length; j++) {
-                    let transactionslice = transaction.transactionSliceObjects[j];
-                    // myView 
-                    if(transactionslice.type == "Enterprise") {
+                for (let j = 0; j < transaction.transactionSlices.length; j++) {
+                    let transactionSlice = transaction.transactionSlices[j];
+                    // myView
+                    if(transactionSlice.type == "Enterprise") {
                         if(this.isInitialSyncDone == null || this.isInitialSyncDone == false) {
-                            if (transactionslice.enterprise in viewsMap) {
-                                viewsMap[transactionslice.enterprise].push(transaction.id);
-                                viewsMap[transactionslice.enterprise] = Array.from(new Set(viewsMap[transactionslice.enterprise]));
-                            } else {
-                                viewsMap[transactionslice.enterprise] = [transaction.id];
+                            if (transactionSlice.enterprise in viewsMap) {
+                                viewsMap[transactionSlice.enterprise].push(transaction.id);
+                                viewsMap[transactionSlice.enterprise] = Array.from(new Set(viewsMap[transactionSlice.enterprise]));
                             }
-                            this.entNameOfLoggedUser = transactionslice.enterprise; /***/
-                        } else if (transactionslice.enterprise == myEntName) {
+                            else {
+                                viewsMap[transactionSlice.enterprise] = [transaction.id];
+                            }
+                            this.entNameOfLoggedUser = transactionSlice.enterprise; /***/
+                        }
+                        else if (transactionSlice.enterprise == myEntName) {
                             if (myEntName in viewsMap) {
                                 viewsMap[myEntName].push(transaction.id);
                                 viewsMap[myEntName] = Array.from(new Set(viewsMap[myEntName]));
-                            } else {
+                            }
+                            else {
                                 viewsMap[myEntName] = [transaction.id];
                             }
                         }
                     }
                     // intersection
-                    if(transactionslice.type == "Intersection") {
+                    else if(transactionSlice.type == "Intersection") {
                         if(this.isInitialSyncDone == null || this.isInitialSyncDone == false) {
-                            let partnerEntName =  transactionslice.enterprises[0] +" & "+ transactionslice.enterprises[1];
-                            
+                            let partnerEntName =  transactionSlice.enterprises[0] +" & "+ transactionSlice.enterprises[1];
+
                             if (partnerEntName in viewsMap) {
                                 viewsMap[partnerEntName].push(transaction.id);
                                 viewsMap[partnerEntName] = Array.from(new Set(viewsMap[partnerEntName]));
-                            } else {
+                            }
+                            else {
                                 viewsMap[partnerEntName] = [transaction.id];
                             }
-                        } else if (((transactionslice.enterprises).indexOf(myEntName) > -1)) {
-                                let logInUserEntIndex = (transactionslice.enterprises).indexOf(myEntName);
-                                let partnerEntName = logInUserEntIndex == 0 ? transactionslice.enterprises[1] : transactionslice.enterprises[0];
+                        }
+                        else if (((transactionSlice.enterprises).indexOf(myEntName) > -1)) {
+                            let logInUserEntIndex = (transactionSlice.enterprises).indexOf(myEntName);
+                            let partnerEntName = logInUserEntIndex == 0 ? transactionSlice.enterprises[1] : transactionSlice.enterprises[0];
 
-                                if (partnerEntName in viewsMap) {
-                                    viewsMap[partnerEntName].push(transaction.id);
-                                    viewsMap[partnerEntName] = Array.from(new Set(viewsMap[partnerEntName]));
-                                } else {
-                                    viewsMap[partnerEntName] = [transaction.id];
-                                }
+                            if (partnerEntName in viewsMap) {
+                                viewsMap[partnerEntName].push(transaction.id);
+                                viewsMap[partnerEntName] = Array.from(new Set(viewsMap[partnerEntName]));
+                            }
+                            else {
+                                viewsMap[partnerEntName] = [transaction.id];
                             }
                         }
+                    }
                 }
             }
         });
@@ -108,12 +116,12 @@ class BackChainStore {
     }
 
     /**
-     * Returns 
+     * Returns
      * {
      *      totalCompleted: percentage of the verification process
      *      endResult: verifying, failed, succeeded
      * }
-     * 
+     *
      */
     @computed get verificationStatus() {
         let totalCompleted = 0;
@@ -121,7 +129,7 @@ class BackChainStore {
         if(this.canStartVerifying) {
             let i = 0;
             const totalCnt = this.verifications.keys().length;
-            let completedCnt = 0; 
+            let completedCnt = 0;
             let failed = false;
             let completed = false;
             this.verifications.forEach(value => {
@@ -131,7 +139,7 @@ class BackChainStore {
                 }
                 if(value == 'verified') {
                     completedCnt++;
-                } 
+                }
             });
             completed = (completedCnt == totalCnt);
             if(failed) {
