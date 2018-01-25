@@ -7,6 +7,8 @@ import moment from 'moment';
 import "isomorphic-fetch";
 import config from './config';
 import { observable } from 'mobx';
+import { dbconnectionManager } from './DBConnectionManager';
+import { backChainUtil } from './BackChainUtil';
 
 let store;
 export default class BackChainActions {
@@ -96,30 +98,50 @@ export default class BackChainActions {
     @action
     static loadViewTransactionsById(type, partnerEntName, id) {
         store.myAndDiffViewModalType = type;
-        store.transactions.forEach(transElement => {
-                if(transElement.id == id) {
-                    let id = transElement.id;
-                    let transactionSlices =transElement.transactionSlices;
-                    for(let j=0; j<transactionSlices.length; j++) {
-                        /* Always add transactionSlice in viewTransactions no matter @param type is Enterprise or Intersection*/
-                        if(transactionSlices[j].type == "Enterprise") {
-                            let newJson = observable({});
-                            newJson.id = id;
-                            newJson.transactionSlice = transactionSlices[j];
-                            store.viewTransactions.enterprise = newJson;
-                        }
-                        if(type == "Intersection"
-                                && transactionSlices[j].type == "Intersection"
-                                    && ( transactionSlices[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1
-                                        &&  transactionSlices[j].enterprises.indexOf(partnerEntName) > -1)) {
-                                let newJson = observable({});
-                                newJson.id = id;
-                                newJson.transactionSlice = transactionSlices[j];
-                                store.viewTransactions.intersection = newJson;
-                        }
-                    }
+        for(let i = 0; i < store.transactions.length; i++) {
+            let transaction = store.transactions[i];
+            if(transaction.id != id) {
+                continue;
+            }
+
+            const transactionSlices = transaction.transactionSlices;
+
+            let initialValue = 0;
+            let condition = idx => idx < transactionSlices.length;
+            let action = idx => {
+                let transactionSlice = transactionSlices[idx];
+
+                // Always add the enterprise slice to the view.
+                if(transactionSlice.type == "Enterprise") {
+                    return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                        let newJson = observable({});
+                        newJson.id = id;
+                        newJson.transactionSlice = JSON.parse(result.result);
+                        newJson.transactionSlice.sequence = transactionSlice.sequence;
+                        store.viewTransactions.enterprise = newJson;
+                    }).then(() => ++idx);
                 }
-        })
+
+                if(type == "Intersection"
+                        && transactionSlice.type == "Intersection"
+                            && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
+                                && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                    return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                        let newJson = observable({});
+                        newJson.id = id;
+                        newJson.transactionSlice = JSON.parse(result.result);
+                        newJson.transactionSlice.sequence = transactionSlice.sequence;
+                        store.viewTransactions.intersection = newJson;
+                    }).then(() => ++idx);
+                }
+
+                return new Promise(resolve => resolve(++idx));
+            };
+
+            return backChainUtil.promiseFor(condition, action, initialValue).then(() => {
+                BackChainActions.setMyAndDiffViewActive(true);
+            });
+        }
     }
 
     @action
@@ -189,8 +211,8 @@ export default class BackChainActions {
     }
 
     @action
-    static toggleMyAndDiffView() {
-        store.myAndDiffViewModalActive = !store.myAndDiffViewModalActive;
+    static setMyAndDiffViewActive(active) {
+        store.myAndDiffViewModalActive = active;
     }
 
     @action
@@ -273,11 +295,11 @@ export default class BackChainActions {
         let payloadLength = payloads.length;
         let i = 1;
         payloads.forEach(payload => {
-            this.findTransaction(payload.id, function(transaction) {
-                if (transaction) {
+            this.findTransaction(payload.id, function(transactions) {
+                if (transactions.length > 0) {
                     transaction = transaction[0];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
-                    if (index != null) {
+                    if (index >= 0) {
                         transaction.transactionSliceStrings[index] = payload.transactionSlice;
                         transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
                     } else {
@@ -408,7 +430,7 @@ export default class BackChainActions {
     }
 
     @action
-    static verfiyBackChainSettings(oneBcClient,callback) {
+    static verifyBackChainSettings(oneBcClient,callback) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
             return result;
@@ -474,4 +496,32 @@ export default class BackChainActions {
             console.log('getSyncStatistics error');
         });
     }
+
+    @action
+    static loadEventsForTransaction(transId) {
+        if(store.eventsTransactionId === transId) {
+            return;
+        }
+
+        let uri = '/getEventsForTransaction/' + transId;
+        fetch(uri, { method: 'GET' }).then(function(response) {
+            return response.json();
+        }, function(error) {
+            console.error(error);
+        }).then(action(function(json) {
+            store.eventsTransactionId = transId;
+            store.events = json.result;
+        }));
+    }
+
+    @action
+    static getTransactionSlice(payloadId) {
+        let uri = '/getTransactionSlice/' + payloadId;
+        return fetch(uri, { method: 'GET' }).then(function(response) {
+            return response.json();
+        }, function(error) {
+            console.error(error);
+        })
+    }
+
 }

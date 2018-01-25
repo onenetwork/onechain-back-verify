@@ -26,7 +26,7 @@ import DisplayMessageView from "./DisplayMessageView";
 			this.loadTransactionsIntoStore();
 		}
 	}
-	
+
 	loadTransactionsIntoStore() {
 		let me = this;
 		BackChainActions.loadTransactions(this.businessIdInputVal, "btId", function(redirect) {
@@ -42,7 +42,7 @@ import DisplayMessageView from "./DisplayMessageView";
 		BackChainActions.processApplicationSettings();
 	}
 
-    render () { 
+    render () {
 		if (this.props.store.isInitialSetupDone == null) {
 			return null;
 		} else if (this.props.store.isInitialSetupDone === false) {
@@ -105,31 +105,31 @@ import DisplayMessageView from "./DisplayMessageView";
 					borderColor: 'rgba(153,153,153,1)'
 				}
 			};
-			
+
 			return (
-				<div>	
+				<div>
 					<DisplayMessageViewPopup store={this.props.store}/>
 
 					<div className={"panel panel-default"} onClick={this.props.action}>
 						<HeaderView store={this.props.store}/>
 						<div className={"panel-body"} style={fieldProps.panelBody}>
 							<Row>
-								<Col md={2} style={{paddingLeft:'37px'}}>    
-									<img src="/images/business-transaction-id.png" /> 
+								<Col md={2} style={{paddingLeft:'37px'}}>
+									<img src="/images/business-transaction-id.png" />
 								</Col>
-								<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>   
+								<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>
 									<span style={fieldProps.nameSpan}>
-										<strong style={fieldProps.nameColor}> 
+										<strong style={fieldProps.nameColor}>
 											Business Transaction ID
-										</strong> 
+										</strong>
 									</span> <br/>
 									<span style={fieldProps.subNameSpan}>
 										This search returns all the transactions associated with the given Business transaction Id and the transactions shall be verified with Block Chain. Business transaction id can be found in a Payload file. This search will require the transactions to be existing in the local repository.
 									</span>
 								</Col>
-							</Row> 
+							</Row>
 
-							<hr style={fieldProps.blankLine}/>		
+							<hr style={fieldProps.blankLine}/>
 							<br/>
 
 							<Row style={fieldProps.panelBodyTitle}>
@@ -137,23 +137,23 @@ import DisplayMessageView from "./DisplayMessageView";
 								<br/>
 								<FormControl type="text" style={fieldProps.inputBox} onKeyPress={this.listenKeyPress.bind(this)} onChange={this.listenKeyPress.bind(this)} placeholder="Business Transaction ID" />
 								<br/> <br/>
-								<Button disabled={this.state.verifyDisabled} className="btn btn-primary" style={fieldProps.button} onClick={this.loadTransactionsIntoStore.bind(this)}>Verfiy</Button>
-								&nbsp; &nbsp; <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>		 
+								<Button disabled={this.state.verifyDisabled} className="btn btn-primary" style={fieldProps.button} onClick={this.loadTransactionsIntoStore.bind(this)}>Verify</Button>
+								&nbsp; &nbsp; <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>
 							</Row>
-							
+
 						</div>
 					</div>
 				</div>
 			);
-			
-		} 
+
+		}
     }
 }
 
 @observer class DisplayMessageViewPopup extends React.Component {
     render() {
         return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
-                    <DisplayMessageView title = "Message" msg= "Result not found! Try again with different ID." store={this.props.store}/> 
+                    <DisplayMessageView title = "Message" msg= "Result not found! Try again with different ID." store={this.props.store}/>
                </Modal>);
     }
 }

@@ -1,4 +1,8 @@
-import {MongoClient} from 'mongodb';
+import {
+    MongoClient,
+    GridStore,
+    ObjectID
+} from 'mongodb';
 
 /*
  Singleton class which provides single database connection to allover the application
@@ -112,5 +116,58 @@ class DBConnectionManager {
             });
         })
     }
+
+    saveSlice(slice, hash) {
+        const me = this;
+        return new Promise((resolve, reject) => {
+            let gridStore = new GridStore(me.state.db, new ObjectID(), hash, "w");
+            gridStore.open((err, _) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+
+                let buffer = new Buffer(slice);
+                gridStore.write(buffer, (err, _) => {
+                    if(err) {
+                        reject(err);
+                        return;
+                    }
+
+                    gridStore.close((err, file) => {
+                        if(err) {
+                            reject(err);
+                            return;
+                        }
+
+                        resolve(file._id);
+                    });
+                });
+            });
+        });
+    }
+
+    fetchSlice(payloadId) {
+        const me = this;
+        return new Promise((resolve, reject) => {
+            let gridStore = new GridStore(me.state.db, new ObjectID(payloadId), "r");
+            gridStore.open((err, _) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+
+                gridStore.read((err, buffer) => {
+                    if(err) {
+                        reject(err);
+                        return;
+                    }
+
+                    resolve(buffer.toString());
+                });
+            });
+        });
+    }
+
 }
 export const dbconnectionManager = new DBConnectionManager();

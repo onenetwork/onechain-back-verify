@@ -118,8 +118,11 @@ class TransactionHelper {
 
     findSliceInTransaction(transaction, transactionSlice,callback) {
         let tranSliceObj = JSON.parse(transactionSlice);
+        let sliceIndex = -1;
+        if(transaction == null) {
+            return sliceIndex;
+        }
         let transactionSlices = transaction.transactionSlices;
-        let sliceIndex = null;
         for (let index = 0; index < transactionSlices.length; index++) {
             if (transactionSlices[index].type == "Enterprise" &&
                 tranSliceObj.type == transactionSlices[index].type) {
@@ -192,6 +195,37 @@ class TransactionHelper {
                 } else {
                     resolve(result);
                 }
+            });
+        });
+    }
+
+    getEventsForTransaction(transId) {
+        return new Promise(resolve => {
+            transactionHelper.getTransactionById(transId, (err, transaction) => {
+                if(transaction) {
+                    for(let i = 0; i < transaction.transactionSlices.length; i++) {
+                        let transactionSlice = transaction.transactionSlices[i];
+                        if(transactionSlice.type == 'Enterprise') {
+                            dbconnectionManager.fetchSlice(transactionSlice.payloadId)
+                                .then(serializedSlice => {
+                                    let slice = JSON.parse(serializedSlice);
+                                    let events = [];
+                                    for(let j = 0; j < slice.businessTransactions.length; j++) {
+                                        let bt = slice.businessTransactions[j];
+                                        events.push({
+                                            date: bt.LastModifiedDate.date,
+                                            actionName: bt.ActionName.split('.')[1]
+                                        });
+                                    }
+
+                                    resolve(events);
+                                });
+                            return;
+                        }
+                    }
+                }
+
+                resolve([]);
             });
         });
     }

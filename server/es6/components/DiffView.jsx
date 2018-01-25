@@ -14,7 +14,7 @@ export default class DiffView extends React.Component {
     this.findPartnerEntName = this.findPartnerEntName.bind(this);
 		this.state = {partnerEntName : null};
   }
-  
+
   componentDidMount() {
     document.getElementById("defaultOpen").click();
   }
@@ -34,7 +34,7 @@ export default class DiffView extends React.Component {
     for (i = 0; i < tablinks.length; i++) {
       tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
-    
+
     // Show the current tab, and add an "active" class to the button that opened the tab
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
@@ -48,7 +48,7 @@ export default class DiffView extends React.Component {
     delete copymyView.transactionSlice['enterprises'];
     delete copypartnerView.transactionSlice['type'];
     delete copypartnerView.transactionSlice['enterprise'];
-    delete copypartnerView.transactionSlice['enterprises'];  
+    delete copypartnerView.transactionSlice['enterprises'];
 
     if(tabName === 'Diff') {
       let element = evt.currentTarget.parentElement.getElementsByClassName('commonTab')[0];
@@ -137,7 +137,7 @@ export default class DiffView extends React.Component {
                             <pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
                         </div>
                     </div>);
-              
+
     return (<div className={"panel panel-default"} style={fieldProps.panel}>
               <div className={"panel-heading"} style={fieldProps.panelHeading}>
                 <div className="panel-title" style={fieldProps.panelTitle}>Event Details:
@@ -147,7 +147,7 @@ export default class DiffView extends React.Component {
                     &nbsp;Intersection
                   </span>
                 </div>
-                <i onClick={BackChainActions.toggleMyAndDiffView} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
+                <i onClick={() => BackChainActions.setMyAndDiffViewActive(false)} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
               </div>
               {panelBody}
             </div>);
