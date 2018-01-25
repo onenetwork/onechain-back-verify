@@ -98,18 +98,19 @@ const verifyImgFailed = "/images/verify-failed.png";
         let type = event.currentTarget.getAttribute('type');
         let partnerName = event.currentTarget.getAttribute('partnername');
         let txnids = event.currentTarget.getAttribute('txnids');
-        BackChainActions.zipTransactionsByIds(type, partnerName, txnids.split(','),function(){
-            let zip = new JSZip();
-            let file = zip.file("payload.json", JSON.stringify(payload));
+        BackChainActions.zipTransactionsByIds(type, partnerName, txnids.split(','))
+            .then(() => {
+                let zip = new JSZip();
+                let file = zip.file("payload.json", JSON.stringify(payload));
 
-            file.generateAsync({
-                type: "blob"
-            }).then(function(blob) {
-                filesaver.saveAs(blob, "payload.zip");
-            }, function(err) {
-                console.log("error occurred while generating zip file " + err);
+                file.generateAsync({
+                    type: "blob"
+                }).then(function(blob) {
+                    filesaver.saveAs(blob, "payload.zip");
+                }, function(err) {
+                    console.log("error occurred while generating zip file " + err);
+                });
             });
-        });
     }
 
     render() {
@@ -454,8 +455,7 @@ const ViewOrDownloadTxn = props => {
     function storeTransactions(event) {
         //BackChainActions.toggleMyAndDiffView();
         BackChainActions.loadViewTransactionsById(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','));
-        BackChainActions.zipTransactionsByIds(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','),function(){
-        });
+        BackChainActions.zipTransactionsByIds(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','));
     }
 
     function downloadZip(event) {
