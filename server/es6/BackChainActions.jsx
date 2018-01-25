@@ -55,7 +55,7 @@ export default class BackChainActions {
         store.verifications.clear();
 
         if(arguments.length == 1 && Array.isArray(arguments[0])) {
-            BackChainActions.loadTransactionsAux(arguments[0], callback);
+            BackChainActions.loadTransactionsAux(arguments[0]);
             return;
         }
 
@@ -92,7 +92,9 @@ export default class BackChainActions {
             store.canStartVerifying = true; // nothing to verify and no animation needed
         }
 
-        callback(store.transactions.length > 0);
+        if(callback) {
+            callback(store.transactions.length > 0);
+        }
     }
 
     @action
