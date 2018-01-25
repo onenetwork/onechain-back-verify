@@ -55,7 +55,7 @@ export default class BackChainActions {
         store.verifications.clear();
 
         if(arguments.length == 1 && Array.isArray(arguments[0])) {
-            BackChainActions.loadTransactionsAux(arguments[0]);
+            BackChainActions.loadTransactionsAux(arguments[0], callback);
             return;
         }
 
