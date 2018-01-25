@@ -80,6 +80,11 @@ exports.startSyncFromCertainDate = function(req, res) {
     });
 };
 
+exports.startReceiveTransactionsTimer = function(req, res) {
+    receiveTransactionsTask.startTimer();
+    res.json({success : true});
+};
+
 exports.consumeTransactionMessages = function(req, res) {
     receiveTransactionsTask.consumeTransactionMessages(req.body.authenticationToken, req.body.chainOfCustodyUrl, function(error, result) {
         if(error) {
