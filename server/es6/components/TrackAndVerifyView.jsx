@@ -192,14 +192,17 @@ const verifyImgFailed = "/images/verify-failed.png";
                 type = "Enterprise";
             }
 
-            enterpriseHeaders.push(
-                <th key={key} style={Object.assign({}, fieldProps.columns, colStyle)}>
-                    {circleIcon}
-                    {key}
-                    <div style={divStyle}>{this.getVerificationHeaderIcon(this.props.store.viewsMap[key], key)}&nbsp;&nbsp;
-                    <i type={type} partnername={key} txnids={this.props.store.viewsMap[key].join()} style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file-archive-o" aria-hidden="true" onClick={this.downloadZip.bind(this, this.props.store.payload)}/></div>
-                </th>
-            );
+            const views = this.props.store.viewsMap[key];
+            if (views) {
+                enterpriseHeaders.push(
+                    <th key={key} style={Object.assign({}, fieldProps.columns, colStyle)}>
+                        {circleIcon}
+                        {key}
+                        <div style={divStyle}>{this.getVerificationHeaderIcon(views, key)}&nbsp;&nbsp;
+                        <i type={type} partnername={key} txnids={views.join()} style = {{color: '#646464', cursor:'pointer'}} className="fa fa-file-archive-o" aria-hidden="true" onClick={this.downloadZip.bind(this, this.props.store.payload)}/></div>
+                    </th>
+                );
+            }
         }
 
         return enterpriseHeaders;

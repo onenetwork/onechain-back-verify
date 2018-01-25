@@ -58,7 +58,6 @@ class BackChainStore {
                             else {
                                 viewsMap[transactionSlice.enterprise] = [transaction.id];
                             }
-                            this.entNameOfLoggedUser = transactionSlice.enterprise; /***/
                         }
                         else if (transactionSlice.enterprise == myEntName) {
                             if (myEntName in viewsMap) {

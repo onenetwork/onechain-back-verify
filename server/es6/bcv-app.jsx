@@ -44,6 +44,11 @@ window.BackchainVerifyAPI = {
         if (typeof renderTo == 'string') {
             renderTo = $(renderTo)[0];
         }
+
+        if (options.userEntName) {
+          backChainStore.entNameOfLoggedUser = options.userEntName;
+        }
+
         ReactDOM.render(componentToRender, renderTo);
     },
 
