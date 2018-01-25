@@ -145,36 +145,58 @@ export default class BackChainActions {
     }
 
     @action
-    static zipTransactionsByIds(type, partnerEntName, ids, callback) {
-        store.payload.clear();
-        store.myAndDiffViewModalType = type;
-        store.transactions.forEach(transElement => {
-            for (let index in ids) {
-                if (transElement.id == ids[index]) {
-                    let id = transElement.id;
-                    let transactionSlices = transElement.transactionSlices;
-                    for (let j = 0; j < transactionSlices.length; j++) {
-                        if (type == transactionSlices[j].type) {
-                            if (transactionSlices[j].type == "Enterprise") {
-                                let newJson = {};
-                                newJson.id = id;
-                                newJson.transactionSlice = transElement.transactionSlices[j];
-                                store.payload.push(newJson);
-                            } else if (transactionSlices[j].type == "Intersection" &&
-                                (transactionSlices[j].enterprises.indexOf(store.entNameOfLoggedUser) > -1 &&
-                                transactionSlices[j].enterprises.indexOf(partnerEntName) > -1)) {
-                                let newJson = {};
-                                newJson.id = id;
-                                newJson.transactionSlice = transElement.transactionSlices[j];
-                                store.payload.push(newJson);
-                            }
-                        }
+    static zipTransactionsByIds(type, partnerEntName, ids) {
+        return new Promise(resolve => {
+            store.payload.clear();
+            store.myAndDiffViewModalType = type;
+            for(let i = 0; i < store.transactions.length; i++) {
+                let transaction = store.transactions[i];
+                for (let j = 0; j < ids.length; j++) {
+                    if (transaction.id != ids[j]) {
+                        continue;
                     }
 
+                    const id = transaction.id;
+                    const transactionSlices = transaction.transactionSlices;
+
+                    let initialValue = 0;
+                    let condition = idx => idx < transactionSlices.length;
+                    let action = idx => {
+                        let transactionSlice = transactionSlices[idx];
+
+                        // Always add the enterprise slice.
+                        if(transactionSlice.type == "Enterprise") {
+                            return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                                let newJson = observable({});
+                                newJson.id = id;
+                                newJson.transactionSlice = JSON.parse(result.result);
+                                newJson.transactionSlice.sequence = transactionSlice.sequence;
+                                store.payload.push(newJson);
+                            }).then(() => ++idx);
+                        }
+
+                        if(type == "Intersection"
+                                && transactionSlice.type == "Intersection"
+                                    && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
+                                        && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                            return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                                let newJson = observable({});
+                                newJson.id = id;
+                                newJson.transactionSlice = JSON.parse(result.result);
+                                newJson.transactionSlice.sequence = transactionSlice.sequence;
+                                store.payload.push(newJson);
+                            }).then(() => ++idx);
+                        }
+
+                        return new Promise(resolve => resolve(++idx));
+                    };
+
+                    return backChainUtil.promiseFor(condition, action, initialValue).then(resolve);
                 }
             }
-        })
-        callback();
+
+            resolve();
+        });
     }
 
     @action
