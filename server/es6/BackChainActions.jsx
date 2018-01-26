@@ -11,6 +11,8 @@ import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 
 
+const MAX_EVENTS_TO_LOAD = 30;
+
 let store;
 export default class BackChainActions {
 
@@ -654,19 +656,27 @@ export default class BackChainActions {
 
         if(store.sliceDataProvidedByAPI) {
             for(let i = 0; i < transaction.transactionSlices.length; i++) {
-                let transactionSlice = transactionSlices[i];
+                let transactionSlice = transaction.transactionSlices[i];
                 if(transactionSlice.type == 'Enterprise') {
                     BackChainActions.getSliceDataFromAPI(transaction.id, transaction.transactionSliceHashes[i], transactionSlice.sequence)
                         .then(action(serializedSlice => {
+                            console.log("Loaded " + transaction.id + " at " + new Date().getTime());
+
                             let sliceData = JSON.parse(serializedSlice);
                             let events = [];
-                            for(let j = 0; j < sliceData.businessTransactions.length; j++) {
+                            for(let j = 0; j < sliceData.businessTransactions.length && j < MAX_EVENTS_TO_LOAD; j++) {
                                 let bt = sliceData.businessTransactions[j];
                                 events.push({
                                     date: bt.LastModifiedDate.date,
                                     actionName: bt.ActionName.split('.')[1]
                                 });
                             }
+
+                            if(sliceData.businessTransactions.length > MAX_EVENTS_TO_LOAD) {
+                                events.push(sliceData.businessTransactions.length - MAX_EVENTS_TO_LOAD);
+                            }
+
+                            console.log("Created events for " + transaction.id + " at " + new Date().getTime());
 
                             store.eventsTransactionId = transaction.id;
                             store.events = events;

@@ -62,9 +62,9 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
     constructor(...args) {
         super(...args);
 
-        this.toggleEventPopover = this.toggleEventPopover.bind(this);
+        this.eventPopoverRefsMap = {};
         this.state = {
-            showEventPopover: false
+            eventPopoverVisibilityMap: {}
         };
     }
 
@@ -226,7 +226,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
             <tr style = {{backgroundColor : idx % 2 ? 'rgba(250, 250, 250, 1)' : ''}} key={transaction.id}>
                 {this.renderTransactionIdCell(fieldProps, transaction, idx == this.props.store.transactions.length - 1)}
                 {this.renderTransactionDateCell(fieldProps, transaction)}
-                {this.renderTransactionEventsCell(fieldProps, transaction)}
+                {this.renderTransactionEventsCell(fieldProps, transaction, idx)}
                 {this.renderTransactionExecutingUsersCell(fieldProps, transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(fieldProps, transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(fieldProps, transaction, variableViewNames)}
@@ -265,7 +265,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         return <td style={fieldProps.columns}>{transaction.date}</td>;
     }
 
-    renderTransactionEventsCell(fieldProps, transaction) {
+    renderTransactionEventsCell(fieldProps, transaction, idx) {
         return (
             <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
                 <div>
@@ -275,27 +275,25 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
                             height:'26px'
                         }}
                         src={Images.EVENT_BADGE}
-                        ref={ref => this.eventPopoverTargetRef = ref}
-                        onClick={this.toggleEventPopover} />
+                        ref={ref => this.eventPopoverRefsMap[idx] = ref}
+                        onClick={() => this.showEventPopover(idx, true)} />
                     <div className={this.getEventCountCss(transaction)}>{transaction.eventCount}</div>
 
                     <Overlay
-                        show={this.state.showEventPopover}
-                        onHide={() => {
-                            this.setState({ showEventPopover: false })
-                        }}
+                        show={this.state.eventPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showEventPopover(idx, false)}
                         rootClose={true}
                         placement="right"
                         container={document.getElementById("root")}
-                        target={() => this.eventPopoverTargetRef}>
+                        target={() => this.eventPopoverRefsMap[idx]}>
 
-                        <Popover id="events-popover" title={(
+                        <Popover id={"events-popover-" + idx} title={(
                             <span>
                                 <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
                                 Events:
                             </span>
                         )}>
-                            <EventsPopover store={this.props.store} transactionId={transaction.id} />
+                            <EventsPopover store={this.props.store} transaction={transaction} />
                         </Popover>
 
                     </Overlay>
@@ -412,9 +410,12 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         return "counter3";
     }
 
-    toggleEventPopover() {
-        this.setState({ showEventPopover: !this.state.showEventPopover });
+    showEventPopover(idx, show) {
+        let newMap = Object.assign({}, this.state.eventPopoverVisibilityMap);
+        newMap[idx] = show;
+        this.setState({ eventPopoverVisibilityMap: newMap });
     }
+
 }
 
 @observer class TransactionPreview extends React.Component {
