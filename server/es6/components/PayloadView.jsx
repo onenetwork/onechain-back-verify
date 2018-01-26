@@ -6,7 +6,8 @@ import HeaderView from "./HeaderView";
 import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';
 import { Redirect,Link } from 'react-router-dom';
-import '../../public/css/payload.css';
+import '../../public/css/payload.css'; // TODO: extract to index.html and copy to PLT CoC
+import Images from '../Images';
 
 @observer export default class PayloadView extends React.Component {
 	constructor(props) {
@@ -140,7 +141,7 @@ import '../../public/css/payload.css';
 							<div>
 								<Row>
 									<Col md={2} style={{paddingLeft:'37px'}}>   
-										<img src="/images/payload-file.png" />
+										<img src={Images.PAYLOAD_FILE} />
 									</Col>
 									<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>  
 										<span style={fieldProps.nameSpan}>
