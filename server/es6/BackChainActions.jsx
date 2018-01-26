@@ -56,9 +56,7 @@ export default class BackChainActions {
      */
     @action
     static loadTransactions(id, searchCriteria, callback) {
-        store.canStartVerifying = false;
         store.transactions.clear();
-        store.verifications.clear();
 
         if(arguments.length == 1 && Array.isArray(arguments[0])) {
             BackChainActions.loadTransactionsAux(arguments[0]);
@@ -91,11 +89,7 @@ export default class BackChainActions {
         transactions.forEach(element => store.transactions.push(element));
 
         if (store.oneBcClient != null) {
-            store.verifications = transactionHelper.generateVerificationData(transactions, store.entNameOfLoggedUser, store.oneBcClient);
-        }
-
-        if(transactions.length > 0) {
-            store.canStartVerifying = true; // nothing to verify and no animation needed
+            transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
         }
 
         if(callback) {
@@ -430,8 +424,7 @@ export default class BackChainActions {
                     transArr.forEach(element => {
                         store.transactions.push(element);
                     });
-                    store.verifications = transactionHelper.generateVerificationData(transArr,store.entNameOfLoggedUser,store.oneBcClient);
-                    store.canStartVerifying = true; //nothing to verify and no animation needed
+                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
                     callback();
                 }
                 i++;

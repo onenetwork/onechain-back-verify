@@ -9,8 +9,21 @@ class BlockChainVerifier {
 
     verifyHash(hash, oneBcClient) {
         if(hash.indexOf('0x') != 0) hash = '0x' + hash;
-        return oneBcClient.verify(hash);
+        return new Promise((resolve, reject) => {
+            if (oneBcClient != null) {
+                oneBcClient.verify(hash).then(function (verified) {
+                    if (verified) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                }).catch(function (error) {
+                    reject("Verification failed");
+                });
+            }
+        });
     }
+
 }
 
 export const blockChainVerifier = new BlockChainVerifier();

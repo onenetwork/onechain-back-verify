@@ -138,8 +138,14 @@ class TransactionHelper {
         return sliceIndex;
     }
 
-    generateVerificationData(transactions, myEntName, oneBcClient) {
-        let verifications = observable.map({});
+    generateVerificationDataAndStartVerifying(transactions, store) {
+        store.verifications.clear();
+        if(transactions.length == 0) {
+            return;
+        }
+        store.canStartVerifying = false;
+        const myEntName = store.entNameOfLoggedUser;
+        const oneBcClient = store.oneBcClient;
 
         transactions.forEach(transaction => {
             if (!transaction) {
@@ -164,13 +170,24 @@ class TransactionHelper {
                 if(!key) {
                     continue;
                 }
-
-                let verified = sliceHash === trueSliceHash && blockChainVerifier.verifyHash(sliceHash, oneBcClient);
-                verifications.set(key, verified ? 'verified' : 'failed');
+                if(sliceHash === trueSliceHash){
+                    store.verifications.set(key, 'verifying');
+                    (function(verificationKey, hash) {
+                        blockChainVerifier.verifyHash(hash, oneBcClient)
+                        .then(function (result) {
+                            store.verifications.set(verificationKey, result === true ? 'verified' : 'failed');
+                        })
+                        .catch(function (error) {
+                            store.verifications.set(verificationKey, 'failed');
+                        });
+                    })(key, sliceHash);
+                } else {
+                    store.verifications.set(key, 'failed');
+                }          
+                
             }
         });
-
-        return verifications;
+        store.canStartVerifying = true;
     }
 
     getTransactionsBySequenceNos(sequenceNos) {
