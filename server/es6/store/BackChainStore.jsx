@@ -35,10 +35,11 @@ class BackChainStore {
     @observable startSync = false;
     @observable syncStatisticsExists = false;
     @observable syncStatistics = null;
-    @observable selectedGapsForSync = [];
     @observable syncStatisticsReport = [];
     @observable dbSyncModalViewActive = false;
     @observable startSyncViewModalActive = false;
+    
+    sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;

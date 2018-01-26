@@ -10,11 +10,17 @@ import { observable } from 'mobx';
 import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 
+
 let store;
 export default class BackChainActions {
 
-    static init(appStore) {
+    static init(appStore, options) {
         store = appStore;
+        
+        if(options.getTransactionSliceByHash) {
+            store.sliceDataProvidedByAPI = true;
+            BackChainActions.getSliceDataFromAPI = options.getTransactionSliceByHash;
+        }
     }
 
     @action
@@ -115,26 +121,58 @@ export default class BackChainActions {
 
                 // Always add the enterprise slice to the view.
                 if(transactionSlice.type == "Enterprise") {
-                    return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                    if(transactionSlice.payloadId) {
+                        return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                            let newJson = observable({});
+                            newJson.id = id;
+                            newJson.transactionSlice = JSON.parse(result.result);
+                            store.viewTransactions.enterprise = newJson;
+                        }).then(() => ++idx);
+                    }
+                    else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
+                        return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                          .then(serializedSlice => {
+                              let newJson = observable({});
+                              newJson.id = id;
+                              newJson.transactionSlice = JSON.parse(serializedSlice);
+                              store.viewTransactions.enterprise = newJson;
+                          }).then(() => ++idx);
+                    }
+                    else {  // Comes from a payload
                         let newJson = observable({});
                         newJson.id = id;
-                        newJson.transactionSlice = JSON.parse(result.result);
-                        newJson.transactionSlice.sequence = transactionSlice.sequence;
+                        newJson.transactionSlice = transactionSlice;
                         store.viewTransactions.enterprise = newJson;
-                    }).then(() => ++idx);
+                    }
                 }
 
                 if(type == "Intersection"
                         && transactionSlice.type == "Intersection"
                             && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
                                 && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
-                    return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                    if(transactionSlice.payloadId) {
+                        return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                            let newJson = observable({});
+                            newJson.id = id;
+                            newJson.transactionSlice = JSON.parse(result.result);
+                            store.viewTransactions.intersection = newJson;
+                        }).then(() => ++idx);
+                    }
+                    else if(store.sliceDataProvidedByAPI) {   // Slice comes form the API (for the Chain of Custody usecase)
+                        return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                          .then(serializedSlice => {
+                              let newJson = observable({});
+                              newJson.id = id;
+                              newJson.transactionSlice = JSON.parse(serializedSlice);
+                              store.viewTransactions.enterprise = newJson;
+                          }).then(() => ++idx);
+                    }
+                    else {  // Comes from a payload
                         let newJson = observable({});
                         newJson.id = id;
-                        newJson.transactionSlice = JSON.parse(result.result);
-                        newJson.transactionSlice.sequence = transactionSlice.sequence;
+                        newJson.transactionSlice = transactionSlice;
                         store.viewTransactions.intersection = newJson;
-                    }).then(() => ++idx);
+                    }
                 }
 
                 return new Promise(resolve => resolve(++idx));
@@ -166,28 +204,61 @@ export default class BackChainActions {
                     let action = idx => {
                         let transactionSlice = transactionSlices[idx];
 
-                        // Always add the enterprise slice.
-                        if(transactionSlice.type == "Enterprise") {
-                            return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                        if(type == "Enterprise" 
+                            && transactionSlice.type == "Enterprise"
+                                && transactionSlice.enterprise == store.entNameOfLoggedUser) {
+                            if(transactionSlice.payloadId) {
+                                return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                                    let newJson = observable({});
+                                    newJson.id = id;
+                                    newJson.transactionSlice = result.result;
+                                    store.payload.push(newJson);
+                                }).then(() => ++idx);
+                            }
+                            else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                  .then(serializedSlice => {
+                                      let newJson = observable({});
+                                      newJson.id = id;
+                                      newJson.transactionSlice = serializedSlice;
+                                      store.payload.push(newJson);
+                                  }).then(() => ++idx);
+                            }
+                            else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = JSON.parse(result.result);
-                                newJson.transactionSlice.sequence = transactionSlice.sequence;
+                                newJson.transactionSlice = transactionSlice;
                                 store.payload.push(newJson);
-                            }).then(() => ++idx);
+                            }
                         }
 
                         if(type == "Intersection"
                                 && transactionSlice.type == "Intersection"
                                     && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
                                         && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
-                            return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                            if(transactionSlice.payloadId) {
+                                return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                                    let newJson = observable({});
+                                    newJson.id = id;
+                                    newJson.transactionSlice = result.result;
+                                    store.payload.push(newJson);
+                                }).then(() => ++idx);
+                            }
+                            else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                  .then(serializedSlice => {
+                                      let newJson = observable({});
+                                      newJson.id = id;
+                                      newJson.transactionSlice = serializedSlice;
+                                      store.payload.push(newJson);
+                                  }).then(() => ++idx);
+                            }
+                            else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = JSON.parse(result.result);
-                                newJson.transactionSlice.sequence = transactionSlice.sequence;
+                                newJson.transactionSlice = transactionSlice;
                                 store.payload.push(newJson);
-                            }).then(() => ++idx);
+                            }
                         }
 
                         return new Promise(resolve => resolve(++idx));
@@ -257,12 +328,24 @@ export default class BackChainActions {
     @action
     static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
         if (!store.isInitialSyncDone) {
-            let me = this;
             this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl, function (req, res) {
-                const _this = me;
-                if (res == true) {
-                    _this.startInitialSync(tokenInputVal, chainOfCustodyUrl);
-                }
+                fetch('/startReceiveTransactionsTimer', {
+                    method: 'post',
+                    headers: new Headers({
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    })
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function (result) { 
+                    //No need to do anything. We may add retrial in the future if needed        
+                })
+                .catch(function (err) {
+                    console.error('Receive Transactions Task Timer could not be started'); 
+                }); 
             });
         } else {
             this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
@@ -320,22 +403,25 @@ export default class BackChainActions {
         let i = 1;
         payloads.forEach(payload => {
             this.findTransaction(payload.id, function(transactions) {
+                let payloadHash = blockChainVerifier.generateHash(payload.transactionSlice);
                 if (transactions.length > 0) {
-                    transaction = transaction[0];
+                    let transaction = transactions[0];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
                     if (index >= 0) {
-                        transaction.transactionSliceStrings[index] = payload.transactionSlice;
                         transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
+                        transaction.trueTransactionSliceHashes[index] = payloadHash;
                     } else {
-                        transaction.transactionSliceStrings.push(payload.transactionSlice);
-                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
+                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));                        
+                        transaction.trueTransactionSliceHashes.push(payloadHash);
+                        transaction.transactionSliceHashes.push(payloadHash);
                     }
                     transArr.push(transaction);
                 } else {
                     transArr.push({
                         id: payload.id,
-                        transactionSliceStrings: [payload.transactionSlice],
-                        transactionSlices: [JSON.parse(payload.transactionSlice)]
+                        transactionSlices: [JSON.parse(payload.transactionSlice)],
+                        trueTransactionSliceHashes: [payloadHash],
+                        transactionSliceHashes : [payloadHash]
                     });
                 }
 
@@ -344,7 +430,7 @@ export default class BackChainActions {
                     transArr.forEach(element => {
                         store.transactions.push(element);
                     });
-                    store.verifications = transactionHelper.storeVerificationData(transArr,store.entNameOfLoggedUser,store.oneBcClient);
+                    store.verifications = transactionHelper.generateVerificationData(transArr,store.entNameOfLoggedUser,store.oneBcClient);
                     store.canStartVerifying = true; //nothing to verify and no animation needed
                     callback();
                 }
@@ -369,37 +455,6 @@ export default class BackChainActions {
                 callback(null);
             }
         })
-    }
-
-    @action
-    static startInitialSync(authenticationToken, chainOfCustodyUrl) {
-        let params = {
-            'authenticationToken': authenticationToken,
-            'chainOfCustodyUrl': chainOfCustodyUrl
-        };
-        fetch('/consumeTransactionMessages', {
-            method: 'post',
-            headers: new Headers({
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }),
-            body: requestHelper.jsonToUrlParams(params)
-        })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(result) {
-            if(result.consumeResult.success === true && result.consumeResult.syncDone === true) {
-                store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
-                store.authenticationToken = result.consumeResult.authenticationToken;
-                store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
-                store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
-            }
-        })
-        .catch(function (err) {
-            log.error("Error occured in startInitialSync.");
-        });
     }
 
     @action
@@ -454,6 +509,64 @@ export default class BackChainActions {
     }
 
     @action
+    static startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
+        if(gaps == null || gaps.length == 0) {
+            if(callback){
+                callback(null,true);  
+            }
+            return;
+        }
+        store.startSync = true;
+        store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
+        let params = {
+            'authenticationToken': authenticationToken,
+            'gaps': gaps,
+            'chainOfCustodyUrl' : chainOfCustodyUrl
+        };
+        fetch('/startGapSync', {
+            method: 'post',
+            headers: new Headers({
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }),
+            body: requestHelper.jsonToUrlParams(params)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function (result) { 
+            if(result.success) {
+                store.authenticationToken = result.authenticationToken;
+                store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
+                store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
+                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
+                store.syncFailed = false;
+                store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true; 
+                store.isInitialSyncDone = true;
+                if(callback){
+                    callback(null,true);  
+                }
+            } else {
+                store.syncFailed = true;
+                store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;  
+            }            
+        })
+        .catch(function (err) {
+            console.error('Error communicating with PLT');
+            store.syncFailed = true;
+            store.startSync = false;
+            store.startSyncViewModalActive = true;  
+        });        
+    }
+
+
+    @action
     static verifyBackChainSettings(oneBcClient,callback) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
@@ -501,6 +614,25 @@ export default class BackChainActions {
         .catch(function (err) {
             callback(err, null);
             console.log('getSyncStatistics error');
+        });
+    }
+
+    @action 
+    static populateStoreWithApplicationSettings() {
+        fetch('/getApplicationSettings', {method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                store.authenticationToken = result.settings.chainOfCustidy.authenticationToken; 
+                store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
+                store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
+                //Add more when needed
+            }
+        })
+        .catch(function (err) {
+            console.log('Error occured while populating application settings');
         });
     }
 

@@ -15,6 +15,8 @@ export function router(app) {
     app.post('/consumeTransactionMessages', BackChainWebAPI.consumeTransactionMessages);
     app.get('/getSyncStatisticsInfo', BackChainWebAPI.getSyncStatisticsInfo);
     app.get('/getSyncStatistics', BackChainWebAPI.getSyncStatistics);
+    app.post('/startGapSync', BackChainWebAPI.startGapSync);
+    app.post('/startReceiveTransactionsTimer', BackChainWebAPI.startReceiveTransactionsTimer);
     app.get('/getTransactionsBySequenceNos/:sequenceNos', BackChainWebAPI.getTransactionsBySequenceNos);
     app.get('/getEventsForTransaction/:transId', BackChainWebAPI.getEventsForTransaction);
     app.get('/getTransactionSlice/:payloadId', BackChainWebAPI.getTransactionSlice);

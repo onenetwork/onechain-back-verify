@@ -80,6 +80,21 @@ exports.startSyncFromCertainDate = function(req, res) {
     });
 };
 
+exports.startReceiveTransactionsTimer = function(req, res) {
+    receiveTransactionsTask.startTimer();
+    res.json({success : true});
+};
+
+exports.startGapSync = function(req, res) {
+    syncTransactionTaskHelper.startGapSync(req.body.authenticationToken, req.body.chainOfCustodyUrl, JSON.parse(req.body.gaps), function(error, result) {
+        if(error) {
+            res.json({success : false});
+        } else {
+            res.json(result);
+        }
+    });
+};
+
 exports.consumeTransactionMessages = function(req, res) {
     receiveTransactionsTask.consumeTransactionMessages(req.body.authenticationToken, req.body.chainOfCustodyUrl, function(error, result) {
         if(error) {

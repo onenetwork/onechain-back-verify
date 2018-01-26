@@ -77,7 +77,7 @@ class SyncForm extends React.Component {
 		};
 
 		if(!this.props.store.authenticationToken) {
-			this.props.store.lastSyncTimeInMillis = moment().startOf('year');
+			this.props.store.lastSyncTimeInMillis = moment().startOf('year').valueOf();
 		} 
 
 		return (

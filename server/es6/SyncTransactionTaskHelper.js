@@ -36,6 +36,36 @@ class SyncTransactionTaskHelper {
                 callback(err, null)
             });
         }
+        startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
+            /**
+             * Callback is called after the first successful attempt or error attempt. 
+             * UI shouldn't wait for all the gap reset requests to return with a response.
+             */
+            let me = this;
+            for(let i=0, len = gaps.length; i < len ; i++) {
+                let gap = gaps[i];
+                fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/reset?fromSequence=' + gap.fromSequenceNo + '&toSequence=' + gap.toSequenceNo), {
+                    method: 'get',
+                    headers: new Headers({
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': 'token ' + authenticationToken
+                    })
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(result) {
+                    me.updatechainOfCustody(authenticationToken, chainOfCustodyUrl,result.entName, function(chainOfCustidy) {
+                        chainOfCustidy.success = 'success';
+                        callback(null, chainOfCustidy);
+                        callback = function() {};
+                    });
+                }).catch(function (err) {
+                    callback(err, null);
+                    callback = function() {}; //replace with empty function to prevent subsequent calls
+                });
+            }
+        }
         updatechainOfCustody(authenticationToken, chainOfCustodyUrl,entName, callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
                 if (err) {
