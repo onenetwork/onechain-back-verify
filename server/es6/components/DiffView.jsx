@@ -44,9 +44,11 @@ export default class DiffView extends React.Component {
     var copymyView = JSON.parse(JSON.stringify(myViewObj));
     var copypartnerView = JSON.parse(JSON.stringify(partnerViewObj));
     delete copymyView.transactionSlice['type'];
+    delete copymyView.transactionSlice['sequence'];
     delete copymyView.transactionSlice['enterprise'];
     delete copymyView.transactionSlice['enterprises'];
     delete copypartnerView.transactionSlice['type'];
+    delete copypartnerView.transactionSlice['sequence'];
     delete copypartnerView.transactionSlice['enterprise'];
     delete copypartnerView.transactionSlice['enterprises'];
 
@@ -124,10 +126,10 @@ export default class DiffView extends React.Component {
                             </Col>
                             <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} style={Object.assign({},fieldProps.tablinks,{marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                               <span className="fa-stack">
-                                &nbsp;&nbsp;&nbsp;<i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
-                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
+                                <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
                               </span>
-                                Common Elements with&nbsp;{this.state.partnerEntName}
+                              <span> Common Elements with {this.state.partnerEntName}</span>
                             </Col>
                         </Row>
                         <div id='Diff' className="tabcontent">
@@ -142,10 +144,10 @@ export default class DiffView extends React.Component {
               <div className={"panel-heading"} style={fieldProps.panelHeading}>
                 <div className="panel-title" style={fieldProps.panelTitle}>Event Details:
                   <span style= {{color:'rgb(0, 133, 200)'}} className="fa-stack">
-                    &nbsp;&nbsp;&nbsp;<i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span id="partnername">{this.state.partnerEntName}</span>
-                    &nbsp;Intersection
+                    <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
+                    <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
                   </span>
+                  <span style= {{color:'rgb(0, 133, 200)'}}>{this.state.partnerEntName} Intersection</span>
                 </div>
                 <i onClick={() => BackChainActions.setMyAndDiffViewActive(false)} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
               </div>
