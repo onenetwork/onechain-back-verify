@@ -8,37 +8,37 @@ import BackChainActions from '../BackChainActions';
 export default class EventsPopover extends React.Component {
 
     render() {
-        const { store, transactionId } = this.props;
+        const { store, transaction } = this.props;
         const { events, eventsTransactionId } = store;
 
         let content = <div>Loading...</div>;
 
-        if(transactionId === eventsTransactionId) {
-            //let eventCount;
-            //let eventCountCss = "counter3";
+        if(transaction.id === eventsTransactionId) {
             let eventList = [];
             for (let i = 0; i < events.length; i++) {
-                /*
-                let eventCount = slice.businessTransactions.length;
-                if(eventCount.toString().length == 1) {
-                    eventCountCss =  "counter1";
-                }
-                else if(eventCount.toString().length == 2) {
-                    eventCountCss =  "counter2";
-                }
-                */
                 let event = events[i];
-                eventList.push(
-                    <li key={i} style={{
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        maxWidth: 350
-                    }}>
-                        <span style={{color:'#990000', marginRight: 8}}>{event.date}</span>{" "}
-                        <span>{event.actionName}</span>
-                    </li>
-                );
+                if(typeof event !== 'number') {
+                    eventList.push(
+                        <li key={i} style={{
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                            textOverflow: "ellipsis",
+                            maxWidth: 350,
+                            marginLeft: 10,
+                            marginRight: 10
+                        }}>
+                            <span style={{color:'#990000', marginRight: 8}}>{event.date}</span>{" "}
+                            <span>{event.actionName}</span>
+                        </li>
+                    );
+                }
+                else {
+                    // The number of events displayed is limited, so the last
+                    // entry in the array might be a number of how many remain.
+                    eventList.push(
+                        <li key={i}>And {event} more...</li>
+                    );
+                }
             }
 
             content = (
@@ -60,7 +60,10 @@ export default class EventsPopover extends React.Component {
     }
 
     componentDidMount() {
-        BackChainActions.loadEventsForTransaction(this.props.transactionId);
+        setTimeout(() => {
+            console.log("Loading txn " + this.props.transaction.id + " at " + new Date().getTime());
+            BackChainActions.loadEventsForTransaction(this.props.transaction);
+        }, 100);
     }
 
 }
