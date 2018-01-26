@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import DisplayMessageView from "./DisplayMessageView";
+import Images from '../Images';
 
 @observer export default class SearchByBusinessIdView extends React.Component {
     constructor(props) {
@@ -115,7 +116,7 @@ import DisplayMessageView from "./DisplayMessageView";
 						<div className={"panel-body"} style={fieldProps.panelBody}>
 							<Row>
 								<Col md={2} style={{paddingLeft:'37px'}}>
-									<img src="/images/business-transaction-id.png" />
+									<img src={Images.BUSINESS_TRANSACTION} />
 								</Col>
 								<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>
 									<span style={fieldProps.nameSpan}>

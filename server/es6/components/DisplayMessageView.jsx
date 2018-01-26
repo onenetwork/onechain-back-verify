@@ -2,7 +2,6 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { Row, Col, Button, Panel, FormControl} from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
-import HeaderView from "./HeaderView";
 import BackChainActions from '../BackChainActions';
 
 @observer export default class DisplayMessageView extends React.Component {

@@ -11,11 +11,10 @@ import { Link } from 'react-router-dom';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import { Scrollbars } from 'react-custom-scrollbars';
-import '../../public/css/TrackAndVerify.css';
+import Images from '../Images';
 
-const verifyImgProgressing = "/images/verify-progressing.png";
-const verifyImgVerified = "/images/verify-succeded.png";
-const verifyImgFailed = "/images/verify-failed.png";
+import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
+
 @observer export default class TrackAndVerifyView extends React.Component {
 
     calculateVerifyImgLeftPosition() {
@@ -27,11 +26,11 @@ const verifyImgFailed = "/images/verify-failed.png";
     }
 
     getProgressBarImg() {
-        let barImg = verifyImgProgressing;
+        let barImg = Images.VERIFY_IMAGE_PROCESSING;
         if(this.props.store.verificationStatus.endResult == 'verified') {
-            barImg = verifyImgVerified;
+            barImg = Images.VERIFY_SUCCEDED;
         } else if(this.props.store.verificationStatus.endResult == 'failed') {
-            barImg = verifyImgFailed;
+            barImg = Images.VERIFY_FAILED;
         }
         return barImg;
     }
@@ -257,7 +256,7 @@ const verifyImgFailed = "/images/verify-failed.png";
 
         return (
             <div style={fieldProps.downArrow}>
-                <img style={{width:'8px', height:'26px'}} src="/images/down-arrow.svg"/>
+                <img style={{width:'8px', height:'26px'}} src={Images.DOWN_ARROW}/>
             </div>
         );
     }
@@ -275,7 +274,7 @@ const verifyImgFailed = "/images/verify-failed.png";
                             width: '30px',
                             height:'26px'
                         }}
-                        src="../images/event-badge.svg"
+                        src={Images.EVENT_BADGE}
                         ref={ref => this.eventPopoverTargetRef = ref}
                         onClick={this.toggleEventPopover} />
                     <div className={this.getEventCountCss(transaction)}>{transaction.eventCount}</div>
@@ -292,7 +291,7 @@ const verifyImgFailed = "/images/verify-failed.png";
 
                         <Popover id="events-popover" title={(
                             <span>
-                                <img style={{width: '18px',height:'18px', marginRight: '8px'}} src="../images/event.svg"/>
+                                <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
                                 Events:
                             </span>
                         )}>

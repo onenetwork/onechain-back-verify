@@ -5,6 +5,7 @@ import { Link,Redirect } from 'react-router-dom';
 import { observer } from 'mobx-react';
 import HeaderView from "./HeaderView";
 import DisplayMessageView from "./DisplayMessageView";
+import Images from '../Images';
 
 @observer export default class SearchByTransactionIdView extends React.Component {
     constructor(props) {
@@ -114,7 +115,7 @@ import DisplayMessageView from "./DisplayMessageView";
 						<div className={"panel-body"} style={fieldProps.panelBody}>
 						<Row>
 							<Col md={2} style={{paddingLeft:'37px'}}>
-								<img src="/images/transaction-id.png"/>
+								<img src={Images.TRANSACTION}/>
 							</Col>
 							<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>
 								<span style={fieldProps.nameSpan}>

@@ -4,9 +4,10 @@ import { Link,Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';
 import { TablePagination } from 'react-pagination-table';
-import HeaderView from "./HeaderView";
-const Header = ['',"Model Type", "Business Transaction ID" ];
+import HeaderView from './HeaderView';
+import Images from '../Images';
 
+const Header = ['',"Model Type", "Business Transaction ID" ];
 
 @observer export default class SearchByTextView extends React.Component {
     constructor(props) {
@@ -182,7 +183,7 @@ const Header = ['',"Model Type", "Business Transaction ID" ];
 							<div>
 								<Row>
 									<Col md={2} style={{paddingLeft:'37px'}}>
-										<img src="/images/business-transaction-search.png" />
+										<img src={Images.BUSINESS_TRANSACTION_SEARCH} />
 									</Col>
 									<Col md={10} style={{paddingLeft:'0px', paddingTop: '13px'}}>
 										<span style={fieldProps.nameSpan}>

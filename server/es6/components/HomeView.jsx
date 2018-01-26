@@ -6,6 +6,7 @@ import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import '../../public/css/homePage.css';
 import DBSyncView from "./DBSyncView";
+import Images from '../Images';
 
 @observer export default class HomeView extends React.Component {
 	constructor(props) {
@@ -67,7 +68,7 @@ import DBSyncView from "./DBSyncView";
 			}
 		};
 
-		const businessTransImage = this.props.store.isInitialSyncDone == true ? "/images/business-transaction-id.png" :  "/images/business-transaction-id-grey.png";
+		const businessTransImage = this.props.store.isInitialSyncDone == true ? Images.BUSINESS_TRANSACTION : Images.BUSINESS_TRANSACTION_DISABLED;
 		let className =  "span ";
 		let activeOrInactiveClassName = this.props.store.isInitialSyncDone == true ? 'activeSpan' : 'inActiveSpan';
 		let descriptiveClassName = this.props.store.isInitialSyncDone == true ? 'activeDescriptive' : 'inActiveDescriptive';
@@ -89,7 +90,7 @@ import DBSyncView from "./DBSyncView";
 						</Link>
 					</div>);
 
-		const transIdImage = this.props.store.isInitialSyncDone == true ? "/images/transaction-id.png" :  "/images/transaction-id-grey.png";
+		const transIdImage = this.props.store.isInitialSyncDone == true ? Images.TRANSACTION : Images.TRANSACTION_DISABLED;
 		linkUrl  =  this.props.store.isInitialSyncDone == true ? "/transactionId":"#"
 		className =  "span transSearch ";
 		let txnId = (<div className = "mainDiv" style={{paddingTop: '27px'}}>
@@ -109,7 +110,7 @@ import DBSyncView from "./DBSyncView";
 						<span className = "dbActiveSpan"></span>
 						<Link to="/payload">
 							<div  className="innerDiv" > 
-								<img  style={{paddingLeft: '57px',paddingTop: '5px'}} src="/images/payload-file.png" /><br/><br/>
+								<img  style={{paddingLeft: '57px',paddingTop: '5px'}} src={Images.PAYLOAD_FILE} /><br/><br/>
 								<span className={className}>Payload File</span> <br/>
 								<p className = "activeDescriptive">
 									This feature verifies the payload with Block Chain by hashing the payloads and comparing the values in Block Chain. If the payload information exists in the local repository, then the remaining information regarding the transaction shall be retrieved and verified as well.

@@ -3,6 +3,8 @@ import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import {Modal} from 'react-bootstrap';
 import StartSyncView from "./StartSyncView";
+import Images from '../Images';
+
 require('es6-promise/auto');
 require('es6-object-assign/auto');
 require("babel-polyfill");
@@ -20,7 +22,7 @@ require("babel-polyfill");
     render() {
 	    let fieldProps = {
             logoPanel : {
-                backgroundImage : this.props.size == 'big' ? "url('/images/banner-large.png')" :  "url('/images/banner-small.png')",
+                backgroundImage : this.props.size == 'big' ? `url('${Images.BANNER_LARGE}')` :  `url('${Images.BANNER_SMALL}')`,
                 color: 'white',
                 height: this.props.size == 'big' ? 178 : 100,
                 fontSize: 13
@@ -58,11 +60,11 @@ require("babel-polyfill");
                     <div className={"panel-heading"} style={fieldProps.logoPanel}>
                         <div style={fieldProps.mainDiv}>                
                             <div style={fieldProps.mainInfoDiv}>
-                                <img src="/images/BVtext.png"  /> 
+                                <img src={Images.BV_TEXT} /> 
                                 <h3 style={fieldProps.h3}>Revolutionizing the Supply Chain</h3>
                             </div>					
                         </div>
-                        <img src="/images/logo-large.png" style={fieldProps.logo}/>
+                        <img src={Images.LOGO_LARGE} style={fieldProps.logo}/>
                     </div>
                 </div>
             );
@@ -73,10 +75,10 @@ require("babel-polyfill");
                         <div>
                             <div style={fieldProps.mainInfoDiv}>
                                 <div style={fieldProps.inlineLogo}>
-                                    <img src="/images/transparent_sml_logo.png"/>
+                                    <img src={Images.LOGO_SMALL}/>
                                 </div>
                                 <div  style={{paddingTop: '35px'}} >
-                                    <img  style={{paddingBottom: '5px'}} src="/images/BVtext_sm.png"/> <br/>
+                                    <img  style={{paddingBottom: '5px'}} src={Images.BV_TEXT_SMALL}/> <br/>
                                     <span style={{fontSize: '14px'}}>Revolutionizing the Supply Chain</span>
                                 </div>                            
                             </div>					
