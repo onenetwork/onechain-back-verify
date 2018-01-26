@@ -16,7 +16,7 @@ export default class BackChainActions {
 
     static init(appStore, options) {
         store = appStore;
-        
+
         if(options.getTransactionSliceByHash) {
             store.sliceDataProvidedByAPI = true;
             BackChainActions.getSliceDataFromAPI = options.getTransactionSliceByHash;
@@ -198,7 +198,7 @@ export default class BackChainActions {
                     let action = idx => {
                         let transactionSlice = transactionSlices[idx];
 
-                        if(type == "Enterprise" 
+                        if(type == "Enterprise"
                             && transactionSlice.type == "Enterprise"
                                 && transactionSlice.enterprise == store.entNameOfLoggedUser) {
                             if(transactionSlice.payloadId) {
@@ -334,12 +334,12 @@ export default class BackChainActions {
                 .then(function(response) {
                     return response.json();
                 })
-                .then(function (result) { 
-                    //No need to do anything. We may add retrial in the future if needed        
+                .then(function (result) {
+                    //No need to do anything. We may add retrial in the future if needed
                 })
                 .catch(function (err) {
-                    console.error('Receive Transactions Task Timer could not be started'); 
-                }); 
+                    console.error('Receive Transactions Task Timer could not be started');
+                });
             });
         } else {
             this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
@@ -405,7 +405,7 @@ export default class BackChainActions {
                         transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
                         transaction.trueTransactionSliceHashes[index] = payloadHash;
                     } else {
-                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));                        
+                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
                         transaction.trueTransactionSliceHashes.push(payloadHash);
                         transaction.transactionSliceHashes.push(payloadHash);
                     }
@@ -505,7 +505,7 @@ export default class BackChainActions {
     static startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
         if(gaps == null || gaps.length == 0) {
             if(callback){
-                callback(null,true);  
+                callback(null,true);
             }
             return;
         }
@@ -529,7 +529,7 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-        .then(function (result) { 
+        .then(function (result) {
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
@@ -538,24 +538,24 @@ export default class BackChainActions {
                 store.syncFailed = false;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true; 
+                store.startSyncViewModalActive = true;
                 store.isInitialSyncDone = true;
                 if(callback){
-                    callback(null,true);  
+                    callback(null,true);
                 }
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true;  
-            }            
+                store.startSyncViewModalActive = true;
+            }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT');
             store.syncFailed = true;
             store.startSync = false;
-            store.startSyncViewModalActive = true;  
-        });        
+            store.startSyncViewModalActive = true;
+        });
     }
 
 
@@ -610,7 +610,7 @@ export default class BackChainActions {
         });
     }
 
-    @action 
+    @action
     static populateStoreWithApplicationSettings() {
         fetch('/getApplicationSettings', {method: 'GET'})
         .then(function(response) {
@@ -618,7 +618,7 @@ export default class BackChainActions {
         })
         .then(function(result) {
             if(result.success) {
-                store.authenticationToken = result.settings.chainOfCustidy.authenticationToken; 
+                store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
                 store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
                 store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
                 //Add more when needed
@@ -647,12 +647,39 @@ export default class BackChainActions {
     }
 
     @action
-    static loadEventsForTransaction(transId) {
-        if(store.eventsTransactionId === transId) {
+    static loadEventsForTransaction(transaction) {
+        if(store.eventsTransactionId === transaction.id) {
             return;
         }
 
-        let uri = '/getEventsForTransaction/' + transId;
+        if(store.sliceDataProvidedByAPI) {
+            for(let i = 0; i < transaction.transactionSlices.length; i++) {
+                let transactionSlice = transactionSlices[i];
+                if(transactionSlice.type == 'Enterprise') {
+                    BackChainActions.getSliceDataFromAPI(transaction.id, transaction.transactionSliceHashes[i], transactionSlice.sequence)
+                        .then(action(serializedSlice => {
+                            let sliceData = JSON.parse(serializedSlice);
+                            let events = [];
+                            for(let j = 0; j < sliceData.businessTransactions.length; j++) {
+                                let bt = sliceData.businessTransactions[j];
+                                events.push({
+                                    date: bt.LastModifiedDate.date,
+                                    actionName: bt.ActionName.split('.')[1]
+                                });
+                            }
+
+                            store.eventsTransactionId = transaction.id;
+                            store.events = events;
+                        }));
+                    return;
+                }
+            }
+
+            console.log('Warning: Slice with type "Enterprise" not found in the transaction.');
+            return;
+        }
+
+        let uri = '/getEventsForTransaction/' + transaction.id;
         fetch(uri, { method: 'GET' }).then(function(response) {
             return response.json();
         }, function(error) {

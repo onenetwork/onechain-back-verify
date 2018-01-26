@@ -8,25 +8,14 @@ import BackChainActions from '../BackChainActions';
 export default class EventsPopover extends React.Component {
 
     render() {
-        const { store, transactionId } = this.props;
+        const { store, transaction } = this.props;
         const { events, eventsTransactionId } = store;
 
         let content = <div>Loading...</div>;
 
-        if(transactionId === eventsTransactionId) {
-            //let eventCount;
-            //let eventCountCss = "counter3";
+        if(transaction.id === eventsTransactionId) {
             let eventList = [];
             for (let i = 0; i < events.length; i++) {
-                /*
-                let eventCount = slice.businessTransactions.length;
-                if(eventCount.toString().length == 1) {
-                    eventCountCss =  "counter1";
-                }
-                else if(eventCount.toString().length == 2) {
-                    eventCountCss =  "counter2";
-                }
-                */
                 let event = events[i];
                 eventList.push(
                     <li key={i} style={{
@@ -60,7 +49,7 @@ export default class EventsPopover extends React.Component {
     }
 
     componentDidMount() {
-        BackChainActions.loadEventsForTransaction(this.props.transactionId);
+        BackChainActions.loadEventsForTransaction(this.props.transaction);
     }
 
 }
