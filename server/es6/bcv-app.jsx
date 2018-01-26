@@ -32,9 +32,23 @@ const RoutedApp = () => (
 );
 
 
+// Available options:
+// 
+//  - showOnlyVerifyView: Boolean
+//    True to display only the verification table
+//    
+//  - userEntName: String
+//    The current user's enterprise name
+//    
+//  - fetchTransactionSliceByHash: Function
+//    A callback function which is used to fetch slice data. It is called with these parameters:
+//      - transaction
+//      - transactionSlice
+//    
+//    It should return a Promise which provides the serialized slice as the only argument.
 window.BackchainVerifyAPI = {
     setup: (renderTo, options) => {
-        BackChainActions.init(backChainStore);
+        BackChainActions.init(backChainStore, options);
 
         options = options || {};
         const componentToRender = options.showOnlyVerifyView

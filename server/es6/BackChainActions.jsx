@@ -10,11 +10,17 @@ import { observable } from 'mobx';
 import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 
+
 let store;
 export default class BackChainActions {
 
-    static init(appStore) {
+    static init(appStore, options) {
         store = appStore;
+        
+        if(options.getTransactionSliceByHash) {
+            store.sliceDataProvidedByAPI = true;
+            BackChainActions.getSliceDataFromAPI = options.getTransactionSliceByHash;
+        }
     }
 
     @action
@@ -115,39 +121,57 @@ export default class BackChainActions {
 
                 // Always add the enterprise slice to the view.
                 if(transactionSlice.type == "Enterprise") {
-                    if(typeof transactionSlice.payloadId == 'undefined') { //Comes from a payload
-                        let newJson = observable({});
-                        newJson.id = id;
-                        newJson.transactionSlice = transactionSlice;
-                        store.viewTransactions.enterprise = newJson;
-                    } else {
+                    if(transactionSlice.payloadId) {
                         return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                             let newJson = observable({});
                             newJson.id = id;
                             newJson.transactionSlice = JSON.parse(result.result);
-                            newJson.transactionSlice.sequence = transactionSlice.sequence;
                             store.viewTransactions.enterprise = newJson;
                         }).then(() => ++idx);
-                    }                    
+                    }
+                    else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
+                        return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                          .then(serializedSlice => {
+                              let newJson = observable({});
+                              newJson.id = id;
+                              newJson.transactionSlice = JSON.parse(serializedSlice);
+                              store.viewTransactions.enterprise = newJson;
+                          }).then(() => ++idx);
+                    }
+                    else {  // Comes from a payload
+                        let newJson = observable({});
+                        newJson.id = id;
+                        newJson.transactionSlice = transactionSlice;
+                        store.viewTransactions.enterprise = newJson;
+                    }
                 }
 
                 if(type == "Intersection"
                         && transactionSlice.type == "Intersection"
                             && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
                                 && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
-                    if(typeof transactionSlice.payloadId == 'undefined') { //Comes from a payload
-                        let newJson = observable({});
-                        newJson.id = id;
-                        newJson.transactionSlice = transactionSlice;
-                        store.viewTransactions.intersection = newJson;
-                    } else {                
+                    if(transactionSlice.payloadId) {
                         return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                             let newJson = observable({});
                             newJson.id = id;
                             newJson.transactionSlice = JSON.parse(result.result);
-                            newJson.transactionSlice.sequence = transactionSlice.sequence;
                             store.viewTransactions.intersection = newJson;
                         }).then(() => ++idx);
+                    }
+                    else if(store.sliceDataProvidedByAPI) {   // Slice comes form the API (for the Chain of Custody usecase)
+                        return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                          .then(serializedSlice => {
+                              let newJson = observable({});
+                              newJson.id = id;
+                              newJson.transactionSlice = JSON.parse(serializedSlice);
+                              store.viewTransactions.enterprise = newJson;
+                          }).then(() => ++idx);
+                    }
+                    else {  // Comes from a payload
+                        let newJson = observable({});
+                        newJson.id = id;
+                        newJson.transactionSlice = transactionSlice;
+                        store.viewTransactions.intersection = newJson;
                     }
                 }
 
@@ -183,24 +207,58 @@ export default class BackChainActions {
                         if(type == "Enterprise" 
                             && transactionSlice.type == "Enterprise"
                                 && transactionSlice.enterprise == store.entNameOfLoggedUser) {
-                            return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                            if(transactionSlice.payloadId) {
+                                return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                                    let newJson = observable({});
+                                    newJson.id = id;
+                                    newJson.transactionSlice = result.result;
+                                    store.payload.push(newJson);
+                                }).then(() => ++idx);
+                            }
+                            else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                  .then(serializedSlice => {
+                                      let newJson = observable({});
+                                      newJson.id = id;
+                                      newJson.transactionSlice = serializedSlice;
+                                      store.payload.push(newJson);
+                                  }).then(() => ++idx);
+                            }
+                            else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = result.result;
+                                newJson.transactionSlice = transactionSlice;
                                 store.payload.push(newJson);
-                            }).then(() => ++idx);
+                            }
                         }
 
                         if(type == "Intersection"
                                 && transactionSlice.type == "Intersection"
                                     && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
                                         && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
-                            return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                            if(transactionSlice.payloadId) {
+                                return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
+                                    let newJson = observable({});
+                                    newJson.id = id;
+                                    newJson.transactionSlice = result.result;
+                                    store.payload.push(newJson);
+                                }).then(() => ++idx);
+                            }
+                            else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                  .then(serializedSlice => {
+                                      let newJson = observable({});
+                                      newJson.id = id;
+                                      newJson.transactionSlice = serializedSlice;
+                                      store.payload.push(newJson);
+                                  }).then(() => ++idx);
+                            }
+                            else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = result.result;
+                                newJson.transactionSlice = transactionSlice;
                                 store.payload.push(newJson);
-                            }).then(() => ++idx);
+                            }
                         }
 
                         return new Promise(resolve => resolve(++idx));

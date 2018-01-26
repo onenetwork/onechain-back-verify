@@ -38,6 +38,8 @@ class BackChainStore {
     @observable syncStatisticsReport = [];
     @observable dbSyncModalViewActive = false;
     @observable startSyncViewModalActive = false;
+    
+    sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;
