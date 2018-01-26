@@ -10,25 +10,31 @@ import {Link} from 'react-router-dom';
 @observer export default class SyncStatisticsView extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            selectedGapsForSync: [] 
+        };
     }
 
     componentDidMount() {
         let me = this;
+        BackChainActions.populateStoreWithApplicationSettings();
         BackChainActions.getSyncStatistics(function(error, result) {
             if(!error) {
-                me.prepareStatisticsReportData(result);
+                me.prepareStatisticsReportData();
             }
         });
     }
 
-    prepareStatisticsReportData(syncStatistics) {
-        let earliestSyncSequenceNo = syncStatistics.earliestSyncSequenceNo;
-        let latestSyncSequenceNo = syncStatistics.latestSyncSequenceNo;
+    prepareStatisticsReportData() {
         let me = this;
+        let earliestSyncSequenceNo = me.props.store.syncStatistics.earliestSyncSequenceNo;
+        let latestSyncSequenceNo = me.props.store.syncStatistics.latestSyncSequenceNo;
+        
+        me.props.store.syncStatisticsReport.clear();
         let allTransactionsArr = [];
-        if(syncStatistics.gaps.length >0) {
-            for(let i = 0; i < syncStatistics.gaps.length; i++) {
-                let gap = syncStatistics.gaps[i];
+        if(me.props.store.syncStatistics.gaps.length >0) {
+            for(let i = 0; i < me.props.store.syncStatistics.gaps.length; i++) {
+                let gap = me.props.store.syncStatistics.gaps[i];
                 let gapFromSequenceNo = gap.fromSequenceNo;
                 let gapToSequenceNo = gap.toSequenceNo;
                 let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
@@ -46,7 +52,7 @@ import {Link} from 'react-router-dom';
 
                 earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
                 
-                if(i+1 == syncStatistics.gaps.length) {
+                if(i+1 == me.props.store.syncStatistics.gaps.length) {
                     if(new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo))) {
                         allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
                     }
@@ -57,8 +63,8 @@ import {Link} from 'react-router-dom';
             let syncReport = {
                 type : 'fullsync', 
                 syncMsg : 'Full Sync', 
-                fromDate : moment(new Date(syncStatistics.earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
-                toDate : moment(new Date(syncStatistics.latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                fromDate : moment(new Date(me.props.store.syncStatistics.earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                toDate : moment(new Date(me.props.store.syncStatistics.latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
                 fromSeqNo : earliestSyncSequenceNo, 
                 toSeqNo : latestSyncSequenceNo, 
                 noOfGaps : ''
@@ -119,14 +125,28 @@ import {Link} from 'react-router-dom';
         );
     }
 
-    selectedGaps(event){
-        let currentGapDOM = event.currentTarget;
-        let fromClickedGap  = event.currentTarget.getAttribute('fromsequenceno');
-        let toClickedGap  = event.currentTarget.getAttribute('tosequenceno');
-        let clickedGap = fromClickedGap+'-'+toClickedGap;
-        let selectedGapsForSync = this.store.selectedGapsForSync;
-        if(selectedGapsForSync.indexOf(clickedGap) > -1) {
-            selectedGapsForSync.splice(selectedGapsForSync.indexOf(clickedGap), 1);
+    findGapIndex(gapToFind, alreadySelectedGaps) {
+        let index = -1;
+        for(let i=0; i < alreadySelectedGaps.length; i++) {
+            var curGap = alreadySelectedGaps[i];
+            if(curGap.fromSequenceNo == gapToFind.fromSequenceNo && curGap.toSequenceNo == gapToFind.toSequenceNo) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
+    selectGap(event){
+        let currentGapDOM = event.currentTarget;        
+        let clickedGap = {
+            fromSequenceNo : event.currentTarget.getAttribute('fromsequenceno'),
+            toSequenceNo : event.currentTarget.getAttribute('tosequenceno')
+        }
+        let selectedGapsForSync = this.state.selectedGapsForSync;
+        const gapIndex = this.findGapIndex(clickedGap, selectedGapsForSync);        
+        if(gapIndex > -1) {
+            selectedGapsForSync.splice(gapIndex, 1);
             currentGapDOM.style.backgroundColor = "#fccfcf";
             if(currentGapDOM.nextElementSibling){
                 currentGapDOM.nextElementSibling.style.backgroundColor= "#fccfcf";
@@ -143,13 +163,9 @@ import {Link} from 'react-router-dom';
                 currentGapDOM.previousSibling.style.backgroundColor= "#f88b8b";
             }
         }
-        if(selectedGapsForSync.length >0) {
-            document.getElementById("syncSelectedGap").disabled = false;
-        }
-        else {
-            document.getElementById("syncSelectedGap").disabled = true;
-        }
-        console.log(this.store.selectedGapsForSync);
+        this.setState({
+            selectedGapsForSync : selectedGapsForSync
+        });
     }
 
     returnDiffInHrsMins(toMillis, fromMillis) {
@@ -190,7 +206,7 @@ import {Link} from 'react-router-dom';
             }
             if(syncStatisticsReport.type == "gap") {
                 gapSize++;
-                syncStatisticsReportUI.push(<Gap key={i + 'gap'} syncStatisticsReport = {syncStatisticsReport} selectedGaps = {this.selectedGaps} store = {this.props.store} />);
+                syncStatisticsReportUI.push(<Gap key={i + 'gap'} syncStatisticsReport = {syncStatisticsReport} selectGap = {this.selectGap.bind(this)} store = {this.props.store} />);
             }
         }
 
@@ -202,7 +218,8 @@ import {Link} from 'react-router-dom';
 
         let panelBody = "";
         let isFullSynced=false;
-        if(this.props.store.syncStatisticsReport.length==1) {
+        //TODO:Yusuf Revisit one more time to fix it properly
+        if(this.props.store.syncStatisticsReport.length==1 && this.props.store.syncStatisticsReport[0].type == 'fullSync') {
             isFullSynced = true;
             panelBody = (<div style={{height: '100%', width: '92%'}}>
                             <Row style={fieldProps.panelBodyTitle}>
@@ -250,7 +267,7 @@ import {Link} from 'react-router-dom';
                 <div className={"panel-body"} style={fieldProps.panelBody}>
                     {panelBody}<br/>
                     {latestNEarliestSync}<br/>
-                    <SyncGapButtons selectedGapsLbl = {"Sync Selected Gaps"} allGapsLbl = {"Sync All Gaps"} isFullSynced={isFullSynced}/>
+                    <SyncGapButtons store={this.props.store} parentState={this.state}  selectedGapsLbl = {"Sync Selected Gaps"} allGapsLbl = {"Sync All Gaps"} isFullSynced={isFullSynced}/>
                 </div>
 		  	</div>
         )
@@ -330,18 +347,15 @@ const Gap = (props) => {
         }
     }
     
-    function selectedGaps(event) {
-        props.selectedGaps(event);
-    }
       
 	return (
 		<div>
             <Row style={{marginLeft: '0px'}}>
-                <Col md={6} style={fieldProps.gapInfo}  onClick={selectedGaps.bind(this)} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo}>
+                <Col md={6} style={fieldProps.gapInfo}  onClick={props.selectGap} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo}>
                     <span style={{display: 'block', fontWeight:'700', paddingLeft: '8px', paddingTop:'10px'}}>{props.syncStatisticsReport.syncMsg}</span>
                     <span style={{paddingLeft:'8px'}}>{props.syncStatisticsReport.fromDate}&nbsp;<span>-</span>{props.syncStatisticsReport.toDate}</span>
                 </Col>
-                <Col md={3} onClick={selectedGaps.bind(this)} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo} style={Object.assign({}, fieldProps.syncDate, {width: '150px'})}>
+                <Col md={3} onClick={props.selectGap} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo} style={Object.assign({}, fieldProps.syncDate, {width: '150px'})}>
                 <span style={{paddingTop:'10px',display: 'block'}}><i className="fa fa-clock-o" aria-hidden="true"></i>&nbsp;&nbsp;{props.syncStatisticsReport.time}</span>
                 <span><i className="fa fa-files-o" aria-hidden="true"></i>&nbsp;&nbsp;{props.syncStatisticsReport.noOfGaps}&nbsp;records</span>
                 </Col>
@@ -395,6 +409,14 @@ const SyncGapButtons = (props) => {
         event.currentTarget.style.backgroundColor = 'rgba(0, 133, 200, 1)';
     }
 
+    function fillSelectedGaps() {
+		BackChainActions.startGapSync(props.store.authenticationToken, props.store.chainOfCustodyUrl, props.parentState.selectedGapsForSync);
+    }
+    
+    function fillAllGaps() {
+        BackChainActions.startGapSync(props.store.authenticationToken, props.store.chainOfCustodyUrl, props.store.syncStatistics.gaps);
+    }
+
     if(props.isFullSynced) {
         return (
             <div>
@@ -414,8 +436,8 @@ const SyncGapButtons = (props) => {
                     <Col md={1} style={{width: '6%'}}></Col>
                     <Col>
                         <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>	&nbsp;&nbsp;
-                        <Button disabled={true} id="syncSelectedGap" style={fieldProps.button} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.selectedGapsLbl}</Button>&nbsp;
-                        <Button style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
+                        <Button disabled={props.parentState.selectedGapsForSync.length == 0} id="syncSelectedGap" style={fieldProps.button} onClick={fillSelectedGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.selectedGapsLbl}</Button>&nbsp;
+                        <Button style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onClick={fillAllGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
                     </Col>
                 </Row>
             </div>

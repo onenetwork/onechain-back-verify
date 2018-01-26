@@ -345,22 +345,25 @@ export default class BackChainActions {
         let i = 1;
         payloads.forEach(payload => {
             this.findTransaction(payload.id, function(transactions) {
+                let payloadHash = blockChainVerifier.generateHash(payload.transactionSlice);
                 if (transactions.length > 0) {
                     let transaction = transactions[0];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
                     if (index >= 0) {
                         transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
-                        transaction.trueTransactionSliceHashes[index] = blockChainVerifier.generateHash(payload.transactionSlice);
+                        transaction.trueTransactionSliceHashes[index] = payloadHash;
                     } else {
-                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
-                        transaction.trueTransactionSliceHashes.push(blockChainVerifier.generateHash(payload.transactionSlice));
+                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));                        
+                        transaction.trueTransactionSliceHashes.push(payloadHash);
+                        transaction.transactionSliceHashes.push(payloadHash);
                     }
                     transArr.push(transaction);
                 } else {
                     transArr.push({
                         id: payload.id,
                         transactionSlices: [JSON.parse(payload.transactionSlice)],
-                        trueTransactionSliceHashes: [blockChainVerifier.generateHash(payload.transactionSlice)]
+                        trueTransactionSliceHashes: [payloadHash],
+                        transactionSliceHashes : [payloadHash]
                     });
                 }
 
@@ -394,37 +397,6 @@ export default class BackChainActions {
                 callback(null);
             }
         })
-    }
-
-    @action
-    static startInitialSync(authenticationToken, chainOfCustodyUrl) {
-        let params = {
-            'authenticationToken': authenticationToken,
-            'chainOfCustodyUrl': chainOfCustodyUrl
-        };
-        fetch('/consumeTransactionMessages', {
-            method: 'post',
-            headers: new Headers({
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }),
-            body: requestHelper.jsonToUrlParams(params)
-        })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(result) {
-            if(result.consumeResult.success === true && result.consumeResult.syncDone === true) {
-                store.lastestSyncedDate = moment(result.consumeResult.lastSyncTimeInMillis).fromNow();
-                store.authenticationToken = result.consumeResult.authenticationToken;
-                store.lastSyncTimeInMillis = result.consumeResult.lastSyncTimeInMillis;
-                store.chainOfCustodyUrl = result.consumeResult.chainOfCustodyUrl;
-            }
-        })
-        .catch(function (err) {
-            log.error("Error occured in startInitialSync.");
-        });
     }
 
     @action
@@ -479,6 +451,64 @@ export default class BackChainActions {
     }
 
     @action
+    static startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
+        if(gaps == null || gaps.length == 0) {
+            if(callback){
+                callback(null,true);  
+            }
+            return;
+        }
+        store.startSync = true;
+        store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
+        let params = {
+            'authenticationToken': authenticationToken,
+            'gaps': gaps,
+            'chainOfCustodyUrl' : chainOfCustodyUrl
+        };
+        fetch('/startGapSync', {
+            method: 'post',
+            headers: new Headers({
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }),
+            body: requestHelper.jsonToUrlParams(params)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function (result) { 
+            if(result.success) {
+                store.authenticationToken = result.authenticationToken;
+                store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
+                store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
+                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
+                store.syncFailed = false;
+                store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true; 
+                store.isInitialSyncDone = true;
+                if(callback){
+                    callback(null,true);  
+                }
+            } else {
+                store.syncFailed = true;
+                store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;  
+            }            
+        })
+        .catch(function (err) {
+            console.error('Error communicating with PLT');
+            store.syncFailed = true;
+            store.startSync = false;
+            store.startSyncViewModalActive = true;  
+        });        
+    }
+
+
+    @action
     static verifyBackChainSettings(oneBcClient,callback) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
@@ -526,6 +556,25 @@ export default class BackChainActions {
         .catch(function (err) {
             callback(err, null);
             console.log('getSyncStatistics error');
+        });
+    }
+
+    @action 
+    static populateStoreWithApplicationSettings() {
+        fetch('/getApplicationSettings', {method: 'GET'})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if(result.success) {
+                store.authenticationToken = result.settings.chainOfCustidy.authenticationToken; 
+                store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
+                store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
+                //Add more when needed
+            }
+        })
+        .catch(function (err) {
+            console.log('Error occured while populating application settings');
         });
     }
 
