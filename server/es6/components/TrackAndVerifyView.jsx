@@ -270,16 +270,14 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
     renderTransactionEventsCell(fieldProps, transaction, idx) {
         return (
             <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
-                <div>
+                <div className="counter-ct" onClick={() => this.showEventPopover(idx, true)}>
                     <img
-                        style={{
-                            width: '30px',
-                            height:'26px'
-                        }}
+                        className="counter-img"
                         src={Images.EVENT_BADGE}
-                        ref={ref => this.eventPopoverRefsMap[idx] = ref}
-                        onClick={() => this.showEventPopover(idx, true)} />
-                    <div className={this.getEventCountCss(transaction)}>{transaction.eventCount}</div>
+                        ref={ref => this.eventPopoverRefsMap[idx] = ref} />
+                    <div className={this.getEventCountCSS(transaction.eventCount)}>
+                        {this.getEventCountString(transaction.eventCount)}
+                    </div>
 
                     <Overlay
                         show={this.state.eventPopoverVisibilityMap[idx] || false}
@@ -373,7 +371,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
                         continue;
                     }
 
-                    if(this.props.store.isInitialSyncDone == null || this.props.store.isInitialSyncDone == false) {
+                    if(!this.props.store.sliceDataProvidedByAPI && !this.props.store.isInitialSyncDone) {
                         partnerEntName =  transactionSlice.enterprises[0] +" & "+ transactionSlice.enterprises[1];
                     }
 
@@ -401,8 +399,8 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         return cells;
     }
 
-    getEventCountCss(transaction) {
-        switch(transaction.eventCount.toString().length) {
+    getEventCountCSS(eventCount) {
+        switch(this.getEventCountString(eventCount).length) {
             case 1:
                 return "counter1";
             case 2:
@@ -410,6 +408,13 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         }
 
         return "counter3";
+    }
+
+    getEventCountString(eventCount) {
+        if(eventCount >= 1000) {
+            return Math.floor(eventCount / 1000) + "k";
+        }
+        return eventCount.toString();
     }
 
     showEventPopover(idx, show) {

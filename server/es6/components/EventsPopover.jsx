@@ -36,7 +36,7 @@ export default class EventsPopover extends React.Component {
                     // The number of events displayed is limited, so the last
                     // entry in the array might be a number of how many remain.
                     eventList.push(
-                        <li key={i}>And {event} more...</li>
+                        <li key={i} style={{marginLeft: 10}}>And {event} more...</li>
                     );
                 }
             }
