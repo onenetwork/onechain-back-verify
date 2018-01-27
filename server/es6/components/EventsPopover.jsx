@@ -61,7 +61,6 @@ export default class EventsPopover extends React.Component {
 
     componentDidMount() {
         setTimeout(() => {
-            console.log("Loading txn " + this.props.transaction.id + " at " + new Date().getTime());
             BackChainActions.loadEventsForTransaction(this.props.transaction);
         }, 100);
     }

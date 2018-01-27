@@ -89,10 +89,7 @@ export default class BackChainActions {
     @action
     static loadTransactionsAux(transactions, callback) {
         transactions.forEach(element => store.transactions.push(element));
-
-        if (store.oneBcClient != null) {
-            transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-        }
+        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
 
         if(callback) {
             callback(store.transactions.length > 0);
@@ -660,8 +657,6 @@ export default class BackChainActions {
                 if(transactionSlice.type == 'Enterprise') {
                     BackChainActions.getSliceDataFromAPI(transaction.id, transaction.transactionSliceHashes[i], transactionSlice.sequence)
                         .then(action(serializedSlice => {
-                            console.log("Loaded " + transaction.id + " at " + new Date().getTime());
-
                             let sliceData = JSON.parse(serializedSlice);
                             let events = [];
                             for(let j = 0; j < sliceData.businessTransactions.length && j < MAX_EVENTS_TO_LOAD; j++) {
@@ -675,8 +670,6 @@ export default class BackChainActions {
                             if(sliceData.businessTransactions.length > MAX_EVENTS_TO_LOAD) {
                                 events.push(sliceData.businessTransactions.length - MAX_EVENTS_TO_LOAD);
                             }
-
-                            console.log("Created events for " + transaction.id + " at " + new Date().getTime());
 
                             store.eventsTransactionId = transaction.id;
                             store.events = events;
