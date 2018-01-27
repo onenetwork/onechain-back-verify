@@ -11,7 +11,7 @@ import {Link} from 'react-router-dom';
     constructor(props) {
         super(props);
         this.state = {
-            selectedGapsForSync: [] 
+            selectedGapsForSync: []
         };
     }
 
@@ -61,7 +61,7 @@ import {Link} from 'react-router-dom';
             }
         } else {
             let syncReport = {
-                type : 'fullsync', 
+                type : 'fullSync', 
                 syncMsg : 'Full Sync', 
                 fromDate : moment(new Date(me.props.store.syncStatistics.earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
                 toDate : moment(new Date(me.props.store.syncStatistics.latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
@@ -101,7 +101,7 @@ import {Link} from 'react-router-dom';
                             txn.toDate = moment(new Date(txn.toDate)).format('MMM DD,YYYY HH:mm A');
                             me.props.store.syncStatisticsReport.push(txn);
                         } else {
-                            let syncStatistics = {type : 'fullsync', syncMsg : 'Full Sync', fromDate : '', toDate : '', fromSeqNo : '', toSeqNo:'', noOfGaps:''};
+                            let syncStatistics = {type : 'fullSync', syncMsg : 'Full Sync', fromDate : '', toDate : '', fromSeqNo : '', toSeqNo:'', noOfGaps:''};
                             for(let i = 0; i < result.length; i++) {
                                 let transaction = result[i];
                                 if(transaction.txnSequenceNo == txn.fromSeqNo) {
@@ -198,7 +198,7 @@ import {Link} from 'react-router-dom';
         let gapSize = 0;
         for(let i=0; i < this.props.store.syncStatisticsReport.length; i++) {
             let syncStatisticsReport = this.props.store.syncStatisticsReport[i];
-            if(syncStatisticsReport.type == "fullsync") {
+            if(syncStatisticsReport.type == "fullSync") {
                 syncStatisticsReportUI.push(<FullSync key={i + 'full'} syncStatisticsReport = {syncStatisticsReport}/>);
             }
             if(this.props.store.syncStatisticsReport.length!=1 && i==0) {
@@ -217,10 +217,8 @@ import {Link} from 'react-router-dom';
         );
 
         let panelBody = "";
-        let isFullSynced=false;
         //TODO:Yusuf Revisit one more time to fix it properly
-        if(this.props.store.syncStatisticsReport.length==1 && this.props.store.syncStatisticsReport[0].type == 'fullSync') {
-            isFullSynced = true;
+        if(this.props.store.syncStatisticsReport.length==1 && this.props.store.syncStatisticsReport[0].type == 'fullSync') {            
             panelBody = (<div style={{height: '100%', width: '92%'}}>
                             <Row style={fieldProps.panelBodyTitle}>
                                 <Col md={1} style={{width: '7%'}}>
@@ -267,7 +265,7 @@ import {Link} from 'react-router-dom';
                 <div className={"panel-body"} style={fieldProps.panelBody}>
                     {panelBody}<br/>
                     {latestNEarliestSync}<br/>
-                    <SyncGapButtons store={this.props.store} parentState={this.state}  selectedGapsLbl = {"Sync Selected Gaps"} allGapsLbl = {"Sync All Gaps"} isFullSynced={isFullSynced}/>
+                    <SyncGapButtons store={this.props.store} parentState={this.state}  selectedGapsLbl = {"Sync Selected Gaps"} allGapsLbl = {"Sync All Gaps"}/>
                 </div>
 		  	</div>
         )
@@ -417,7 +415,7 @@ const SyncGapButtons = (props) => {
         BackChainActions.startGapSync(props.store.authenticationToken, props.store.chainOfCustodyUrl, props.store.syncStatistics.gaps);
     }
 
-    if(props.isFullSynced) {
+    if(props.store.syncStatisticsReport.length==1 && props.store.syncStatisticsReport[0].type == 'fullSync') {
         return (
             <div>
                 <Row>
