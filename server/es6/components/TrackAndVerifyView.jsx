@@ -4,7 +4,7 @@ import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popov
 import { toJS } from 'mobx';
 import MyView from './MyView';
 import DiffView from './DiffView';
-import EventsPopover from './EventsPopover';
+import EventsPopoverContent from './EventsPopoverContent';
 import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';
 import { Link } from 'react-router-dom';
@@ -105,9 +105,9 @@ const fieldProps = {
     constructor(...args) {
         super(...args);
 
-        this.eventPopoverRefsMap = {};
+        this.eventsPopoverRefsMap = {};
         this.state = {
-            eventPopoverVisibilityMap: {}
+            eventsPopoverVisibilityMap: {}
         };
     }
 
@@ -170,7 +170,7 @@ const fieldProps = {
         let tableHead = (
             <thead style={fieldProps.tableHeader}>
                 <tr>
-                    <th style={fieldProps.columns}><span style={{paddingLeft:'27px'}}>Transaction Id</span></th>
+                    <th style={Object.assign({maxWidth: '130px'}, fieldProps.columns)}><span style={{paddingLeft:'27px'}}>Transaction Id</span></th>
                     <th style={fieldProps.columns}>Date/Time</th>
                     <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Events</th>
                     <th style={fieldProps.columns}>Executing User</th>
@@ -260,11 +260,14 @@ const fieldProps = {
     renderTransactionIdCell(transaction, lastTransaction) {
         const transactionId = transaction.id;
         return (
-            <td style={Object.assign({ maxWidth: '154px'}, fieldProps.columns)}>
-                <div style={{display: 'inline-flex'}}>
+            <td style={Object.assign({ maxWidth: '130px'}, fieldProps.columns)}>
+                <div style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                     <i style={{color: '#229978', fontSize: '14px', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-handshake-o" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
-                    <OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={<Popover id={transactionId} >{transactionId}</Popover>}>
-                        <span className="transactionIdCss">{transactionId}</span>
+                    <OverlayTrigger
+                        trigger={['hover', 'focus']}
+                        placement="top"
+                        overlay={<Popover id={transactionId} className="transaction-id-popover">{transactionId}</Popover>}>
+                        <span>{transactionId}</span>
                     </OverlayTrigger>
                 </div>
                 {this.renderDownArrow(lastTransaction)}
@@ -292,30 +295,30 @@ const fieldProps = {
     renderTransactionEventsCell(transaction, idx) {
         return (
             <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
-                <div className="counter-ct" onClick={() => this.showEventPopover(idx, true)}>
+                <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
                     <img
                         className="counter-img"
                         src={Images.EVENT_BADGE}
-                        ref={ref => this.eventPopoverRefsMap[idx] = ref} />
+                        ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
                     <div className={this.getEventCountCSS(transaction.eventCount)}>
                         {this.getEventCountString(transaction.eventCount)}
                     </div>
 
                     <Overlay
-                        show={this.state.eventPopoverVisibilityMap[idx] || false}
-                        onHide={() => this.showEventPopover(idx, false)}
+                        show={this.state.eventsPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showEventsPopover(idx, false)}
                         rootClose={true}
                         placement="right"
                         container={document.getElementById("root")}
-                        target={() => this.eventPopoverRefsMap[idx]}>
+                        target={() => this.eventsPopoverRefsMap[idx]}>
 
-                        <Popover id={"events-popover-" + idx} title={(
+                        <Popover id={"events-popover-" + idx} className="events-popover" title={(
                             <span>
                                 <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
                                 Events:
                             </span>
                         )}>
-                            <EventsPopover store={this.props.store} transaction={transaction} />
+                            <EventsPopoverContent store={this.props.store} transaction={transaction} />
                         </Popover>
 
                     </Overlay>
@@ -446,10 +449,10 @@ const fieldProps = {
         return eventCount.toString();
     }
 
-    showEventPopover(idx, show) {
-        let newMap = Object.assign({}, this.state.eventPopoverVisibilityMap);
+    showEventsPopover(idx, show) {
+        let newMap = Object.assign({}, this.state.eventsPopoverVisibilityMap);
         newMap[idx] = show;
-        this.setState({ eventPopoverVisibilityMap: newMap });
+        this.setState({ eventsPopoverVisibilityMap: newMap });
     }
 
 }
