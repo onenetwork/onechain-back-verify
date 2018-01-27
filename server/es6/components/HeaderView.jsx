@@ -53,7 +53,6 @@ require("babel-polyfill");
             }
 
         };
-        let lastSynced = this.props.store.lastestSyncedDate ? 'Database Last Sync: ' + this.props.store.lastestSyncedDate : 'Database Not Synced';
         if(this.props.size == 'big') {
             return (
                 <div  >

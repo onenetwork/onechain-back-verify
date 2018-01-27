@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import JSZip from 'jszip';
 import filesaver from '../FileSaver';
 import { Scrollbars } from 'react-custom-scrollbars';
+import moment from 'moment';
 import Images from '../Images';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
@@ -262,7 +263,8 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
     }
 
     renderTransactionDateCell(fieldProps, transaction) {
-        return <td style={fieldProps.columns}>{transaction.date}</td>;
+        const formattedDate = moment(new Date(transaction.date)).format('MMM DD,YYYY HH:mm A');
+        return <td style={fieldProps.columns}>{formattedDate}</td>;
     }
 
     renderTransactionEventsCell(fieldProps, transaction, idx) {
