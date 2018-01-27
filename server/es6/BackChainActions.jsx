@@ -32,7 +32,7 @@ export default class BackChainActions {
         }, function(error) {
             console.error('error fetching last sync date');
         }).then(function(result) {
-            if(!result.success == false) {
+            if(result && result.success) {
                 store.lastestSyncedDate = moment(result.lastestSyncedDate).fromNow();
             }
         })
