@@ -27,14 +27,6 @@
     right: 4px;
 }
 
-.transactionIdCss {
-    width: 200px;
-    max-width: 200px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
 .popover-menu {
     width: 100px;
     font-weight: 600;
@@ -46,4 +38,12 @@
 .popover-menu i {
     line-height: 25px;
     height: 25px;
+}
+
+.events-popover .arrow {
+    top: 26px !important;
+}
+
+.transaction-id-popover .arrow {
+    left: 50px !important;
 }

@@ -32,7 +32,7 @@ export default class BackChainActions {
         }, function(error) {
             console.error('error fetching last sync date');
         }).then(function(result) {
-            if(!result.success == false) {
+            if(result && result.success) {
                 store.lastestSyncedDate = moment(result.lastestSyncedDate).fromNow();
             }
         })
@@ -45,7 +45,9 @@ export default class BackChainActions {
         }, function(error) {
             console.error('error fetching initial sync');
         }).then(function(result) {
-            store.isInitialSyncDone = result.isInitialSyncDone;
+            if(result) {
+                store.isInitialSyncDone = result.isInitialSyncDone;
+            }
         })
     }
 
@@ -82,7 +84,9 @@ export default class BackChainActions {
   			console.error('error getting transaction by transaction id');
 		}).then(function(result) {
             store.loadingData = false;
-            BackChainActions.loadTransactionsAux(result.result, callback);
+            if(result) {
+                BackChainActions.loadTransactionsAux(result.result, callback);
+            }
   		});
     }
 

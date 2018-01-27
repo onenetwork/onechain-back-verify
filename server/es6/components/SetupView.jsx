@@ -198,7 +198,7 @@ import DisplaySyncView from "./DisplaySyncView"
 @observer class DisplayMessageViewPopup extends React.Component {
     render() {
         return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
-                    <DisplayMessageView title = "Message" msg= {"Invalid Blockchain settings.Please try again."} store={this.props.store}/>
+                    <DisplayMessageView title = "Message" msg= {"Could not connect to the blockchain, please check your settings and try again."} store={this.props.store}/>
                </Modal>);
     }
 }

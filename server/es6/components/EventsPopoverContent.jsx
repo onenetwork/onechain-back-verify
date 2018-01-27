@@ -5,7 +5,7 @@ import BackChainActions from '../BackChainActions';
 
 
 @observer
-export default class EventsPopover extends React.Component {
+export default class EventsPopoverContent extends React.Component {
 
     render() {
         const { store, transaction } = this.props;
@@ -23,7 +23,7 @@ export default class EventsPopover extends React.Component {
                             overflow: "hidden",
                             whiteSpace: "nowrap",
                             textOverflow: "ellipsis",
-                            maxWidth: 350,
+                            maxWidth: 800,
                             marginLeft: 10,
                             marginRight: 10
                         }}>
