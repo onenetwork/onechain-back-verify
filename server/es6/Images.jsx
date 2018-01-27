@@ -10,7 +10,7 @@ class Images {
     get BUSINESS_TRANSACTION_DISABLED() { return this.baseURL + 'business-transaction-id-grey.png'; }
     get BUSINESS_TRANSACTION_SEARCH()   { return this.baseURL + 'business-transaction-search.png';  }
     get TRANSACTION()                   { return this.baseURL + 'transaction-id.png';               }
-    get TRANSACTION_DISABLED()          { return this.baseURL + 'transaction-id.grey';              }
+    get TRANSACTION_DISABLED()          { return this.baseURL + 'transaction-id-grey.png';              }
     get PAYLOAD_FILE()                  { return this.baseURL + 'payload-file.png';                 }
     get VERIFY_PROCESSING()             { return this.baseURL + 'verify-progressing.png';           }
     get VERIFY_SUCCEDED()               { return this.baseURL + 'verify-succeded.png';              }
