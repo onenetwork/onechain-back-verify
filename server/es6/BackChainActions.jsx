@@ -695,7 +695,7 @@ export default class BackChainActions {
         }, function(error) {
             console.error(error);
         }).then(action(function(json) {
-            store.eventsTransactionId = transId;
+            store.eventsTransactionId = transaction.id;
             store.events = json.result;
         }));
     }
