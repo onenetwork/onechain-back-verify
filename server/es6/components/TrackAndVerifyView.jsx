@@ -418,10 +418,10 @@ const fieldProps = {
                     found = true;
                     break;
                 }
+            }
 
-                if(!found) {
-                    cells.push(<td></td>);
-                }
+            if(!found) {
+                cells.push(<td></td>);
             }
         }
 
