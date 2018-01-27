@@ -216,11 +216,11 @@ class StartSyncPopup extends React.Component {
 		let syncPopupBody = "";
 		
 		if (this.props.store.syncGoingOn && this.props.store.startSync) {
-			syncPopupBody = <SyncRefresh msgs={["Refreshing your database.", "This may take a few minutes."]} btnName="OK" closeModal={this.closeModal} />
+			syncPopupBody = <SyncRefresh msgs={["Attempting to start synchronization.", "This may take a few minutes."]} btnName="OK" closeModal={this.closeModal} />
 		} else if (this.props.store.syncGoingOn == false && this.props.store.syncFailed == false) {
-			syncPopupBody = <SyncDone msg={"Your database has been successfully refreshed!"} btnName="OK" closeModal={this.closeModal}  />
+			syncPopupBody = <SyncDone msg={"Your database will begin synchronizing shortly."} btnName="OK" closeModal={this.closeModal}  />
 		} else if (this.props.store.syncFailed ) {
-			syncPopupBody = <SyncFailed msg={"Sync Failed. Please Try Again Later!"} btnName="OK" closeModal={this.closeModal}  />
+			syncPopupBody = <SyncFailed msg={"Coulnd't start synchronization. Please try again later!"} btnName="OK" closeModal={this.closeModal}  />
 		}
 		return syncPopupBody;
     }
