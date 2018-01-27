@@ -126,7 +126,8 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
             columns : {
                 padding: '10px',
                 fontSize: '12px',
-                verticalAlign: 'top'
+                lineHeight: '26px',
+                height: '26px'
             },
             downArrow : {
                 position: 'absolute',
@@ -238,9 +239,9 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
     renderTransactionIdCell(fieldProps, transaction, lastTransaction) {
         const transactionId = transaction.id;
         return (
-            <td style={{maxWidth: ' 154px',padding: '10px', fontSize: '12px', verticalAlign: 'top'}}>
+            <td style={Object.assign({ maxWidth: '154px'}, fieldProps.columns)}>
                 <div style={{display: 'inline-flex'}}>
-                    <i style={{color: '#229978', fontSize: '14px'}} className="fa fa-handshake-o" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
+                    <i style={{color: '#229978', fontSize: '14px', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-handshake-o" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
                     <OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={<Popover id={transactionId} >{transactionId}</Popover>}>
                         <span className="transactionIdCss">{transactionId}</span>
                     </OverlayTrigger>
@@ -476,7 +477,7 @@ const ViewOrDownloadTxn = props => {
         <div>
             {getVerificationIcon()}&nbsp;&nbsp;
             <OverlayTrigger rootClose trigger="click" placement="right"
-                overlay={<Popover id={transactionId + entNameForViwe} style = {{width: '100px', fontWeight: '600', padding: '5px', lineHeight: '25px', zIndex: '0'}}>
+                overlay={<Popover id={transactionId + entNameForViwe} className="popover-menu">
                             <Row txnid = {transactionId} onClick={storeTransactions.bind(this)} style = {{color: 'rgba(45, 162, 191, 1)', cursor:'pointer'}}>
                                 <Col md={1}>
                                     <i className="fa fa-eye" aria-hidden="true"></i>

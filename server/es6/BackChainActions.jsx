@@ -160,7 +160,7 @@ export default class BackChainActions {
                               let newJson = observable({});
                               newJson.id = id;
                               newJson.transactionSlice = JSON.parse(serializedSlice);
-                              store.viewTransactions.enterprise = newJson;
+                              store.viewTransactions.intersection = newJson;
                           }).then(() => ++idx);
                     }
                     else {  // Comes from a payload

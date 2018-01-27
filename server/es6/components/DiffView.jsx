@@ -12,11 +12,21 @@ export default class DiffView extends React.Component {
   constructor(props) {
     super(props);
     this.findPartnerEntName = this.findPartnerEntName.bind(this);
-		this.state = {partnerEntName : null};
+		this.state = {
+      partnerEntName: null
+    };
   }
 
   componentDidMount() {
     document.getElementById("defaultOpen").click();
+    this.findPartnerEntName(this.props.store.viewTransactions.intersection);
+  }
+
+  findPartnerEntName(partnerViewObj) {
+    let transactionSlice = partnerViewObj.transactionSlice;
+    let entNameOfLoggedUser = this.props.store.entNameOfLoggedUser;
+    let indexOfMyEntName = transactionSlice.enterprises.indexOf(entNameOfLoggedUser);
+    this.state.partnerEntName = indexOfMyEntName == 0 ? transactionSlice.enterprises[1]:transactionSlice.enterprises[0];
   }
 
   openTab(tabName, myViewObj, partnerViewObj, evt) {
@@ -57,20 +67,14 @@ export default class DiffView extends React.Component {
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
       JsonHelper.diffUsingJS(copymyView, copypartnerView, this.state.partnerEntName);
-    } else if (tabName === 'Common'){
+    }
+    else if (tabName === 'Common') {
       let element = evt.currentTarget.parentElement.getElementsByClassName('diffTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      let common  = intersect(copymyView, copypartnerView);
+      let common = intersect(copymyView, copypartnerView);
       JsonHelper.showCommon(common);
     }
-  }
-
-  findPartnerEntName(partnerViewObj) {
-    let transactionSlice = partnerViewObj.transactionSlice;
-    let entNameOfLoggedUser = this.props.store.entNameOfLoggedUser;
-    let indexOfMyEntName = transactionSlice.enterprises.indexOf(entNameOfLoggedUser);
-    this.state.partnerEntName = indexOfMyEntName == 0 ? transactionSlice.enterprises[1]:transactionSlice.enterprises[0];
   }
 
   render() {
@@ -86,9 +90,9 @@ export default class DiffView extends React.Component {
         color: '#646464'
       },
       panel : {
-            backgroundColor: 'rgba(250, 250, 250, 1)',
-            marginBottom: '0px',
-            borderRadius: '10px'
+        backgroundColor: 'rgba(250, 250, 250, 1)',
+        marginBottom: '0px',
+        borderRadius: '10px'
       },
       panelBody : {
         padding: 20,
@@ -108,50 +112,54 @@ export default class DiffView extends React.Component {
         borderTopLeftRadius: '8px',
         borderTopRightRadius:'8px',
         height : '27px',
+        lineHeight : '27px',
         textAlign : 'center',
         cursor: 'pointer'
       }
     };
 
-    this.findPartnerEntName(this.props.store.viewTransactions.intersection);
+    let panelBody = (
+      <div style={fieldProps.panelBody}>
+        <p style={{fontSize: '12px', color: '#646464'}}>
+          <strong>Transaction ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
+        </p>
+        <p></p>
+        <Row style={{marginLeft: '0px'}}>
+            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} id="defaultOpen" style={Object.assign({},fieldProps.tablinks,{color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
+              <span style={{verticalAlign : 'sub'}}>Difference</span>
+            </Col>
+            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} style={Object.assign({},fieldProps.tablinks,{marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+              <span className="fa-stack">
+                <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
+                <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
+              </span>
+              <span> Common Elements with {this.state.partnerEntName}</span>
+            </Col>
+        </Row>
+        <div id='Diff' className="tabcontent">
+            <Scrollbars id="diffoutput" style={{'overflow': 'scroll', height: 700}}></Scrollbars>
+        </div>
+        <div id='Common' className="tabcontent">
+            <pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
+        </div>
+      </div>
+    );
 
-    let panelBody = (<div style={fieldProps.panelBody}>
-                        <p style={{fontSize: '12px', color: '#646464'}}>
-                          <strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
-                        </p>
-                        <p></p>
-                        <Row style={{marginLeft: '0px'}}>
-                            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} id="defaultOpen" style={Object.assign({},fieldProps.tablinks,{color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
-                              <span style={{verticalAlign : 'sub'}}>Difference</span>
-                            </Col>
-                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise, this.props.store.viewTransactions.intersection, e)} style={Object.assign({},fieldProps.tablinks,{marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
-                              <span className="fa-stack">
-                                <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
-                                <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
-                              </span>
-                              <span> Common Elements with {this.state.partnerEntName}</span>
-                            </Col>
-                        </Row>
-                        <div id='Diff' className="tabcontent">
-                            <Scrollbars id="diffoutput" style={{'overflow': 'scroll', height: 700}}></Scrollbars>
-                        </div>
-                        <div id='Common' className="tabcontent">
-                            <pre id="json-renderer" style={fieldProps.jsonPanel}></pre>
-                        </div>
-                    </div>);
-
-    return (<div className={"panel panel-default"} style={fieldProps.panel}>
-              <div className={"panel-heading"} style={fieldProps.panelHeading}>
-                <div className="panel-title" style={fieldProps.panelTitle}>Event Details:
-                  <span style= {{color:'rgb(0, 133, 200)'}} className="fa-stack">
-                    <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
-                    <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
-                  </span>
-                  <span style= {{color:'rgb(0, 133, 200)'}}>{this.state.partnerEntName} Intersection</span>
-                </div>
-                <i onClick={() => BackChainActions.setMyAndDiffViewActive(false)} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
-              </div>
-              {panelBody}
-            </div>);
+    return (
+      <div className={"panel panel-default"} style={fieldProps.panel}>
+        <div className={"panel-heading"} style={fieldProps.panelHeading}>
+          <div className="panel-title" style={fieldProps.panelTitle}>Event Details:
+            <span style= {{color:'rgb(0, 133, 200)'}} className="fa-stack">
+              <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
+              <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
+            </span>
+            <span style= {{color:'rgb(0, 133, 200)'}}>{this.state.partnerEntName} Intersection</span>
+          </div>
+          <i onClick={() => BackChainActions.setMyAndDiffViewActive(false)} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
+        </div>
+        {panelBody}
+      </div>
+    );
   }
+
 }
