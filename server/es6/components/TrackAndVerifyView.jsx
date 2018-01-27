@@ -285,7 +285,7 @@ const fieldProps = {
     }
 
     renderTransactionDateCell(transaction) {
-        const formattedDate = moment(new Date(transaction.date)).format('MMM DD,YYYY HH:mm A');
+        const formattedDate = moment(new Date(transaction.date)).format('MMM DD, YYYY HH:mm A');
         return <td style={fieldProps.columns}>{formattedDate}</td>;
     }
 
