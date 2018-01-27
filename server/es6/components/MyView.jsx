@@ -52,7 +52,7 @@ export default class MyView extends React.Component {
                 </div>
                 <div className={"panel-body"} style={fieldProps.panelBody}>
                     <p style={{fontSize: '12px', color: '#646464'}}>
-                        <strong>Transactional ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
+                        <strong>Transaction ID:</strong> <span>{this.props.store.viewTransactions.enterprise.id}</span>
                     </p>
                     <br></br>
                     <pre id="json-renderer" style={fieldProps.jsonPanel}></pre>

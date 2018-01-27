@@ -16,6 +16,48 @@ import Images from '../Images';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
 
+const rowLineHeight = '26px';
+const fieldProps = {
+    table: {
+        border: '1px solid lightgrey'
+    },
+    tableHeader: {
+        color: '#0085C8',
+        backgroundColor: 'rgba(250, 250, 250, 1)',
+        borderTop: 'solid 2px'
+    },
+    columns: {
+        padding: '10px',
+        fontSize: '12px',
+        lineHeight: rowLineHeight,
+        height: rowLineHeight
+    },
+    icons: {
+        verifying: {
+            marginRight: '15px',
+            fontSize: '15px',
+            color: '#0486CC',
+            lineHeight: rowLineHeight
+        },
+        failed: {
+            marginRight: '15px',
+            fontSize: '15px',
+            color: '#d9443f',
+            lineHeight: rowLineHeight
+        },
+        verified: {
+            marginRight: '15px',
+            fontSize: '15px',
+            color: '#229978',
+            lineHeight: rowLineHeight
+        },
+        downArrow: {
+            position: 'absolute',
+            marginLeft: '3px'
+        }
+    }
+};
+
 @observer export default class TrackAndVerifyView extends React.Component {
 
     calculateVerifyImgLeftPosition() {
@@ -71,7 +113,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
 
     getVerificationHeaderIcon(transIds, entName) {
         if(!transIds || transIds.length == 0) {
-            return <i style={{color : 'blue'}} className="fa fa-check-circle" aria-hidden="true" />;
+            return <i style={{color : 'blue', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-check-circle" aria-hidden="true" />;
         }
         let failed = false;
         let succeded = true;
@@ -86,11 +128,11 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
             }
         });
         if(failed) {
-            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#d9443f'}} className="fa fa-exclamation-circle " aria-hidden="true" />;
+            return <i style={fieldProps.icons.failed} className="fa fa-exclamation-circle " aria-hidden="true" />;
         } else if(succeded) {
-            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#229978'}} className="fa fa-check-circle" aria-hidden="true" />;
+            return <i style={fieldProps.icons.verified} className="fa fa-check-circle" aria-hidden="true" />;
         } else {
-            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#0486CC'}} className="fa fa-circle-o-notch fa-spin" aria-hidden="true" />;
+            return <i style={fieldProps.icons.verifying} className="fa fa-circle-o-notch fa-spin" aria-hidden="true" />;
         }
     }
 
@@ -114,26 +156,6 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
     }
 
     render() {
-        let fieldProps = {
-            table: {
-                border: '1px solid lightgrey'
-            },
-			tableHeader : {
-                color: '#0085C8',
-                backgroundColor: 'rgba(250, 250, 250, 1)',
-                borderTop: 'solid 2px'
-            },
-            columns : {
-                padding: '10px',
-                fontSize: '12px',
-                verticalAlign: 'top'
-            },
-            downArrow : {
-                position: 'absolute',
-                marginLeft: '3px'
-            },
-        };
-
         const transactions = toJS(this.props.store.transactions);
         let myEntName = this.props.store.entNameOfLoggedUser;
         let variableViewNames = [];
@@ -152,14 +174,14 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
                     <th style={fieldProps.columns}>Date/Time</th>
                     <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Events</th>
                     <th style={fieldProps.columns}>Executing User</th>
-                    {this.renderEnterpriseHeaders(fieldProps, variableViewNames)}
+                    {this.renderEnterpriseHeaders(variableViewNames)}
                 </tr>
             </thead>
         );
 
         let tableBody = (
             <tbody>
-                {this.renderTransactionRows(fieldProps, transactions, variableViewNames)}
+                {this.renderTransactionRows(transactions, variableViewNames)}
             </tbody>
         );
 
@@ -174,7 +196,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
 		);
     }
 
-    renderEnterpriseHeaders(fieldProps, variableViewNames) {
+    renderEnterpriseHeaders(variableViewNames) {
         const myEntName = this.props.store.entNameOfLoggedUser;
         const entNames = [myEntName].concat(variableViewNames);
         let enterpriseHeaders = [];
@@ -208,7 +230,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         return enterpriseHeaders;
     }
 
-    renderTransactionRows(fieldProps, transactions, variableViewNames) {
+    renderTransactionRows(transactions, variableViewNames) {
         let transactionsToVerify = [];
         for(let i = 0; i < transactions.length; i++) {
             let transaction = transactions[i];
@@ -216,58 +238,58 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
                 continue;
             }
 
-            transactionsToVerify.push(this.renderTransactionRow(fieldProps, transaction, i, variableViewNames));
+            transactionsToVerify.push(this.renderTransactionRow(transaction, i, variableViewNames));
         }
 
         return transactionsToVerify;
     }
 
-    renderTransactionRow(fieldProps, transaction, idx, variableViewNames) {
+    renderTransactionRow(transaction, idx, variableViewNames) {
         return (
             <tr style = {{backgroundColor : idx % 2 ? 'rgba(250, 250, 250, 1)' : ''}} key={transaction.id}>
-                {this.renderTransactionIdCell(fieldProps, transaction, idx == this.props.store.transactions.length - 1)}
-                {this.renderTransactionDateCell(fieldProps, transaction)}
-                {this.renderTransactionEventsCell(fieldProps, transaction, idx)}
-                {this.renderTransactionExecutingUsersCell(fieldProps, transaction)}
-                {this.renderTransactionMyEnterpriseVerifyCell(fieldProps, transaction)}
-                {this.renderTransactionOtherEnterpriseVerifyCells(fieldProps, transaction, variableViewNames)}
+                {this.renderTransactionIdCell(transaction, idx == this.props.store.transactions.length - 1)}
+                {this.renderTransactionDateCell(transaction)}
+                {this.renderTransactionEventsCell(transaction, idx)}
+                {this.renderTransactionExecutingUsersCell(transaction)}
+                {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
+                {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
             </tr>
         );
     }
 
-    renderTransactionIdCell(fieldProps, transaction, lastTransaction) {
+    renderTransactionIdCell(transaction, lastTransaction) {
         const transactionId = transaction.id;
         return (
-            <td style={{maxWidth: ' 154px',padding: '10px', fontSize: '12px', verticalAlign: 'top'}}>
+            <td style={Object.assign({ maxWidth: '154px'}, fieldProps.columns)}>
                 <div style={{display: 'inline-flex'}}>
-                    <i style={{color: '#229978', fontSize: '14px'}} className="fa fa-handshake-o" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
+                    <i style={{color: '#229978', fontSize: '14px', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-handshake-o" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
                     <OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={<Popover id={transactionId} >{transactionId}</Popover>}>
                         <span className="transactionIdCss">{transactionId}</span>
                     </OverlayTrigger>
                 </div>
-                {this.renderDownArrow(fieldProps, lastTransaction)}
+                {this.renderDownArrow(lastTransaction)}
             </td>
         );
     }
 
-    renderDownArrow(fieldProps, lastTransaction) {
+    renderDownArrow(lastTransaction) {
         if(lastTransaction) {
             return null;
         }
 
         return (
-            <div style={fieldProps.downArrow}>
+            <div style={fieldProps.icons.downArrow}>
                 <img style={{width:'8px', height:'26px'}} src={Images.DOWN_ARROW}/>
             </div>
         );
     }
 
-    renderTransactionDateCell(fieldProps, transaction) {
-        const formattedDate = moment(new Date(transaction.date)).format('MMM DD,YYYY HH:mm A');
+    renderTransactionDateCell(transaction) {
+        const formattedDate = moment(new Date(transaction.date)).format('MMM DD, YYYY HH:mm A');
         return <td style={fieldProps.columns}>{formattedDate}</td>;
     }
 
-    renderTransactionEventsCell(fieldProps, transaction, idx) {
+    renderTransactionEventsCell(transaction, idx) {
         return (
             <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
                 <div className="counter-ct" onClick={() => this.showEventPopover(idx, true)}>
@@ -302,7 +324,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         );
     }
 
-    renderTransactionExecutingUsersCell(fieldProps, transaction) {
+    renderTransactionExecutingUsersCell(transaction) {
         let displayExecutingUsers = transaction.executingUsers;
         if(transaction.executingUsers.length > 1) {
             let usersList = [];
@@ -328,7 +350,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         return <td style={fieldProps.columns}>{displayExecutingUsers}</td>;
     }
 
-    renderTransactionMyEnterpriseVerifyCell(fieldProps, transaction) {
+    renderTransactionMyEnterpriseVerifyCell(transaction) {
         const myEntName = this.props.store.entNameOfLoggedUser;
         for(let i = 0; i < transaction.transactionSlices.length; i++) {
             let transactionSlice = transaction.transactionSlices[i];
@@ -356,7 +378,7 @@ import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and co
         return null;
     }
 
-    renderTransactionOtherEnterpriseVerifyCells(fieldProps, transaction, variableViewNames) {
+    renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames) {
         const myEntName = this.props.store.entNameOfLoggedUser;
         let cells = [];
 
@@ -454,11 +476,12 @@ const ViewOrDownloadTxn = props => {
     function getVerificationIcon() {
         let state = props.store.verifications.get(transactionId + "_" + entNameForViwe);
         if(!state || state == 'verifying') {
+            // Don't return the spinning icon for each row because it looks messy.
             return '';
         } else if(state == 'failed') {
-            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#d9443f'}} className="fa fa-exclamation-circle " aria-hidden="true" />;
+            return <i style={fieldProps.icons.failed} className="fa fa-exclamation-circle" aria-hidden="true" />;
         } else if(state == 'verified') {
-            return <i style={{marginRight: '15px', fontSize: '15px', verticalAlign: 'top', color: '#229978'}} className="fa fa-check-circle" aria-hidden="true" />;
+            return <i style={fieldProps.icons.verified} className="fa fa-check-circle" aria-hidden="true" />;
         }
     }
 
@@ -476,7 +499,7 @@ const ViewOrDownloadTxn = props => {
         <div>
             {getVerificationIcon()}&nbsp;&nbsp;
             <OverlayTrigger rootClose trigger="click" placement="right"
-                overlay={<Popover id={transactionId + entNameForViwe} style = {{width: '100px', fontWeight: '600', padding: '5px', lineHeight: '25px', zIndex: '0'}}>
+                overlay={<Popover id={transactionId + entNameForViwe} className="popover-menu">
                             <Row txnid = {transactionId} onClick={storeTransactions.bind(this)} style = {{color: 'rgba(45, 162, 191, 1)', cursor:'pointer'}}>
                                 <Col md={1}>
                                     <i className="fa fa-eye" aria-hidden="true"></i>

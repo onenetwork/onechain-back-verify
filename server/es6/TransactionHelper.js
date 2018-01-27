@@ -170,21 +170,30 @@ class TransactionHelper {
                 if(!key) {
                     continue;
                 }
-                if(sliceHash === trueSliceHash){
-                    store.verifications.set(key, 'verifying');
-                    (function(verificationKey, hash) {
-                        blockChainVerifier.verifyHash(hash, oneBcClient)
-                        .then(function (result) {
-                            store.verifications.set(verificationKey, result === true ? 'verified' : 'failed');
-                        })
-                        .catch(function (error) {
-                            store.verifications.set(verificationKey, 'failed');
-                        });
-                    })(key, sliceHash);
-                } else {
+                if(sliceHash === trueSliceHash) {
+                    if(oneBcClient) {
+                        store.verifications.set(key, 'verifying');
+                        (function(verificationKey, hash) {
+                            blockChainVerifier.verifyHash(hash, oneBcClient)
+                                .then(function (result) {
+                                    store.verifications.set(verificationKey, result === true ? 'verified' : 'failed');
+                                })
+                                .catch(function (error) {
+                                    store.verifications.set(verificationKey, 'failed');
+                                });
+                        })(key, sliceHash);
+                    }
+                    else if(store.sliceDataProvidedByAPI) {
+                        store.verifications.set(key, 'verified');
+                    }
+                    else {
+                        store.verifications.set(key, 'failed');
+                    }
+                }
+                else {
                     store.verifications.set(key, 'failed');
-                }          
-                
+                }
+
             }
         });
         store.canStartVerifying = true;
