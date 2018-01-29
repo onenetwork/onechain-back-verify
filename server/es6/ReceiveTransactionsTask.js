@@ -5,6 +5,7 @@ import {settingsHelper} from './SettingsHelper';
 import {backChainUtil} from  './BackChainUtil';
 import { blockChainVerifier } from './BlockChainVerifier';
 import { syncTransactionTaskHelper } from './SyncTransactionTaskHelper';
+import { transactionHelper } from './TransactionHelper';
 
 class ReceiveTransactionsTask {
     constructor() {
@@ -194,9 +195,9 @@ class ReceiveTransactionsTask {
 
             let transactionSliceObj = JSON.parse(transMessage.transactionSliceString);
             if(transactionSliceObj.type == 'Enterprise') {
-                transactionInDb.eventCount = this.getEventCount(transactionSliceObj);
+                transactionInDb.eventCount = transactionHelper.getEventCount(transactionSliceObj);
             }
-            transactionInDb.executingUsers = this.addExecutingUsers(transactionInDb.executingUsers, transactionSliceObj);
+            transactionInDb.executingUsers = transactionHelper.addExecutingUsers(transactionInDb.executingUsers, transactionSliceObj);
 
             // Save the slice in the GridStore.
             return dbconnectionManager.saveSlice(transMessage.transactionSliceString).then(payloadId => {
@@ -242,17 +243,7 @@ class ReceiveTransactionsTask {
         return businessTransactionIds;
     }
 
-    getEventCount(transactionSliceObj) {
-        return transactionSliceObj.businessTransactions.length;
-    }
-
-    addExecutingUsers(existingExecutingUsers, transactionSliceObj) {
-        let executingUsers = new Set(existingExecutingUsers);
-        for(let i = 0; i < transactionSliceObj.businessTransactions.length; i++) {
-            executingUsers.add(transactionSliceObj.businessTransactions[i].LastModifiedUser);
-        }
-        return Array.from(executingUsers);
-    }
+    
 
 }
 

@@ -198,14 +198,14 @@ const fieldProps = {
 
     renderEnterpriseHeaders(variableViewNames) {
         const myEntName = this.props.store.entNameOfLoggedUser;
-        const entNames = [myEntName].concat(variableViewNames);
+        const entNames = myEntName ? [myEntName].concat(variableViewNames) : [].concat(variableViewNames);
         let enterpriseHeaders = [];
         for(let key of entNames) {
             let circleIcon = '';
             let divStyle = {paddingTop: '7px'};
             let colStyle = {};
             let type = "";
-            if(key != myEntName) {
+            if((myEntName && key != myEntName) || (!myEntName && key.indexOf('&') > -1)) {
                 type = "Intersection";
                 colStyle = {padding: '7px'};
                 divStyle = {padding: '3px 0px 0px 11px'};
@@ -360,13 +360,13 @@ const fieldProps = {
             if(transactionSlice.type == "Enterprise") {
                 let transactionDetails = {
                     transactionId: transaction.id,
-                    myEntName: myEntName,
+                    myEntName: myEntName || transactionSlice.enterprise,
                     transactionSliceType: transactionSlice.type
                 }
 
                 return (
                     <td
-                        key={transaction.id + "_" + myEntName}
+                        key={transaction.id + "_" + (myEntName || transactionSlice.enterprise)}
                         txnid={transaction.id}
                         style={fieldProps.columns}>
                         <ViewOrDownloadTxn
@@ -392,13 +392,15 @@ const fieldProps = {
                 let transactionSlice = transaction.transactionSlices[j];
                 if(transactionSlice.type == "Intersection") {
                     let myEntIndex = transactionSlice.enterprises.indexOf(myEntName);
-                    let partnerEntName = myEntIndex == 0 ?  transactionSlice.enterprises[1] : transactionSlice.enterprises[0];
+                    let partnerEntName = '';
+                    if(myEntIndex < 0) {
+                        partnerEntName = transactionSlice.enterprises[0] +" & "+ transactionSlice.enterprises[1];
+                    } else {
+                        partnerEntName = myEntIndex == 0 ?  transactionSlice.enterprises[1] : transactionSlice.enterprises[0];
+                    }                     
                     if(variableViewName != partnerEntName) {
+                        found = true; //Don't print empty <td>
                         continue;
-                    }
-
-                    if(!this.props.store.sliceDataProvidedByAPI && !this.props.store.isInitialSyncDone) {
-                        partnerEntName =  transactionSlice.enterprises[0] +" & "+ transactionSlice.enterprises[1];
                     }
 
                     let transactionDetails = {
@@ -420,6 +422,8 @@ const fieldProps = {
                     );
                     found = true;
                     break;
+                } else {
+                    found = true;
                 }
             }
 
@@ -496,9 +500,7 @@ const ViewOrDownloadTxn = props => {
     }
 
     function storeTransactions(event) {
-        //BackChainActions.toggleMyAndDiffView();
         BackChainActions.loadViewTransactionsById(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','));
-        BackChainActions.zipTransactionsByIds(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','));
     }
 
     function downloadZip(event) {

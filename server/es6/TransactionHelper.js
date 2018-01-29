@@ -158,13 +158,18 @@ class TransactionHelper {
                 let trueSliceHash = transaction.trueTransactionSliceHashes[i];
 
                 let key;
-                if (sliceObj.type == "Enterprise" && sliceObj.enterprise == myEntName) {
-                    key = transaction.id + "_" + myEntName;
+                if (sliceObj.type == "Enterprise") {
+                    key = transaction.id + "_" + sliceObj.enterprise;
                 }
-                else if (sliceObj.type == "Intersection" && ((sliceObj.enterprises).indexOf(myEntName) > -1)) {
+                else if (sliceObj.type == "Intersection") {
                     let myEntIndex = sliceObj.enterprises.indexOf(myEntName);
-                    let partnerEntName = myEntIndex == 0 ? sliceObj.enterprises[1] : sliceObj.enterprises[0];
-                    key = transaction.id + "_" + partnerEntName;
+                    let partnerEntName = '';
+                    if(myEntIndex > -1) {
+                        partnerEntName = myEntIndex == 0 ? sliceObj.enterprises[1] : sliceObj.enterprises[0];
+                    } else {
+                        partnerEntName = sliceObj.enterprises[0] + ' & ' +  sliceObj.enterprises[1];
+                    }
+                    key = transaction.id + "_" + partnerEntName; 
                 }
 
                 if(!key) {
@@ -223,6 +228,18 @@ class TransactionHelper {
                 }
             });
         });
+    }
+
+    getEventCount(transactionSliceObj) {
+        return transactionSliceObj.businessTransactions.length;
+    }
+
+    addExecutingUsers(existingExecutingUsers, transactionSliceObj) {
+        let executingUsers = new Set(existingExecutingUsers);
+        for(let i = 0; i < transactionSliceObj.businessTransactions.length; i++) {
+            executingUsers.add(transactionSliceObj.businessTransactions[i].LastModifiedUser);
+        }
+        return Array.from(executingUsers);
     }
 
     getEventsForTransaction(transId) {

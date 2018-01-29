@@ -194,6 +194,7 @@ export default class BackChainActions {
                     }
 
                     const id = transaction.id;
+                    const date = transaction.date;
                     const transactionSlices = transaction.transactionSlices;
 
                     let initialValue = 0;
@@ -208,6 +209,7 @@ export default class BackChainActions {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
                                     newJson.id = id;
+                                    newJson.date = date;
                                     newJson.transactionSlice = result.result;
                                     store.payload.push(newJson);
                                 }).then(() => ++idx);
@@ -217,6 +219,7 @@ export default class BackChainActions {
                                   .then(serializedSlice => {
                                       let newJson = observable({});
                                       newJson.id = id;
+                                      newJson.date = date;
                                       newJson.transactionSlice = serializedSlice;
                                       store.payload.push(newJson);
                                   }).then(() => ++idx);
@@ -224,6 +227,7 @@ export default class BackChainActions {
                             else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
+                                newJson.date = date;
                                 newJson.transactionSlice = transactionSlice;
                                 store.payload.push(newJson);
                             }
@@ -237,6 +241,7 @@ export default class BackChainActions {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
                                     newJson.id = id;
+                                    newJson.date = date;
                                     newJson.transactionSlice = result.result;
                                     store.payload.push(newJson);
                                 }).then(() => ++idx);
@@ -246,6 +251,7 @@ export default class BackChainActions {
                                   .then(serializedSlice => {
                                       let newJson = observable({});
                                       newJson.id = id;
+                                      newJson.date = date;
                                       newJson.transactionSlice = serializedSlice;
                                       store.payload.push(newJson);
                                   }).then(() => ++idx);
@@ -253,6 +259,7 @@ export default class BackChainActions {
                             else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
+                                newJson.date = date;
                                 newJson.transactionSlice = transactionSlice;
                                 store.payload.push(newJson);
                             }
@@ -414,9 +421,12 @@ export default class BackChainActions {
                     }
                     transArr.push(transaction);
                 } else {
+                    const sliceObject = JSON.parse(payload.transactionSlice);                    
                     transArr.push({
                         id: payload.id,
-                        transactionSlices: [JSON.parse(payload.transactionSlice)],
+                        transactionSlices: [sliceObject],
+                        eventCount: transactionHelper.getEventCount(sliceObject),
+                        executingUsers: transactionHelper.addExecutingUsers([], sliceObject),
                         trueTransactionSliceHashes: [payloadHash],
                         transactionSliceHashes : [payloadHash]
                     });
