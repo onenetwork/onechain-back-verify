@@ -11,72 +11,6 @@ class ReceiveTransactionsTask {
 
     }
 
-    callGetMessages(authenticationToken, chainOfCustodyUrl, callback) {
-        fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
-            method: 'get',
-            headers: new Headers({
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'token ' + authenticationToken
-            })
-        }).then(response => {
-            return response.json();
-        }).then(result => {
-            if(result && result.transactionMessages) {
-                console.log("Received " + result.transactionMessages.length + " messages");
-            }
-            callback(null, result);
-        }).catch(err => {
-            callback(err, null);
-        });
-    }
-
-    consumeTransactionMessages(authenticationToken, chainOfCustodyUrl, callback) {
-        this.callGetMessages(authenticationToken, chainOfCustodyUrl, (error, result) => {
-            if(error) {
-                console.log(error);
-                if(typeof callback !== 'undefined') {
-                    callback(error, {syncDone : false});
-                }
-            } else {
-                if(result.transactionMessages.length == 0) {
-                    //Skip
-                    if(typeof callback !== 'undefined') {
-                        callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: new Date().getTime()});
-                    }
-                } else {
-                    let hasMorePages = result.hasMorePages || false;
-                    this.insertMessages(result.transactionMessages);
-                    let lastSyncTimeInMillis = this.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
-
-                    if(hasMorePages) {
-                        this.consumeTransactionMessages(authenticationToken, chainOfCustodyUrl);
-                    }
-                    if(typeof callback !== 'undefined') {
-                        callback(null, {syncDone : true, authenticationToken: authenticationToken, chainOfCustodyUrl: chainOfCustodyUrl, lastSyncTimeInMillis: lastSyncTimeInMillis});
-                    }
-                }
-            }
-        });
-    }
-
-    startTimer() {
-        settingsHelper.getApplicationSettings()
-        .then(result => {
-            if(typeof result != 'undefined' && typeof result.chainOfCustidy != 'undefined' &&
-            typeof result.chainOfCustidy.authenticationToken != 'undefined' && typeof result.chainOfCustidy.chainOfCustodyUrl != 'undefined') {
-                console.info('Chain of Custody data will be synced every ' + config.syncDataIntervalInMillis + ' milliseconds');
-                setInterval(() => {
-                    this.consumeTransactionMessages(result.chainOfCustidy.authenticationToken, result.chainOfCustidy.chainOfCustodyUrl);
-                }, config.syncDataIntervalInMillis);
-            }
-        })
-        .catch(err => {
-            console.error("Application Settings can't be read: " + err);
-        });
-    }
-
     insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl) {
         let lastSyncTimeInMillis = new Date().getTime();
         let settingsCollection = null;
@@ -90,8 +24,9 @@ class ReceiveTransactionsTask {
                 settingsCollection = result;
             }
             /* If the timer hasn't started yet, it's time to start. Only happens with a new instance*/
-            let startTheTimer = typeof settingsCollection.chainOfCustidy == 'undefined' ||
-            typeof settingsCollection.chainOfCustidy.chainOfCustodyUrl == 'undefined' || typeof settingsCollection.chainOfCustidy.authenticationToken == 'undefined';
+            let shouldStartSyncing = !settingsCollection.chainOfCustidy
+                || !settingsCollection.chainOfCustidy.chainOfCustodyUrl
+                || !settingsCollection.chainOfCustidy.authenticationToken;
             let writeValue = null;
             if(settingsCollection) {
                 settingsCollection.chainOfCustidy = {
@@ -123,8 +58,8 @@ class ReceiveTransactionsTask {
                     console.error(err);
                 }
                 else if(res) {
-                    if(startTheTimer) {
-                        this.startTimer();
+                    if(shouldStartSyncing) {
+                        syncTransactionTaskHelper.startSyncing();
                     }
                     console.log('Setting time updated successfully!');
                 }

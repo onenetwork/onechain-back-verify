@@ -323,33 +323,6 @@ export default class BackChainActions {
     }
 
     @action
-    static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
-        if (!store.isInitialSyncDone) {
-            this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl, function (req, res) {
-                fetch('/startReceiveTransactionsTimer', {
-                    method: 'post',
-                    headers: new Headers({
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    })
-                })
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function (result) {
-                    //No need to do anything. We may add retrial in the future if needed
-                })
-                .catch(function (err) {
-                    console.error('Receive Transactions Task Timer could not be started');
-                });
-            });
-        } else {
-            this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
-		}
-    }
-
-    @action
     static processApplicationSettings() {
         /**
          * If the value is null, it means db was never checked for the value.
@@ -454,7 +427,7 @@ export default class BackChainActions {
     }
 
     @action
-    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl,callback) {
+    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
         store.startSync = true;
         store.syncGoingOn = true;
         store.startSyncViewModalActive = true;
@@ -475,7 +448,7 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-            .then(function (result) {
+        .then(function (result) {
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
@@ -497,7 +470,7 @@ export default class BackChainActions {
             }
         })
         .catch(function (err) {
-            console.error('Error communicating with PLT');
+            console.error('Error communicating with PLT: ' + err);
             store.syncFailed = true;
             store.startSync = false;
             store.startSyncViewModalActive = true;
@@ -554,7 +527,7 @@ export default class BackChainActions {
             }
         })
         .catch(function (err) {
-            console.error('Error communicating with PLT');
+            console.error('Error communicating with PLT: ' + err);
             store.syncFailed = true;
             store.startSync = false;
             store.startSyncViewModalActive = true;

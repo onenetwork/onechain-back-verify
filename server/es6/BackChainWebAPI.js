@@ -71,18 +71,13 @@ exports.getApplicationSettings = function(req, res) {
 
 
 exports.startSyncFromCertainDate = function(req, res) {
-    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, function(error, result) {
+    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, (error, result) => {
         if(error) {
             res.json({success : false});
         } else {
             res.json(result);
         }
     });
-};
-
-exports.startReceiveTransactionsTimer = function(req, res) {
-    receiveTransactionsTask.startTimer();
-    res.json({success : true});
 };
 
 exports.startGapSync = function(req, res) {
@@ -94,17 +89,6 @@ exports.startGapSync = function(req, res) {
         }
     });
 };
-
-exports.consumeTransactionMessages = function(req, res) {
-    receiveTransactionsTask.consumeTransactionMessages(req.body.authenticationToken, req.body.chainOfCustodyUrl, function(error, result) {
-        if(error) {
-            res.json({consumeResult : {success : false}});
-        } else {
-            result.success = true;
-            res.json({consumeResult : result});
-        }
-    });
-}
 
 exports.getSyncStatisticsInfo = function(req, res) {
     settingsHelper.getSyncStatisticsInfo()

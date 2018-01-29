@@ -4,6 +4,7 @@ import {router} from "./routes";
 import {dbconnectionManager} from "./DBConnectionManager";
 import bodyParser from 'body-parser';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask'
+import { syncTransactionTaskHelper } from './SyncTransactionTaskHelper';
 
 (() => {
     const url = "mongodb://localhost:27017";
@@ -14,7 +15,7 @@ import {receiveTransactionsTask} from './ReceiveTransactionsTask'
       }));
     router(app);
 
-    let myArgs = process.argv.slice(2); 
+    let myArgs = process.argv.slice(2);
     let mode = "dev";
     if(myArgs.toString().indexOf('=') !== -1) {
         mode = myArgs.toString().split("=")[1];
@@ -35,8 +36,8 @@ import {receiveTransactionsTask} from './ReceiveTransactionsTask'
         app.get('*', function(req, res) {
             res.sendFile(path.join(__dirname + "/../" + "index.html"));
         });
-        
-        receiveTransactionsTask.startTimer();
-        
+
+        syncTransactionTaskHelper.startSyncing();
+
     });
 })();
