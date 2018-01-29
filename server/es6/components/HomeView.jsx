@@ -44,7 +44,7 @@ import Images from '../Images';
 				borderRadius: '10px'
 			},
 			panelBodyTitle : {
-				paddingLeft: '20px',	
+				paddingLeft: '20px',
 				fontSize: '24px',
 				color: '#515151'
 			},
@@ -80,7 +80,7 @@ import Images from '../Images';
 		}
 		let businessTxnId = (<div  className = "mainDiv"  style={{paddingTop: '27px'}}>
 						<Link style={linkUrlStyle}  to={linkUrl}>
-						 	<div className={innerDiv}> 
+						 	<div className={innerDiv}>
 								<img  style={{paddingLeft: '52px',paddingTop: '5px'}} src ={businessTransImage}/><br/><br/>
 								<span className = {className+activeOrInactiveClassName} >Business Transaction ID</span> <br/>
 								<p className = {descriptiveClassName}>
@@ -95,7 +95,7 @@ import Images from '../Images';
 		className =  "span transSearch ";
 		let txnId = (<div className = "mainDiv" style={{paddingTop: '27px'}}>
 						<Link style={linkUrlStyle}   to={linkUrl}>
-							<div className={innerDiv}> 
+							<div className={innerDiv}>
 								<img  style={{paddingLeft: '52px',paddingTop: '5px'}} src= {transIdImage}/><br/><br/>
 								<span className = {className+activeOrInactiveClassName}>Transaction ID</span> <br/>
 								<p className = {descriptiveClassName}>
@@ -104,12 +104,12 @@ import Images from '../Images';
 							</div>
 						</Link>
 					</div>);
-		
+
 		className =  "span payload ";
-		let payload = (<div className = "mainDiv" style={{padding: '25px 0px 25px 0px'}}>  
+		let payload = (<div className = "mainDiv" style={{padding: '25px 0px 25px 0px'}}>
 						<span className = "dbActiveSpan"></span>
 						<Link to="/payload">
-							<div  className="innerDiv" > 
+							<div  className="innerDiv" >
 								<img  style={{paddingLeft: '57px',paddingTop: '5px'}} src={Images.PAYLOAD_FILE} /><br/><br/>
 								<span className={className}>Payload File</span> <br/>
 								<p className = "activeDescriptive">
@@ -142,7 +142,7 @@ import Images from '../Images';
 		}
 
 		const tooltip = (
-			 
+
 			<div id="tooltip" role="tooltip"  className="fade in tooltip top" style={{top: '229px', left: '1014.5px'}}>
 				<div className="tooltip-arrow" style={{left: '50%'}}></div>
 				<div className="tooltip-inner" style={{backgroundColor: '#208093',textAlign: 'left' }}>{toolTipText}</div>
@@ -151,13 +151,13 @@ import Images from '../Images';
 
 		let dbIcon = (<div onClick={this.divClick}>
 							  {dbSync}
-							  <OverlayTrigger  placement="top" overlay={tooltip}>  
+							  <OverlayTrigger  placement="top" overlay={tooltip}>
 								<div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
 								<span>
 									<i style ={{color: '#3d82c9', fontSize: '2em', paddingRight: '5px'}} className="fa fa-database" aria-hidden="true"></i>
 									{iconAssociatedWithDB}
 								</span>
-								</div> 
+								</div>
 							</OverlayTrigger>
 					 </div> );
 
@@ -167,7 +167,7 @@ import Images from '../Images';
 								<br/>
 								<span style = {{fontSize: '11px',fontWeight: '600'}}>Sync Info</span>
 							</span>
-						</div></Link>);					
+						</div></Link>);
 		/*Note: For now we are not removing text based search related code & SearchByTextView.jsx.*/
 		let panelBody = (<div style={{height: '100%', width: '92%'}}>
 								<Row style={fieldProps.panelBodyTitle}>Verify my transaction with:</Row><br/>
@@ -194,14 +194,14 @@ import Images from '../Images';
 @observer class DBSyncViewModal extends React.Component {
     render() {
         return(<Modal dialogClassName = {"db-sync-modal"} show={this.props.store.dbSyncModalViewActive} onHide={BackChainActions.toggleDBSyncModalViewActive}>
-                    <DBSyncView store={this.props.store} syncType={this.props.syncType} /> 
+                    <DBSyncView store={this.props.store} syncType={this.props.syncType} />
 			   	</Modal>);
     }
 }
 @observer class StartSyncViewModal extends React.Component {
     render() {
         return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.startSyncViewModalActive} onHide={BackChainActions.toggleStartSyncModalView}>
-			   		<StartSyncPopup store={this.props.store} /> 
+			   		<StartSyncPopup store={this.props.store} />
 		  		</Modal>);
     }
 }
@@ -214,13 +214,13 @@ class StartSyncPopup extends React.Component {
 
     render() {
 		let syncPopupBody = "";
-		
+
 		if (this.props.store.syncGoingOn && this.props.store.startSync) {
 			syncPopupBody = <SyncRefresh msgs={["Attempting to start synchronization.", "This may take a few minutes."]} btnName="OK" closeModal={this.closeModal} />
 		} else if (this.props.store.syncGoingOn == false && this.props.store.syncFailed == false) {
 			syncPopupBody = <SyncDone msg={"Your database will begin synchronizing shortly."} btnName="OK" closeModal={this.closeModal}  />
 		} else if (this.props.store.syncFailed ) {
-			syncPopupBody = <SyncFailed msg={"Coulnd't start synchronization. Please try again later!"} btnName="OK" closeModal={this.closeModal}  />
+			syncPopupBody = <SyncFailed msg={"Couldn't start synchronization. Please try again later!"} btnName="OK" closeModal={this.closeModal}  />
 		}
 		return syncPopupBody;
     }
@@ -245,7 +245,7 @@ const SyncRefresh = (props) => {
 					})}
 				</Col>
 			</Row><br/>
-			<Row style={{ paddingBottom: '33px' }}> 
+			<Row style={{ paddingBottom: '33px' }}>
 				<Col md={5}></Col>
 				<Col md={2}>
 					<Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
@@ -278,7 +278,7 @@ const SyncDone = (props) => {
 					<Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
 			</Col>
 		</Row>
-		</div >	
+		</div >
 	)
 }
 
@@ -305,6 +305,6 @@ const SyncFailed = (props) => {
 					<Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
 			</Col>
 			</Row>
-		</div>	
+		</div>
 	)
 }
