@@ -399,7 +399,6 @@ const fieldProps = {
                         partnerEntName = myEntIndex == 0 ?  transactionSlice.enterprises[1] : transactionSlice.enterprises[0];
                     }                     
                     if(variableViewName != partnerEntName) {
-                        found = true; //Don't print empty <td>
                         continue;
                     }
 
