@@ -14,10 +14,6 @@ require("babel-polyfill");
 	constructor(props) {
 		super(props);
 	}
-    
-	componentDidMount() {
-        BackChainActions.fetchLastSyncDate();
-    }
 
     render() {
 	    let fieldProps = {

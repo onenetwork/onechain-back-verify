@@ -243,6 +243,7 @@ class TransactionHelper {
     }
 
     getEventsForTransaction(transId) {
+        const me = this;
         return new Promise(resolve => {
             transactionHelper.getTransactionById(transId, (err, transaction) => {
                 if(transaction) {
@@ -251,17 +252,7 @@ class TransactionHelper {
                         if(transactionSlice.type == 'Enterprise') {
                             dbconnectionManager.fetchSlice(transactionSlice.payloadId)
                                 .then(serializedSlice => {
-                                    let slice = JSON.parse(serializedSlice);
-                                    let events = [];
-                                    for(let j = 0; j < slice.businessTransactions.length; j++) {
-                                        let bt = slice.businessTransactions[j];
-                                        events.push({
-                                            date: bt.LastModifiedDate.date,
-                                            actionName: bt.ActionName.split('.')[1]
-                                        });
-                                    }
-
-                                    resolve(events);
+                                    resolve(me.extractEventsFromSlice(JSON.parse(serializedSlice)));
                                 });
                             return;
                         }
@@ -272,6 +263,18 @@ class TransactionHelper {
             });
         });
     }
+
+    extractEventsFromSlice(slice) {
+        let events = [];
+        for(let j = 0; j < slice.businessTransactions.length; j++) {
+            let bt = slice.businessTransactions[j];
+            events.push({
+                date: bt.LastModifiedDate.date,
+                actionName: bt.ActionName.split('.')[1]
+            });
+        }
+        return events;
+    }    
 }
 
 export const transactionHelper = new TransactionHelper();

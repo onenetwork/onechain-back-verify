@@ -144,9 +144,7 @@ export default class BackChainActions {
                 }
 
                 if(type == "Intersection"
-                        && transactionSlice.type == "Intersection"
-                            && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
-                                && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                        && transactionSlice.type == "Intersection") {
                     if(transactionSlice.payloadId) {
                         return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                             let newJson = observable({});
@@ -164,11 +162,12 @@ export default class BackChainActions {
                               store.viewTransactions.intersection = newJson;
                           }).then(() => ++idx);
                     }
-                    else {  // Comes from a payload
+                    else {  // Comes from a payload and won't have two slices to compare so always go with enterprise 
+                        store.myAndDiffViewModalType = "Enterprise";
                         let newJson = observable({});
                         newJson.id = id;
                         newJson.transactionSlice = transactionSlice;
-                        store.viewTransactions.intersection = newJson;
+                        store.viewTransactions.enterprise = newJson;                        
                     }
                 }
 
@@ -185,7 +184,6 @@ export default class BackChainActions {
     static zipTransactionsByIds(type, partnerEntName, ids) {
         return new Promise(resolve => {
             store.payload.clear();
-            store.myAndDiffViewModalType = type;
             for(let i = 0; i < store.transactions.length; i++) {
                 let transaction = store.transactions[i];
                 for (let j = 0; j < ids.length; j++) {
@@ -203,8 +201,7 @@ export default class BackChainActions {
                         let transactionSlice = transactionSlices[idx];
 
                         if(type == "Enterprise"
-                            && transactionSlice.type == "Enterprise"
-                                && transactionSlice.enterprise == store.entNameOfLoggedUser) {
+                            && transactionSlice.type == "Enterprise") {
                             if(transactionSlice.payloadId) {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
@@ -228,15 +225,13 @@ export default class BackChainActions {
                                 let newJson = observable({});
                                 newJson.id = id;
                                 newJson.date = date;
-                                newJson.transactionSlice = transactionSlice;
+                                newJson.transactionSlice = transaction.transactionSlicesSerialized[idx];
                                 store.payload.push(newJson);
                             }
                         }
 
                         if(type == "Intersection"
-                                && transactionSlice.type == "Intersection"
-                                    && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
-                                        && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                                && transactionSlice.type == "Intersection") {
                             if(transactionSlice.payloadId) {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
@@ -260,7 +255,7 @@ export default class BackChainActions {
                                 let newJson = observable({});
                                 newJson.id = id;
                                 newJson.date = date;
-                                newJson.transactionSlice = transactionSlice;
+                                newJson.transactionSlice = transaction.transactionSlicesSerialized[idx] ;
                                 store.payload.push(newJson);
                             }
                         }
@@ -398,6 +393,7 @@ export default class BackChainActions {
                     transArr.push({
                         id: payload.id,
                         transactionSlices: [sliceObject],
+                        transactionSlicesSerialized: [payload.transactionSlice], //helper field to be used in download
                         eventCount: transactionHelper.getEventCount(sliceObject),
                         executingUsers: transactionHelper.addExecutingUsers([], sliceObject),
                         trueTransactionSliceHashes: [payloadHash],
@@ -645,14 +641,7 @@ export default class BackChainActions {
                     BackChainActions.getSliceDataFromAPI(transaction.id, transaction.transactionSliceHashes[i], transactionSlice.sequence)
                         .then(action(serializedSlice => {
                             let sliceData = JSON.parse(serializedSlice);
-                            let events = [];
-                            for(let j = 0; j < sliceData.businessTransactions.length && j < MAX_EVENTS_TO_LOAD; j++) {
-                                let bt = sliceData.businessTransactions[j];
-                                events.push({
-                                    date: bt.LastModifiedDate.date,
-                                    actionName: bt.ActionName.split('.')[1]
-                                });
-                            }
+                            let events = transactionHelper.extractEventsFromSlice(sliceData);
 
                             if(sliceData.businessTransactions.length > MAX_EVENTS_TO_LOAD) {
                                 events.push(sliceData.businessTransactions.length - MAX_EVENTS_TO_LOAD);
@@ -676,7 +665,12 @@ export default class BackChainActions {
             console.error(error);
         }).then(action(function(json) {
             store.eventsTransactionId = transaction.id;
-            store.events = json.result;
+            if(json.result.length == 0) {
+                //Transaction doesn't exist in db, so find events within the payload.
+                store.events = transactionHelper.extractEventsFromSlice(transaction.transactionSlices[0])
+            } else {                
+                store.events = json.result;
+            }            
         }));
     }
 

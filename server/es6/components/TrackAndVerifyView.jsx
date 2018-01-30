@@ -485,10 +485,10 @@ const ViewOrDownloadTxn = props => {
         partnerEntName,
         transactionSliceType
     }  = props.transactionDetails;
-    let entNameForViwe = transactionSliceType == "Intersection" ? partnerEntName : myEntName;
+    let entNameForView = transactionSliceType == "Intersection" ? partnerEntName : myEntName;
 
     function getVerificationIcon() {
-        let state = props.store.verifications.get(transactionId + "_" + entNameForViwe);
+        let state = props.store.verifications.get(transactionId + "_" + entNameForView);
         if(!state || state == 'verifying') {
             // Don't return the spinning icon for each row because it looks messy.
             return '';
@@ -500,7 +500,7 @@ const ViewOrDownloadTxn = props => {
     }
 
     function storeTransactions(event) {
-        BackChainActions.loadViewTransactionsById(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid').split(','));
+        BackChainActions.loadViewTransactionsById(transactionSliceType, partnerEntName, event.currentTarget.getAttribute('txnid'));
     }
 
     function downloadZip(event) {
@@ -511,7 +511,7 @@ const ViewOrDownloadTxn = props => {
         <div>
             {getVerificationIcon()}&nbsp;&nbsp;
             <OverlayTrigger rootClose trigger="click" placement="right"
-                overlay={<Popover id={transactionId + entNameForViwe} className="popover-menu">
+                overlay={<Popover id={transactionId + entNameForView} className="popover-menu">
                             <Row txnid = {transactionId} onClick={storeTransactions.bind(this)} style = {{color: 'rgba(45, 162, 191, 1)', cursor:'pointer'}}>
                                 <Col md={1}>
                                     <i className="fa fa-eye" aria-hidden="true"></i>
@@ -520,7 +520,7 @@ const ViewOrDownloadTxn = props => {
                                     View
                                 </Col>
                             </Row>
-                            <Row type= {transactionSliceType} partnername= {entNameForViwe} txnids= {transactionId} style = {{color: 'rgba(45, 162, 191, 1)', cursor:'pointer'}} onClick={downloadZip.bind(this)}>
+                            <Row type= {transactionSliceType} partnername= {entNameForView} txnids= {transactionId} style = {{color: 'rgba(45, 162, 191, 1)', cursor:'pointer'}} onClick={downloadZip.bind(this)}>
                                 <Col md={1}>
                                     <i className="fa fa-download" aria-hidden="true"></i>
                                 </Col>&nbsp;
