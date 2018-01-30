@@ -184,22 +184,21 @@ export default class BackChainActions {
     static zipTransactionsByIds(type, partnerEntName, ids) {
         return new Promise(resolve => {
             store.payload.clear();
-            for(let i = 0; i < store.transactions.length; i++) {
-                let transaction = store.transactions[i];
-                for (let j = 0; j < ids.length; j++) {
-                    if (transaction.id != ids[j]) {
-                        continue;
+            let trvrsTnxInitVal = 0;
+            let trvrsTnxCondition = trvrsTnxIdx => trvrsTnxIdx < store.transactions.length;
+            let traverseTransactions = trvrsTnxIdx => {
+                let transaction = store.transactions[trvrsTnxIdx];
+                let trvrsIdInitVal = 0;
+                let trvrsIdCondition = idx => idx < ids.length;
+                let traverseIds = idx => {
+                    if (transaction.id != ids[idx]) {
+                        return new Promise(resolve => resolve(++idx));;
                     }
-
                     const id = transaction.id;
                     const date = transaction.date;
                     const transactionSlices = transaction.transactionSlices;
-
-                    let initialValue = 0;
-                    let condition = idx => idx < transactionSlices.length;
-                    let action = idx => {
-                        let transactionSlice = transactionSlices[idx];
-
+                    for (let j = 0; j < transactionSlices.length; j++) {
+                        let transactionSlice = transactionSlices[j];
                         if(type == "Enterprise"
                             && transactionSlice.type == "Enterprise") {
                             if(transactionSlice.payloadId) {
@@ -212,7 +211,7 @@ export default class BackChainActions {
                                 }).then(() => ++idx);
                             }
                             else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
-                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[j], transactionSlice.sequence)
                                   .then(serializedSlice => {
                                       let newJson = observable({});
                                       newJson.id = id;
@@ -225,7 +224,7 @@ export default class BackChainActions {
                                 let newJson = observable({});
                                 newJson.id = id;
                                 newJson.date = date;
-                                newJson.transactionSlice = transaction.transactionSlicesSerialized[idx];
+                                newJson.transactionSlice = transaction.transactionSlicesSerialized[j];
                                 store.payload.push(newJson);
                             }
                         }
@@ -242,7 +241,7 @@ export default class BackChainActions {
                                 }).then(() => ++idx);
                             }
                             else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
-                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[j], transactionSlice.sequence)
                                   .then(serializedSlice => {
                                       let newJson = observable({});
                                       newJson.id = id;
@@ -255,19 +254,16 @@ export default class BackChainActions {
                                 let newJson = observable({});
                                 newJson.id = id;
                                 newJson.date = date;
-                                newJson.transactionSlice = transaction.transactionSlicesSerialized[idx] ;
+                                newJson.transactionSlice = transaction.transactionSlicesSerialized[j] ;
                                 store.payload.push(newJson);
                             }
                         }
-
-                        return new Promise(resolve => resolve(++idx));
-                    };
-
-                    return backChainUtil.promiseFor(condition, action, initialValue).then(resolve);
+                    }
+                    return new Promise(resolve => resolve(++idx));
                 }
+                return backChainUtil.promiseFor(trvrsIdCondition, traverseIds, trvrsIdInitVal).then(() => ++trvrsTnxIdx);
             }
-
-            resolve();
+            return backChainUtil.promiseFor(trvrsTnxCondition, traverseTransactions, trvrsTnxInitVal).then(resolve);
         });
     }
 
