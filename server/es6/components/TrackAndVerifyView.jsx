@@ -288,7 +288,7 @@ const fieldProps = {
     }
 
     renderTransactionDateCell(transaction) {
-        const formattedDate = moment(new Date(transaction.date)).format('MMM DD, YYYY HH:mm A');
+        const formattedDate = transaction.date ? moment(new Date(transaction.date)).format('MMM DD, YYYY HH:mm A') : 'N/A';
         return <td style={fieldProps.columns}>{formattedDate}</td>;
     }
 
@@ -421,11 +421,8 @@ const fieldProps = {
                     );
                     found = true;
                     break;
-                } else {
-                    found = true;
                 }
             }
-
             if(!found) {
                 cells.push(<td></td>);
             }

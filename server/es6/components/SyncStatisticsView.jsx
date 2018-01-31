@@ -38,7 +38,7 @@ import {Link} from 'react-router-dom';
                 let gapFromSequenceNo = gap.fromSequenceNo;
                 let gapToSequenceNo = gap.toSequenceNo;
                 let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
-                if(sequenceNoDiff.greaterThan(new BigNumber(0))) {
+                if(sequenceNoDiff.isGreaterThan(new BigNumber(0))) {
                     let uptoSequenceNo = ((new BigNumber(gapFromSequenceNo)).minus(new BigNumber(1)));
                     allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : uptoSequenceNo.valueOf()});
                 } 
@@ -53,7 +53,7 @@ import {Link} from 'react-router-dom';
                 earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
                 
                 if(i+1 == me.props.store.syncStatistics.gaps.length) {
-                    if(new BigNumber(latestSyncSequenceNo).greaterThan(new BigNumber(gapToSequenceNo))) {
+                    if(new BigNumber(latestSyncSequenceNo).isGreaterThan(new BigNumber(gapToSequenceNo))) {
                         allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
                     }
                     this.syncStatisticsReport(allTransactionsArr);

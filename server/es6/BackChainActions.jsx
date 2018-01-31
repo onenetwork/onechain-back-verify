@@ -374,12 +374,15 @@ export default class BackChainActions {
                 let payloadHash = blockChainVerifier.generateHash(payload.transactionSlice);
                 if (transactions.length > 0) {
                     let transaction = transactions[0];
+                    transaction.transactionSlicesSerialized = [];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
                     if (index >= 0) {
                         transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
+                        transaction.transactionSlicesSerialized[index] = payload.transactionSlice;
                         transaction.trueTransactionSliceHashes[index] = payloadHash;
                     } else {
                         transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
+                        transaction.transactionSlicesSerialized.push(payload.transactionSlice);
                         transaction.trueTransactionSliceHashes.push(payloadHash);
                         transaction.transactionSliceHashes.push(payloadHash);
                     }

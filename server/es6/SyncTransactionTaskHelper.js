@@ -110,7 +110,7 @@ class SyncTransactionTaskHelper {
                 console.log('Sync from date: ' + dateAsString);
             }
             else if(request.fromSequence) {
-                url = backChainUtil.returnValidURL(baseUrl + '?fromSequence=' + request.fromSequence + '&toSequence=' + request.toSequenceNo);
+                url = backChainUtil.returnValidURL(baseUrl + '?fromSequence=' + request.fromSequence + '&toSequence=' + request.toSequence);
                 console.log('Sync gap: ' + request.fromSequence + (request.toSequence ? (" - " + request.toSequence) : ""));
             }
             else {
