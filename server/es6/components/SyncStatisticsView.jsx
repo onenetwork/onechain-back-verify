@@ -195,6 +195,7 @@ import {Link} from 'react-router-dom';
         };
         
         let syncStatisticsReportUI = [];
+        let verticalLineUI = [];
         let gapSize = 0;
         for(let i=0; i < this.props.store.syncStatisticsReport.length; i++) {
             let syncStatisticsReport = this.props.store.syncStatisticsReport[i];
@@ -202,7 +203,7 @@ import {Link} from 'react-router-dom';
                 syncStatisticsReportUI.push(<FullSync key={i + 'full'} syncStatisticsReport = {syncStatisticsReport}/>);
             }
             if(this.props.store.syncStatisticsReport.length!=1 && i==0) {
-                syncStatisticsReportUI.push(<VerticalLine key={'vertical'} verticlHeight = {this.props.store.syncStatisticsReport.length-2}/>);
+                verticalLineUI.push(<VerticalLine key={'vertical'} verticlHeight = {this.props.store.syncStatisticsReport.length-2}/>);
             }
             if(syncStatisticsReport.type == "gap") {
                 gapSize++;
@@ -211,8 +212,11 @@ import {Link} from 'react-router-dom';
         }
 
         let latestNEarliestSync = (
-            <div>
-                {syncStatisticsReportUI}
+            <div style={{display:'inline-flex'}}>
+                {verticalLineUI}
+                <div>
+                    {syncStatisticsReportUI}
+                </div>
             </div>
         );
 
@@ -367,14 +371,14 @@ const VerticalLine = (props) => {
     let fieldProps = {
         verticalLine : {
             borderLeft: '4px solid rgba(0, 133, 200, 1)',
-            position: 'absolute',
+            position: 'relative',
             zIndex: '1',
-            top: '423px'
+            marginTop: '20px'
         }
     }
     let verticlHeight = props.verticlHeight;
 	return (
-		<div style={Object.assign({}, fieldProps.verticalLine, {height: verticlHeight > 0 ? 72 * (verticlHeight + 1) : 72, left: verticlHeight == 0 ? 262 : 250 })}/>
+		<div style={Object.assign({}, fieldProps.verticalLine, {height: verticlHeight > 0 ? 72 * (verticlHeight + 1) : 72, left: 69 })}/>
 	)
 }
 
