@@ -102,7 +102,7 @@ Vagrant.configure("2") do |config|
 	  sudo npm install react-custom-scrollbars --save
 
     #library for unsafe integers
-    sudo npm install bignumber.js --save
+    sudo npm install bignumber.js@6.0.0 --save
 
 	#Table Pagination
 	sudo npm install --no-bin-links react-pagination-table --save-dev
