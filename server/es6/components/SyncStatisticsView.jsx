@@ -29,9 +29,11 @@ import {Link} from 'react-router-dom';
         let me = this;
         let earliestSyncSequenceNo = me.props.store.syncStatistics.earliestSyncSequenceNo;
         let latestSyncSequenceNo = me.props.store.syncStatistics.latestSyncSequenceNo;
+        let earliestSyncDateInMillis = me.props.store.syncStatistics.earliestSyncDateInMillis;
+        let latestSyncDateInMillis = me.props.store.syncStatistics.latestSyncDateInMillis;
         
         me.props.store.syncStatisticsReport.clear();
-        let allTransactionsArr = [];
+
         if(me.props.store.syncStatistics.gaps.length >0) {
             for(let i = 0; i < me.props.store.syncStatistics.gaps.length; i++) {
                 let gap = me.props.store.syncStatistics.gaps[i];
@@ -39,90 +41,60 @@ import {Link} from 'react-router-dom';
                 let gapToSequenceNo = gap.toSequenceNo;
                 let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
                 if(sequenceNoDiff.isGreaterThan(new BigNumber(0))) {
-                    let uptoSequenceNo = ((new BigNumber(gapFromSequenceNo)).minus(new BigNumber(1)));
-                    allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : uptoSequenceNo.valueOf()});
+                    me.props.store.syncStatisticsReport.push({
+                        type : "fullSync", 
+                        syncMsg : 'Full Sync', 
+                        fromSeqNo : earliestSyncSequenceNo,
+                        toSeqNo : gapFromSequenceNo,
+                        fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
+                        toDate : moment(new Date(gap.fromDateInMillis)).format('MMM DD,YYYY HH:mm A')
+                    });
                 } 
                 
-                let noOfGapRecords = (new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).valueOf();
+                let noOfGapRecords = ((new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).minus(new BigNumber(1))).valueOf();
                 let fromGapDate = gap.fromDateInMillis;
                 let toGapDate = gap.toDateInMillis;
                 let hrs = me.returnDiffInHrsMins(fromGapDate, toGapDate).hours + 'hrs';
                 let mins = me.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
-                allTransactionsArr.push({type : "gap", fromSeqNo : gap.fromSequenceNo, toSeqNo : gap.toSequenceNo, noOfGaps : noOfGapRecords, syncMsg : 'Sequence Gap',time:hrs + ' ' + mins, fromDate : fromGapDate, toDate : toGapDate});
+
+                me.props.store.syncStatisticsReport.push({
+                    type : "gap", 
+                    syncMsg : 'Sequence Gap', 
+                    fromSeqNo : (new BigNumber(gap.fromSequenceNo).plus(new BigNumber(1))), 
+                    toSeqNo : (new BigNumber(gap.toSequenceNo).minus(new BigNumber(1))), 
+                    noOfGaps : noOfGapRecords, time: hrs + ' ' + mins, 
+                    fromDate : moment(new Date(fromGapDate)).format('MMM DD,YYYY HH:mm A'), 
+                    toDate : moment(new Date(toGapDate)).format('MMM DD,YYYY HH:mm A')
+                });
 
                 earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
-                
+                earliestSyncDateInMillis = gap.toDateInMillis;
+
                 if(i+1 == me.props.store.syncStatistics.gaps.length) {
-                    if(new BigNumber(latestSyncSequenceNo).isGreaterThan(new BigNumber(gapToSequenceNo))) {
-                        allTransactionsArr.push({type : "fullSync", fromSeqNo : earliestSyncSequenceNo, toSeqNo : new BigNumber(latestSyncSequenceNo).valueOf()});
+                    if(new BigNumber(latestSyncSequenceNo).isGreaterThanOrEqualTo(new BigNumber(gapToSequenceNo))) {
+                        me.props.store.syncStatisticsReport.push({
+                            type : "fullSync", 
+                            syncMsg : 'Full Sync', 
+                            fromSeqNo : earliestSyncSequenceNo, 
+                            toSeqNo : latestSyncSequenceNo, 
+                            fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
+                            toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A')
+                        });
                     }
-                    this.syncStatisticsReport(allTransactionsArr);
                 }
             }
         } else {
             let syncReport = {
                 type : 'fullSync', 
                 syncMsg : 'Full Sync', 
-                fromDate : moment(new Date(me.props.store.syncStatistics.earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
-                toDate : moment(new Date(me.props.store.syncStatistics.latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
                 fromSeqNo : earliestSyncSequenceNo, 
                 toSeqNo : latestSyncSequenceNo, 
                 noOfGaps : ''
             };
             me.props.store.syncStatisticsReport.push(syncReport);
         }
-    }
-
-    syncStatisticsReport(allTransactionsArr) {
-        let fullSyncTrxnsNos = [];
-        let me = this;
-        for(let i = 0; i < allTransactionsArr.length; i++) {
-            let txn = allTransactionsArr[i];
-            if(txn.type == 'fullSync') {
-                fullSyncTrxnsNos.push(txn.fromSeqNo);
-                fullSyncTrxnsNos.push(txn.toSeqNo);
-            }
-        }
-        this.getTransactionsBySequenceNos(fullSyncTrxnsNos,allTransactionsArr);
-    }
-
-    getTransactionsBySequenceNos(fullSyncTrxnsNos,allTransactionsArr) {
-        let me = this;
-        BackChainActions.getTransactionsBySequenceNos(
-            fullSyncTrxnsNos,
-            function(error, result) {
-                if(!error) {
-                    me.props.store.syncStatisticsReport.splice(0, me.props.store.syncStatisticsReport.length);
-                    for(let i = 0; i < allTransactionsArr.length; i++) {
-                        let txn = allTransactionsArr[i];
-                        let isFromSeqMatch = false, isToSeqMatch = false;
-                        if(txn.type == 'gap') {
-                            txn.fromDate = moment(new Date(txn.fromDate)).format('MMM DD,YYYY HH:mm A');
-                            txn.toDate = moment(new Date(txn.toDate)).format('MMM DD,YYYY HH:mm A');
-                            me.props.store.syncStatisticsReport.push(txn);
-                        } else {
-                            let syncStatistics = {type : 'fullSync', syncMsg : 'Full Sync', fromDate : '', toDate : '', fromSeqNo : '', toSeqNo:'', noOfGaps:''};
-                            for(let i = 0; i < result.length; i++) {
-                                let transaction = result[i];
-                                if(transaction.txnSequenceNo == txn.fromSeqNo) {
-                                    syncStatistics.fromDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY HH:mm A');
-                                    syncStatistics.fromSeqNo = transaction.txnSequenceNo;
-                                    isFromSeqMatch = true;
-                                } else if(transaction.txnSequenceNo == txn.toSeqNo) {
-                                    syncStatistics.toDate = moment(transaction.date, "YYYY-MM-DDTHH:mm:ssZ").format('MMM DD,YYYY HH:mm A');
-                                    syncStatistics.toSeqNo = transaction.txnSequenceNo;
-                                    isToSeqMatch = true;
-                                }
-                                if(isFromSeqMatch && isToSeqMatch) {
-                                    me.props.store.syncStatisticsReport.push(syncStatistics);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        );
     }
 
     findGapIndex(gapToFind, alreadySelectedGaps) {
