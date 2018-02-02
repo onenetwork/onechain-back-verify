@@ -50,10 +50,6 @@ import DisplaySyncView from "./DisplaySyncView"
 
 	}
 
-	displaySycPopup() {
-		this.props.store.displayMessageViewModalActive = true;
-	}
-
 	blockChainUrl(event){
 		this.props.store.blockChainUrl = event.target.value.trim();
 	}
@@ -145,7 +141,6 @@ import DisplaySyncView from "./DisplaySyncView"
 		</div>);
 
 		let panelBodyProd = (<div>
-			{<DisplayDataSyncPopup store={this.props.store}/>}
 			<p></p>
 			<Row style={{paddingTop:'50px', paddingLeft: '150px', height: '40px',paddingBottom:'60px'}}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
@@ -156,8 +151,8 @@ import DisplaySyncView from "./DisplaySyncView"
 
 			<Row style={fieldProps.panelPadding} >
 				<Col md={2} style={{width: '177px'}}><div>  </div></Col>
-				<div  class="col-md-7" style={{backgroundColor: 'rgba(221, 236, 255, 1)',borderRadius: '6px',width: '64%',height: '54px'}}>
-				<div style={{display: 'inline'}}><span style={{color:'#0085C8',fontSize:'20px',paddingTop:'6px'}} class="fa fa-info-circle fa-2x"></span></div>
+				<div  className="col-md-7" style={{backgroundColor: 'rgba(221, 236, 255, 1)',borderRadius: '6px',width: '64%',height: '54px'}}>
+				<div style={{display: 'inline'}}><span style={{color:'#0085C8',fontSize:'20px',paddingTop:'6px'}} className="fa fa-info-circle fa-2x"></span></div>
 				<div style={{display: 'inline',paddingLeft:'10px'}}>
 						<span>The default Blockchain URL will connect you to One Network's Blockchain.</span>
 						<span style={{display: 'block',paddingLeft:'30px'}} > However, you can specify another Blockchain URL if you wish.</span>
@@ -169,7 +164,7 @@ import DisplaySyncView from "./DisplaySyncView"
 				<Col md={2} style={{width: '177px'}}> </Col>
 				<Col md={8}>
 					<div>
-							<button onClick={this.displaySycPopup.bind(this)} className="btn btn-primary" style={fieldProps.buttonStyle}>
+							<button onClick={this.saveInitialConfig.bind(this)} className="btn btn-primary" style={fieldProps.buttonStyle}>
 							<span>Enter</span>
 							</button>
 					</div>
@@ -199,14 +194,6 @@ import DisplaySyncView from "./DisplaySyncView"
     render() {
         return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
                     <DisplayMessageView title = "Message" msg= {"Could not connect to the blockchain, please check your settings and try again."} store={this.props.store}/>
-               </Modal>);
-    }
-}
-
-@observer class DisplayDataSyncPopup extends React.Component {
-    render() {
-        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
-                  <DisplaySyncView  store={this.props.store}/>
                </Modal>);
     }
 }
