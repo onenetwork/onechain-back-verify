@@ -11,9 +11,7 @@ var babel = require('gulp-babel');
 var packageJson = require('./package.json');
 var dependencies = Object.keys(packageJson && packageJson.dependencies || {});
 
-var index = dependencies.indexOf('jquery.json-viewer'); //causes issues while creation of libs bundle
-delete dependencies[index];
-index = dependencies.indexOf('react-icons'); //causes issues while creation of libs bundle
+var index = dependencies.indexOf('react-icons'); //causes issues while creation of libs bundle
 delete dependencies[index];
 
 /**
