@@ -23,7 +23,7 @@ import 'react-datetime/css/react-datetime.css';
 		return (
 			<div>
 				<HeaderView store={this.props.store} size="big"/>
-				<SyncPopup title = "Sync My Database with One Network's Chain of Custody" body = {syncPopupBody} />
+				<SyncPopup title = "Sync database with One Network's Audit Repository App" body = {syncPopupBody} />
 			</div>
 		)
 	}
