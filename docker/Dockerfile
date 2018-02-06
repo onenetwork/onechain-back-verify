@@ -49,92 +49,102 @@ RUN sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
 RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 
 # Install
-RUN apt-get update
-RUN apt-get -y install g++
-RUN apt-get -y install golang
-RUN apt-get -y install git
-RUN apt-get -y install curl
-RUN apt-get -y install node-gyp
+RUN apt-get update && apt-get -y install g++ \
+&& apt-get -y install golang \
+&& apt-get -y install git \
+&& apt-get -y install curl \
+&& apt-get -y install build-essential
 
 # Install node.js
-RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash --
-RUN apt-get -y install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -- \
+&& apt-get update && apt-get -y install nodejs
 
-    # Install mongodb
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-RUN echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.0.list
-RUN apt-get update
-RUN apt-get install -y mongodb-org
+# Install mongodb
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10 \
+&& echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.0.list \
+&& apt-get update && apt-get install -y mongodb-org
 
-#Install nodejs web server related packages
-RUN npm install --no-bin-links express
-RUN npm install --no-bin-links body-parser
-RUN npm install --no-bin-links cookie-parser
-RUN npm install --no-bin-links multer
-RUN npm install --no-bin-links mongodb
+RUN mkdir app && cd /app && git clone https://github.com/onenetwork/onechain-back-verify.git && cd /app/onechain-back-verify && echo {} > package.json
+
+    #Install nodejs web server related packages
+RUN cd /app/onechain-back-verify \
+&& npm install --no-bin-links express --save \
+&& npm install --no-bin-links body-parser --save \
+&& npm install --no-bin-links cookie-parser --save \
+&& npm install --no-bin-links multer --save \
+&& npm install --no-bin-links mongodb@2.2.33 --save \
    
     #Install react packages
-RUN npm install --no-bin-links react
-RUN npm install --no-bin-links react-dom
-RUN npm install --no-bin-links react-bootstrap
-RUN npm install --no-bin-links react-router-dom
+&& npm install --no-bin-links react --save \ 
+&& npm install --no-bin-links react-dom --save \ 
+&& npm install --no-bin-links react-bootstrap --save \ 
+&& npm install --no-bin-links react-router-dom --save \ 
 
     #Install babel packages
-RUN npm install --no-bin-links babel
-RUN npm install --no-bin-links babel-core
-RUN npm install --no-bin-links babel-eslint
-RUN npm install --no-bin-links babel-plugin-dev-expression
-RUN npm install --no-bin-links babel-plugin-lodash
-RUN npm install --no-bin-links babel-plugin-transform-class-properties
-RUN npm install --no-bin-links babel-plugin-transform-decorators-legacy
-RUN npm install --no-bin-links babel-plugin-transform-es2015-modules-amd
-RUN npm install --no-bin-links babel-polyfill
-RUN npm install --no-bin-links babel-preset-es2015
-RUN npm install --no-bin-links babel-preset-react
-RUN npm install --no-bin-links babel-preset-stage-0
-RUN npm install --no-bin-links babel-preset-stage-1
+&& npm install --no-bin-links babel --save-dev \ 
+&& npm install --no-bin-links babel-core --save-dev \ 
+&& npm install --no-bin-links babel-eslint --save-dev \ 
+&& npm install --no-bin-links babel-plugin-dev-expression --save-dev \ 
+&& npm install --no-bin-links babel-plugin-lodash --save-dev \ 
+&& npm install --no-bin-links babel-plugin-transform-class-properties --save-dev \ 
+&& npm install --no-bin-links babel-plugin-transform-decorators-legacy --save-dev \ 
+&& npm install --no-bin-links babel-plugin-transform-es2015-modules-amd --save-dev \ 
+&& npm install --no-bin-links babel-polyfill --save-dev \ 
+&& npm install --no-bin-links babel-preset-es2015 --save-dev \ 
+&& npm install --no-bin-links babel-preset-react --save-dev \
+&& npm install --no-bin-links babel-preset-stage-0 --save-dev \
+&& npm install --no-bin-links babel-preset-stage-1 --save-dev \
    
     #Install babelify
-RUN npm install --no-bin-links babelify
+&& npm install --no-bin-links babelify --save-dev \ 
    
     #Install browserify packages
-RUN npm install --no-bin-links browserify
-RUN npm install --no-bin-links browserify-shim
-RUN npm install --no-bin-links browserify-transform-tools
-RUN npm install --no-bin-links browserify-css
+&& npm install --no-bin-links browserify --save-dev \ 
+&& npm install --no-bin-links browserify-shim --save-dev \ 
+&& npm install --no-bin-links browserify-transform-tools --save-dev \ 
+&& npm install --no-bin-links browserify-css --save-dev \ 
    
     #Install gulp and required vinyl
-RUN npm install -g gulp
-RUN npm install --no-bin-links gulp
-RUN npm install --no-bin-links vinyl-source-stream
-RUN npm install --no-bin-links gulp-babel
+&& npm install -g gulp \
+&& npm install --no-bin-links gulp --save-dev \ 
+&& npm install --no-bin-links vinyl-source-stream --save-dev \ 
+&& npm install --no-bin-links gulp-babel --save-dev \ 
    
     #Install mobx packages
-RUN npm install --no-bin-links mobx
-RUN npm install --no-bin-links mobx-react
+&& npm install --no-bin-links mobx --save \ 
+&& npm install --no-bin-links mobx-react --save \ 
    
     #Install fetch packages
-RUN npm install --no-bin-links whatwg-fetch
-   
-    #Install Jquery json viewer
-RUN npm install --no-bin-links jquery.json-viewer
+&& npm install --no-bin-links whatwg-fetch --save \ 
+
+    #Install object.intersect library
+&& npm install --no-bin-links object.intersect --save \ 
    
     #Install jszip for ZIP files
-RUN npm install --no-bin-links jszip
+&& npm install --no-bin-links jszip --save \ 
 
     #Install moment
-RUN npm install moment
+&& npm install moment --save \
 
     #Install datepicker it has dependancy on moment
-RUN npm install react-datetime
+&& npm install react-datetime --save \ 
+
+    #custom Scrollbar
+&& npm install react-custom-scrollbars --save \ 
+
+    #library for unsafe integers
+&& npm install bignumber.js@6.0.0 --save \ 
 
 	#Table Pagination
-RUN npm install react-pagination-table
-	
-	#Install onechain-back-client
-RUN npm install -P --no-bin-links @onenetwork/one-backchain-client
+&& npm install react-pagination-table --save-dev \ 
 
-RUN mkdir app && cd /app && git clone https://github.com/onenetwork/onechain-back-verify.git
+	# IE support
+&& npm install --no-bin-links isomorphic-fetch es6-promise --save-dev \ 
+&& npm install --no-bin-links es6-object-assign --save-dev \
+
+	#Install onechain-back-client
+&& npm install -P --no-bin-links @onenetwork/one-backchain-client --save
+
 RUN cd /app/onechain-back-verify && gulp init && gulp transpile && gulp build
 
 WORKDIR /app
