@@ -6,7 +6,7 @@ Licensed under the [Apache License, version 2.0](http://www.apache.org/licenses/
 
 ## Docker image
 
-If you have docker insatlled, you can pull it from here:
+If you have docker installed, you can pull it from here:
 https://hub.docker.com/r/onenetwork/onechain-back-verify/
 
 ## Setup
