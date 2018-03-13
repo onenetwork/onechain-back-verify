@@ -142,6 +142,7 @@ class ReceiveTransactionsTask {
                 sliceInDb.type = transactionSliceObj.type;
                 sliceInDb.enterprise = transactionSliceObj.enterprise;
                 sliceInDb.enterprises = transactionSliceObj.enterprises;
+                sliceInDb.merklePath = transMessage.merklePath;
                 sliceInDb.businessTransactionIds = this.getBusinessTransactionIds(transactionSliceObj);
 
                 transactionInDb.transactionSlices.push(sliceInDb);
@@ -177,8 +178,6 @@ class ReceiveTransactionsTask {
         }
         return businessTransactionIds;
     }
-
-    
 
 }
 

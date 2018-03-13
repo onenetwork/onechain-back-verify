@@ -169,7 +169,7 @@ class TransactionHelper {
                     } else {
                         partnerEntName = sliceObj.enterprises[0] + ' & ' +  sliceObj.enterprises[1];
                     }
-                    key = transaction.id + "_" + partnerEntName; 
+                    key = transaction.id + "_" + partnerEntName;
                 }
 
                 if(!key) {
@@ -178,15 +178,16 @@ class TransactionHelper {
                 if(sliceHash === trueSliceHash) {
                     if(oneBcClient) {
                         store.verifications.set(key, 'verifying');
-                        (function(verificationKey, hash) {
-                            blockChainVerifier.verifyHash(hash, oneBcClient)
+                        let merkleRoot = this.generateMerkleRoot(sliceHash, sliceObj.merklePath);
+                        (function(verificationKey, hashToVerify) {
+                            blockChainVerifier.verifyHash(hashToVerify, oneBcClient)
                                 .then(function (result) {
                                     store.verifications.set(verificationKey, result === true ? 'verified' : 'failed');
                                 })
                                 .catch(function (error) {
                                     store.verifications.set(verificationKey, 'failed');
                                 });
-                        })(key, sliceHash);
+                        })(key, merkleRoot);
                     }
                     else if(store.sliceDataProvidedByAPI) {
                         store.verifications.set(key, 'verified');
@@ -202,6 +203,24 @@ class TransactionHelper {
             }
         });
         store.canStartVerifying = true;
+    }
+
+    generateMerkleRoot(hash, merklePath) {
+        if (!merklePath || !merklePath.length) {
+            return hash;
+        }
+
+        let currHash = hash;
+        for (let node of merklePath) {
+            if(node.right) {
+                currHash = blockChainVerifier.generateHash(currHash + node.right);
+            }
+            else if(node.left) {
+                currHash = blockChainVerifier.generateHash(node.left + currHash);
+            }
+        }
+
+        return currHash;
     }
 
     getTransactionsBySequenceNos(sequenceNos) {
@@ -274,7 +293,7 @@ class TransactionHelper {
             });
         }
         return events;
-    }    
+    }
 }
 
 export const transactionHelper = new TransactionHelper();
