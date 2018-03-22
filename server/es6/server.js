@@ -5,6 +5,7 @@ import {dbconnectionManager} from "./DBConnectionManager";
 import bodyParser from 'body-parser';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask'
 import { syncTransactionTaskHelper } from './SyncTransactionTaskHelper';
+import { commandLineUtils } from './CommandLineUtils';
 
 (() => {
     const url = "mongodb://localhost:27017";
@@ -38,6 +39,6 @@ import { syncTransactionTaskHelper } from './SyncTransactionTaskHelper';
         });
 
         syncTransactionTaskHelper.startSyncing();
-
+        commandLineUtils.readCommands();
     });
 })();
