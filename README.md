@@ -26,16 +26,14 @@ Setup for Windows environments:
 
 ## Commands
 
-Commands are provided to help testing. You must first run the server and execute the commands.
+Commands are provided to help testing. You must run the server before executing the commands.
 
- * **deleteall** command provides ways to wipe out stored data. 
-deletedata  [-all] [-transactions] [-settings] [-bcSettings] [-ccSettings]
-
-all           It will delete Settings, Transaction, fs.chunks and fs.files and SyncStatistics collections
-transactions  It will delete Transaction, fs.chunks and fs.files and SyncStatistics collections
-settings      It will delete Settings collection including both blockChain and chainOfCustody
-bcSettings    It will delete blockChain settings only
-ccSettings    It will delete chainOfCustody(plt/kafa) settings
+* **deleteall** command provides ways to wipe out application data with the given options. deletedata  [-all] [-transactions] [-settings] [-bcSettings] [-ccSettings]
+  * **all**           It will delete Settings, Transaction, fs.chunks and fs.files and SyncStatistics collections
+  * **transactions**  It will delete Transaction, fs.chunks and fs.files and SyncStatistics collections
+  * **settings**      It will delete Settings collection including both blockChain and chainOfCustody
+  * **bcSettings**    It will delete blockChain settings only
+  * **ccSettings**    It will delete chainOfCustody(plt/kafa) settings
 
  ## Developing
  
