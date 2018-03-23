@@ -1,7 +1,7 @@
 import {dbconnectionManager} from './DBConnectionManager';
 
 /*
- Helper class contains funtions to prfrom mongodb commands entered from command line 
+ Helper class contains funtions to perform mongodb commands entered from command line 
 */
 class CommandLineUtils {
 
@@ -22,10 +22,10 @@ class CommandLineUtils {
             const DELETEDATA = 'deletedata', ALL = 'all', TRANSACTIONS = 'transactions', SETTINGS = 'settings',BC_SETTINGS = 'bcSettings',CC_SETTINGS = 'ccSettings';
             const HELP_MONGO = 'help-mongo';
 
-            let invalidCommandMsg = "\nPlease enter valid command. \nFor mongo commands, write help-mongo";
+            let invalidCommandMsg = "\nPlease enter valid command. \nFor mongo commands, type help-mongo";
             
-            let mongoCommandInfo ="\nBelow are the commands with description:\n"
-                + "Use these commands Like: " + DELETEDATA + "-" + ALL + "\n\n"
+            let mongoCommandInfo ="\nCommands with description:\n"
+                + "deletedata  [-"+ALL+"] [-"+TRANSACTIONS+"] [-"+SETTINGS+"] [-"+BC_SETTINGS+"] [-"+CC_SETTINGS+"]\n\n"
                 + ALL + "           " + "It will delete Settings, Transaction, fs.chunks and fs.files and SyncStatistics collections \n"
                 + TRANSACTIONS + "  " + "It will delete Transaction, fs.chunks and fs.files and SyncStatistics collections \n"
                 + SETTINGS + "      " + "It will delete Settings collection including both blockChain and chainOfCustody \n"
@@ -73,25 +73,42 @@ class CommandLineUtils {
          * deletes Transaction, fs.chunks and fs.files and SyncStatistics collections
          */
         deleteTransactions() {
-            dbconnectionManager.getConnection().collection('Transactions').remove({},function(err, response) {
+            let fileBucketName = 'fs';
+
+            dbconnectionManager.getConnection().collection('Transactions').drop({},function(err, response) {
                 if(err)
                     console.error("Deleting Transactions failed: " + err);
-                else if(response.result.n > 0)
-                    console.log("Deleting Transactions success");
-                else if(response.result.n == 0)
-                    console.log("Data does not exists in Transactions");
+                else if(response == true)
+                    console.log("Transactions deleted successfully");
                 else
-                    console.error("Deleting Transactions failed. Please try again!");
+                    console.log("Deleting Transactions failed. Please try again");
             });
-            dbconnectionManager.getConnection().collection('SyncStatistics').remove({},function(err, response) {
+
+            dbconnectionManager.getConnection().collection(fileBucketName + '.chunks').drop({},function(err, response) {
+                if(err)
+                    console.error("Deleting " + fileBucketName +".chunks failed: " + err);
+                else if(response == true)
+                    console.log(fileBucketName +".chunks deleted successfully");
+                else
+                    console.log("Deleting " + fileBucketName +".chunks failed. Please try again");
+            });
+
+            dbconnectionManager.getConnection().collection(fileBucketName + '.files').drop({},function(err, response) {
+                if(err)
+                    console.error("Deleting " + fileBucketName +".files failed: " + err);
+                else if(response == true)
+                    console.log(fileBucketName +".files deleted successfully");
+                else
+                    console.log("Deleting " + fileBucketName +".files failed. Please try again");
+            });
+
+            dbconnectionManager.getConnection().collection('SyncStatistics').drop({},function(err, response) {
                 if(err)
                     console.error("Deleting SyncStatistics failed: " + err);
-                else if(response.result.n > 0)
-                    console.log("Deleting SyncStatistics success");
-                else if(response.result.n == 0)
-                    console.log("Data does not exists in SyncStatistics");
+                else if(response == true)
+                    console.log("SyncStatistics deleted successfully");
                 else
-                    console.error("Deleting SyncStatistics failed. Please try again!");
+                    console.log("Deleting SyncStatistics failed. Please try again");
             });
         }
 
@@ -99,15 +116,13 @@ class CommandLineUtils {
          * deletes Settings collection including both blockChain and chainOfCustody
          */
         deleteSettings() {
-            dbconnectionManager.getConnection().collection('Settings').remove({},function(err, response) {
+            dbconnectionManager.getConnection().collection('Settings').drop({},function(err, response) {
                 if(err)
                     console.error("Deleting Settings failed: " + err);
-                else if(response.result.n > 0)
-                    console.log("Deleting Settings success");
+                else if(response == true)
+                    console.log("Settings deleted successfully");
                 else if(response.result.n == 0)
-                    console.log("Data does not exists in Settings");
-                else
-                    console.error("Deleting Settings failed. Please try again!");
+                    console.log("Deleting Settings failed. Please try again");
             });
         }
 
@@ -124,11 +139,11 @@ class CommandLineUtils {
                             if(err)
                                 console.error("Deleting 'blockChain' from Settings failed: " + err);
                             else if(response.modifiedCount > 0)
-                                console.log("Deleting 'blockChain' from Settings success");
+                                console.log("Deleted 'blockChain' from Settings successfully");
                             else if(response.modifiedCount == 0)
                                 console.log("'blockChain' config does not exist in Settings");
                             else
-                                console.error("Deleting 'blockChain' from Settings failed. Please try again!");
+                                console.error("Deleting 'blockChain' from Settings failed. Please try again");
                         })
                     } else {
                         console.error("'blockChain' config does not exist in Settings");
@@ -149,11 +164,11 @@ class CommandLineUtils {
                             if(err)
                                 console.error("Deleting 'chainOfCustidy' from Settings failed: " + err);
                             else if(response.modifiedCount > 0)
-                                console.log("Deleting 'chainOfCustidy' from Settings success");
+                                console.log("Deleted 'chainOfCustidy' from Settings successfully");
                             else if(response.modifiedCount == 0)
                                 console.log("'chainOfCustidy' config does not exist in Settings");
                             else
-                                console.error("Deleting 'chainOfCustidy' from Settings failed. Please try again!");
+                                console.error("Deleting 'chainOfCustidy' from Settings failed. Please try again");
                         })
                     } else {
                         console.error("'chainOfCustidy' config does not exist in Settings");
