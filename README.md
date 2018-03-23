@@ -23,7 +23,20 @@ Setup for Windows environments:
  * Run `vagrant ssh` to connect to the VM
  * This will put you in `/vagrant`, which is bound to your local `onechain-back-verify` directory, and should be your location for executing commands and doing work
  * Run `gulp init`.
- 
+
+## Commands
+
+Commands are provided to help testing. You must first run the server and execute the commands.
+
+ * **deleteall** command provides ways to wipe out stored data. 
+deletedata  [-all] [-transactions] [-settings] [-bcSettings] [-ccSettings]
+
+all           It will delete Settings, Transaction, fs.chunks and fs.files and SyncStatistics collections
+transactions  It will delete Transaction, fs.chunks and fs.files and SyncStatistics collections
+settings      It will delete Settings collection including both blockChain and chainOfCustody
+bcSettings    It will delete blockChain settings only
+ccSettings    It will delete chainOfCustody(plt/kafa) settings
+
  ## Developing
  
  After you are set up and have ssh-ed into vagrant, you're ready to start developing.
