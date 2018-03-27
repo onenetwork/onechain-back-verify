@@ -212,6 +212,8 @@ const fieldProps = {
                 circleIcon = <span className="fa-stack"><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" /><i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style = {{paddingLeft: '10px'}} /></span>;
             } else {
                 type = "Enterprise";
+                colStyle = {padding: '7px'};
+                divStyle = {padding: '3px 0px 0px 11px'};                
             }
 
             const views = this.props.store.viewsMap[key];
