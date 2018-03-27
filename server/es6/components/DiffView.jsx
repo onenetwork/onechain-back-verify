@@ -19,7 +19,6 @@ export default class DiffView extends React.Component {
 
   componentDidMount() {
     document.getElementById("defaultOpen").click();
-    this.findPartnerEntName(this.props.store.viewTransactions.intersection);
   }
 
   findPartnerEntName(partnerViewObj) {
@@ -61,6 +60,8 @@ export default class DiffView extends React.Component {
     delete copypartnerView.transactionSlice['sequence'];
     delete copypartnerView.transactionSlice['enterprise'];
     delete copypartnerView.transactionSlice['enterprises'];
+	  
+    this.findPartnerEntName(this.props.store.viewTransactions.intersection);
 
     if(tabName === 'Diff') {
       let element = evt.currentTarget.parentElement.getElementsByClassName('commonTab')[0];
