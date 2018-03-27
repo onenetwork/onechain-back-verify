@@ -18,6 +18,7 @@ class BackChainStore {
     @observable businessTransactionTextSearch = null;
     @observable entNameOfLoggedUser = null;
     @observable transactions = observable([]);
+    @observable disputes = observable([]);
     @observable verifications = observable.map({});
     @observable canStartVerifying = false;
     @observable error = null;

@@ -1,0 +1,57 @@
+[
+    {
+        "id": 1234567,
+        "creationDate": 1522108321231, //Only Draft Disputes will have this. Time in millis. Not submitted to blockChain. Just to sort drafts in decending order
+        "submittedDate" : null, //Draft won't have this value. This is set once the dispute is in blockchain
+        "closedDate": null, //Draft won't have this value. This is set once the dispute is closed in blockchain
+        "transactionId": 123223947398,
+        "events" : [9868367292, 5769927272], //list of btIds
+        "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", //0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051=CustomerA. Mapping will be in mongoDB
+        "reasonCode": "Data is wrong",
+        "status": "Draft" //Open, Closed
+    },
+    {
+        "id": 1234568,
+        "creationDate": 1522179977623, 
+        "submittedDate" : null, 
+        "closedDate": null, 
+        "transactionId": 123223947399,
+        "events" : [], //Empty list means, all the btIds in the enterprise slice.
+        "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
+        "reasonCode": "Sent to wrong location",
+        "status": "Draft"
+    },
+    {
+        "id": 1234569,
+        "creationDate": null, 
+        "submittedDate" : 1522108391111, 
+        "closedDate": null, 
+        "transactionId": 323223947388,
+        "events" : [9868367292, 5769927272], 
+        "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
+        "reasonCode": "Entered wrong data",
+        "status": "Open"
+    },
+    {
+        "id": 1234567,
+        "creationDate": null, 
+        "submittedDate" : 1522108391890, 
+        "closedDate": null, 
+        "transactionId": 523223947398,
+        "events" : [9868367292, 5769927272], 
+        "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
+        "reasonCode": "Data is wrong",
+        "status": "Open"
+    },
+    {
+        "id": 1234567,
+        "creationDate": null, 
+        "submittedDate" : 1522108321231, 
+        "closedDate": 1522108399999, 
+        "transactionId": 123223947398,
+        "events" : [9868367292, 5769927272], 
+        "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
+        "reasonCode": "Sent to wrong location",
+        "status": "Closed"
+    }
+]

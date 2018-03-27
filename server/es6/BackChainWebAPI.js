@@ -2,6 +2,7 @@ import {syncTransactionTaskHelper} from './SyncTransactionTaskHelper';
 import {payloadHelper} from './PayloadHelper';
 import {blockChainVerifier} from './BlockChainVerifier';
 import {transactionHelper} from './TransactionHelper';
+import {disputeHelper} from './DisputeHelper';
 import {settingsHelper} from './SettingsHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import { dbconnectionManager } from './DBConnectionManager';
@@ -133,5 +134,15 @@ exports.getEventsForTransaction = function(req, res) {
 exports.getTransactionSlice = function(req, res) {
     dbconnectionManager.fetchSlice(req.params.payloadId).then(slice => {
         res.json({ result: slice });
+    });
+};
+
+exports.getDisputes = function(req, res) {
+    disputeHelper.getDisputes(req.body)
+    .then(function (result) {
+        res.json({success: true, disputes: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
     });
 };

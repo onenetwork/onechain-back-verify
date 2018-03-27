@@ -683,4 +683,30 @@ export default class BackChainActions {
         })
     }
 
+    @action
+    static loadDisputes(filters) {
+        store.disputes.clear();
+
+        //Handle filters properly while fetching either from mongoDb or blockChain(through onechainbackclient)
+        let uri = '/getDisputes'; //filter values will be appended
+        store.loadingData = true;
+		fetch(uri, {method: 'POST'}).then(function(response) {
+			return response.json();
+		}, function(error) {
+            store.loadingData = false;
+            store.error = "Couldn't load disputes. Please try again later";
+  			console.error('error getting disputes');
+		}).then(function(result) {
+            store.loadingData = false;
+            if(result.success) {
+                for(let i = 0, len = result.disputes.length; i< len; i++) {
+                    store.disputes.push(result.disputes[i]);
+                }                
+            } else {
+                store.error = "Couldn't load disputes. Please try again later";
+  			    console.error('error getting disputes');
+            }
+  		});
+    }
+
 }
