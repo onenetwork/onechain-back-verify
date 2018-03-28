@@ -4,6 +4,11 @@ Standalone application which can connect to One Network Enterprises' Backchain a
 
 Licensed under the [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
+## Docker image
+
+If you have docker installed, you can pull it from here:
+https://hub.docker.com/r/onenetwork/onechain-back-verify/
+
 ## Setup
 
 Setup for Windows environments:
@@ -18,7 +23,18 @@ Setup for Windows environments:
  * Run `vagrant ssh` to connect to the VM
  * This will put you in `/vagrant`, which is bound to your local `onechain-back-verify` directory, and should be your location for executing commands and doing work
  * Run `gulp init`.
- 
+
+## Commands
+
+Commands are provided to help testing. You must run the server before executing the commands.
+
+* **deletedata** command provides ways to wipe out application data with the given options. deletedata  [-all] [-transactions] [-settings] [-bcSettings] [-ccSettings]
+  * **all**           It will delete Settings, Transaction, fs.chunks and fs.files and SyncStatistics collections
+  * **transactions**  It will delete Transaction, fs.chunks and fs.files and SyncStatistics collections
+  * **settings**      It will delete Settings collection including both blockChain and chainOfCustody
+  * **bcSettings**    It will delete blockChain settings only
+  * **ccSettings**    It will delete chainOfCustody(plt/kafa) settings
+
  ## Developing
  
  After you are set up and have ssh-ed into vagrant, you're ready to start developing.

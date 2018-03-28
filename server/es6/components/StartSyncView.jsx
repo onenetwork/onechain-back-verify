@@ -23,7 +23,7 @@ import 'react-datetime/css/react-datetime.css';
 		return (
 			<div>
 				<HeaderView store={this.props.store} size="big"/>
-				<SyncPopup title = "Sync My Database with One Network's Chain of Custody" body = {syncPopupBody} />
+				<SyncPopup title = "Sync database with One Network's Audit Repository App" body = {syncPopupBody} />
 			</div>
 		)
 	}
@@ -36,7 +36,7 @@ class SyncForm extends React.Component {
 	}
 
 	listenTokenChanges(event){
-		this.props.store.authenticationToken  = event.target.value.trim();		
+		this.props.store.authenticationToken  = event.target.value.trim();
 		if ( this.props.store.authenticationToken.length > 0 && event.charCode  == 13) {
 			this.startSync();
 		}
@@ -51,7 +51,7 @@ class SyncForm extends React.Component {
 	}
 
 	startSync() {
-		BackChainActions.startSync(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
+		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
 	}
 
 	onHover() {
@@ -65,7 +65,7 @@ class SyncForm extends React.Component {
 			return {showOauthInfo: false};
 		});
 	}
-	
+
 	render() {
 		let fieldProps = {
 			button : {
@@ -78,7 +78,7 @@ class SyncForm extends React.Component {
 
 		if(!this.props.store.authenticationToken) {
 			this.props.store.lastSyncTimeInMillis = moment().startOf('year').valueOf();
-		} 
+		}
 
 		return (
 			<div>
@@ -100,7 +100,7 @@ class SyncForm extends React.Component {
 					<Col md={1} style={{paddingLeft: '0px', width: '3%'}} onMouseOver = {this.onHover.bind(this)} onMouseOut = {this.onHoverOut.bind(this)}>
 						<i style = {{fontSize: '21px', color: 'rgb(0, 133, 200)'}} className="fa fa-info-circle"  aria-hidden="true"/>
 					</Col>
-					{this.state.showOauthInfo && 
+					{this.state.showOauthInfo &&
 						<Col md={6} style={{backgroundColor: 'rgb(215, 235, 242)', borderRadius: '5px',zIndex: 1}}>
 							If you do not know your oauth token, you can learn about it at onenetwork. com by going to chain of Custody> What's my oauth token?
 						</Col>
@@ -129,7 +129,7 @@ const SyncPopup = (props) => {
 			border:'none',
 			marginBottom: 'unset'
 		},
-		panelBodyTitle : {	
+		panelBodyTitle : {
 			fontSize: '22px',
 			color: '#515151'
 		},

@@ -18,6 +18,7 @@ class BackChainStore {
     @observable businessTransactionTextSearch = null;
     @observable entNameOfLoggedUser = null;
     @observable transactions = observable([]);
+    @observable disputes = observable([]);
     @observable verifications = observable.map({});
     @observable canStartVerifying = false;
     @observable error = null;
@@ -38,7 +39,7 @@ class BackChainStore {
     @observable syncStatisticsReport = [];
     @observable dbSyncModalViewActive = false;
     @observable startSyncViewModalActive = false;
-    
+
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {
@@ -72,8 +73,8 @@ class BackChainStore {
                     }
                     // intersection
                     else if(transactionSlice.type == "Intersection") {
-                        if(this.isInitialSyncDone == null || this.isInitialSyncDone == false) {
-                            let partnerEntName =  transactionSlice.enterprises[0] +" & "+ transactionSlice.enterprises[1];
+                        if(!this.sliceDataProvidedByAPI && !this.isInitialSyncDone) {
+                            let partnerEntName = transactionSlice.enterprises[0] +" & "+ transactionSlice.enterprises[1];
 
                             if (partnerEntName in viewsMap) {
                                 viewsMap[partnerEntName].push(transaction.id);

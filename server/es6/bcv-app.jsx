@@ -1,6 +1,7 @@
 import HomeView from './components/HomeView';
 import PayloadView from './components/PayloadView';
 import ListTransactionsView from './components/ListTransactionsView';
+import ListDisputesView from './components/ListDisputesView';
 import SearchByBusinessIdView from './components/SearchByBusinessIdView';
 import SearchByTransactionIdView from './components/SearchByTransactionIdView';
 import SetupView from './components/SetupView';
@@ -22,6 +23,7 @@ const RoutedApp = () => (
       <Route path="/home"             render={props => <HomeView                  store={backChainStore} {...props}/> } />
       <Route path="/payload"          render={props => <PayloadView               store={backChainStore} {...props}/> } />
       <Route path="/listTransactions" render={props => <ListTransactionsView      store={backChainStore} {...props}/> } />
+      <Route path="/listDisputes"     render={props => <ListDisputesView          store={backChainStore} {...props}/> } />
       <Route path="/businessId"       render={props => <SearchByBusinessIdView    store={backChainStore} {...props}/> } />
       <Route path="/transactionId"    render={props => <SearchByTransactionIdView store={backChainStore} {...props}/> } />
       <Route path="/setup"            render={props => <SetupView                 store={backChainStore} {...props}/> } />

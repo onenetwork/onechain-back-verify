@@ -11,12 +11,14 @@ import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 
 
+const MAX_EVENTS_TO_LOAD = 30;
+
 let store;
 export default class BackChainActions {
 
     static init(appStore, options) {
         store = appStore;
-        
+
         if(options.getTransactionSliceByHash) {
             store.sliceDataProvidedByAPI = true;
             BackChainActions.getSliceDataFromAPI = options.getTransactionSliceByHash;
@@ -30,7 +32,7 @@ export default class BackChainActions {
         }, function(error) {
             console.error('error fetching last sync date');
         }).then(function(result) {
-            if(!result.success == false) {
+            if(result && result.success) {
                 store.lastestSyncedDate = moment(result.lastestSyncedDate).fromNow();
             }
         })
@@ -43,7 +45,9 @@ export default class BackChainActions {
         }, function(error) {
             console.error('error fetching initial sync');
         }).then(function(result) {
-            store.isInitialSyncDone = result.isInitialSyncDone;
+            if(result) {
+                store.isInitialSyncDone = result.isInitialSyncDone;
+            }
         })
     }
 
@@ -56,9 +60,7 @@ export default class BackChainActions {
      */
     @action
     static loadTransactions(id, searchCriteria, callback) {
-        store.canStartVerifying = false;
         store.transactions.clear();
-        store.verifications.clear();
 
         if(arguments.length == 1 && Array.isArray(arguments[0])) {
             BackChainActions.loadTransactionsAux(arguments[0]);
@@ -82,21 +84,16 @@ export default class BackChainActions {
   			console.error('error getting transaction by transaction id');
 		}).then(function(result) {
             store.loadingData = false;
-            BackChainActions.loadTransactionsAux(result.result, callback);
+            if(result) {
+                BackChainActions.loadTransactionsAux(result.result, callback);
+            }
   		});
     }
 
     @action
     static loadTransactionsAux(transactions, callback) {
         transactions.forEach(element => store.transactions.push(element));
-
-        if (store.oneBcClient != null) {
-            store.verifications = transactionHelper.generateVerificationData(transactions, store.entNameOfLoggedUser, store.oneBcClient);
-        }
-
-        if(transactions.length > 0) {
-            store.canStartVerifying = true; // nothing to verify and no animation needed
-        }
+        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
 
         if(callback) {
             callback(store.transactions.length > 0);
@@ -147,9 +144,7 @@ export default class BackChainActions {
                 }
 
                 if(type == "Intersection"
-                        && transactionSlice.type == "Intersection"
-                            && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
-                                && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                        && transactionSlice.type == "Intersection") {
                     if(transactionSlice.payloadId) {
                         return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                             let newJson = observable({});
@@ -164,14 +159,15 @@ export default class BackChainActions {
                               let newJson = observable({});
                               newJson.id = id;
                               newJson.transactionSlice = JSON.parse(serializedSlice);
-                              store.viewTransactions.enterprise = newJson;
+                              store.viewTransactions.intersection = newJson;
                           }).then(() => ++idx);
                     }
-                    else {  // Comes from a payload
+                    else {  // Comes from a payload and won't have two slices to compare so always go with enterprise 
+                        store.myAndDiffViewModalType = "Enterprise";
                         let newJson = observable({});
                         newJson.id = id;
                         newJson.transactionSlice = transactionSlice;
-                        store.viewTransactions.intersection = newJson;
+                        store.viewTransactions.enterprise = newJson;                        
                     }
                 }
 
@@ -188,38 +184,38 @@ export default class BackChainActions {
     static zipTransactionsByIds(type, partnerEntName, ids) {
         return new Promise(resolve => {
             store.payload.clear();
-            store.myAndDiffViewModalType = type;
-            for(let i = 0; i < store.transactions.length; i++) {
-                let transaction = store.transactions[i];
-                for (let j = 0; j < ids.length; j++) {
-                    if (transaction.id != ids[j]) {
-                        continue;
+            let trvrsTnxInitVal = 0;
+            let trvrsTnxCondition = trvrsTnxIdx => trvrsTnxIdx < store.transactions.length;
+            let traverseTransactions = trvrsTnxIdx => {
+                let transaction = store.transactions[trvrsTnxIdx];
+                let trvrsIdInitVal = 0;
+                let trvrsIdCondition = idx => idx < ids.length;
+                let traverseIds = idx => {
+                    if (transaction.id != ids[idx]) {
+                        return new Promise(resolve => resolve(++idx));;
                     }
-
                     const id = transaction.id;
+                    const date = transaction.date;
                     const transactionSlices = transaction.transactionSlices;
-
-                    let initialValue = 0;
-                    let condition = idx => idx < transactionSlices.length;
-                    let action = idx => {
-                        let transactionSlice = transactionSlices[idx];
-
-                        if(type == "Enterprise" 
-                            && transactionSlice.type == "Enterprise"
-                                && transactionSlice.enterprise == store.entNameOfLoggedUser) {
+                    for (let j = 0; j < transactionSlices.length; j++) {
+                        let transactionSlice = transactionSlices[j];
+                        if(type == "Enterprise"
+                            && transactionSlice.type == "Enterprise") {
                             if(transactionSlice.payloadId) {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
                                     newJson.id = id;
+                                    newJson.date = date;
                                     newJson.transactionSlice = result.result;
                                     store.payload.push(newJson);
                                 }).then(() => ++idx);
                             }
                             else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
-                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[j], transactionSlice.sequence)
                                   .then(serializedSlice => {
                                       let newJson = observable({});
                                       newJson.id = id;
+                                      newJson.date = date;
                                       newJson.transactionSlice = serializedSlice;
                                       store.payload.push(newJson);
                                   }).then(() => ++idx);
@@ -227,28 +223,29 @@ export default class BackChainActions {
                             else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = transactionSlice;
+                                newJson.date = date;
+                                newJson.transactionSlice = transaction.transactionSlicesSerialized[j];
                                 store.payload.push(newJson);
                             }
                         }
 
                         if(type == "Intersection"
-                                && transactionSlice.type == "Intersection"
-                                    && transactionSlice.enterprises.indexOf(store.entNameOfLoggedUser) > -1
-                                        && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                                && transactionSlice.type == "Intersection") {
                             if(transactionSlice.payloadId) {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
                                     newJson.id = id;
+                                    newJson.date = date;
                                     newJson.transactionSlice = result.result;
                                     store.payload.push(newJson);
                                 }).then(() => ++idx);
                             }
                             else if(store.sliceDataProvidedByAPI) {   // Slice comes from the API (for the Chain of Custody usecase)
-                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[idx], transactionSlice.sequence)
+                                return BackChainActions.getSliceDataFromAPI(id, transaction.transactionSliceHashes[j], transactionSlice.sequence)
                                   .then(serializedSlice => {
                                       let newJson = observable({});
                                       newJson.id = id;
+                                      newJson.date = date;
                                       newJson.transactionSlice = serializedSlice;
                                       store.payload.push(newJson);
                                   }).then(() => ++idx);
@@ -256,19 +253,17 @@ export default class BackChainActions {
                             else {  // Comes from a payload
                                 let newJson = observable({});
                                 newJson.id = id;
-                                newJson.transactionSlice = transactionSlice;
+                                newJson.date = date;
+                                newJson.transactionSlice = transaction.transactionSlicesSerialized[j] ;
                                 store.payload.push(newJson);
                             }
                         }
-
-                        return new Promise(resolve => resolve(++idx));
-                    };
-
-                    return backChainUtil.promiseFor(condition, action, initialValue).then(resolve);
+                    }
+                    return new Promise(resolve => resolve(++idx));
                 }
+                return backChainUtil.promiseFor(trvrsIdCondition, traverseIds, trvrsIdInitVal).then(() => ++trvrsTnxIdx);
             }
-
-            resolve();
+            return backChainUtil.promiseFor(trvrsTnxCondition, traverseTransactions, trvrsTnxInitVal).then(resolve);
         });
     }
 
@@ -326,33 +321,6 @@ export default class BackChainActions {
     }
 
     @action
-    static startSync(tokenInputVal, startFromInputVal, chainOfCustodyUrl) {
-        if (!store.isInitialSyncDone) {
-            this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl, function (req, res) {
-                fetch('/startReceiveTransactionsTimer', {
-                    method: 'post',
-                    headers: new Headers({
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    })
-                })
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function (result) { 
-                    //No need to do anything. We may add retrial in the future if needed        
-                })
-                .catch(function (err) {
-                    console.error('Receive Transactions Task Timer could not be started'); 
-                }); 
-            });
-        } else {
-            this.startSyncFromCertainDate(tokenInputVal, startFromInputVal, chainOfCustodyUrl);
-		}
-    }
-
-    @action
     static processApplicationSettings() {
         /**
          * If the value is null, it means db was never checked for the value.
@@ -406,20 +374,27 @@ export default class BackChainActions {
                 let payloadHash = blockChainVerifier.generateHash(payload.transactionSlice);
                 if (transactions.length > 0) {
                     let transaction = transactions[0];
+                    transaction.transactionSlicesSerialized = [];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
                     if (index >= 0) {
                         transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
+                        transaction.transactionSlicesSerialized[index] = payload.transactionSlice;
                         transaction.trueTransactionSliceHashes[index] = payloadHash;
                     } else {
-                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));                        
+                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
+                        transaction.transactionSlicesSerialized.push(payload.transactionSlice);
                         transaction.trueTransactionSliceHashes.push(payloadHash);
                         transaction.transactionSliceHashes.push(payloadHash);
                     }
                     transArr.push(transaction);
                 } else {
+                    const sliceObject = JSON.parse(payload.transactionSlice);                    
                     transArr.push({
                         id: payload.id,
-                        transactionSlices: [JSON.parse(payload.transactionSlice)],
+                        transactionSlices: [sliceObject],
+                        transactionSlicesSerialized: [payload.transactionSlice], //helper field to be used in download
+                        eventCount: transactionHelper.getEventCount(sliceObject),
+                        executingUsers: transactionHelper.addExecutingUsers([], sliceObject),
                         trueTransactionSliceHashes: [payloadHash],
                         transactionSliceHashes : [payloadHash]
                     });
@@ -430,8 +405,7 @@ export default class BackChainActions {
                     transArr.forEach(element => {
                         store.transactions.push(element);
                     });
-                    store.verifications = transactionHelper.generateVerificationData(transArr,store.entNameOfLoggedUser,store.oneBcClient);
-                    store.canStartVerifying = true; //nothing to verify and no animation needed
+                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
                     callback();
                 }
                 i++;
@@ -458,7 +432,7 @@ export default class BackChainActions {
     }
 
     @action
-    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl,callback) {
+    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
         store.startSync = true;
         store.syncGoingOn = true;
         store.startSyncViewModalActive = true;
@@ -479,7 +453,7 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-            .then(function (result) {
+        .then(function (result) {
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
@@ -501,7 +475,7 @@ export default class BackChainActions {
             }
         })
         .catch(function (err) {
-            console.error('Error communicating with PLT');
+            console.error('Error communicating with PLT: ' + err);
             store.syncFailed = true;
             store.startSync = false;
             store.startSyncViewModalActive = true;
@@ -512,7 +486,7 @@ export default class BackChainActions {
     static startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
         if(gaps == null || gaps.length == 0) {
             if(callback){
-                callback(null,true);  
+                callback(null,true);
             }
             return;
         }
@@ -536,7 +510,7 @@ export default class BackChainActions {
         .then(function(response) {
             return response.json();
         })
-        .then(function (result) { 
+        .then(function (result) {
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
@@ -545,24 +519,24 @@ export default class BackChainActions {
                 store.syncFailed = false;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true; 
+                store.startSyncViewModalActive = true;
                 store.isInitialSyncDone = true;
                 if(callback){
-                    callback(null,true);  
+                    callback(null,true);
                 }
             } else {
                 store.syncFailed = true;
                 store.syncGoingOn = false;
                 store.startSync = false;
-                store.startSyncViewModalActive = true;  
-            }            
+                store.startSyncViewModalActive = true;
+            }
         })
         .catch(function (err) {
-            console.error('Error communicating with PLT');
+            console.error('Error communicating with PLT: ' + err);
             store.syncFailed = true;
             store.startSync = false;
-            store.startSyncViewModalActive = true;  
-        });        
+            store.startSyncViewModalActive = true;
+        });
     }
 
 
@@ -617,7 +591,7 @@ export default class BackChainActions {
         });
     }
 
-    @action 
+    @action
     static populateStoreWithApplicationSettings() {
         fetch('/getApplicationSettings', {method: 'GET'})
         .then(function(response) {
@@ -625,7 +599,7 @@ export default class BackChainActions {
         })
         .then(function(result) {
             if(result.success) {
-                store.authenticationToken = result.settings.chainOfCustidy.authenticationToken; 
+                store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
                 store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
                 store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
                 //Add more when needed
@@ -654,19 +628,48 @@ export default class BackChainActions {
     }
 
     @action
-    static loadEventsForTransaction(transId) {
-        if(store.eventsTransactionId === transId) {
+    static loadEventsForTransaction(transaction) {
+        if(store.eventsTransactionId === transaction.id) {
             return;
         }
 
-        let uri = '/getEventsForTransaction/' + transId;
+        if(store.sliceDataProvidedByAPI) {
+            for(let i = 0; i < transaction.transactionSlices.length; i++) {
+                let transactionSlice = transaction.transactionSlices[i];
+                if(transactionSlice.type == 'Enterprise') {
+                    BackChainActions.getSliceDataFromAPI(transaction.id, transaction.transactionSliceHashes[i], transactionSlice.sequence)
+                        .then(action(serializedSlice => {
+                            let sliceData = JSON.parse(serializedSlice);
+                            let events = transactionHelper.extractEventsFromSlice(sliceData);
+
+                            if(sliceData.businessTransactions.length > MAX_EVENTS_TO_LOAD) {
+                                events.push(sliceData.businessTransactions.length - MAX_EVENTS_TO_LOAD);
+                            }
+
+                            store.eventsTransactionId = transaction.id;
+                            store.events = events;
+                        }));
+                    return;
+                }
+            }
+
+            console.log('Warning: Slice with type "Enterprise" not found in the transaction.');
+            return;
+        }
+
+        let uri = '/getEventsForTransaction/' + transaction.id;
         fetch(uri, { method: 'GET' }).then(function(response) {
             return response.json();
         }, function(error) {
             console.error(error);
         }).then(action(function(json) {
-            store.eventsTransactionId = transId;
-            store.events = json.result;
+            store.eventsTransactionId = transaction.id;
+            if(json.result.length == 0) {
+                //Transaction doesn't exist in db, so find events within the payload.
+                store.events = transactionHelper.extractEventsFromSlice(transaction.transactionSlices[0])
+            } else {                
+                store.events = json.result;
+            }            
         }));
     }
 
@@ -678,6 +681,32 @@ export default class BackChainActions {
         }, function(error) {
             console.error(error);
         })
+    }
+
+    @action
+    static loadDisputes(filters) {
+        store.disputes.clear();
+
+        //Handle filters properly while fetching either from mongoDb or blockChain(through onechainbackclient)
+        let uri = '/getDisputes'; //filter values will be appended
+        store.loadingData = true;
+		fetch(uri, {method: 'POST'}).then(function(response) {
+			return response.json();
+		}, function(error) {
+            store.loadingData = false;
+            store.error = "Couldn't load disputes. Please try again later";
+  			console.error('error getting disputes');
+		}).then(function(result) {
+            store.loadingData = false;
+            if(result.success) {
+                for(let i = 0, len = result.disputes.length; i< len; i++) {
+                    store.disputes.push(result.disputes[i]);
+                }                
+            } else {
+                store.error = "Couldn't load disputes. Please try again later";
+  			    console.error('error getting disputes');
+            }
+  		});
     }
 
 }

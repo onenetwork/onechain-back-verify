@@ -14,10 +14,6 @@ require("babel-polyfill");
 	constructor(props) {
 		super(props);
 	}
-    
-	componentDidMount() {
-        BackChainActions.fetchLastSyncDate();
-    }
 
     render() {
 	    let fieldProps = {
@@ -53,7 +49,6 @@ require("babel-polyfill");
             }
 
         };
-        let lastSynced = this.props.store.lastestSyncedDate ? 'Database Last Sync: ' + this.props.store.lastestSyncedDate : 'Database Not Synced';
         if(this.props.size == 'big') {
             return (
                 <div  >

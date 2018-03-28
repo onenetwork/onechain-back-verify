@@ -1,35 +1,49 @@
-.counter1  {
-    display: inline-block;
-    font-size: 10px;
+.counter-ct {
+    width: 30px;
     position: relative;
-    left: -14px;
-    bottom: -6px;
-    color: white;
-    width: 6%;
 }
 
-.counter2  {
-    display: inline-block;
-    font-size: 10px;
-    position: relative;
-    left: -16px;
-    bottom: -6px;
+.counter-img {
+    width: 30px;
+    height: 26px;
+}
+
+.counter1, .counter2, .counter3 {
     color: white;
-    width: 6%;
+    position: absolute;
+    line-height: 12px;
+    bottom: 0px;
+}
+.counter1  {
+    font-size: 10px;
+    right: 8px;
+}
+.counter2  {
+    font-size: 10px;
+    right: 5px;
 }
 .counter3  {
-    display: inline-block;
-    font-size: 10px;
-    position: relative;
-    left: -19px;
-    bottom: -6px;
-    color: white;
-    width: 6%;
+    font-size: 8px;
+    right: 4px;
 }
-.transactionIdCss {
-    width: 200px;
-    max-width: 200px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+
+.popover-menu {
+    width: 100px;
+    font-weight: 600;
+    padding: 5px;
+    line-height: 25px;
+    z-Index: 0;
+}
+
+.popover-menu i {
+    line-height: 25px;
+    height: 25px;
+}
+
+.events-popover .arrow {
+    top: 26px !important;
+}
+
+.transaction-id-popover .arrow {
+    left: 50px !important;
 }

@@ -2,6 +2,7 @@ import {syncTransactionTaskHelper} from './SyncTransactionTaskHelper';
 import {payloadHelper} from './PayloadHelper';
 import {blockChainVerifier} from './BlockChainVerifier';
 import {transactionHelper} from './TransactionHelper';
+import {disputeHelper} from './DisputeHelper';
 import {settingsHelper} from './SettingsHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import { dbconnectionManager } from './DBConnectionManager';
@@ -71,18 +72,13 @@ exports.getApplicationSettings = function(req, res) {
 
 
 exports.startSyncFromCertainDate = function(req, res) {
-    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, function(error, result) {
+    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, (error, result) => {
         if(error) {
             res.json({success : false});
         } else {
             res.json(result);
         }
     });
-};
-
-exports.startReceiveTransactionsTimer = function(req, res) {
-    receiveTransactionsTask.startTimer();
-    res.json({success : true});
 };
 
 exports.startGapSync = function(req, res) {
@@ -94,17 +90,6 @@ exports.startGapSync = function(req, res) {
         }
     });
 };
-
-exports.consumeTransactionMessages = function(req, res) {
-    receiveTransactionsTask.consumeTransactionMessages(req.body.authenticationToken, req.body.chainOfCustodyUrl, function(error, result) {
-        if(error) {
-            res.json({consumeResult : {success : false}});
-        } else {
-            result.success = true;
-            res.json({consumeResult : result});
-        }
-    });
-}
 
 exports.getSyncStatisticsInfo = function(req, res) {
     settingsHelper.getSyncStatisticsInfo()
@@ -149,5 +134,15 @@ exports.getEventsForTransaction = function(req, res) {
 exports.getTransactionSlice = function(req, res) {
     dbconnectionManager.fetchSlice(req.params.payloadId).then(slice => {
         res.json({ result: slice });
+    });
+};
+
+exports.getDisputes = function(req, res) {
+    disputeHelper.getDisputes(req.body)
+    .then(function (result) {
+        res.json({success: true, disputes: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
     });
 };

@@ -138,8 +138,14 @@ class TransactionHelper {
         return sliceIndex;
     }
 
-    generateVerificationData(transactions, myEntName, oneBcClient) {
-        let verifications = observable.map({});
+    generateVerificationDataAndStartVerifying(transactions, store) {
+        store.verifications.clear();
+        if(transactions.length == 0) {
+            return;
+        }
+        store.canStartVerifying = false;
+        const myEntName = store.entNameOfLoggedUser;
+        const oneBcClient = store.oneBcClient;
 
         transactions.forEach(transaction => {
             if (!transaction) {
@@ -152,25 +158,69 @@ class TransactionHelper {
                 let trueSliceHash = transaction.trueTransactionSliceHashes[i];
 
                 let key;
-                if (sliceObj.type == "Enterprise" && sliceObj.enterprise == myEntName) {
-                    key = transaction.id + "_" + myEntName;
+                if (sliceObj.type == "Enterprise") {
+                    key = transaction.id + "_" + sliceObj.enterprise;
                 }
-                else if (sliceObj.type == "Intersection" && ((sliceObj.enterprises).indexOf(myEntName) > -1)) {
+                else if (sliceObj.type == "Intersection") {
                     let myEntIndex = sliceObj.enterprises.indexOf(myEntName);
-                    let partnerEntName = myEntIndex == 0 ? sliceObj.enterprises[1] : sliceObj.enterprises[0];
+                    let partnerEntName = '';
+                    if(myEntIndex > -1) {
+                        partnerEntName = myEntIndex == 0 ? sliceObj.enterprises[1] : sliceObj.enterprises[0];
+                    } else {
+                        partnerEntName = sliceObj.enterprises[0] + ' & ' +  sliceObj.enterprises[1];
+                    }
                     key = transaction.id + "_" + partnerEntName;
                 }
 
                 if(!key) {
                     continue;
                 }
+                if(sliceHash === trueSliceHash) {
+                    if(oneBcClient) {
+                        store.verifications.set(key, 'verifying');
+                        let merkleRoot = this.generateMerkleRoot(sliceHash, sliceObj.merklePath);
+                        (function(verificationKey, hashToVerify) {
+                            blockChainVerifier.verifyHash(hashToVerify, oneBcClient)
+                                .then(function (result) {
+                                    store.verifications.set(verificationKey, result === true ? 'verified' : 'failed');
+                                })
+                                .catch(function (error) {
+                                    store.verifications.set(verificationKey, 'failed');
+                                });
+                        })(key, merkleRoot);
+                    }
+                    else if(store.sliceDataProvidedByAPI) {
+                        store.verifications.set(key, 'verified');
+                    }
+                    else {
+                        store.verifications.set(key, 'failed');
+                    }
+                }
+                else {
+                    store.verifications.set(key, 'failed');
+                }
 
-                let verified = sliceHash === trueSliceHash && blockChainVerifier.verifyHash(sliceHash, oneBcClient);
-                verifications.set(key, verified ? 'verified' : 'failed');
             }
         });
+        store.canStartVerifying = true;
+    }
 
-        return verifications;
+    generateMerkleRoot(hash, merklePath) {
+        if (!merklePath || !merklePath.length) {
+            return hash;
+        }
+
+        let currHash = hash;
+        for (let node of merklePath) {
+            if(node.right) {
+                currHash = blockChainVerifier.generateHash(currHash + node.right);
+            }
+            else if(node.left) {
+                currHash = blockChainVerifier.generateHash(node.left + currHash);
+            }
+        }
+
+        return currHash;
     }
 
     getTransactionsBySequenceNos(sequenceNos) {
@@ -199,7 +249,20 @@ class TransactionHelper {
         });
     }
 
+    getEventCount(transactionSliceObj) {
+        return transactionSliceObj.businessTransactions.length;
+    }
+
+    addExecutingUsers(existingExecutingUsers, transactionSliceObj) {
+        let executingUsers = new Set(existingExecutingUsers);
+        for(let i = 0; i < transactionSliceObj.businessTransactions.length; i++) {
+            executingUsers.add(transactionSliceObj.businessTransactions[i].LastModifiedUser);
+        }
+        return Array.from(executingUsers);
+    }
+
     getEventsForTransaction(transId) {
+        const me = this;
         return new Promise(resolve => {
             transactionHelper.getTransactionById(transId, (err, transaction) => {
                 if(transaction) {
@@ -208,17 +271,7 @@ class TransactionHelper {
                         if(transactionSlice.type == 'Enterprise') {
                             dbconnectionManager.fetchSlice(transactionSlice.payloadId)
                                 .then(serializedSlice => {
-                                    let slice = JSON.parse(serializedSlice);
-                                    let events = [];
-                                    for(let j = 0; j < slice.businessTransactions.length; j++) {
-                                        let bt = slice.businessTransactions[j];
-                                        events.push({
-                                            date: bt.LastModifiedDate.date,
-                                            actionName: bt.ActionName.split('.')[1]
-                                        });
-                                    }
-
-                                    resolve(events);
+                                    resolve(me.extractEventsFromSlice(JSON.parse(serializedSlice)));
                                 });
                             return;
                         }
@@ -228,6 +281,18 @@ class TransactionHelper {
                 resolve([]);
             });
         });
+    }
+
+    extractEventsFromSlice(slice) {
+        let events = [];
+        for(let j = 0; j < slice.businessTransactions.length; j++) {
+            let bt = slice.businessTransactions[j];
+            events.push({
+                date: bt.LastModifiedDate.date,
+                actionName: bt.ActionName.split('.')[1]
+            });
+        }
+        return events;
     }
 }
 
