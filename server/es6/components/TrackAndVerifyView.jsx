@@ -1,17 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, ProgressBar, Modal} from 'react-bootstrap';
+import { observer } from 'mobx-react';
 import { toJS } from 'mobx';
+import moment from 'moment';
+import { Link } from 'react-router-dom';
+import { Scrollbars } from 'react-custom-scrollbars';
+import JSZip from 'jszip';
+import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, ProgressBar, Modal} from 'react-bootstrap';
+
 import MyView from './MyView';
 import DiffView from './DiffView';
 import EventsPopoverContent from './EventsPopoverContent';
 import BackChainActions from '../BackChainActions';
-import { observer } from 'mobx-react';
-import { Link } from 'react-router-dom';
-import JSZip from 'jszip';
 import filesaver from '../FileSaver';
-import { Scrollbars } from 'react-custom-scrollbars';
-import moment from 'moment';
 import Images from '../Images';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
@@ -297,13 +298,20 @@ const fieldProps = {
             <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
                 <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
                     <img
+                        style={{
+                            width: '30px',
+                            height:'26px'
+                        }}
+                        src={Images.EVENT_BADGE}
+                        ref={ref => this.eventPopoverTargetRef = ref}
+                        onClick={this.toggleEventPopover} />
+                    <div className={this.getEventCountCss(transaction)}>{transaction.eventCount}</div>
                         className="counter-img"
                         src={Images.EVENT_BADGE}
                         ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
                     <div className={this.getEventCountCSS(transaction.eventCount)}>
                         {this.getEventCountString(transaction.eventCount)}
                     </div>
-
                     <Overlay
                         show={this.state.eventsPopoverVisibilityMap[idx] || false}
                         onHide={() => this.showEventsPopover(idx, false)}
