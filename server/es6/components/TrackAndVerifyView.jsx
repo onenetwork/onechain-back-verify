@@ -298,20 +298,13 @@ const fieldProps = {
             <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
                 <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
                     <img
-                        style={{
-                            width: '30px',
-                            height:'26px'
-                        }}
-                        src={Images.EVENT_BADGE}
-                        ref={ref => this.eventPopoverTargetRef = ref}
-                        onClick={this.toggleEventPopover} />
-                    <div className={this.getEventCountCss(transaction)}>{transaction.eventCount}</div>
                         className="counter-img"
                         src={Images.EVENT_BADGE}
                         ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
                     <div className={this.getEventCountCSS(transaction.eventCount)}>
                         {this.getEventCountString(transaction.eventCount)}
                     </div>
+                    
                     <Overlay
                         show={this.state.eventsPopoverVisibilityMap[idx] || false}
                         onHide={() => this.showEventsPopover(idx, false)}

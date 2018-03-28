@@ -109,7 +109,6 @@ import Images from '../Images';
     let payload = (<div className = "mainDiv" style={{padding: '25px 0px 25px 0px'}}>
             <span className = "dbActiveSpan"></span>
             <Link to="/payload">
-              <div  className="innerDiv" > 
               <div  className="innerDiv" >
                 <img  style={{paddingLeft: '57px',paddingTop: '5px'}} src={Images.PAYLOAD_FILE} /><br/><br/>
                 <span className={className}>Payload File</span> <br/>
