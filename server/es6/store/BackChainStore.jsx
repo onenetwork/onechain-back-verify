@@ -39,7 +39,7 @@ class BackChainStore {
     @observable syncStatisticsReport = [];
     @observable dbSyncModalViewActive = false;
     @observable startSyncViewModalActive = false;
-
+    @observable disputesViewModalActive = false;
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {

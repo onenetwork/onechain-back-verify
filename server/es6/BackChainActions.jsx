@@ -321,6 +321,11 @@ export default class BackChainActions {
     }
 
     @action
+    static toggleDisputesModalView() {
+        store.disputesViewModalActive = !store.disputesViewModalActive;
+    }
+    
+    @action
     static processApplicationSettings() {
         /**
          * If the value is null, it means db was never checked for the value.
