@@ -1,17 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, ProgressBar, Modal} from 'react-bootstrap';
+import { observer } from 'mobx-react';
 import { toJS } from 'mobx';
+import moment from 'moment';
+import { Link } from 'react-router-dom';
+import { Scrollbars } from 'react-custom-scrollbars';
+import JSZip from 'jszip';
+import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, ProgressBar, Modal} from 'react-bootstrap';
+
 import MyView from './MyView';
 import DiffView from './DiffView';
 import EventsPopoverContent from './EventsPopoverContent';
 import BackChainActions from '../BackChainActions';
-import { observer } from 'mobx-react';
-import { Link } from 'react-router-dom';
-import JSZip from 'jszip';
 import filesaver from '../FileSaver';
-import { Scrollbars } from 'react-custom-scrollbars';
-import moment from 'moment';
 import Images from '../Images';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
@@ -303,7 +304,7 @@ const fieldProps = {
                     <div className={this.getEventCountCSS(transaction.eventCount)}>
                         {this.getEventCountString(transaction.eventCount)}
                     </div>
-
+                    
                     <Overlay
                         show={this.state.eventsPopoverVisibilityMap[idx] || false}
                         onHide={() => this.showEventsPopover(idx, false)}
