@@ -24,6 +24,11 @@ class DisputeHelper {
         });
     }
 
+
+    getOpenDisputeCount(transactionId, callback) {
+        callback(null, Math.floor(Math.random() * 3) + 1);
+    }
+
 }
 
 export const disputeHelper = new DisputeHelper();

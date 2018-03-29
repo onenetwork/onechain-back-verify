@@ -49,7 +49,7 @@ import Images from '../Images';
         color: '#515151'
       },
       panelBody : {
-        padding: '70px 0px 20px 80px',
+        padding: '40px 0px 20px 80px',
         backgroundColor: 'white'
       },
       button : {
@@ -65,6 +65,18 @@ import Images from '../Images';
         height: '70px',
         borderRadius: '5px',
         cursor: 'pointer'
+      },
+      disputes: {
+        fontSize: '14px',
+        color: '#0085C8',
+        paddingRight: '40px',
+        paddingTop: '15px'
+      },
+      mouseOver: {
+        width: '128px',
+        height: '42px',
+        textAlign: 'center',
+        paddingTop: '6px'
       }
     };
 
@@ -170,7 +182,7 @@ import Images from '../Images';
             </div></Link>);
     /*Note: For now we are not removing text based search related code & SearchByTextView.jsx.*/
     let panelBody = (<div style={{height: '100%', width: '92%'}}>
-                <Row style={fieldProps.panelBodyTitle}>Verify my transaction with:</Row><br/>
+                <Row style={fieldProps.panelBodyTitle}>Verify my transaction with</Row><br/>
                 <Row style={fieldProps.panelPadding}>
                   <Col style={{float:'Left',paddingLeft:'20px',backgroundColor:'rgba(217, 216, 208, 1)',width:'310px',borderTopLeftRadius:'10px',borderBottomLeftRadius:'10px'}}>{payload}</Col>
                   <Col style={{float:'Left',paddingLeft:'20px'}}>{businessTxnId}</Col>
@@ -179,9 +191,20 @@ import Images from '../Images';
                   <Col style={{float:'Left',paddingLeft:'20px'}}>{syncIcon}</Col>
                 </Row>
             </div>);
+    let disputes = (<div style={{ float: 'right' }}>
+                      <div style={fieldProps.disputes}>
+                          <div className="mouseOver" style={fieldProps.mouseOver} >
+                             <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
+                             <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '135px', position: 'absolute', top: '210px' }} /> 
+                             <div className="disputes-counter">4</div>
+                            &nbsp;&nbsp;&nbsp;&nbsp;Disputes
+				                  </div>
+                      </div>
+                    </div>);
         return (
       <div className={"panel panel-default"} style={fieldProps.panelDefault} onClick={this.props.action}>
-        <HeaderView store={this.props.store} size="big"/>
+        <HeaderView store={this.props.store} size="big" />
+        {disputes}    
         <div className={"panel-body"} style={fieldProps.panelBody}>
           {panelBody}
           {syncPop}

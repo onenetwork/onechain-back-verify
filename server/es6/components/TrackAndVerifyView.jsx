@@ -155,7 +155,12 @@ const fieldProps = {
                 });
             });
     }
-
+    getOpenDisputeCount(transactionId, callback) {
+        // BackChainActions.getOpenDisputeCount(transactionId, function (result) {
+        //     return result;
+        // });
+         return 3;
+    }
     render() {
         const transactions = toJS(this.props.store.transactions);
         let myEntName = this.props.store.entNameOfLoggedUser;
@@ -173,9 +178,11 @@ const fieldProps = {
                 <tr>
                     <th style={Object.assign({maxWidth: '130px'}, fieldProps.columns)}><span style={{paddingLeft:'27px'}}>Transaction Id</span></th>
                     <th style={fieldProps.columns}>Date/Time</th>
-                    <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Events</th>
+                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Events</th>
+                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Disputes</th>
                     <th style={fieldProps.columns}>Executing User</th>
                     {this.renderEnterpriseHeaders(variableViewNames)}
+                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>
                 </tr>
             </thead>
         );
@@ -251,9 +258,11 @@ const fieldProps = {
                 {this.renderTransactionIdCell(transaction, idx == this.props.store.transactions.length - 1)}
                 {this.renderTransactionDateCell(transaction)}
                 {this.renderTransactionEventsCell(transaction, idx)}
+                {this.renderTransactionDisputesCell(transaction)}
                 {this.renderTransactionExecutingUsersCell(transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
+                {this.renderTransactionActionsCell(transaction)}
             </tr>
         );
     }
@@ -328,6 +337,20 @@ const fieldProps = {
         );
     }
 
+    renderTransactionDisputesCell(transaction) {
+        return (
+            <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
+                <div style={{ textAlign: 'center' }}>
+                    <img
+                        src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
+                        style={{ height: '20px', width: '32px' }}
+                    />
+                    <div className="dispute-counter">{this.getOpenDisputeCount(transaction.id)}</div>
+                </div>
+            </td>
+        );
+    }
+
     renderTransactionExecutingUsersCell(transaction) {
         let displayExecutingUsers = transaction.executingUsers;
         if(transaction.executingUsers.length > 1) {
@@ -340,7 +363,7 @@ const fieldProps = {
                     trigger={['hover', 'focus']}
                     placement="top"
                     overlay={(
-                        <Popover id={transaction.executingUsers.join() + i}>
+                        <Popover id={transaction.executingUsers.join()}>
                             <ul style={{paddingLeft: '0px',listStyleType: 'none'}}>
                                 {usersList}
                             </ul>
@@ -432,6 +455,26 @@ const fieldProps = {
         return cells;
     }
 
+    renderTransactionActionsCell(transaction) {
+        let actionsCell = (
+            <OverlayTrigger
+                trigger="click"
+                placement="left"
+                overlay={(
+                    <div id={transaction.id} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
+                        <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
+                        <div style={{}} className="dispute-transation-img" >
+                            <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Dispute Transaction
+                        </div>
+
+                    </div>
+                )}>
+                <i class="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8' }}></i>
+            </OverlayTrigger>
+        );
+        return <td style={fieldProps.columns}>{actionsCell}</td>;
+    }
+    
     getEventCountCSS(eventCount) {
         switch(this.getEventCountString(eventCount).length) {
             case 1:

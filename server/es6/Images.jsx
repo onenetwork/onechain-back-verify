@@ -18,6 +18,9 @@ class Images {
     get DOWN_ARROW()                    { return this.baseURL + 'down-arrow.svg';                   }
     get EVENT_BADGE()                   { return this.baseURL + 'event-badge.svg';                  }
     get EVENT()                         { return this.baseURL + 'event.svg';                        }
+    get DISPUTE_NO_IMAGE()              { return this.baseURL + 'dispute-num-badge.png'; }
+    get DISPUTE_NO_TRANSACTION_IMAGE()  { return this.baseURL + 'dispute-num-badge.png'; }
+    get DISPUTE_TRANSACTION_CONTAINER_IMAGE() { return this.baseURL + 'dispute-transation-container.png'; }
 }
 
 const images = new Images()

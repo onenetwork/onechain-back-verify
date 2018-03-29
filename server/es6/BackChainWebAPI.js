@@ -146,3 +146,16 @@ exports.getDisputes = function(req, res) {
         res.json({success: false});
     });
 };
+
+
+exports.getOpenDisputeCount = function (req, res) { 
+    disputeHelper.getOpenDisputeCount(req.params.transactionId,function (error, result) {
+        if (error) {
+            res.json({ success: false });
+        } else {
+            res.json({
+                success: true, disputeCount: result
+            });
+        }
+    });
+};

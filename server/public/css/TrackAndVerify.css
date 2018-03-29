@@ -47,3 +47,52 @@
 .transaction-id-popover .arrow {
     left: 50px !important;
 }
+
+.dispute-transation-div {
+    border-color: rgba(253, 253, 253, 1) !important;
+    padding: 0px !important;
+    background: rgba(253, 253, 253) !important;
+    /* left: 1200.66px !important; */
+    /* top: 332px !important; */
+        left: 1194.66px !important;
+        top: -97px !important;
+        position: relative
+}
+
+.dispute-transation-img {
+    position: absolute;
+    top: 50%;
+    left: 21%;
+    transform: translate(-12%, -50%);
+    color: #0085C8;
+    height: 38px;
+    width: 157px;
+    padding-top:8px;
+    padding-left:5px;
+}
+.dispute-transation-img:hover {
+     background-color: #dff3f8;
+}
+.dispute-transation-div {
+    color: #0085C8;
+    height: 38px;
+    width: 157px;
+    padding-top:8px;
+    padding-left:5px;
+    background-color: none !important;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0) !important;
+    -webkit-box-shadow: 0 0px 0px rgba(0, 0, 0, 0) !important;
+}
+
+.dispute-counter {
+    position: absolute;
+    bottom: 66px;
+    padding-left: 23px;
+    font-family: 'Open Sans Bold','Open Sans Regular','Open Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 11px;
+    color: #FFFFFF;
+    top: 346px;
+    right: 385px;
+}
