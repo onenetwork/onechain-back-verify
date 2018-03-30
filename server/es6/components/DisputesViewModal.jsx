@@ -201,7 +201,7 @@ import moment from 'moment';
 													Transaction ID:
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
-													<FormControl type="text" placeholder="Enter transaction ID" value={disputeTransaction == null ? null : disputeTransaction.id} />
+													<FormControl type="text" placeholder="Enter transaction ID" defaultValue={disputeTransaction == null ? '' : disputeTransaction.id} />
 												</Col>
 											</Col>
 
