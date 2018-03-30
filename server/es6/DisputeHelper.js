@@ -29,6 +29,19 @@ class DisputeHelper {
             resolve(Math.floor(Math.random() * 3) + 1);
         });
     }
+
+    getDraftCount() {
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('DraftDisputes').count()
+                .then((count) => {
+                    resolve(count);
+                })
+                .catch((err) => {
+                    console.error("Error occurred while fetching draft count." + err);
+                    reject(err);
+                });;
+        })
+    }
 }
 
 export const disputeHelper = new DisputeHelper();

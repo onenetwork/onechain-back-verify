@@ -92,12 +92,28 @@ export default class BackChainActions {
 
     @action
     static loadTransactionsAux(transactions, callback) {
-        transactions.forEach(element => store.transactions.push(element));
-        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-
-        if(callback) {
-            callback(store.transactions.length > 0);
-        }
+        let count  = 0;
+        transactions.forEach(element => {
+            BackChainActions.getOpenDisputeCount(element.id)
+            .then(function (result) {
+                element.openDisputeCount = result;
+                store.transactions.push(element);
+                if (++count == transactions.length) {
+                    transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                    if (callback) {
+                        callback(store.transactions.length > 0);
+                    }
+                } 
+            })
+            .catch(function (error) {
+                element.openDisputeCount = 0;
+                store.transactions.push(element);
+                transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                if (callback) {
+                    callback(store.transactions.length > 0);
+                }
+            });
+        });
     }
 
     @action
@@ -717,16 +733,19 @@ export default class BackChainActions {
     @action
     static getOpenDisputeCount(transactionId) {
         let uri = '/getOpenDisputeCount/' + transactionId;
-        fetch(uri, { method: 'GET' }).then(function (response) {
-            return response.json();
-        }, function (error) {
-            console.error('error getting dispute count');
-        }).then(function (result) {
-            if (result.success) {
-                store.transactionDisputCount.set(transactionId, result.disputeCount);
-            } else {
+        return new Promise(resolve => {
+            fetch(uri, { method: 'GET' }).then(function (response) {
+                return response.json();
+            }, function (error) {
                 console.error('error getting dispute count');
-            }
-        });
+            }).then(function (result) {
+                if (result.success) {
+                    resolve(result.disputeCount);
+                } else {
+                    console.error('error getting dispute count');
+                }
+            });
+
+        }) 
     }
 }

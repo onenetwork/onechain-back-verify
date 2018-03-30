@@ -112,10 +112,6 @@ const fieldProps = {
         };
     }
 
-    componentWillMount() {
-        this.props.store.transactionDisputCount.clear();
-    }
-
     getVerificationHeaderIcon(transIds, entName) {
         if(!transIds || transIds.length == 0) {
             return <i style={{color : 'blue', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-check-circle" aria-hidden="true" />;
@@ -337,11 +333,6 @@ const fieldProps = {
     }
 
     renderTransactionDisputesCell(transaction) {
-        const me = this;
-        let disputeCount = me.props.store.transactionDisputCount.get(transaction.id);
-        if (disputeCount == undefined) {
-            BackChainActions.getOpenDisputeCount(transaction.id);
-        }
         return (
             <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
                 <div style={{ textAlign: 'center' }}>
@@ -349,7 +340,7 @@ const fieldProps = {
                         src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
                         style={{ height: '20px', width: '32px' }}
                     />
-                    <div className="dispute-counter">{disputeCount}</div>
+                    <div className="dispute-counter">{transaction.openDisputeCount}</div>
                 </div>
             </td>
         );
@@ -474,7 +465,7 @@ const fieldProps = {
                         </div>
                     </Link>
                 )}>
-                <i class="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8' }}></i>
+                <i class="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
             </OverlayTrigger>
         );
         return <td style={fieldProps.columns}>{actionsCell}</td>;

@@ -192,14 +192,16 @@ import Images from '../Images';
                 </Row>
             </div>);
     let disputes = (<div style={{ float: 'right' }}>
-                      <div style={fieldProps.disputes}>
-                          <div className="mouseOver" style={fieldProps.mouseOver} >
-                             <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
-                             <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '135px', position: 'absolute', top: '210px' }} /> 
-                             <div className="disputes-counter">4</div>
-                            &nbsp;&nbsp;&nbsp;&nbsp;Disputes
-				                  </div>
-                      </div>
+                      <Link to='/listDisputes'>  
+                        <div style={fieldProps.disputes}>
+                            <div className="mouseOver" style={fieldProps.mouseOver} >
+                              <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
+                              <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '135px', position: 'absolute', top: '210px' }} /> 
+                              <div className="disputes-counter">4</div>
+                              &nbsp;&nbsp;&nbsp;&nbsp;Disputes
+                            </div>
+                        </div>
+                      </Link>
                     </div>);
         return (
       <div className={"panel panel-default"} style={fieldProps.panelDefault} onClick={this.props.action}>
