@@ -49,7 +49,14 @@ import moment from 'moment';
         }
 
         let participantsUI = [];
-        let transactionSlices = disputeTransaction.transactionSlices;
+        let transactionSlices = [];
+        let disputeTransactionDate  = 'N/A';
+        if(disputeTransaction !== null) {
+            transactionSlices = disputeTransaction.transactionSlices;
+            BackChainActions.loadEventsForTransaction(disputeTransaction);
+            disputeTransactionDate = moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A')
+        }
+
         for(let i = 0; i < transactionSlices.length; i++) {
             let transactionSlice = transactionSlices[i];
             if(transactionSlice.type == "Intersection") {
@@ -59,9 +66,6 @@ import moment from 'moment';
                 participantsUI.push(<br key={transactionSlice.enterprises[1]+'br'}/>)
             }
         }
-
-        BackChainActions.loadEventsForTransaction(disputeTransaction);
-        let disputeTransactionDate = disputeTransaction && disputeTransaction.date ? moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A') : 'N/A';
         
         let evntsUI = [];
         for(let i = 0; i < store.events.length; i++) {
