@@ -57,7 +57,7 @@ import DisputesViewModal from './DisputesViewModal';
 				<div className={"panel-body"} style={fieldProps.panelBody}>
 					{panelBody}
 					<DisputesView store = {this.props.store} />
-					{this.props.store.disputesViewModalActive ? <DisputesViewModal store={this.props.store} /> : null }
+					{this.props.store.disputesViewModalActive ? <DisputesViewModal txnId = {this.props.location.state.txnId} store={this.props.store} /> : null }
 				</div>
 			</div>
 		);

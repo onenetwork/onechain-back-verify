@@ -3,6 +3,7 @@ import {Row, Col, Button, FormControl, FormGroup, Checkbox} from 'react-bootstra
 import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
+import moment from 'moment';
 
 @observer export default class DisputesViewModal extends React.Component {
 
@@ -34,10 +35,41 @@ import BackChainActions from '../BackChainActions';
 	closeModal() {
 		BackChainActions.toggleDisputesModalView();
 	}
-
+    
     render() {
+        const {txnId, store} = this.props;
+        let disputeTransaction = null;
+        
+        for(let i = 0; i < store.transactions.length; i++) {
+            let transaction = store.transactions[i];
+            if(transaction.id === txnId) {
+                disputeTransaction = transaction;
+                break;
+            }
+        }
 
-		let fieldProps = {
+        let participantsUI = [];
+        let transactionSlices = disputeTransaction.transactionSlices;
+        for(let i = 0; i < transactionSlices.length; i++) {
+            let transactionSlice = transactionSlices[i];
+            if(transactionSlice.type == "Intersection") {
+                participantsUI.push(<span key={transactionSlice.enterprises[0]}>{transactionSlice.enterprises[0]}</span>);
+                participantsUI.push(<br key={transactionSlice.enterprises[0]+'br'}/>)
+                participantsUI.push(<span key={transactionSlice.enterprises[1]}>{transactionSlice.enterprises[1]}</span>);
+                participantsUI.push(<br key={transactionSlice.enterprises[1]+'br'}/>)
+            }
+        }
+
+        BackChainActions.loadEventsForTransaction(disputeTransaction);
+        let disputeTransactionDate = disputeTransaction && disputeTransaction.date ? moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A') : 'N/A';
+        
+        let evntsUI = [];
+        for(let i = 0; i < store.events.length; i++) {
+            let event = store.events[i];
+            evntsUI.push(<Checkbox key={event}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+        }
+        
+        let fieldProps = {
 			cancelButton: {
 				padding: '7px 23px',
 				color: 'rgb(0, 120, 215)',
@@ -165,7 +197,7 @@ import BackChainActions from '../BackChainActions';
 													Transaction ID:
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
-													<FormControl type="text" placeholder="Enter transaction ID" />
+													<FormControl type="text" placeholder="Enter transaction ID" value={disputeTransaction == null ? null : disputeTransaction.id} />
 												</Col>
 											</Col>
 
@@ -174,7 +206,7 @@ import BackChainActions from '../BackChainActions';
 													Transaction Date:
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
-													Jan 27, 2018  10:15 AM
+                                                    {disputeTransactionDate}
 												</Col>
 											</Col>
 										</Row><br/>
@@ -186,15 +218,7 @@ import BackChainActions from '../BackChainActions';
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
 													<div className="eventsVal" contentEditable="true" suppressContentEditableWarning={true} style={fieldProps.eventsParticipantsValDiv}>
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox> 
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox>
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox>
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox> 
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox>
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox>
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox> 
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox>
-														<Checkbox >Sept 17, 2017  3:15 PM    Singleton Created</Checkbox>
+                                                        {evntsUI}
 													</div>
 												</Col>
 											</Col>
@@ -205,8 +229,7 @@ import BackChainActions from '../BackChainActions';
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
 													<div style={Object.assign({},fieldProps.eventsParticipantsValDiv,{color: 'gray'})} >
-														<span>HUB5</span><br/>
-														<span>Whole Foods</span>
+														{participantsUI}
 													</div>
 												</Col>
 											</Col>
@@ -231,7 +254,7 @@ import BackChainActions from '../BackChainActions';
 													Raised By:
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
-													HUB4
+													{this.props.store.entNameOfLoggedUser}
 												</Col>
 											</Col>
 										</Row><br/>

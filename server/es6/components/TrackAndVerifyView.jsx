@@ -465,13 +465,14 @@ const fieldProps = {
                 trigger="click"
                 placement="left"
                 overlay={(
-                    <div id={transaction.id} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
-                        <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
-                        <div style={{}} className="dispute-transation-img" >
-                            <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Dispute Transaction
+                    <Link to={{ pathname: '/listDisputes', state: { txnId: transaction.id} }}>
+                        <div id={transaction.id} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
+                            <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
+                            <div style={{}} className="dispute-transation-img" >
+                                <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Dispute Transaction
+                            </div>
                         </div>
-
-                    </div>
+                    </Link>
                 )}>
                 <i class="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8' }}></i>
             </OverlayTrigger>
