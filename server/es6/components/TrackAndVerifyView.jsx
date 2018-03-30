@@ -112,6 +112,10 @@ const fieldProps = {
         };
     }
 
+    componentWillMount() {
+        this.props.store.transactionDisputCount.clear();
+    }
+
     getVerificationHeaderIcon(transIds, entName) {
         if(!transIds || transIds.length == 0) {
             return <i style={{color : 'blue', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-check-circle" aria-hidden="true" />;
@@ -155,12 +159,7 @@ const fieldProps = {
                 });
             });
     }
-    getOpenDisputeCount(transactionId, callback) {
-        // BackChainActions.getOpenDisputeCount(transactionId, function (result) {
-        //     return result;
-        // });
-         return 3;
-    }
+    
     render() {
         const transactions = toJS(this.props.store.transactions);
         let myEntName = this.props.store.entNameOfLoggedUser;
@@ -338,6 +337,11 @@ const fieldProps = {
     }
 
     renderTransactionDisputesCell(transaction) {
+        const me = this;
+        let disputeCount = me.props.store.transactionDisputCount.get(transaction.id);
+        if (disputeCount == undefined) {
+            BackChainActions.getOpenDisputeCount(transaction.id);
+        }
         return (
             <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
                 <div style={{ textAlign: 'center' }}>
@@ -345,7 +349,7 @@ const fieldProps = {
                         src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
                         style={{ height: '20px', width: '32px' }}
                     />
-                    <div className="dispute-counter">{this.getOpenDisputeCount(transaction.id)}</div>
+                    <div className="dispute-counter">{disputeCount}</div>
                 </div>
             </td>
         );

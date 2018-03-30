@@ -24,11 +24,11 @@ class DisputeHelper {
         });
     }
 
-
-    getOpenDisputeCount(transactionId, callback) {
-        callback(null, Math.floor(Math.random() * 3) + 1);
+    getOpenDisputeCount(transactionId) {
+        return new Promise((resolve, reject) => {
+            resolve(Math.floor(Math.random() * 3) + 1);
+        });
     }
-
 }
 
 export const disputeHelper = new DisputeHelper();

@@ -52,40 +52,34 @@
     border-color: rgba(253, 253, 253, 1) !important;
     padding: 0px !important;
     background: rgba(253, 253, 253) !important;
-    /* left: 1200.66px !important; */
-    /* top: 332px !important; */
-        left: 1194.66px !important;
-        top: -97px !important;
-        position: relative
-}
-
-.dispute-transation-img {
-    position: absolute;
-    top: 50%;
-    left: 21%;
-    transform: translate(-12%, -50%);
+    left: 1194.66px !important;
+    top: -129px !important;
+    position: relative;
     color: #0085C8;
-    height: 38px;
     width: 157px;
     padding-top:8px;
     padding-left:5px;
-}
-.dispute-transation-img:hover {
-     background-color: #dff3f8;
-}
-.dispute-transation-div {
-    color: #0085C8;
-    height: 38px;
-    width: 157px;
-    padding-top:8px;
-    padding-left:5px;
-    background-color: none !important;
+    background-color: transparent;
     box-shadow: 0 0 0px rgba(0, 0, 0, 0) !important;
     -webkit-box-shadow: 0 0px 0px rgba(0, 0, 0, 0) !important;
 }
 
+.dispute-transation-img {
+    position: relative;
+    left: 21%;
+    transform: translate(-12%, -50%);
+    color: #0085C8;
+    width: 157px;
+    padding-left:5px;
+    font-family: 'Open Sans';
+    margin-top: -22px;
+}
+.dispute-transation-img:hover {
+     background-color: #dff3f8;
+}
+
 .dispute-counter {
-    position: absolute;
+    position: relative;
     bottom: 66px;
     padding-left: 23px;
     font-family: 'Open Sans Bold','Open Sans Regular','Open Sans';
@@ -93,6 +87,6 @@
     font-style: normal;
     font-size: 11px;
     color: #FFFFFF;
-    top: 346px;
-    right: 385px;
+    top: -24px;
+    right: 12px;
 }

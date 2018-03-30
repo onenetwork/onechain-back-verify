@@ -715,7 +715,7 @@ export default class BackChainActions {
     }
 
     @action
-    static getOpenDisputeCount(transactionId, callback) {
+    static getOpenDisputeCount(transactionId) {
         let uri = '/getOpenDisputeCount/' + transactionId;
         fetch(uri, { method: 'GET' }).then(function (response) {
             return response.json();
@@ -723,11 +723,10 @@ export default class BackChainActions {
             console.error('error getting dispute count');
         }).then(function (result) {
             if (result.success) {
-                callback(result.disputeCount)
+                store.transactionDisputCount.set(transactionId, result.disputeCount);
             } else {
                 console.error('error getting dispute count');
             }
         });
     }
-
 }

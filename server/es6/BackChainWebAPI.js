@@ -147,15 +147,12 @@ exports.getDisputes = function(req, res) {
     });
 };
 
-
 exports.getOpenDisputeCount = function (req, res) { 
-    disputeHelper.getOpenDisputeCount(req.params.transactionId,function (error, result) {
-        if (error) {
+    disputeHelper.getOpenDisputeCount(req.params.transactionId)
+    .then(function (result) {
+            res.json({ success: true, disputeCount: result });
+    })
+    .catch(function (error) {
             res.json({ success: false });
-        } else {
-            res.json({
-                success: true, disputeCount: result
-            });
-        }
     });
 };

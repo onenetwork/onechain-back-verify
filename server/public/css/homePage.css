@@ -37,6 +37,7 @@ a:focus, a:hover {
     padding-left: 10px;
     padding-right: 15px;
     padding-top: 10px;
+    font-family: 'Open Sans';
     font-weight: 400;
     font-style: normal;
     color: #515151;
@@ -124,6 +125,7 @@ a:focus, a:hover {
     padding-left: 10px;
     padding-right: 15px;
     padding-top: 10px;
+    font-family: 'Open Sans';
     font-weight: 400;
     font-style: normal;
     color: #515151;
