@@ -25,12 +25,28 @@ class DisputeHelper {
     }
 
     getOpenDisputeCount(transactionId) {
+        /**
+         * Remove the callback function. Use a promise object instead
+         * iff transactionId is null, this should fetch records from:
+         *   - getDraftCount() => DraftDisputes count
+         *   - onechain-back-client will have an api for this. For now you can skip this one
+         * iff transactionId is given, this should fetch records from:
+         *   - getDraftCount(transactionId) => DraftDisputes filtered by transactionId
+         *   - onechain-back-client's api will have an option to filter by transactionId. We'll add this later.
+         * resolve or reject depending on the result
+         */
         return new Promise((resolve, reject) => {
             resolve(Math.floor(Math.random() * 3) + 1);
         });
     }
 
     getDraftCount() {
+        /**
+         * Should return a promise
+         * iff transactionId is null, fetch the total count of DraftDisputes collections
+         * iff transactionId is given, fetch the total count of DraftDisputes per transaction from the collection.
+         * resolve or reject depending on the result
+         */
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('DraftDisputes').count()
                 .then((count) => {
