@@ -113,19 +113,19 @@ import DisplaySyncView from "./DisplaySyncView"
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl}/>
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl == null ? '' : this.props.store.blockChainUrl}/>
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Contract Address: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress} />
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress == null ? '' : this.props.store.blockChainContractAddress} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={2}><div style={fieldProps.valueLabel}>Private Key: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder={this.props.store.blockChainPrivateKey} value = {this.props.store.blockChainPrivateKey} />
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder={this.props.store.blockChainPrivateKey} value = {this.props.store.blockChainPrivateKey == null ? '' : this.props.store.blockChainPrivateKey} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
