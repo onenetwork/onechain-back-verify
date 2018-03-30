@@ -721,7 +721,32 @@ export default class BackChainActions {
             store.loadingData = false;
             if(result.success) {
                 for(let i = 0, len = result.disputes.length; i< len; i++) {
-                    store.disputes.push(result.disputes[i]);
+                    //TODO:Yusuf Improve performance.
+                    let dispute = result.disputes[i];
+                    let found = false;
+                    for(let i = 0; i < store.transactions.length; i++) {
+                        let transaction = store.transactions[i];
+                        if(transaction.id = dispute.transactionId) {
+                            dispute.transaction = transaction;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(found) {
+                        store.disputes.push(dispute);
+                    } else {
+                        BackChainActions.loadTransactions(dispute.transactionId, "tnxId", function(){
+                            for(let i = 0; i < store.transactions.length; i++) {
+                                let transaction = store.transactions[i];
+                                if(transaction.id = dispute.transactionId) {
+                                    dispute.transaction = transaction;
+                                    break;
+                                }
+                            }
+                            store.disputes.push(dispute);
+                        });
+                    }                  
+                    
                 }                
             } else {
                 store.error = "Couldn't load disputes. Please try again later";

@@ -73,14 +73,14 @@ const fieldProps = {
                 <tr>
                     <th style={fieldProps.columns}>Dispute Status</th>
                     <th style={fieldProps.columns}>Dispute ID</th>
+                    <th style={fieldProps.columns}>Date Submitted</th>
+                    <th style={fieldProps.columns}>Date Closed</th>
                     <th style={fieldProps.columns}>Transaction ID</th>
                     <th style={fieldProps.columns}>Transaction Date</th>
                     <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Events</th>
                     <th style={fieldProps.columns}>Raised By</th>
-                    <th style={fieldProps.columns}>Reason</th>
+                    <th style={fieldProps.columns}>Reason Code</th>
                     <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Participants</th>
-                    <th style={fieldProps.columns}>Date Submitted</th>
-                    <th style={fieldProps.columns}>Date Closed</th>
                     <th style={fieldProps.columns}>Actions</th>
                 </tr>
             </thead>
@@ -121,14 +121,14 @@ const fieldProps = {
             <tr style = {{backgroundColor : idx % 2 ? 'rgba(250, 250, 250, 1)' : ''}} key={dispute.id}>
                 {this.renderDisputeStatusCell(dispute)}
                 {this.renderDisputeIdCell(dispute)}
+                {this.renderDateCell(dispute.submittedDate)}
+                {this.renderDateCell(dispute.closedDate)}
                 {this.renderTransactionIdCell(dispute)}
                 {this.renderDateCell(dispute.transaction ? dispute.transaction.date : null)}
                 {this.renderDisputeEventsCell(dispute, idx)}
                 {this.renderDisputeRaisedByCell(dispute)}
                 {this.renderDisputeReasonCell(dispute)}
-                {this.renderDisputeParticipantsCell(dispute, idx)}
-                {this.renderDateCell(dispute.submittedDate)}
-                {this.renderDateCell(dispute.closedDate)}
+                {this.renderDisputeParticipantsCell(dispute, idx)}                
                 {this.renderDisputeActionsCell(dispute)}
             </tr>
         );
@@ -143,7 +143,6 @@ const fieldProps = {
         return (
             <td style={Object.assign({ maxWidth: '130px'}, fieldProps.columns)}>
                 <div style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                    <i style={{color: 'orange', fontSize: '14px', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-ban" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
                     <OverlayTrigger
                         trigger={['hover', 'focus']}
                         placement="top"
@@ -160,7 +159,6 @@ const fieldProps = {
         return (
             <td style={Object.assign({ maxWidth: '130px'}, fieldProps.columns)}>
                 <div style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                    <i style={{color: '#229978', fontSize: '14px', lineHeight: fieldProps.columns.lineHeight}} className="fa fa-handshake-o" aria-hidden="true"/>&nbsp;&nbsp;&nbsp;
                     <OverlayTrigger
                         trigger={['hover', 'focus']}
                         placement="top"
@@ -173,7 +171,7 @@ const fieldProps = {
     }
 
     renderDateCell(dateInMillis) {
-        const formattedDate = dateInMillis ? moment(new Date(dateInMillis)).format('MMM DD, YYYY HH:mm A') : 'N/A';
+        const formattedDate = dateInMillis ? moment(new Date(dateInMillis)).format('MMM DD, YYYY HH:mm A') : '';
         return <td style={fieldProps.columns}>{formattedDate}</td>;
     }
 
