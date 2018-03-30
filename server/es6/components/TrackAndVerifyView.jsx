@@ -335,13 +335,15 @@ const fieldProps = {
     renderTransactionDisputesCell(transaction) {
         return (
             <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
-                <div style={{ textAlign: 'center' }}>
-                    <img
-                        src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
-                        style={{ height: '20px', width: '32px' }}
-                    />
-                    <div className="dispute-counter">{transaction.openDisputeCount}</div>
-                </div>
+                <Link to='/listDisputes'>      
+                    <div style={{ textAlign: 'center' }}>
+                        <img
+                            src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
+                            style={{ height: '20px', width: '32px' }}
+                        />
+                        <div className="dispute-counter">{transaction.openDisputeCount}</div>
+                    </div>
+                </Link>
             </td>
         );
     }
@@ -465,7 +467,7 @@ const fieldProps = {
                         </div>
                     </Link>
                 )}>
-                <i class="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
+                <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
             </OverlayTrigger>
         );
         return <td style={fieldProps.columns}>{actionsCell}</td>;
