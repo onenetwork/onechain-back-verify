@@ -19,6 +19,9 @@ import moment from 'moment';
 
 	componentWillMount() {
 		document.addEventListener('click', this.handleClick, false);
+		if(this.props.txnId) {
+			BackChainActions.getDisputeTransactionByTxnId(this.props.txnId);
+		}
 	}
 	
 	componentWillUnmount() {
@@ -29,28 +32,55 @@ import moment from 'moment';
 		/* Checking If clicked outside of modal body */
     	if (this.modalBodyRef && !this.modalBodyRef.contains(event.target)) {
 			BackChainActions.toggleNewDisputeModalView();
+			BackChainActions.clearDisputeTransaction();
         }
 	}
 
 	closeModal() {
 		BackChainActions.toggleNewDisputeModalView();
+		BackChainActions.clearDisputeTransaction();
 	}
-    
-    render() {
-        const {txnId, store} = this.props;
-        let disputeTransaction = null;
-        
-        for(let i = 0; i < store.transactions.length; i++) {
-            let transaction = store.transactions[i];
-            if(transaction.id === txnId) {
-                disputeTransaction = transaction;
-                break;
-            }
-        }
+	
+	saveAsDraft() {
+		let disputeTransaction = this.props.store.disputeTransaction;
+		let btIds = [];
+		for(let i = 0; i < disputeTransaction.transactionSlices.length; i++) {
+			let transactionSlice = disputeTransaction.transactionSlices[i];
+			if(transactionSlice.type === "Intersection") {
+				for(let j = 0; j < transactionSlice.businessTransactionIds.length; j++) {
+					btIds.push(transactionSlice.businessTransactionIds[j]);
+				}
+			}
+		}
+		if(ReactDOM.findDOMNode(this.select).value == "select") {
+			console.log("Please select reason code!");
+			//Todo @pankaj show info message
+			return;
+		}
 
-        let participantsUI = [];
-        let transactionSlices = [];
-        let disputeTransactionDate  = 'N/A';
+		let disputeData = {
+			"id": 1234567, //Todo @pankaj generate random number
+			"creationDate": moment().valueOf(),
+			"submittedDate" : null,
+			"closedDate": null,
+			"transactionId": disputeTransaction.id,
+			"events" : btIds,
+			"raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051",
+			"reasonCode": ReactDOM.findDOMNode(this.select).value,
+			"status": "Draft"
+		}
+	}
+
+	submitToBackchain() {
+	}
+
+    render() {
+		const {txnId, store} = this.props;
+		let participantsUI = [];
+		let transactionSlices = [];
+		let disputeTransactionDate  = 'N/A';
+		let disputeTransaction = store.disputeTransaction;
+
         if(disputeTransaction !== null) {
             transactionSlices = disputeTransaction.transactionSlices;
             BackChainActions.loadEventsForTransaction(disputeTransaction);
@@ -71,7 +101,11 @@ import moment from 'moment';
         for(let i = 0; i < store.events.length; i++) {
             let event = store.events[i];
             evntsUI.push(<Checkbox key={event}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
-        }
+		}
+
+		if(!this.props.txnId) {
+			evntsUI = [];
+		}
         
         let fieldProps = {
 			cancelButton: {
@@ -245,7 +279,7 @@ import moment from 'moment';
 													Reason Code:
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
-													<FormControl componentClass="select" placeholder="select">
+													<FormControl ref={select => { this.select = select }} componentClass="select" placeholder="select">
 														<option value="select">select</option>
 														<option value="reason1">reason code1</option>
 														<option value="reason2">reason code2</option>
@@ -258,7 +292,7 @@ import moment from 'moment';
 													Raised By:
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
-													{this.props.store.entNameOfLoggedUser}
+													{this.props.txnId ? this.props.store.entNameOfLoggedUser : null}
 												</Col>
 											</Col>
 										</Row><br/>
@@ -267,8 +301,8 @@ import moment from 'moment';
 									<div style={fieldProps.modalBodyBottom}>
 										<div style={fieldProps.modalBodyBottomChildDiv}> 
 											<Button style = {fieldProps.cancelButton} onClick={this.closeModal}>Discard</Button>&nbsp;&nbsp;
-											<Button className="btn btn-primary" style={Object.assign({},fieldProps.button, {width: '120px'})}>Save as Draft</Button>&nbsp;&nbsp;
-											<Button className="btn btn-primary" style={Object.assign({},fieldProps.button, {width: '174px'})}>Submit to Backchanin</Button>
+											<Button className="btn btn-primary" onClick={this.saveAsDraft.bind(this)} style={Object.assign({},fieldProps.button, {width: '120px'})}>Save as Draft</Button>&nbsp;&nbsp;
+											<Button className="btn btn-primary" onClick={this.submitToBackchain.bind(this)} style={Object.assign({},fieldProps.button, {width: '174px'})}>Submit to Backchain</Button>
 										</div>
 									</div>
 											

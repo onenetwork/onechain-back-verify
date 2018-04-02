@@ -773,4 +773,23 @@ export default class BackChainActions {
 
         }) 
     }
+
+    @action
+    static getDisputeTransactionByTxnId(transactionId) {
+        return new Promise(resolve => {
+            //TODO@Pankaj If not present in store then fetch from DB
+            for(let i = 0; i < store.transactions.length; i++) {
+                let transaction = store.transactions[i];
+                if(transaction.id === transactionId) {
+                    store.disputeTransaction = transaction;
+                    break;
+                }
+            }
+        })
+    }
+
+    @action
+    static clearDisputeTransaction() {
+        store.disputeTransaction = null; 
+    }
 }

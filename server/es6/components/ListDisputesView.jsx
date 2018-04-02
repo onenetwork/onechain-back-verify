@@ -18,13 +18,16 @@ import NewDisputeView from './NewDisputeView';
 		BackChainActions.loadDisputes(); //Make sure to pass default filters for the initial fetch. 
 		
         /*If txnId, means we need to open dispute form pop up, with prepopulated values for the txnId which is passed*/
-		if(typeof this.props.location.state !== "undefined" && (typeof this.props.location.state.txnId !== "undefined" || this.props.location.state.txnId !== null)) {
+		if(this.props.history.location.state && this.props.history.location.state.txnId && this.props.history.location.state.txnId !== null) {
 			BackChainActions.toggleNewDisputeModalView();
 		}
 
 	}
 
 	openDisputesPopup() {
+		if(this.props.history.location) {
+			this.props.history.replace({ pathname: '/listDisputes', state: { txnId: null}});
+		}
 		BackChainActions.toggleNewDisputeModalView();
 	}
 
@@ -55,7 +58,7 @@ import NewDisputeView from './NewDisputeView';
 		let panelBody = (<div>
                             <Row style={fieldProps.panelBodyTitle}>
                                 <span style={{float:'left'}} > Disputes </span>
-                                <span style={{paddingLeft:'680px'}}><Button onClick={this.openDisputesPopup} className="btn btn-primary" bsSize="large" style={fieldProps.button}>New Dispute</Button> </span>
+                                <span style={{paddingLeft:'680px'}}><Button onClick={this.openDisputesPopup.bind(this)} className="btn btn-primary" bsSize="large" style={fieldProps.button}>New Dispute</Button> </span>
                             </Row><br/>
 						</div>);
         return (
@@ -65,7 +68,7 @@ import NewDisputeView from './NewDisputeView';
 					{panelBody}
 					<DisputeFiltersView store = {this.props.store} />
 					<DisputesView store = {this.props.store} />
-					{this.props.store.newDisputeModalActive ? <NewDisputeView txnId = {typeof this.props.location.state == "undefined" ? null : this.props.location.state.txnId} store={this.props.store} /> : null }
+					{this.props.store.newDisputeModalActive ? <NewDisputeView txnId = {typeof this.props.history.location.state == "undefined" ? null : this.props.history.location.state.txnId} store={this.props.store} /> : null }
 				</div>
 			</div>
 		);
