@@ -455,8 +455,8 @@ const fieldProps = {
     renderTransactionActionsCell(transaction) {
         let actionsCell = (
             <OverlayTrigger
-                trigger="click"
-                placement="left"
+                trigger={"click"}
+                container={this}
                 overlay={(
                     <Link to={{ pathname: '/listDisputes', state: { txnId: transaction.id} }}>
                         <div id={transaction.id} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
