@@ -5,6 +5,7 @@ import { Link, Redirect } from 'react-router-dom';
 import DisputesView from "./DisputesView";
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
+import DisputeFiltersView from './DisputeFiltersView';
 import DisputesViewModal from './DisputesViewModal';
 
 @observer export default class ListDisputesView extends React.Component {
@@ -56,6 +57,7 @@ import DisputesViewModal from './DisputesViewModal';
 				<HeaderView store={this.props.store}/>
 				<div className={"panel-body"} style={fieldProps.panelBody}>
 					{panelBody}
+					<DisputeFiltersView store = {this.props.store} />
 					<DisputesView store = {this.props.store} />
 					{this.props.store.disputesViewModalActive ? <DisputesViewModal txnId = {this.props.location.state.txnId} store={this.props.store} /> : null }
 				</div>
