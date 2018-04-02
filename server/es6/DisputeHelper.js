@@ -36,11 +36,29 @@ class DisputeHelper {
          * resolve or reject depending on the result
          */
         return new Promise((resolve, reject) => {
-            resolve(Math.floor(Math.random() * 3) + 1);
-        });
+            if (transactionId == null) {
+                this.getDraftCount()
+                    .then((count) => {
+                        resolve(count);
+                    })
+                    .catch((err) => {
+                        console.error("Error occurred while fetching open dispute count." + err);
+                        reject(err);
+                    });
+            } else {
+                this.getDraftCount(transactionId)
+                    .then((count) => {
+                        resolve(count);
+                    })
+                    .catch((err) => {
+                        console.error("Error occurred while fetching open dispute count." + err);
+                        reject(err);
+                    });
+            }
+        });    
     }
 
-    getDraftCount() {
+    getDraftCount(transactionId) {
         /**
          * Should return a promise
          * iff transactionId is null, fetch the total count of DraftDisputes collections
@@ -48,15 +66,26 @@ class DisputeHelper {
          * resolve or reject depending on the result
          */
         return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('DraftDisputes').count()
-                .then((count) => {
-                    resolve(count);
-                })
-                .catch((err) => {
-                    console.error("Error occurred while fetching draft count." + err);
-                    reject(err);
-                });;
-        })
+            if (transactionId == null) {
+                dbconnectionManager.getConnection().collection('DraftDisputes').count()
+                    .then((count) => {
+                        resolve(count);
+                    })
+                    .catch((err) => {
+                        console.error("Error occurred while fetching draft count." + err);
+                        reject(err);
+                    });
+            } else {
+                dbconnectionManager.getConnection().collection('DraftDisputes').findOne({ "transactionId": transactionId })
+                    .then((result) => {
+                        resolve(result.openDisputeCount);
+                    })
+                    .catch((err) => {
+                        console.error("Error occurred while fetching draft count." + err);
+                        reject(err);
+                    });
+            }
+        });
     }
 }
 
