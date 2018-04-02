@@ -76,9 +76,9 @@ class DisputeHelper {
                         reject(err);
                     });
             } else {
-                dbconnectionManager.getConnection().collection('DraftDisputes').findOne({ "transactionId": transactionId })
-                    .then((result) => {
-                        resolve(result.openDisputeCount);
+                dbconnectionManager.getConnection().collection('DraftDisputes').find({ "transactionId": transactionId }).count()
+                    .then((count) => {
+                        resolve(count);
                     })
                     .catch((err) => {
                         console.error("Error occurred while fetching draft count." + err);
