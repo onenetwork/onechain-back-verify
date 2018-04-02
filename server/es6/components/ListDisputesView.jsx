@@ -6,7 +6,7 @@ import DisputesView from "./DisputesView";
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import DisputeFiltersView from './DisputeFiltersView';
-import DisputesViewModal from './DisputesViewModal';
+import NewDisputeView from './NewDisputeView';
 
 @observer export default class ListDisputesView extends React.Component {
 	constructor(props) {
@@ -16,10 +16,16 @@ import DisputesViewModal from './DisputesViewModal';
 	componentDidMount() {
 		BackChainActions.processApplicationSettings();
 		BackChainActions.loadDisputes(); //Make sure to pass default filters for the initial fetch. 
+		
+        /*If txnId, means we need to open dispute form pop up, with prepopulated values for the txnId which is passed*/
+		if(typeof this.props.location.state !== "undefined" && (typeof this.props.location.state.txnId !== "undefined" || this.props.location.state.txnId !== null)) {
+			BackChainActions.toggleNewDisputeModalView();
+		}
+
 	}
 
 	openDisputesPopup() {
-		BackChainActions.toggleDisputesModalView();
+		BackChainActions.toggleNewDisputeModalView();
 	}
 
     render() {
@@ -59,7 +65,7 @@ import DisputesViewModal from './DisputesViewModal';
 					{panelBody}
 					<DisputeFiltersView store = {this.props.store} />
 					<DisputesView store = {this.props.store} />
-					{this.props.store.disputesViewModalActive ? <DisputesViewModal txnId = {this.props.location.state.txnId} store={this.props.store} /> : null }
+					{this.props.store.newDisputeModalActive ? <NewDisputeView txnId = {typeof this.props.location.state == "undefined" ? null : this.props.location.state.txnId} store={this.props.store} /> : null }
 				</div>
 			</div>
 		);

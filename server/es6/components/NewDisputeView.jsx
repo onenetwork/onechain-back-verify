@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import moment from 'moment';
 
-@observer export default class DisputesViewModal extends React.Component {
+@observer export default class NewDisputeView extends React.Component {
 
 	constructor(props) {
         super(props);
@@ -28,12 +28,12 @@ import moment from 'moment';
 	handleClick(event) {
 		/* Checking If clicked outside of modal body */
     	if (this.modalBodyRef && !this.modalBodyRef.contains(event.target)) {
-			BackChainActions.toggleDisputesModalView();
+			BackChainActions.toggleNewDisputeModalView();
         }
 	}
 
 	closeModal() {
-		BackChainActions.toggleDisputesModalView();
+		BackChainActions.toggleNewDisputeModalView();
 	}
     
     render() {
