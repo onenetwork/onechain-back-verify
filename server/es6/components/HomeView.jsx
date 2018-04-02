@@ -156,7 +156,7 @@ import Images from '../Images';
     const tooltip = (
 
       <div id="tooltip" role="tooltip"  className="fade in tooltip top" style={{top: '229px', left: '1014.5px'}}>
-        <div className="tooltip-arrow" style={{left: '50%'}}></div>
+        <div className="tooltip-arrow" style={{ borderTopColor: '#208093'}}></div>
         <div className="tooltip-inner" style={{backgroundColor: '#208093',textAlign: 'left' }}>{toolTipText}</div>
       </div>
       );
@@ -196,9 +196,9 @@ import Images from '../Images';
                         <div style={fieldProps.disputes}>
                             <div className="mouseOver" style={fieldProps.mouseOver} >
                               <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
-                              <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '135px', position: 'absolute', top: '210px' }} /> 
+                              <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '132px', position: 'absolute', top: '210px' }} /> 
                               <div className="disputes-counter">4</div>
-                              &nbsp;&nbsp;&nbsp;&nbsp;Disputes
+                              <div style={{display: 'inline'}}> &nbsp;&nbsp;&nbsp;Disputes</div>
                             </div>
                         </div>
                       </Link>

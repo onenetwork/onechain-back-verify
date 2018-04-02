@@ -71,7 +71,6 @@
     color: #0085C8;
     width: 157px;
     padding-left:5px;
-    font-family: 'Open Sans';
     margin-top: -22px;
 }
 .dispute-transation-img:hover {
@@ -82,7 +81,6 @@
     position: relative;
     bottom: 66px;
     padding-left: 23px;
-    font-family: 'Open Sans Bold','Open Sans Regular','Open Sans';
     font-weight: 700;
     font-style: normal;
     font-size: 11px;

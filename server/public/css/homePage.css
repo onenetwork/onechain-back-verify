@@ -37,7 +37,6 @@ a:focus, a:hover {
     padding-left: 10px;
     padding-right: 15px;
     padding-top: 10px;
-    font-family: 'Open Sans';
     font-weight: 400;
     font-style: normal;
     color: #515151;
@@ -125,7 +124,6 @@ a:focus, a:hover {
     padding-left: 10px;
     padding-right: 15px;
     padding-top: 10px;
-    font-family: 'Open Sans';
     font-weight: 400;
     font-style: normal;
     color: #515151;
@@ -208,7 +206,6 @@ a:focus, a:hover {
     padding-left: 183px;
     width: 381px;
     height: 36px;
-    font-family: 'Open Sans';
     font-weight: 400;
     font-style: normal;
     font-size: 20px;
@@ -233,11 +230,13 @@ a:focus, a:hover {
     position: absolute;
     bottom: 66px;
     padding-left: 23px;
-    font-family: 'Open Sans Bold', 'Open Sans Regular', 'Open Sans';
     font-weight: 700;
     font-style: normal;
     font-size: 11px;
     color: #FFFFFF;
     top: 213px;
     right: 142px;
+    height: 0px;
+    width: 0px;
+    padding-right: 3px;
 }
