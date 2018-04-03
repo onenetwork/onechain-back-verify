@@ -143,8 +143,8 @@ export default class BackChainActions {
                     }
                 }
 
-                if(type == "Intersection"
-                        && transactionSlice.type == "Intersection") {
+                if(type == "Intersection" && transactionSlice.type == "Intersection"
+                    && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
                     if(transactionSlice.payloadId) {
                         return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                             let newJson = observable({});
@@ -229,8 +229,8 @@ export default class BackChainActions {
                             }
                         }
 
-                        if(type == "Intersection"
-                                && transactionSlice.type == "Intersection") {
+                        if(type == "Intersection" && transactionSlice.type == "Intersection"
+                            && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
                             if(transactionSlice.payloadId) {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
