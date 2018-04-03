@@ -150,9 +150,19 @@ exports.getDisputes = function(req, res) {
 exports.getOpenDisputeCount = function (req, res) { 
     disputeHelper.getOpenDisputeCount(req.params.transactionId)
     .then(function (result) {
-            res.json({ success: true, disputeCount: result });
+        res.json({ success: true, disputeCount: result });
     })
     .catch(function (error) {
-            res.json({ success: false });
+        res.json({ success: false });
+    });
+};
+
+exports.saveDisputeAsDraft = function (req, res) {
+    disputeHelper.saveAsDraft(JSON.parse(req.params.dispute))
+    .then(function (result) {
+        res.json(result);
+    })
+    .catch(function (error) {
+        res.json({ success: false });
     });
 };

@@ -38,7 +38,8 @@ import moment from 'moment';
 		BackChainActions.clearDisputeTransaction();
 	}
 	
-	saveAsDraft() {
+	getNewDisputeData() {
+		// Todo @pankaj check if required fields by user entered or not (like Transaction ID)
 		let disputeTransaction = this.props.store.disputeTransaction;
 		let btIds = [];
 		for(let i = 0; i < disputeTransaction.transactionSlices.length; i++) {
@@ -49,13 +50,8 @@ import moment from 'moment';
 				}
 			}
 		}
-		if(ReactDOM.findDOMNode(this.select).value == "select") {
-			console.log("Please select reason code!");
-			//Todo @pankaj show info message
-			return;
-		}
 
-		let disputeData = {
+		let dispute = {
 			"id": 1234567, //Todo @pankaj generate random number
 			"creationDate": moment().valueOf(),
 			"submittedDate" : null,
@@ -66,9 +62,29 @@ import moment from 'moment';
 			"reasonCode": ReactDOM.findDOMNode(this.select).value,
 			"status": "Draft"
 		}
+
+		return dispute;
+	}
+
+	saveAsDraft() {
+		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
+		.then(function(response) {
+			if(response.success) {
+				if(response.status) {
+					console.log("existes disbute");
+					return;
+				}
+				BackChainActions.toggleNewDisputeModalView();
+				BackChainActions.clearDisputeTransaction();
+			}
+		}, function(error) {
+			console.error(error);
+		});
 	}
 
 	submitToBackchain() {
+		// this.getNewDisputeData()
+		// Todo write code to submit dispute to back chain
 	}
 
     render() {
@@ -278,8 +294,9 @@ import moment from 'moment';
 												<Col style={{paddingLeft:'0px'}} md={9}>
 													<FormControl ref={select => { this.select = select }} componentClass="select" placeholder="select">
 														<option value="select">select</option>
-														<option value="reason1">reason code1</option>
-														<option value="reason2">reason code2</option>
+														<option value="wrongData">Data is wrong</option>
+														<option value="sentToWrongLocation">Sent to wrong location</option>
+														<option value="enteredWrongData">Entered wrong data</option>
 													</FormControl>
 												</Col>
 											</Col>

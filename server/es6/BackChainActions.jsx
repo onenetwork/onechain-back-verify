@@ -768,4 +768,19 @@ export default class BackChainActions {
     static clearDisputeTransaction() {
         store.disputeTransaction = null; 
     }
+
+    @action
+    static saveDisputeAsDraft(dispute) {
+        return new Promise(resolve => {
+            let uri = '/saveDisputeAsDraft/' + JSON.stringify(dispute);
+            return fetch(uri, { method: 'POST' })
+            .then(function(response) {
+                return response.json();
+            }, function(error) {
+                console.error(error);
+            }).then(function(response) {
+                resolve(response);
+            })
+        })
+    }
 }
