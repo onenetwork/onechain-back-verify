@@ -9,8 +9,11 @@ import moment from 'moment';
 
 	constructor(props) {
         super(props);
-        this.setModalBodyRef = this.setModalBodyRef.bind(this);           
-        this.handleClick = this.handleClick.bind(this);
+		this.setModalBodyRef = this.setModalBodyRef.bind(this);           
+		this.handleClick = this.handleClick.bind(this);
+		this.state = {
+			disputeInfoMsg : null
+        };
 	}
 	
 	setModalBodyRef(node) {
@@ -67,11 +70,14 @@ import moment from 'moment';
 	}
 
 	saveAsDraft() {
+		let me = this;
 		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
 		.then(function(response) {
 			if(response.success) {
 				if(response.status) {
-					console.log("existes disbute");
+					//TODO@PANKAJ add link to disputes page
+					let msg = "You already have a dispute in " + response.status + " status. Please go to " + " disputes page " + "to see existing disputes";
+					me.setState({disputeInfoMsg: msg});
 					return;
 				}
 				BackChainActions.toggleNewDisputeModalView();
@@ -173,13 +179,13 @@ import moment from 'moment';
 				paddingLeft: '21px'
 			},
 			disputeIdChildDiv: {
-				backgroundColor: 'rgb(250, 250, 250)', height: '36px', width: '885px',
+				height: '36px', 
+				width: '885px',
 				padding: '6px',
 				borderRadius: '3px',
 				boxSizing: 'border-box',
 				borderWidth: '1px',
 				borderStyle: 'solid',
-				borderColor: 'rgba(242, 242, 242, 1)',
 				paddingLeft: '20px'
 			},
 			disputeIdLabel: {
@@ -207,6 +213,15 @@ import moment from 'moment';
 			}
 		};
 
+		let disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgb(250, 250, 250)', borderColor: 'rgba(242, 242, 242, 1)'})}>
+								<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> a420987490553228734636691</span>
+							</Row>);
+		if(this.state.disputeInfoMsg) {
+			disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
+								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
+								<span style={{fontSize:'14px', top: '67px', position: 'absolute'}}>&nbsp;<span style={{color:'#F19500'}}>Warning!</span>&nbsp;<span>{this.state.disputeInfoMsg}</span></span>						
+							</Row>);
+		}
         return(
 			<div>
 					<style>
@@ -236,9 +251,8 @@ import moment from 'moment';
 									</div>
 
 									<div style={fieldProps.disputeIdParentDiv}>
-										<Row style={fieldProps.disputeIdChildDiv}>
-											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span>a420987490553228734636691
-										</Row><br/>
+										{disputeInfo}
+										<br/>
 									</div>
 
 									<div>
