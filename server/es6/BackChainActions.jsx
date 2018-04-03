@@ -750,7 +750,7 @@ export default class BackChainActions {
     }
 
     @action
-    static getDisputeTransactionByTxnId(transactionId) {
+    static populateDisputeTransaction(transactionId) {
         return new Promise(resolve => {
             //TODO@Pankaj If not present in store then fetch from DB
             for(let i = 0; i < store.transactions.length; i++) {
@@ -760,27 +760,10 @@ export default class BackChainActions {
                     break;
                 }
             }
+            resolve(true);
         })
     }
-
-    @action
-    static populateDisputeTransaction(transactionId) {
-        return new Promise(resolve => {
-            //TODO for Pankaj or Ravi
-            /**
-             * When we call this action from TrackAndVerify page, store.transactions will contain all the data we need
-             * loop {
-             *  if store.transactions[i].id = transactionId then
-             *      store.disputeTransaction = store.transactions[i]
-             *      break;
-             * }
-             * resolve()
-             */
-        })
-    }
-
-
-
+    
     @action
     static clearDisputeTransaction() {
         store.disputeTransaction = null; 

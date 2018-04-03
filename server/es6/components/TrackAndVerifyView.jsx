@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import { toJS } from 'mobx';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import JSZip from 'jszip';
 import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, ProgressBar, Modal} from 'react-bootstrap';
@@ -108,7 +108,8 @@ const fieldProps = {
 
         this.eventsPopoverRefsMap = {};
         this.state = {
-            eventsPopoverVisibilityMap: {}
+            eventsPopoverVisibilityMap: {},
+            redirectToListDisputes: false
         };
     }
 
@@ -188,15 +189,19 @@ const fieldProps = {
             </tbody>
         );
 
-		return(
-            <div>
-                <TransactionPreview store={this.props.store}/>
-                <Table responsive condensed hover style={fieldProps.table}>
-                    {tableHead}
-                    {tableBody}
-                </Table>
-            </div>
-		);
+        if (this.state.redirectToListDisputes) {
+            return <Redirect push to="/listDisputes" />;
+        } else {
+            return(
+                <div>
+                    <TransactionPreview store={this.props.store}/>
+                    <Table responsive condensed hover style={fieldProps.table}>
+                        {tableHead}
+                        {tableBody}
+                    </Table>
+                </div>
+            );
+        }
     }
 
     renderEnterpriseHeaders(variableViewNames) {
@@ -458,7 +463,7 @@ const fieldProps = {
                 trigger={"click"}
                 container={this}
                 overlay={(
-                    <Link to={{ pathname: '/listDisputes', state: { txnId: transaction.id} }}>
+                    <Link to='#' onClick={this.populateDisputeTransaction.bind(this, transaction.id)}>
                         <div id={transaction.id} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
                             <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
                             <div style={{}} className="dispute-transation-img" >
@@ -497,6 +502,19 @@ const fieldProps = {
         this.setState({ eventsPopoverVisibilityMap: newMap });
     }
 
+    populateDisputeTransaction(transactionId) {
+        let me = this;
+        BackChainActions.populateDisputeTransaction(transactionId)
+        .then(function(response) {
+            return response;
+        })
+        .then(function(result) {
+            me.setState({redirectToListDisputes: result});
+        })
+        .catch(function (err) {
+            console.log('populateDisputeTransaction error');
+        });
+    }
 }
 
 @observer class TransactionPreview extends React.Component {

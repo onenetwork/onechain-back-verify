@@ -18,16 +18,13 @@ import NewDisputeView from './NewDisputeView';
 		BackChainActions.loadDisputes(); //Make sure to pass default filters for the initial fetch. 
 		
         /*If txnId, means we need to open dispute form pop up, with prepopulated values for the txnId which is passed*/
-		if(this.props.history.location.state && this.props.history.location.state.txnId) {
+		if(this.props.store.disputeTransaction) {
 			BackChainActions.toggleNewDisputeModalView();
 		}
-
 	}
 
 	openDisputesPopup() {
-		if(this.props.history.location) {
-			this.props.history.replace({ pathname: '/listDisputes', state: { txnId: null}});
-		}
+		BackChainActions.clearDisputeTransaction();
 		BackChainActions.toggleNewDisputeModalView();
 	}
 
@@ -68,7 +65,7 @@ import NewDisputeView from './NewDisputeView';
 					{panelBody}
 					<DisputeFiltersView store = {this.props.store} />
 					<DisputesView store = {this.props.store} />
-					{this.props.store.newDisputeModalActive ? <NewDisputeView txnId = {typeof this.props.history.location.state == "undefined" ? null : this.props.history.location.state.txnId} store={this.props.store} /> : null }
+					{this.props.store.newDisputeModalActive ? <NewDisputeView store={this.props.store} /> : null }
 				</div>
 			</div>
 		);

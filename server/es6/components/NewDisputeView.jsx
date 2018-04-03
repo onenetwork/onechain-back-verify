@@ -19,9 +19,6 @@ import moment from 'moment';
 
 	componentWillMount() {
 		document.addEventListener('click', this.handleClick, false);
-		if(this.props.txnId) {
-			BackChainActions.getDisputeTransactionByTxnId(this.props.txnId);
-		}
 	}
 	
 	componentWillUnmount() {
@@ -75,7 +72,7 @@ import moment from 'moment';
 	}
 
     render() {
-		const {txnId, store} = this.props;
+		const {store} = this.props;
 		let participantsUI = [];
 		let transactionSlices = [];
 		let disputeTransactionDate  = 'N/A';
@@ -103,7 +100,7 @@ import moment from 'moment';
             evntsUI.push(<Checkbox key={event}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
 		}
 
-		if(!this.props.txnId) {
+		if(!this.props.store.disputeTransaction) {
 			evntsUI = [];
 		}
         
@@ -292,7 +289,7 @@ import moment from 'moment';
 													Raised By:
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
-													{this.props.txnId ? this.props.store.entNameOfLoggedUser : null}
+													{this.props.store.disputeTransaction ? this.props.store.entNameOfLoggedUser : null}
 												</Col>
 											</Col>
 										</Row><br/>
