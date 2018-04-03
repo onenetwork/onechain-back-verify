@@ -20,4 +20,6 @@ export function router(app) {
     app.get('/getEventsForTransaction/:transId', BackChainWebAPI.getEventsForTransaction);
     app.get('/getTransactionSlice/:payloadId', BackChainWebAPI.getTransactionSlice);
     app.get('/getOpenDisputeCount/:transactionId', BackChainWebAPI.getOpenDisputeCount);
+    app.get('/disputeExists/:transactionId', BackChainWebAPI.disputeExists);
+    app.post('/saveDisputeAsDraft/:dispute', BackChainWebAPI.saveDisputeAsDraft);
  }

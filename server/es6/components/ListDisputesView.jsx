@@ -17,7 +17,7 @@ import NewDisputeView from './NewDisputeView';
 		BackChainActions.processApplicationSettings();
 		BackChainActions.loadDisputes(); //Make sure to pass default filters for the initial fetch. 
 		
-        /*If txnId, means we need to open dispute form pop up, with prepopulated values for the txnId which is passed*/
+        /*If disputeTransaction, means we need to open dispute form pop up, with prepopulated values of the disputeTransaction*/
 		if(this.props.store.disputeTransaction) {
 			BackChainActions.toggleNewDisputeModalView();
 		}
