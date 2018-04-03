@@ -1,4 +1,5 @@
 import { dbconnectionManager } from './DBConnectionManager';
+import { transactionHelper } from './TransactionHelper';
 import { blockChainVerifier } from './BlockChainVerifier';
 import { observable } from 'mobx';
 import { Long } from 'mongodb';
@@ -18,7 +19,23 @@ class DisputeHelper {
                         console.error("Error occurred while fetching transations by sequencenos." + err);
                         reject(err);
                     } else {
-                        resolve(result);
+                        var promisesToWaitOn = [];
+                        for (var i = 0; i < result.length; i++) {
+                            let dispute = result[i];
+                            //Fetch transaction data if exists
+                            var prms = new Promise(function(resolve, reject) {
+                                transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                                    if (transaction) {
+                                        dispute.transaction = transaction; //Transaction is in the database.
+                                    }
+                                    resolve(dispute);
+                                });
+                            });
+                            promisesToWaitOn.push(prms);
+                        }
+                        Promise.all(promisesToWaitOn).then(function (disputes) {
+                            resolve(disputes);
+                        });
                     }
                 });
         });
@@ -55,7 +72,7 @@ class DisputeHelper {
                         reject(err);
                     });
             }
-        });    
+        });
     }
 
     getDraftCount(transactionId) {

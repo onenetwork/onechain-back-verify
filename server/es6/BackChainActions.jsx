@@ -721,32 +721,7 @@ export default class BackChainActions {
             store.loadingData = false;
             if(result.success) {
                 for(let i = 0, len = result.disputes.length; i< len; i++) {
-                    //TODO:Yusuf Improve performance.
-                    let dispute = result.disputes[i];
-                    let found = false;
-                    for(let i = 0; i < store.transactions.length; i++) {
-                        let transaction = store.transactions[i];
-                        if(transaction.id = dispute.transactionId) {
-                            dispute.transaction = transaction;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if(found) {
-                        store.disputes.push(dispute);
-                    } else {
-                        BackChainActions.loadTransactions(dispute.transactionId, "tnxId", function(){
-                            for(let i = 0; i < store.transactions.length; i++) {
-                                let transaction = store.transactions[i];
-                                if(transaction.id = dispute.transactionId) {
-                                    dispute.transaction = transaction;
-                                    break;
-                                }
-                            }
-                            store.disputes.push(dispute);
-                        });
-                    }                  
-                    
+                    store.disputes.push(result.disputes[i]);
                 }                
             } else {
                 store.error = "Couldn't load disputes. Please try again later";
@@ -787,6 +762,24 @@ export default class BackChainActions {
             }
         })
     }
+
+    @action
+    static populateDisputeTransaction(transactionId) {
+        return new Promise(resolve => {
+            //TODO for Pankaj or Ravi
+            /**
+             * When we call this action from TrackAndVerify page, store.transactions will contain all the data we need
+             * loop {
+             *  if store.transactions[i].id = transactionId then
+             *      store.disputeTransaction = store.transactions[i]
+             *      break;
+             * }
+             * resolve()
+             */
+        })
+    }
+
+
 
     @action
     static clearDisputeTransaction() {

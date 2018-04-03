@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, Modal} from 'react-bootstrap';
+import { Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, Modal } from 'react-bootstrap';
 import { toJS } from 'mobx';
 import EventsPopoverContent from './EventsPopoverContent';
 import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';
-import { Link } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import Images from '../Images';
@@ -61,9 +61,23 @@ const fieldProps = {
 
         this.eventsPopoverRefsMap = {};
         this.state = {
+            redirect: false,
             eventsPopoverVisibilityMap: {}
         };
     }
+
+    componentDidMount() {
+		BackChainActions.processApplicationSettings();
+	}
+
+    loadTransactionIntoStoreAndRedirect(transactionId) {
+		let me = this;
+		BackChainActions.loadTransactions(transactionId, "tnxId", function(redirect) {
+			if(redirect) {
+				me.setState({redirect: redirect});
+			}
+		});
+	}
 
     render() {
         const disputes = toJS(this.props.store.disputes);
@@ -77,10 +91,10 @@ const fieldProps = {
                     <th style={fieldProps.columns}>Date Closed</th>
                     <th style={fieldProps.columns}>Transaction ID</th>
                     <th style={fieldProps.columns}>Transaction Date</th>
-                    <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Events</th>
+                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Events</th>
                     <th style={fieldProps.columns}>Raised By</th>
                     <th style={fieldProps.columns}>Reason Code</th>
-                    <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Participants</th>
+                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Participants</th>
                     <th style={fieldProps.columns}>Actions</th>
                 </tr>
             </thead>
@@ -92,21 +106,25 @@ const fieldProps = {
             </tbody>
         );
 
-		return(
-            <div>
-                <Table responsive condensed hover style={fieldProps.table}>
-                    {tableHead}
-                    {tableBody}
-                </Table>
-            </div>
-		);
+        if (this.state.redirect) {
+            return <Redirect push to="/listTransactions" />;
+        } else {
+            return (
+                <div>
+                    <Table responsive condensed hover style={fieldProps.table}>
+                        {tableHead}
+                        {tableBody}
+                    </Table>
+                </div>
+            );
+        }
     }
 
     renderDisputeRows(disputes) {
         let disputesRowsToDisplay = [];
-        for(let i = 0; i < disputes.length; i++) {
+        for (let i = 0; i < disputes.length; i++) {
             let dispute = disputes[i];
-            if(!dispute) {
+            if (!dispute) {
                 continue;
             }
 
@@ -118,7 +136,7 @@ const fieldProps = {
 
     renderDisputeRow(dispute, idx) {
         return (
-            <tr style = {{backgroundColor : idx % 2 ? 'rgba(250, 250, 250, 1)' : ''}} key={dispute.id}>
+            <tr style={{ backgroundColor: idx % 2 ? 'rgba(250, 250, 250, 1)' : '' }} key={dispute.id}>
                 {this.renderDisputeStatusCell(dispute)}
                 {this.renderDisputeIdCell(dispute)}
                 {this.renderDateCell(dispute.submittedDate)}
@@ -128,7 +146,7 @@ const fieldProps = {
                 {this.renderDisputeEventsCell(dispute, idx)}
                 {this.renderDisputeRaisedByCell(dispute)}
                 {this.renderDisputeReasonCell(dispute)}
-                {this.renderDisputeParticipantsCell(dispute, idx)}                
+                {this.renderDisputeParticipantsCell(dispute, idx)}
                 {this.renderDisputeActionsCell(dispute)}
             </tr>
         );
@@ -141,8 +159,8 @@ const fieldProps = {
     renderDisputeIdCell(dispute) {
         const disputeId = dispute.id;
         return (
-            <td style={Object.assign({ maxWidth: '130px'}, fieldProps.columns)}>
-                <div style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+            <td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
+                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     <OverlayTrigger
                         trigger={['hover', 'focus']}
                         placement="top"
@@ -156,18 +174,33 @@ const fieldProps = {
 
     renderTransactionIdCell(dispute) {
         const transactionId = dispute.transactionId;
-        return (
-            <td style={Object.assign({ maxWidth: '130px'}, fieldProps.columns)}>
-                <div style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                    <OverlayTrigger
-                        trigger={['hover', 'focus']}
-                        placement="top"
-                        overlay={<Popover id={transactionId} className="transaction-id-popover">{transactionId}</Popover>}>
-                        <span>{transactionId}</span>
-                    </OverlayTrigger>
-                </div>
-            </td>
-        );
+        const coreIdComp = <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <OverlayTrigger
+                trigger={['hover', 'focus']}
+                placement="top"
+                overlay={<Popover id={transactionId} className="transaction-id-popover">{transactionId}</Popover>}>
+                <span>{transactionId}</span>
+            </OverlayTrigger>
+        </div>;
+
+
+        let linkStart = '';
+        let linkEnd = '';
+        if (dispute.transaction) {
+            return (
+                <td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
+                    <Link to='#' onClick={this.loadTransactionIntoStoreAndRedirect.bind(this, dispute.transactionId)}>
+                        {coreIdComp}
+                    </Link>
+                </td>
+            );
+        } else {
+            return (
+                <td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
+                    {coreIdComp}
+                </td>
+            );
+        }
     }
 
     renderDateCell(dateInMillis) {
@@ -184,7 +217,7 @@ const fieldProps = {
          * "It looks like you aren't fully synchronized and the transaction is missing. You can try to initiate sync to display full 
          * transaction data."
          */
-        return <td style={fieldProps.columns}></td>; 
+        return <td style={fieldProps.columns}></td>;
         /*
         return (
             <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
@@ -226,7 +259,7 @@ const fieldProps = {
         const testMapping = {
             "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051": "CustomerA"
         }
-        return <td style={fieldProps.columns}>{testMapping[dispute.raisedBy]}</td>; 
+        return <td style={fieldProps.columns}>{testMapping[dispute.raisedBy]}</td>;
         //Should get the actual enterprise name from BCAddressToEnterpriseMapping collection
         //If mapping doesn't have the value, we should display a warning message
     }
@@ -274,7 +307,7 @@ const fieldProps = {
     }
 
     getEventCountCSS(eventCount) {
-        switch(this.getEventCountString(eventCount).length) {
+        switch (this.getEventCountString(eventCount).length) {
             case 1:
                 return "counter1";
             case 2:
@@ -285,7 +318,7 @@ const fieldProps = {
     }
 
     getEventCountString(eventCount) {
-        if(eventCount >= 1000) {
+        if (eventCount >= 1000) {
             return Math.floor(eventCount / 1000) + "k";
         }
         return eventCount.toString();
