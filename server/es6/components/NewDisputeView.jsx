@@ -12,7 +12,8 @@ import moment from 'moment';
 		this.setModalBodyRef = this.setModalBodyRef.bind(this);           
 		this.handleClick = this.handleClick.bind(this);
 		this.state = {
-			disputeInfoMsg : null
+			disputeInfoMsg: null,
+			disputeErrorMsg: null
         };
 	}
 	
@@ -81,14 +82,26 @@ import moment from 'moment';
 	}
 
 	saveAsDraft() {
+ 
 		let me = this;
+		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
+			me.setState({ disputeErrorMsg: "Please enter transaction id", disputeInfoMsg: null });
+			return;
+		}
+		else if (ReactDOM.findDOMNode(this.select).value == "select") {
+			me.setState({ disputeErrorMsg: "Please select reason code.", disputeInfoMsg: null});
+			return;
+		} else {
+			me.setState({ disputeErrorMsg: null, disputeInfoMsg: null });
+		}
+
 		this.getNewDisputeData()
 		.then(function(dispute) {
 			BackChainActions.saveDisputeAsDraft(dispute)
 			.then(function(response) {
 				if(response.success) {
 					if(response.status) {
-						me.setState({ disputeInfoMsg: response.status});
+						me.setState({ disputeInfoMsg: response.status, disputeErrorMsg : null});
 						return;
 					}
 					BackChainActions.toggleNewDisputeModalView();
@@ -228,13 +241,18 @@ import moment from 'moment';
 			}
 		};
 
-		let disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgb(250, 250, 250)', borderColor: 'rgba(242, 242, 242, 1)'})}>
-								<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> a420987490553228734636691</span>
-							</Row>);
+		let disputeInfo = null;
 		if(this.state.disputeInfoMsg) {
 			disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
 								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
 								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500' }}>Warning!</span>&nbsp;<span>You already have a dispute in {this.state.disputeInfoMsg} status. Please go to <a href='/listDisputes'>disputes page</a> to see existing disputes</span></span>						
+							</Row>);
+		}
+		let disputeErrorMsgInfo = null;
+		if (this.state.disputeErrorMsg) {
+			disputeErrorMsgInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgba(252, 228, 224, 1)', borderColor: 'rgba(235, 204, 209, 1)' })}>
+				<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#D9443F' }} /></span>&nbsp;&nbsp;
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#D9443F' }}>Error!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
 							</Row>);
 		}
         return(
@@ -266,7 +284,12 @@ import moment from 'moment';
 									</div>
 
 									<div style={fieldProps.disputeIdParentDiv}>
+										{disputeErrorMsgInfo}
 										{disputeInfo}
+										<br />
+										<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgb(250, 250, 250)', borderColor: 'rgba(242, 242, 242, 1)' })}>
+											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> a420987490553228734636691</span>
+										</Row>
 										<br/>
 									</div>
 
@@ -277,7 +300,7 @@ import moment from 'moment';
 													Transaction ID:
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
-													<FormControl type="text" placeholder="Enter transaction ID" defaultValue={disputeTransaction == null ? '' : disputeTransaction.id} />
+													<FormControl inputRef={(ref) => { this.transactionId = ref }} type="text" placeholder="Enter transaction ID" defaultValue={disputeTransaction == null ? '' : disputeTransaction.id} />
 												</Col>
 											</Col>
 
