@@ -166,3 +166,18 @@ exports.saveDisputeAsDraft = function (req, res) {
         res.json({ success: false });
     });
 };
+
+exports.getRaisedByAddress = function (req, res) {
+    transactionHelper.getRaisedByAddress(req.params.entNameOfLoggedUser)
+    .then(function (result) {
+        if(result.success) {
+            res.json(result);
+        } else {
+            res.json({success: false});
+        }
+    })
+    .catch(function (error) {
+        res.json({success: false});
+        console.error(error);
+    });
+};

@@ -294,6 +294,27 @@ class TransactionHelper {
         }
         return events;
     }
+
+    getRaisedByAddress(entName) {
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
+                .toArray(function(err, result) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        result = result[0];
+                        for (let key in result) {
+                            if (result.hasOwnProperty(key)) {
+                              if(result[key] == entName) {
+                                resolve({success : true, entAddress : key})
+                                break;
+                              }
+                            }
+                          }
+                    }
+                });
+        });
+    }
 }
 
 export const transactionHelper = new TransactionHelper();

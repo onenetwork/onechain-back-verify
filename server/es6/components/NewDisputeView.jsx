@@ -43,46 +43,63 @@ import moment from 'moment';
 	
 	getNewDisputeData() {
 		// Todo @pankaj check if required fields by user entered or not (like Transaction ID)
-		let disputeTransaction = this.props.store.disputeTransaction;
-		let btIds = [];
-		for(let i = 0; i < disputeTransaction.transactionSlices.length; i++) {
-			let transactionSlice = disputeTransaction.transactionSlices[i];
-			if(transactionSlice.type === "Intersection") {
-				for(let j = 0; j < transactionSlice.businessTransactionIds.length; j++) {
-					btIds.push(transactionSlice.businessTransactionIds[j]);
+		let me = this;
+		return new Promise(function(resolve, reject) {
+			let disputeTransaction = me.props.store.disputeTransaction;
+			let btIds = [];
+			for(let i = 0; i < disputeTransaction.transactionSlices.length; i++) {
+				let transactionSlice = disputeTransaction.transactionSlices[i];
+				if(transactionSlice.type === "Intersection") {
+					for(let j = 0; j < transactionSlice.businessTransactionIds.length; j++) {
+						btIds.push(transactionSlice.businessTransactionIds[j]);
+					}
 				}
 			}
-		}
 
-		let dispute = {
-			"id": 1234567, //Todo @pankaj generate random number
-			"creationDate": moment().valueOf(),
-			"submittedDate" : null,
-			"closedDate": null,
-			"transactionId": disputeTransaction.id,
-			"events" : btIds,
-			"raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051",
-			"reasonCode": ReactDOM.findDOMNode(this.select).value,
-			"status": "Draft"
-		}
-
-		return dispute;
+			BackChainActions.getRaisedByAddress()
+			.then(function(result) {
+				let dispute = {
+					"id": 1234567, //Todo @pankaj generate random number
+					"creationDate": moment().valueOf(),
+					"submittedDate" : null,
+					"closedDate": null,
+					"transactionId": disputeTransaction.id,
+					"events" : btIds,
+					"raisedBy": "",
+					"reasonCode": ReactDOM.findDOMNode(me.select).value,
+					"status": "Draft"
+				}
+				if(result.success) {
+					dispute.raisedBy = result.entAddress;
+				}
+				resolve(dispute);
+			})
+			.catch(function (err) {
+				reject(err);
+			});
+		});
 	}
 
 	saveAsDraft() {
 		let me = this;
-		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
-		.then(function(response) {
-			if(response.success) {
-				if(response.status) {
-					//TODO@PANKAJ add link to disputes page
-					let msg = "You already have a dispute in " + response.status + " status. Please go to " + " disputes page " + "to see existing disputes";
-					me.setState({disputeInfoMsg: msg});
-					return;
+		this.getNewDisputeData()
+		.then(function(dispute) {
+			BackChainActions.saveDisputeAsDraft(dispute)
+			.then(function(response) {
+				if(response.success) {
+					if(response.status) {
+						//TODO@PANKAJ add link to disputes page
+						let msg = "You already have a dispute in " + response.status + " status. Please go to " + " disputes page " + "to see existing disputes";
+						me.setState({disputeInfoMsg: msg});
+						return;
+					}
+					BackChainActions.toggleNewDisputeModalView();
+					BackChainActions.clearDisputeTransaction();
 				}
-				BackChainActions.toggleNewDisputeModalView();
-				BackChainActions.clearDisputeTransaction();
-			}
+			}, function(error) {
+				console.error(error);
+			});
+
 		}, function(error) {
 			console.error(error);
 		});
