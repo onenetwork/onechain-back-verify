@@ -13,7 +13,8 @@ import moment from 'moment';
 		this.handleClick = this.handleClick.bind(this);
 		this.state = {
 			disputeInfoMsg: null,
-			disputeErrorMsg: null
+			disputeErrorMsg: null,
+			disputeId : Date.now()
         };
 	}
 	
@@ -43,7 +44,6 @@ import moment from 'moment';
 	}
 	
 	getNewDisputeData() {
-		// Todo @pankaj check if required fields by user entered or not (like Transaction ID)
 		let me = this;
 		return new Promise(function(resolve, reject) {
 			let disputeTransaction = me.props.store.disputeTransaction;
@@ -60,7 +60,7 @@ import moment from 'moment';
 			BackChainActions.getRaisedByAddress()
 			.then(function(result) {
 				let dispute = {
-					"id": 1234567, //Todo @pankaj generate random number
+					"id": me.state.disputeId,
 					"creationDate": moment().valueOf(),
 					"submittedDate" : null,
 					"closedDate": null,
@@ -288,7 +288,7 @@ import moment from 'moment';
 										{disputeInfo}
 										<br />
 										<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgb(250, 250, 250)', borderColor: 'rgba(242, 242, 242, 1)' })}>
-											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> a420987490553228734636691</span>
+											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> {this.state.disputeId} </span>
 										</Row>
 										<br/>
 									</div>
