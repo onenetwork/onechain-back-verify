@@ -88,9 +88,7 @@ import moment from 'moment';
 			.then(function(response) {
 				if(response.success) {
 					if(response.status) {
-						//TODO@PANKAJ add link to disputes page
-						let msg = "You already have a dispute in " + response.status + " status. Please go to " + " disputes page " + "to see existing disputes";
-						me.setState({disputeInfoMsg: msg});
+						me.setState({ disputeInfoMsg: response.status});
 						return;
 					}
 					BackChainActions.toggleNewDisputeModalView();
@@ -236,7 +234,7 @@ import moment from 'moment';
 		if(this.state.disputeInfoMsg) {
 			disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
 								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
-								<span style={{fontSize:'14px', top: '67px', position: 'absolute'}}>&nbsp;<span style={{color:'#F19500'}}>Warning!</span>&nbsp;<span>{this.state.disputeInfoMsg}</span></span>						
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500' }}>Warning!</span>&nbsp;<span>You already have a dispute in {this.state.disputeInfoMsg} status. Please go to <a href='/listDisputes'>disputes page</a> to see existing disputes</span></span>						
 							</Row>);
 		}
         return(
