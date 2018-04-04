@@ -13,7 +13,7 @@ import '../../public/css/disputeFiltersView.css';
         };
     }
 
-    onClick(value) {
+    showHideAdvancedFilters(value) {
         let me = this;
         me.setState({ showFilterTable: value });
     }
@@ -29,13 +29,13 @@ import '../../public/css/disputeFiltersView.css';
 
         let filterUI = null;
         if (!this.state.showFilterTable) {
-            filterUI = (<div className="more-link-div" onClick={this.onClick.bind(this, true)}>
+            filterUI = (<div className="more-link-div" onClick={this.showHideAdvancedFilters.bind(this, true)}>
                 <i className="fa fa-filter" aria-hidden="true" ></i>
                 &nbsp;&nbsp;More
                     &nbsp;&nbsp;<i className="fa fa-angle-down" aria-hidden="true" style={{ fontSize: '16px' }}></i>
             </div>);
         } else {
-            filterUI = (<div className="more-link-div" onClick={this.onClick.bind(this, false)}>
+            filterUI = (<div className="more-link-div" onClick={this.showHideAdvancedFilters.bind(this, false)}>
                 <i className="fa fa-filter" aria-hidden="true" ></i>
                 &nbsp;&nbsp;Less
                     &nbsp;&nbsp;<i className="fa fa-angle-up" aria-hidden="true" style={{ fontSize: '16px' }}></i>
