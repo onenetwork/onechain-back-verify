@@ -751,16 +751,22 @@ export default class BackChainActions {
 
     @action
     static populateDisputeTransaction(transactionId) {
-        return new Promise(resolve => {
+        return new Promise(function(resolve, reject) {
             //TODO@Pankaj If not present in store then fetch from DB
+            let disputeTnxExistsInStore = false;
             for(let i = 0; i < store.transactions.length; i++) {
                 let transaction = store.transactions[i];
                 if(transaction.id === transactionId) {
                     store.disputeTransaction = transaction;
+                    disputeTnxExistsInStore = true;
                     break;
                 }
             }
-            resolve(true);
+            if(disputeTnxExistsInStore) {
+                resolve(true);
+            } else {
+                reject("Couldn’t find the transaction in the store with given id:" + transactionId);
+            }
         })
     }
     

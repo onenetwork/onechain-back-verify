@@ -505,14 +505,11 @@ const fieldProps = {
     populateDisputeTransaction(transactionId) {
         let me = this;
         BackChainActions.populateDisputeTransaction(transactionId)
-        .then(function(response) {
-            return response;
-        })
         .then(function(result) {
             me.setState({redirectToListDisputes: result});
         })
         .catch(function (err) {
-            console.log('populateDisputeTransaction error');
+            console.error(err);
         });
     }
 }
