@@ -751,8 +751,8 @@ export default class BackChainActions {
 
     @action
     static populateDisputeTransaction(transactionId) {
+        this.clearDisputeTransaction();
         return new Promise(function(resolve, reject) {
-            //TODO@Pankaj If not present in store then fetch from DB
             let disputeTnxExistsInStore = false;
             for(let i = 0; i < store.transactions.length; i++) {
                 let transaction = store.transactions[i];
@@ -765,7 +765,20 @@ export default class BackChainActions {
             if(disputeTnxExistsInStore) {
                 resolve(true);
             } else {
-                reject("Couldn’t find the transaction in the store with given id:" + transactionId);
+                let uri = '/getTransactionById/' + transactionId;
+                fetch(uri, {method: 'GET'}).then(function(response) {
+                    return response.json();
+                }, function(error) {
+                    console.error('error getting transaction by transaction id for populateDisputeTransaction');
+                    reject("Transaction with id: " + transactionId + " not found");
+                }).then(function(result) {
+                    if(result.result.length > 0) {
+                        store.disputeTransaction = result.result[0];
+                        resolve(true);
+                    } else {
+                        reject("Transaction with id: " + transactionId + " not found");
+                    }
+                });
             }
         })
     }

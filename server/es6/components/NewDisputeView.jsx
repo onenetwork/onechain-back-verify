@@ -14,6 +14,7 @@ import moment from 'moment';
 		this.state = {
 			disputeInfoMsg: null,
 			disputeErrorMsg: null,
+			searchTnxIdTimeOut : 0,
 			disputeId : Date.now()
         };
 	}
@@ -81,6 +82,23 @@ import moment from 'moment';
 		});
 	}
 
+	onTnxIdChange(event) {
+		const me = this;
+		me.setState({disputeErrorMsg : null});
+		event.persist();
+		if (me.state.searchTnxIdTimeOut) {
+			clearTimeout(me.state.searchTnxIdTimeOut);
+		}
+		me.setState({
+			searchTnxIdTimeOut: setTimeout(function() {
+				BackChainActions.populateDisputeTransaction(event.target.value)
+				.catch(function (err) {
+					me.setState({disputeErrorMsg : err});
+				});
+			}, 3000)
+		});
+	}
+
 	saveAsDraft() {
  
 		let me = this;
@@ -105,7 +123,7 @@ import moment from 'moment';
 						return;
 					}
 					dispute.transaction = me.props.store.disputeTransaction;
-					me.props.store.disputes.push(dispute);
+					me.props.store.disputes.unshift(dispute);
 					BackChainActions.toggleNewDisputeModalView();
 					BackChainActions.clearDisputeTransaction();
 				}
@@ -130,7 +148,7 @@ import moment from 'moment';
 		let disputeTransactionDate  = 'N/A';
 		let disputeTransaction = store.disputeTransaction;
 
-        if(disputeTransaction !== null) {
+        if(typeof disputeTransaction !== "undefined" && disputeTransaction !== null) {
             transactionSlices = disputeTransaction.transactionSlices;
             BackChainActions.loadEventsForTransaction(disputeTransaction);
             disputeTransactionDate = moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A')
@@ -302,7 +320,7 @@ import moment from 'moment';
 													Transaction ID:
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
-													<FormControl inputRef={(ref) => { this.transactionId = ref }} type="text" placeholder="Enter transaction ID" defaultValue={disputeTransaction == null ? '' : disputeTransaction.id} />
+													<FormControl inputRef={(ref) => { this.transactionId = ref }} type="text" onChange={this.onTnxIdChange.bind(this)} placeholder="Enter transaction ID" defaultValue={disputeTransaction == null ? '' : disputeTransaction.id} />
 												</Col>
 											</Col>
 
