@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import moment from 'moment';
+import { ObjectID } from 'bson';
 
 @observer export default class NewDisputeView extends React.Component {
 
@@ -15,7 +16,7 @@ import moment from 'moment';
 			disputeInfoMsg: null,
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0,
-			disputeId : Date.now()
+			disputeId : new ObjectID().toString()
         };
 	}
 	
