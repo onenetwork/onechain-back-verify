@@ -104,6 +104,8 @@ import moment from 'moment';
 						me.setState({ disputeInfoMsg: response.status, disputeErrorMsg : null});
 						return;
 					}
+					dispute.transaction = me.props.store.disputeTransaction;
+					me.props.store.disputes.push(dispute);
 					BackChainActions.toggleNewDisputeModalView();
 					BackChainActions.clearDisputeTransaction();
 				}
