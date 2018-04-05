@@ -791,6 +791,34 @@ export default class BackChainActions {
     }
 
     @action
+    static discardDisputeDraft(disputeId) {
+        return new Promise(resolve => {
+            //Should remove draft dispute from database 
+            //Once the request returns, go ahead and update the list of disputes
+            resolve(true); //Decide what to return
+        })
+    }
+
+    @action
+    static closeDispute(disputeId) {
+        return new Promise(resolve => {
+            //Should send a close call to backchain for this specific dispute 
+            //Once the request returns, go ahead and update the list of disputes
+            resolve(true); //Decide what to return
+        })
+    }
+
+    @action
+    static submitDispute(dispute) {
+        return new Promise(resolve => {
+            //First submits dispute to blockchain.
+            //If the call is successful, it removes the draft from database.
+            //Once both operations are complete, go ahead and update the list of disputes
+            resolve(true); //Decide what to return
+        })
+    }
+
+    @action
     static getRaisedByAddress() {
         return new Promise(resolve => {
             let uri = '/getRaisedByAddress/' + store.entNameOfLoggedUser;

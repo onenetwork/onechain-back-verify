@@ -67,17 +67,30 @@ const fieldProps = {
     }
 
     componentDidMount() {
-		BackChainActions.processApplicationSettings();
-	}
+        BackChainActions.processApplicationSettings();
+    }
 
     loadTransactionIntoStoreAndRedirect(transactionId) {
-		let me = this;
-		BackChainActions.loadTransactions(transactionId, "tnxId", function(redirect) {
-			if(redirect) {
-				me.setState({redirect: redirect});
-			}
-		});
-	}
+        let me = this;
+        BackChainActions.loadTransactions(transactionId, "tnxId", function (redirect) {
+            if (redirect) {
+                me.setState({ redirect: redirect });
+            }
+        });
+    }
+
+    closeDispute(dispute) {
+        BackChainActions.closeDispute(dispute.id);
+    }
+
+    discardDraftDispute(dispute) {
+        BackChainActions.discardDisputeDraft(dispute.id);
+    }
+
+    submitDispute(dispute) {
+        BackChainActions.submitDispute(dispute);
+    }
+
 
     render() {
         const disputes = toJS(this.props.store.disputes);
@@ -210,48 +223,48 @@ const fieldProps = {
 
     renderDisputeEventsCell(dispute, idx) {
         /**
-         * Pseudeo code
-         * iff dispute.events list is empty, fetch all the events from the transaction itself.
-         * iff dispute.events has a subset of btIds, only fetch the events from the transaction with a corresponding btIds.
-         * iff the transaction doesn't exist in the db, show a warning when user clicks on the popover. It should say
+         * TODO:Yusuf Missing Tasks
+         * 1. iff dispute.events has a subset of btIds, only fetch the events from the transaction with a corresponding btIds. 
+         * 2. iff the transaction doesn't exist in the db, show a warning when user clicks on the popover. It should say
          * "It looks like you aren't fully synchronized and the transaction is missing. You can try to initiate sync to display full 
          * transaction data."
          */
-        return <td style={fieldProps.columns}></td>;
-        /*
-        return (
-            <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
-                <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
-                    <img
-                        className="counter-img"
-                        src={Images.EVENT_BADGE}
-                        ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
-                    <div className={this.getEventCountCSS(transaction.eventCount)}>
-                        {this.getEventCountString(transaction.eventCount)}
+        if(dispute.transaction) {
+            return (
+                <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
+                    <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
+                        <img
+                            className="counter-img"
+                            src={Images.EVENT_BADGE}
+                            ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
+                        <div className={this.getEventCountCSS(dispute.transaction.eventCount)}>
+                            {this.getEventCountString(dispute.transaction.eventCount)}
+                        </div>
+                        
+                        <Overlay
+                            show={this.state.eventsPopoverVisibilityMap[idx] || false}
+                            onHide={() => this.showEventsPopover(idx, false)}
+                            rootClose={true}
+                            placement="right"
+                            container={document.getElementById("root")}
+                            target={() => this.eventsPopoverRefsMap[idx]}>
+    
+                            <Popover id={"events-popover-" + idx} className="events-popover" title={(
+                                <span>
+                                    <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
+                                    Events:
+                                </span>
+                            )}>
+                                <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} />
+                            </Popover>
+    
+                        </Overlay>
                     </div>
-
-                    <Overlay
-                        show={this.state.eventsPopoverVisibilityMap[idx] || false}
-                        onHide={() => this.showEventsPopover(idx, false)}
-                        rootClose={true}
-                        placement="right"
-                        container={document.getElementById("root")}
-                        target={() => this.eventsPopoverRefsMap[idx]}>
-
-                        <Popover id={"events-popover-" + idx} className="events-popover" title={(
-                            <span>
-                                <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
-                                Events:
-                            </span>
-                        )}>
-                            <EventsPopoverContent store={this.props.store} transaction={transaction} />
-                        </Popover>
-
-                    </Overlay>
-                </div>
-            </td>
-        );
-        */
+                </td>
+            );
+        } else {
+            return <td style={fieldProps.columns}></td>;
+        }
     }
 
 
@@ -270,40 +283,79 @@ const fieldProps = {
     }
 
     renderDisputeParticipantsCell(dispute) {
-        /**
-         * Iff the transaction with given dispute.transactionId exits in the db, go ahead and fetch all the enterprises mentioned and display
-         * Iff the transaction doesn't exist, same warning message in DisputeEvents column should be displayed. 
-         */
-        return <td style={fieldProps.columns}></td>;
-        /*
-        let displayExecutingUsers = transaction.executingUsers;
-        if(transaction.executingUsers.length > 1) {
-            let usersList = [];
-            for(let i = 0;i < transaction.executingUsers.length; i++) {
-                usersList.push(<li key={i}>{transaction.executingUsers[i]}</li>);
+        let partnerNames = '';
+        if (dispute.transaction) {
+            let listOfPartners = [];
+            for (let i = 0; i < dispute.transaction.transactionSlices.length; i++) {
+                let transactionSlice = dispute.transaction.transactionSlices[i];
+                if (transactionSlice.type == "Enterprise" && listOfPartners.indexOf(transactionSlice.enterprise) < 0) {
+                    listOfPartners.push(transactionSlice.enterprise);
+                } else if (transactionSlice.type == "Intersection") {
+                    if (listOfPartners.indexOf(transactionSlice.enterprises[0]) < 0) {
+                        listOfPartners.push(transactionSlice.enterprises[0]);
+                    }
+                    if (listOfPartners.indexOf(transactionSlice.enterprises[1]) < 0) {
+                        listOfPartners.push(transactionSlice.enterprises[1]);
+                    }
+                }
             }
-            displayExecutingUsers = (
-                <OverlayTrigger
-                    trigger={['hover', 'focus']}
-                    placement="top"
-                    overlay={(
-                        <Popover id={transaction.executingUsers.join() + i}>
-                            <ul style={{paddingLeft: '0px',listStyleType: 'none'}}>
-                                {usersList}
-                            </ul>
-                        </Popover>
-                    )}>
-                    <span>{transaction.executingUsers[0].length > 16 ? transaction.executingUsers[0].substring(0,16) + '...' : transaction.executingUsers[0]}</span>
-                </OverlayTrigger>
-            );
+            partnerNames = listOfPartners.join(', ');
         }
 
-        return <td style={fieldProps.columns}>{displayExecutingUsers}</td>;
-        */
+        return <td style={fieldProps.columns}>{partnerNames}</td>;
     }
 
     renderDisputeActionsCell(dispute) {
-        return <td style={fieldProps.columns}>AA</td>; //Display the icon and corresponding inner menu items depending on the dispute status.
+        if (dispute.status == 'Draft') {
+            let actionsCell = (
+                <OverlayTrigger
+                    trigger={"click"}
+                    container={this}
+                    overlay={(
+                        <div>
+                            <Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
+                                <div id={dispute.id + "_submit"} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
+                                    <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
+                                    <div style={{}} className="dispute-transation-img" >
+                                        <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
+                                    </div>
+                                </div>
+                            </Link>
+                            <Link to='#' onClick={this.discardDraftDispute.bind(this, dispute)}>
+                                <div id={dispute.id + "_discard"} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
+                                    <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
+                                    <div style={{}} className="dispute-transation-img" >
+                                        <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Discard Draft
+                                    </div>
+                                </div>
+                            </Link>
+                        </div>
+                    )}>
+                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
+                </OverlayTrigger>
+            );
+            return <td style={fieldProps.columns}>{actionsCell}</td>;
+        } else if (dispute.status == 'Open') {
+            let actionsCell = (
+                <OverlayTrigger
+                    trigger={"click"}
+                    container={this}
+                    overlay={(
+                        <Link to='#' onClick={this.closeDispute.bind(this, dispute)}>
+                            <div id={dispute.id + "_close"} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
+                                <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
+                                <div style={{}} className="dispute-transation-img" >
+                                    <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Close Dispute
+                                </div>
+                            </div>
+                        </Link>
+                    )}>
+                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
+                </OverlayTrigger>
+            );
+            return <td style={fieldProps.columns}>{actionsCell}</td>;
+        }
+        return <td style={fieldProps.columns}></td>;
     }
 
     getEventCountCSS(eventCount) {
