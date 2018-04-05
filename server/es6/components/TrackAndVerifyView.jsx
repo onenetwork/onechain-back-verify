@@ -9,8 +9,8 @@ import JSZip from 'jszip';
 import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, ProgressBar, Modal} from 'react-bootstrap';
 
 import MyView from './MyView';
-import DiffView from './DiffView';
 import EventsPopoverContent from './EventsPopoverContent';
+import DiffView from './DiffView';
 import BackChainActions from '../BackChainActions';
 import filesaver from '../FileSaver';
 import Images from '../Images';
@@ -107,9 +107,11 @@ const fieldProps = {
         super(...args);
 
         this.eventsPopoverRefsMap = {};
+        this.actionsPopoverRefsMap = {};
         this.state = {
             eventsPopoverVisibilityMap: {},
-            redirectToListDisputes: false
+            redirectToListDisputes: false,
+            actionsPopoverVisibilityMap: {}
         };
     }
 
@@ -258,11 +260,11 @@ const fieldProps = {
                 {this.renderTransactionIdCell(transaction, idx == this.props.store.transactions.length - 1)}
                 {this.renderTransactionDateCell(transaction)}
                 {this.renderTransactionEventsCell(transaction, idx)}
-                {this.renderTransactionDisputesCell(transaction)}
+                {this.renderTransactionDisputesCell(transaction, idx)}
                 {this.renderTransactionExecutingUsersCell(transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
-                {this.renderTransactionActionsCell(transaction)}
+                {this.renderTransactionActionsCell(transaction, idx)}
             </tr>
         );
     }
@@ -457,25 +459,32 @@ const fieldProps = {
         return cells;
     }
 
-    renderTransactionActionsCell(transaction) {
-        let actionsCell = (
-            <OverlayTrigger
-                trigger={"click"}
-                container={this}
-                overlay={(
-                    <Link to='#' onClick={this.populateDisputeTransaction.bind(this, transaction.id)}>
-                        <div id={transaction.id} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
-                            <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
-                            <div style={{}} className="dispute-transation-img" >
+    renderTransactionActionsCell(transaction, idx) {
+        return (
+            <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
+                <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
+                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
+                        ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                    <Overlay
+                        show={this.state.actionsPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showActionPopover(idx, false)}
+                        rootClose={true}
+                        placement="right"
+                        container={document.getElementById("root")}
+                        target={() => this.actionsPopoverRefsMap[idx]}>
+                        
+                        <Popover id={"action-popover-" + idx} className="action-popover" >
+                            <Link to='#' onClick={this.populateDisputeTransaction.bind(this, transaction.id)}>    
+                            <div className="dispute-transation-div">
                                 <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Dispute Transaction
                             </div>
-                        </div>
-                    </Link>
-                )}>
-                <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
-            </OverlayTrigger>
+                            </Link>    
+                        </Popover>
+                       
+                    </Overlay>
+                </div>
+            </td>
         );
-        return <td style={fieldProps.columns}>{actionsCell}</td>;
     }
     
     getEventCountCSS(eventCount) {
@@ -500,6 +509,12 @@ const fieldProps = {
         let newMap = Object.assign({}, this.state.eventsPopoverVisibilityMap);
         newMap[idx] = show;
         this.setState({ eventsPopoverVisibilityMap: newMap });
+    }
+
+    showActionPopover(idx, show) {
+        let newMap = Object.assign({}, this.state.actionsPopoverVisibilityMap);
+        newMap[idx] = show;
+        this.setState({ actionsPopoverVisibilityMap: newMap });
     }
 
     populateDisputeTransaction(transactionId) {
