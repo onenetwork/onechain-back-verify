@@ -60,9 +60,11 @@ const fieldProps = {
         super(...args);
 
         this.eventsPopoverRefsMap = {};
+        this.actionsPopoverRefsMap = {};
         this.state = {
             redirect: false,
-            eventsPopoverVisibilityMap: {}
+            eventsPopoverVisibilityMap: {},
+            actionsPopoverVisibilityMap: {}
         };
     }
 
@@ -160,7 +162,7 @@ const fieldProps = {
                 {this.renderDisputeRaisedByCell(dispute)}
                 {this.renderDisputeReasonCell(dispute)}
                 {this.renderDisputeParticipantsCell(dispute, idx)}
-                {this.renderDisputeActionsCell(dispute)}
+                {this.renderDisputeActionsCell(dispute, idx)}
             </tr>
         );
     }
@@ -305,53 +307,64 @@ const fieldProps = {
         return <td style={fieldProps.columns}>{partnerNames}</td>;
     }
 
-    renderDisputeActionsCell(dispute) {
+    renderDisputeActionsCell(dispute,idx) {
         if (dispute.status == 'Draft') {
             let actionsCell = (
-                <OverlayTrigger
-                    trigger={"click"}
-                    container={this}
-                    overlay={(
-                        <div>
+                <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
+                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
+                        ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                    <Overlay
+                        show={this.state.actionsPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showActionPopover(idx, false)}
+                        rootClose={true}
+                        placement="right"
+                        container={document.getElementById("root")}
+                        target={() => this.actionsPopoverRefsMap[idx]}>
+
+                        <Popover id={dispute.id} className="dispute-action-popover" >
                             <Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
-                                <div id={dispute.id + "_submit"} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
-                                    <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
-                                    <div style={{}} className="dispute-transation-img" >
-                                        <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
+                                <div id={dispute.id + "_submit"} >    
+                                    <div className="dispute-transation-div" style= {{width:'128px'}} >
+                                            <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
                                     </div>
-                                </div>
+                                </div>    
                             </Link>
                             <Link to='#' onClick={this.discardDraftDispute.bind(this, dispute)}>
-                                <div id={dispute.id + "_discard"} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
-                                    <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
-                                    <div style={{}} className="dispute-transation-img" >
-                                        <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Discard Draft
+                                 <div id={dispute.id + "_discard"} >
+                                    <div style={{}} className="dispute-transation-div" style={{ width: '128px' }} >
+                                        <i className="fa fa-times" style={{ fontSize: '15px' }}></i>&nbsp; Discard Draft
                                     </div>
-                                </div>
-                            </Link>
-                        </div>
-                    )}>
-                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
-                </OverlayTrigger>
+                               </div>
+                             </Link>
+                        </Popover>
+                    </Overlay>
+                </div>
             );
             return <td style={fieldProps.columns}>{actionsCell}</td>;
         } else if (dispute.status == 'Open') {
             let actionsCell = (
-                <OverlayTrigger
-                    trigger={"click"}
-                    container={this}
-                    overlay={(
-                        <Link to='#' onClick={this.closeDispute.bind(this, dispute)}>
-                            <div id={dispute.id + "_close"} className="fade in popover dispute-transation-div" style={{ cursor: 'pointer' }}>
-                                <img src={Images.DISPUTE_TRANSACTION_CONTAINER_IMAGE} />
-                                <div style={{}} className="dispute-transation-img" >
-                                    <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Close Dispute
+                <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
+                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
+                        ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                    <Overlay
+                        show={this.state.actionsPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showActionPopover(idx, false)}
+                        rootClose={true}
+                        placement="right"
+                        container={document.getElementById("root")}
+                        target={() => this.actionsPopoverRefsMap[idx]}>
+
+                        <Popover id={dispute.id} className="dispute-action-popover" >
+                            <Link to='#' onClick={this.closeDispute.bind(this, dispute)}>
+                                <div id={dispute.id + "_close"} >
+                                    <div className="dispute-transation-div" style={{ width: '128px' }}>
+                                        <i className="fa fa-check-circle" style={{ fontSize: '15px' }}></i>&nbsp; Close Dispute
+                                    </div>
                                 </div>
-                            </div>
-                        </Link>
-                    )}>
-                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i>
-                </OverlayTrigger>
+                            </Link>
+                        </Popover>
+                    </Overlay>
+                </div>
             );
             return <td style={fieldProps.columns}>{actionsCell}</td>;
         }
@@ -380,5 +393,11 @@ const fieldProps = {
         let newMap = Object.assign({}, this.state.eventsPopoverVisibilityMap);
         newMap[idx] = show;
         this.setState({ eventsPopoverVisibilityMap: newMap });
+    }
+
+    showActionPopover(idx, show) {
+        let newMap = Object.assign({}, this.state.actionsPopoverVisibilityMap);
+        newMap[idx] = show;
+        this.setState({ actionsPopoverVisibilityMap: newMap });
     }
 }

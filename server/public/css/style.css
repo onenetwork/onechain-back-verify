@@ -121,6 +121,7 @@
 .popover {
     border-color: rgba(45, 162, 191, 1);
     display : inline-table !important;
+    font-family: inherit;
 }
 .popover .popover-title {
     color: rgba(45, 162, 191, 1);

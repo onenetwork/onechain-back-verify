@@ -94,3 +94,17 @@
     left: -10px !important;
     margin-top: -13px;
 }
+
+.dispute-action-popover {
+    border-color: #bcbcbc !important;
+    border-radius: 0px;
+    height: 48px;
+}
+
+.dispute-action-popover .arrow {
+    top: 50% !important;
+}
+
+.dispute-action-popover.right>.arrow:after {
+    border-right-color: white;
+}

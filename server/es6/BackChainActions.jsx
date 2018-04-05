@@ -100,9 +100,7 @@ export default class BackChainActions {
                 store.transactions.push(element);
                 if (++count == transactions.length) {
                     transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                    if (callback) {
-                        callback(store.transactions.length > 0);
-                    }
+                    
                 } 
             })
             .catch(function (error) {
@@ -114,6 +112,9 @@ export default class BackChainActions {
                 }
             });
         });
+        if (callback) {
+            callback(transactions.length > 0);
+        }
     }
 
     @action
