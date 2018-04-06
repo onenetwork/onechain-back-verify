@@ -66,9 +66,10 @@ import { ObjectID } from 'bson';
 				"closedDate": null,
 				"transactionId": disputeTransaction.id,
 				"events" : btIds,
-				"raisedBy": "",
+				"raisedBy": this.props.store.raisedBy,
 				"reasonCode": ReactDOM.findDOMNode(this.select).value,
-				"status": "Draft"
+				"status": "Draft",
+				"entNameOfLoggedUser": this.props.store.entNameOfLoggedUser
 			}
 		}
 		

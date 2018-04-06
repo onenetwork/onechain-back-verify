@@ -41,6 +41,7 @@ class BackChainStore {
     @observable startSyncViewModalActive = false;
     @observable newDisputeModalActive = false;
     @observable disputeTransaction = null;
+    @observable raisedBy = "";
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {

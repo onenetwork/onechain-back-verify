@@ -799,9 +799,12 @@ export default class BackChainActions {
             }, function(error) {
                 console.error(error);
             }).then(function(response) {
-                if(!response.exists) {
+                if(response.success && !response.exists) {
                     dispute.transaction = store.disputeTransaction;
                     store.disputes.unshift(dispute);
+                }
+                if(response.raisedBy) {
+                    store.raisedBy = response.raisedBy;
                 }
                 resolve(response);
             })

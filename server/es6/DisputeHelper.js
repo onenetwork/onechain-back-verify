@@ -124,27 +124,62 @@ class DisputeHelper {
     }
 
     saveAsDraft(dispute) {
+        var me = this;
         return new Promise((resolve, reject) => {
             this.disputeExists(dispute.transactionId)
             .then(function(response) {
-                return response;
-            }, function(error) {
-                console.error(error);
-                reject(error);
-            }).then(function(response) {
                 if(response.exists) {
                     resolve(response);
                 } else {
-                    dbconnectionManager.getConnection().collection('DraftDisputes').insert(dispute)
-                    .then(() => {
-                        resolve({success: true});
-                    })
-                    .catch((err) => {
-                        console.error("Error occurred while saving dispute as draft: " + err);
-                        reject(err);
-                    });
+                    if(dispute.raisedBy) {
+                        me.insertDraft(dispute)
+                        .then(function(response){
+                            if(response.success) {
+                                resolve(response);
+                            }
+                        }, function(error){
+                            console.error(error);
+                            reject(error);
+                        });
+                    } else {
+                        transactionHelper.getRaisedByAddress(dispute.entNameOfLoggedUser)
+                        .then(function(response){
+                            if(response.success) {
+                                dispute.raisedBy = response.entAddress;
+                                me.insertDraft(dispute)
+                                .then(function(response){
+                                    if(response.success) {
+                                        response.raisedBy = dispute.raisedBy;
+                                        resolve(response);
+                                    }
+                                }, function(error){
+                                    console.error(error);
+                                    reject(error);
+                                });
+                            }
+                        }, function(error){
+                            console.error(error);
+                            reject(error);
+                        });
+                    }
                 }
+            }, function(error) {
+                console.error(error);
+                reject(error);
+            });
+        });
+    }
+
+    insertDraft(dispute) {
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('DraftDisputes').insert(dispute)
+            .then(() => {
+                resolve({success: true});
             })
+            .catch((err) => {
+                console.error("Error occurred while saving dispute as draft: " + err);
+                reject(err);
+            });
         });
     }
 }
