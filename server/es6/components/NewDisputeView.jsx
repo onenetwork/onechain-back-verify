@@ -110,6 +110,8 @@ import { ObjectID } from 'bson';
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
 			me.setState({ disputeErrorMsg: "Please select reason code.", disputeInfoMsg: null});
 			return;
+		} else if(me.state.disputeErrorMsg) {
+			return;
 		} else {
 			me.setState({ disputeErrorMsg: null, disputeInfoMsg: null });
 		}
@@ -123,8 +125,6 @@ import { ObjectID } from 'bson';
 						me.setState({ disputeInfoMsg: response.status, disputeErrorMsg : null});
 						return;
 					}
-					dispute.transaction = me.props.store.disputeTransaction;
-					me.props.store.disputes.unshift(dispute);
 					BackChainActions.toggleNewDisputeModalView();
 					BackChainActions.clearDisputeTransaction();
 				}
@@ -149,7 +149,7 @@ import { ObjectID } from 'bson';
 		let disputeTransactionDate  = 'N/A';
 		let disputeTransaction = store.disputeTransaction;
 
-        if(typeof disputeTransaction !== "undefined" && disputeTransaction !== null) {
+        if(disputeTransaction) {
             transactionSlices = disputeTransaction.transactionSlices;
             BackChainActions.loadEventsForTransaction(disputeTransaction);
             disputeTransactionDate = moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A')

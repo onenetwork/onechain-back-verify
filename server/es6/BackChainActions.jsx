@@ -799,6 +799,8 @@ export default class BackChainActions {
             }, function(error) {
                 console.error(error);
             }).then(function(response) {
+                dispute.transaction = store.disputeTransaction;
+                store.disputes.unshift(dispute);
                 resolve(response);
             })
         })
