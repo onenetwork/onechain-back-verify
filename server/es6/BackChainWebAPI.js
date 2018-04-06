@@ -176,3 +176,7 @@ exports.isDisputeExists = function (req, res) {
             res.json({ success: false });
         });
 };
+
+exports.generateDisputeId = function (req, res) {
+    res.json(disputeHelper.generateDisputeId(req.params.plainText));
+};

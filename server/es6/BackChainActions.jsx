@@ -801,6 +801,11 @@ export default class BackChainActions {
     }
 
     @action
+    static clearDisputeId() {
+        store.generatedDisputeId = null; 
+    }
+
+    @action
     static saveDisputeAsDraft(dispute) {
         return new Promise(resolve => {
             let uri = '/saveDisputeAsDraft/' + JSON.stringify(dispute);
@@ -867,5 +872,20 @@ export default class BackChainActions {
             });
 
         })
+    }
+
+    @action
+    static generateDisputeId(plainText) {
+        let uri = '/generateDisputeId/' + plainText;
+        return fetch(uri, { method: 'GET' })
+        .then(function(response) {
+            return response.json();
+        }, function(error) {
+            console.error(error);
+        }).then(function(response){
+            if(response.success) {
+                store.generatedDisputeId = response.generatedDisputeId;
+            }
+        });
     }
 }

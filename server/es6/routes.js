@@ -22,4 +22,5 @@ export function router(app) {
     app.get('/getOpenDisputeCount/:transactionId', BackChainWebAPI.getOpenDisputeCount);
     app.post('/saveDisputeAsDraft/:dispute', BackChainWebAPI.saveDisputeAsDraft);
     app.get('/isDisputeExists/:transactionId', BackChainWebAPI.isDisputeExists);
+    app.get('/generateDisputeId/:plainText', BackChainWebAPI.generateDisputeId);
  }

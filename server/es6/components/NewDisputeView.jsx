@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import moment from 'moment';
-import { ObjectID } from 'bson';
 
 @observer export default class NewDisputeView extends React.Component {
 
@@ -15,8 +14,7 @@ import { ObjectID } from 'bson';
 		this.state = {
 			disputeInfoMsg: null,
 			disputeErrorMsg: null,
-			searchTnxIdTimeOut : 0,
-			disputeId : new ObjectID().toString()
+			searchTnxIdTimeOut : 0
         };
 	}
 	
@@ -32,17 +30,25 @@ import { ObjectID } from 'bson';
 		document.removeEventListener('click', this.handleClick, false);
 	}
 
+	componentDidMount() {
+		if(this.props.store.disputeTransaction) {
+			BackChainActions.generateDisputeId(this.props.store.entNameOfLoggedUser+"~"+this.props.store.disputeTransaction.id);
+		}
+	}
+	
 	handleClick(event) {
 		/* Checking If clicked outside of modal body */
     	if (this.modalBodyRef && !this.modalBodyRef.contains(event.target)) {
 			BackChainActions.toggleNewDisputeModalView();
 			BackChainActions.clearDisputeTransaction();
+			BackChainActions.clearDisputeId();
         }
 	}
 
 	closeModal() {
 		BackChainActions.toggleNewDisputeModalView();
 		BackChainActions.clearDisputeTransaction();
+		BackChainActions.clearDisputeId();
 	}
 	
 	getNewDisputeData() {
@@ -60,7 +66,7 @@ import { ObjectID } from 'bson';
 			}
 
 			dispute = {
-				"id": this.state.disputeId,
+				"id": this.props.store.generatedDisputeId,
 				"creationDate": moment().valueOf(),
 				"submittedDate" : null,
 				"closedDate": null,
@@ -85,7 +91,11 @@ import { ObjectID } from 'bson';
 		}
 		me.setState({
 			searchTnxIdTimeOut: setTimeout(function() {
+				BackChainActions.clearDisputeId();
 				BackChainActions.populateDisputeTransaction(event.target.value)
+				.then(function(result){
+					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
+				})
 				.catch(function (err) {
 					me.setState({disputeErrorMsg : err});
 				});
@@ -116,6 +126,7 @@ import { ObjectID } from 'bson';
 				}
 				BackChainActions.toggleNewDisputeModalView();
 				BackChainActions.clearDisputeTransaction();
+				BackChainActions.clearDisputeId();
 			}
 		}, function(error) {
 			console.error(error);
@@ -136,7 +147,7 @@ import { ObjectID } from 'bson';
 
         if(disputeTransaction) {
             transactionSlices = disputeTransaction.transactionSlices;
-            BackChainActions.loadEventsForTransaction(disputeTransaction);
+			BackChainActions.loadEventsForTransaction(disputeTransaction);
             disputeTransactionDate = moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A')
         }
 
@@ -294,7 +305,7 @@ import { ObjectID } from 'bson';
 										{disputeInfo}
 										<br />
 										<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgb(250, 250, 250)', borderColor: 'rgba(242, 242, 242, 1)' })}>
-											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> {this.state.disputeId} </span>
+											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> {this.props.store.generatedDisputeId} </span>
 										</Row>
 										<br/>
 									</div>

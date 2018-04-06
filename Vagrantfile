@@ -104,9 +104,6 @@ Vagrant.configure("2") do |config|
     #library for unsafe integers
     sudo npm install bignumber.js@6.0.0 --save
 
-    #library to generate unique id
-    sudo npm install --no-bin-links bson@1.0.4 --save
-
 	#Table Pagination
 	sudo npm install --no-bin-links react-pagination-table --save-dev
 	

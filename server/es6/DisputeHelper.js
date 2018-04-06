@@ -3,6 +3,7 @@ import { transactionHelper } from './TransactionHelper';
 import { blockChainVerifier } from './BlockChainVerifier';
 import { observable } from 'mobx';
 import { Long } from 'mongodb';
+import crypto from 'crypto';
 
 class DisputeHelper {
 
@@ -181,6 +182,10 @@ class DisputeHelper {
                 reject(err);
             });
         });
+    }
+
+    generateDisputeId(plainText) {
+        return({success: true, generatedDisputeId : crypto.createHash('sha256').update(plainText).digest('hex')});
     }
 }
 
