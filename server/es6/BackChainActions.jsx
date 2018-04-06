@@ -799,8 +799,10 @@ export default class BackChainActions {
             }, function(error) {
                 console.error(error);
             }).then(function(response) {
-                dispute.transaction = store.disputeTransaction;
-                store.disputes.unshift(dispute);
+                if(!response.exists) {
+                    dispute.transaction = store.disputeTransaction;
+                    store.disputes.unshift(dispute);
+                }
                 resolve(response);
             })
         })
@@ -831,21 +833,6 @@ export default class BackChainActions {
             //If the call is successful, it removes the draft from database.
             //Once both operations are complete, go ahead and update the list of disputes
             resolve(true); //Decide what to return
-        })
-    }
-
-    @action
-    static getRaisedByAddress() {
-        return new Promise(resolve => {
-            let uri = '/getRaisedByAddress/' + store.entNameOfLoggedUser;
-            return fetch(uri, { method: 'GET' })
-            .then(function(response) {
-                return response.json();
-            }, function(error) {
-                console.error(error);
-            }).then(function(response) {
-                resolve(response);
-            })
         })
     }
 }

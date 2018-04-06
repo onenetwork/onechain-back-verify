@@ -46,10 +46,10 @@ import { ObjectID } from 'bson';
 	}
 	
 	getNewDisputeData() {
-		let me = this;
-		return new Promise(function(resolve, reject) {
-			let disputeTransaction = me.props.store.disputeTransaction;
-			let btIds = [];
+		let disputeTransaction = this.props.store.disputeTransaction;
+		let btIds = [];
+		let dispute = {};
+		if(disputeTransaction) {
 			for(let i = 0; i < disputeTransaction.transactionSlices.length; i++) {
 				let transactionSlice = disputeTransaction.transactionSlices[i];
 				if(transactionSlice.type === "Intersection") {
@@ -59,28 +59,20 @@ import { ObjectID } from 'bson';
 				}
 			}
 
-			BackChainActions.getRaisedByAddress()
-			.then(function(result) {
-				let dispute = {
-					"id": me.state.disputeId,
-					"creationDate": moment().valueOf(),
-					"submittedDate" : null,
-					"closedDate": null,
-					"transactionId": disputeTransaction.id,
-					"events" : btIds,
-					"raisedBy": "",
-					"reasonCode": ReactDOM.findDOMNode(me.select).value,
-					"status": "Draft"
-				}
-				if(result.success) {
-					dispute.raisedBy = result.entAddress;
-				}
-				resolve(dispute);
-			})
-			.catch(function (err) {
-				reject(err);
-			});
-		});
+			dispute = {
+				"id": this.state.disputeId,
+				"creationDate": moment().valueOf(),
+				"submittedDate" : null,
+				"closedDate": null,
+				"transactionId": disputeTransaction.id,
+				"events" : btIds,
+				"raisedBy": "",
+				"reasonCode": ReactDOM.findDOMNode(this.select).value,
+				"status": "Draft"
+			}
+		}
+		
+		return dispute;
 	}
 
 	onTnxIdChange(event) {
@@ -110,28 +102,20 @@ import { ObjectID } from 'bson';
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
 			me.setState({ disputeErrorMsg: "Please select reason code.", disputeInfoMsg: null});
 			return;
-		} else if(me.state.disputeErrorMsg) {
-			return;
 		} else {
 			me.setState({ disputeErrorMsg: null, disputeInfoMsg: null });
 		}
 
-		this.getNewDisputeData()
-		.then(function(dispute) {
-			BackChainActions.saveDisputeAsDraft(dispute)
-			.then(function(response) {
-				if(response.success) {
-					if(response.status) {
-						me.setState({ disputeInfoMsg: response.status, disputeErrorMsg : null});
-						return;
-					}
-					BackChainActions.toggleNewDisputeModalView();
-					BackChainActions.clearDisputeTransaction();
+		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
+		.then(function(response) {
+			if(response.success) {
+				if(response.exists) {
+					me.setState({ disputeInfoMsg: response.status, disputeErrorMsg : null});
+					return;
 				}
-			}, function(error) {
-				console.error(error);
-			});
-
+				BackChainActions.toggleNewDisputeModalView();
+				BackChainActions.clearDisputeTransaction();
+			}
 		}, function(error) {
 			console.error(error);
 		});
