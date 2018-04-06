@@ -296,6 +296,7 @@ class TransactionHelper {
     }
 
     getRaisedByAddress(entName) {
+        this.getRaisedByEnterpriseName('adfas');
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
                 .toArray(function(err, result) {
@@ -307,6 +308,27 @@ class TransactionHelper {
                             if (result.hasOwnProperty(key)) {
                               if(result[key] == entName) {
                                 resolve({success : true, entAddress : key})
+                                break;
+                              }
+                            }
+                          }
+                    }
+                });
+        });
+    }
+
+    getRaisedByEnterpriseName(backChainAddress) {
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
+                .toArray(function(err, result) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        result = result[0];
+                        for (let key in result) {
+                            if (result.hasOwnProperty(key)) {
+                              if(key == backChainAddress) {
+                                resolve({success : true, entName : result[key]})
                                 break;
                               }
                             }
