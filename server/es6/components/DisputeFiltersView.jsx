@@ -43,7 +43,7 @@ import '../../public/css/disputeFiltersView.css';
         }
 
         let checkBox = (
-            <div style={{ display: 'inline', fontWeight: '400', fontStyle: 'normal', fontSize: '13px' }}>
+            <div style={{ display: 'inline', fontWeight: '400', fontStyle: 'normal', fontSize: '12px' }}>
                 Show :
                 &nbsp;&nbsp;
                 <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp; Draft
@@ -81,7 +81,7 @@ import '../../public/css/disputeFiltersView.css';
             text: {
                 fontWeight: '400',
                 fontStyle: 'normal',
-                fontSize: '13px',
+                fontSize: '12px',
                 textAlign: 'left',
                 width: '140px',
                 paddingTop: '10px'
@@ -116,6 +116,16 @@ import '../../public/css/disputeFiltersView.css';
                 display: 'inline',
                 width: '16px',
                 height: '15px'
+            },
+            faCalender: {
+                color: '#0085C8',
+                fontSize: '16px' 
+            },
+            applyButton: {
+                width: '88px',
+                height: '30px',
+                backgroundColor: '#1d85c6',
+                boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)'
             }
         };
 
@@ -124,22 +134,22 @@ import '../../public/css/disputeFiltersView.css';
             <div style={{ width: "50%", display: 'inline' }}>
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Businees Transaction ID: </div>
                 &nbsp;&nbsp;
-                    <div style={{ display: 'inline', position: 'absolute', left: '179px', top: '26px' }}>
+                    <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '26px' }}>
                     <FormControl type="text" style={fieldProps.textBox} />
                 </div>
                 <div>
                     <div style={fieldProps.text}>Transaction Date: </div>
                     &nbsp;&nbsp;
-                        <div style={{ display: 'inline', position: 'absolute', left: '179px', top: '73px', fontSize: '12px' }}>
-                        From &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={{ color: '#0085C8' }}></i>
+                        <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '73px', fontSize: '12px' }}>
+                        From &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={fieldProps.faCalender}></i>
                         &nbsp;&nbsp;
-                            To &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={{ color: '#0085C8' }}></i>
+                            To &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={fieldProps.faCalender}></i>
                     </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Description: </div>
                     &nbsp;&nbsp;
-                        <div style={{ display: 'inline', position: 'absolute', left: '179px', top: '126px' }}>
+                        <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '126px', fontSize: '12px' }}>
                         <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 1 description here <br />
                         <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 2 description here <br />
                         <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 3 description here <br />
@@ -161,18 +171,19 @@ import '../../public/css/disputeFiltersView.css';
                     <div style={fieldProps.text}>Dispute Submitted Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '50px', fontSize: '12px' }}>
-                        From &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={{ color: '#0085C8' }}></i>
+                        From &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={fieldProps.faCalender}></i>
                         &nbsp;&nbsp;
-                            To &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={{ color: '#0085C8' }}></i>
+                            To &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={fieldProps.faCalender}></i>
                     </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Dispute Closed Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '100px', fontSize: '12px' }}>
-                        From &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={{ color: '#0085C8' }}></i>
+                        From &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={fieldProps.faCalender}></i>
                         &nbsp;&nbsp;
-                            To &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={{ color: '#0085C8' }}></i>
+                            To &nbsp;<FormControl type="text" style={fieldProps.dateTextBox} />&nbsp;&nbsp;<i className="fa fa-calendar" aria-hidden="true" style={fieldProps.faCalender}
+                        ></i>
                     </div>
                 </div>
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Raised By: </div>
@@ -192,7 +203,7 @@ import '../../public/css/disputeFiltersView.css';
 
         let applyButton = (
             <div style={{ textAlign: 'right', paddingRight: '67px', position: 'relative', top: '100px' }}>
-                <Button style={{ width: '88px', height: '30px' }} className="btn btn-primary"  >Apply</Button>
+                <Button style={fieldProps.applyButton} className="btn btn-primary"  >Apply</Button>
             </div>
         );
         return (

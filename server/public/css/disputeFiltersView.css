@@ -76,6 +76,7 @@
     font-family: 'Open Sans';
 }
 .filter-table-div {
+    z-index: 1;
     position: absolute;
     left: 31px;
     top: 272px;

@@ -113,7 +113,7 @@ class DisputeHelper {
                 if(result) {
                     resolve({success:true, exists:true, status:result.status});
                 } else {
-                    resolve({success:true});
+                    resolve({ success: true, exists: false});
                 }
             })
             .catch((err) => {

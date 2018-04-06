@@ -92,26 +92,37 @@ export default class BackChainActions {
 
     @action
     static loadTransactionsAux(transactions, callback) {
-        let count  = 0;
+        let count = 0;
         transactions.forEach(element => {
             BackChainActions.getOpenDisputeCount(element.id)
-            .then(function (result) {
-                element.openDisputeCount = result;
-                store.transactions.push(element);
-                if (++count == transactions.length) {
-                    transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                    
-                } 
-            })
-            .catch(function (error) {
-                element.openDisputeCount = 0;
-                store.transactions.push(element);
-                transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                if (callback) {
-                    callback(store.transactions.length > 0);
-                }
-            });
+                .then(function (result) {
+                    element.openDisputeCount = result;
+                    BackChainActions.disputeExists(element.id)
+                        .then(function (result) {
+                            element.isDisputeExists = result;
+                            store.transactions.push(element);
+                            if (++count == transactions.length) {
+                                transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                            }
+                        })
+                        .catch(function (error) {
+                            element.isDisputeExists = false;
+                            store.transactions.push(element);
+                            if (++count == transactions.length) {
+                                transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                            }
+                        });
+                })
+                .catch(function (error) {
+                    element.openDisputeCount = 0;
+                    element.isDisputeExists = false
+                    store.transactions.push(element);
+                    if (++count == transactions.length) {
+                        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                    }
+                });
         });
+
         if (callback) {
             callback(transactions.length > 0);
         }
@@ -836,6 +847,25 @@ export default class BackChainActions {
             //If the call is successful, it removes the draft from database.
             //Once both operations are complete, go ahead and update the list of disputes
             resolve(true); //Decide what to return
+        })
+    }
+
+    @action
+    static disputeExists(transactionId) {
+        let uri = '/isDisputeExists/' + transactionId;
+        return new Promise(resolve => {
+            fetch(uri, { method: 'GET' }).then(function (response) {
+                return response.json();
+            }, function (error) {
+                console.error('error getting dispute count');
+            }).then(function (result) {
+                if (result.success) {
+                    resolve(result.exists);
+                } else {
+                    console.error('error getting dispute count');
+                }
+            });
+
         })
     }
 }

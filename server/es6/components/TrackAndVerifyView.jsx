@@ -340,18 +340,24 @@ const fieldProps = {
     }
 
     renderTransactionDisputesCell(transaction) {
+        const disputeCount = transaction.openDisputeCount;
         return (
-            <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
-                <Link to='/listDisputes'>      
-                    <div style={{ textAlign: 'center' }}>
-                        <img
-                            src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
-                            style={{ height: '20px', width: '32px' }}
-                        />
-                        <div className="dispute-counter">{transaction.openDisputeCount}</div>
-                    </div>
-                </Link>
-            </td>
+            <td style={Object.assign({}, fieldProps.columns )}>
+                {disputeCount > 0  ?(
+                    <div style={{ cursor: 'pointer' }}>
+                        <Link to='/listDisputes'>
+                            <div style={{ textAlign: 'center' }}>
+                                <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     
+                                <img
+                                    src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
+                                    style={{ height: '20px', width: '23px', position: 'relative', top: '5px', left: '-8px' }}
+                                />
+                                <div className="dispute-counter">{disputeCount}</div>
+                            </div>
+                        </Link>
+                    </div>) :(<div></div>)  
+                }
+            </td>    
         );
     }
 
@@ -461,28 +467,34 @@ const fieldProps = {
 
     renderTransactionActionsCell(transaction, idx) {
         return (
-            <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
-                <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
-                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
-                        ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
-                    <Overlay
-                        show={this.state.actionsPopoverVisibilityMap[idx] || false}
-                        onHide={() => this.showActionPopover(idx, false)}
-                        rootClose={true}
-                        placement="right"
-                        container={document.getElementById("root")}
-                        target={() => this.actionsPopoverRefsMap[idx]}>
-                        
-                        <Popover id={"action-popover-" + idx} className="action-popover" >
-                            <Link to='#' onClick={this.populateDisputeTransaction.bind(this, transaction.id)}>    
-                            <div className="dispute-transation-div">
-                                <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Dispute Transaction
+            <td style={Object.assign({}, fieldProps.columns)}>
+                {transaction.isDisputeExists ? (
+                        <div></div>
+                ): (
+                        <div style={{ cursor: 'pointer' }}>
+                            <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
+                                <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
+                                ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                                <Overlay
+                                    show={this.state.actionsPopoverVisibilityMap[idx] || false}
+                                    onHide={() => this.showActionPopover(idx, false)}
+                                    rootClose={true}
+                                    placement="right"
+                                    container={document.getElementById("root")}
+                                    target={() => this.actionsPopoverRefsMap[idx]}>
+
+                                    <Popover id={"action-popover-" + idx} className="action-popover" >
+                                        <Link to='#' onClick={this.populateDisputeTransaction.bind(this, transaction.id)}>
+                                            <div className="dispute-transation-div">
+                                                <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Dispute Transaction
+                                                </div>
+                                        </Link>
+                                    </Popover>
+                                </Overlay>
                             </div>
-                            </Link>    
-                        </Popover>
-                       
-                    </Overlay>
-                </div>
+                        </div>    
+                    )
+                }    
             </td>
         );
     }

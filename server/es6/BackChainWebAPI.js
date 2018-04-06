@@ -166,3 +166,13 @@ exports.saveDisputeAsDraft = function (req, res) {
         res.json({ success: false });
     });
 };
+
+exports.isDisputeExists = function (req, res) { 
+    disputeHelper.disputeExists(req.params.transactionId)
+        .then(function (result) {
+            res.json({ success: result.success, exists: result.exists });
+        })
+        .catch(function (error) {
+            res.json({ success: false });
+        });
+};
