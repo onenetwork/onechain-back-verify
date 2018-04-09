@@ -28,6 +28,12 @@ const fieldProps = {
         lineHeight: rowLineHeight,
         height: rowLineHeight
     },
+    statusIconOverHand: {
+        fontSize: '14px',
+        position: 'absolute',
+        marginTop: '9px',
+        marginLeft: '-7px'
+    },
     icons: {
         verifying: {
             marginRight: '15px',
@@ -168,7 +174,25 @@ const fieldProps = {
     }
 
     renderDisputeStatusCell(dispute) {
-        return <td style={fieldProps.columns}>{dispute.status}</td>; //Convert it to be an icon
+        let statusIconOverHand = null;
+        switch(dispute.status) {
+            case "Draft":
+                statusIconOverHand = <i className="fa fa-pencil-square" style={Object.assign({color:'#0085C8'},fieldProps.statusIconOverHand)} />;
+                break;
+            case "Closed":
+                statusIconOverHand = <i className="fa fa-check-circle" style={Object.assign({color:'#229978'},fieldProps.statusIconOverHand)} />;
+                break;
+            case "Open":
+                statusIconOverHand = <i className="fa fa-exclamation-circle" style={Object.assign({color:'#F19500'},fieldProps.statusIconOverHand)} />;
+        }
+
+        let disputeStatusIcon = (<span title={dispute.status} className="fa-stack fa-lg">
+                                    <i className="fa fa-hand-paper-o" style={{fontSize: '18px', color: 'gray'}}>
+                                        {statusIconOverHand}
+                                    </i>
+                                </span>);
+
+        return <td style={fieldProps.columns}>{disputeStatusIcon}</td>;
     }
 
     renderDisputeIdCell(dispute) {
