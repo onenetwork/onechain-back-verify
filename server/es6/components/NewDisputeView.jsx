@@ -37,6 +37,10 @@ import moment from 'moment';
 	}
 	
 	handleClick(event) {
+		/* Checking If clicked  at resetMsgs class */
+		if(event.target.classList.contains("resetMsgs")) {
+			return;
+		}
 		/* Checking If clicked outside of modal body */
     	if (this.modalBodyRef && !this.modalBodyRef.contains(event.target)) {
 			BackChainActions.toggleNewDisputeModalView();
@@ -49,6 +53,10 @@ import moment from 'moment';
 		BackChainActions.toggleNewDisputeModalView();
 		BackChainActions.clearDisputeTransaction();
 		BackChainActions.clearDisputeId();
+	}
+
+	resetMsgs() {
+		this.setState({disputeErrorMsg : null, disputeWarnMsg : null});
 	}
 	
 	getNewDisputeData() {
@@ -84,7 +92,7 @@ import moment from 'moment';
 
 	onTnxIdChange(event) {
 		const me = this;
-		me.setState({disputeErrorMsg : null});
+		me.setState({disputeErrorMsg : null, disputeWarnMsg : null});
 		event.persist();
 		if (me.state.searchTnxIdTimeOut) {
 			clearTimeout(me.state.searchTnxIdTimeOut);
@@ -97,7 +105,7 @@ import moment from 'moment';
 					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
 				})
 				.catch(function (err) {
-					me.setState({disputeErrorMsg : err});
+					me.setState({disputeWarnMsg : err, disputeErrorMsg : null});
 				});
 			}, 3000)
 		});
@@ -258,6 +266,11 @@ import moment from 'moment';
 			},
 			colLeft: {
 				width:'57%'
+			},
+			msgTimes: {
+				fontSize: '15px', 
+				float: 'right',
+				cursor: 'pointer'
 			}
 		};
 
@@ -265,14 +278,16 @@ import moment from 'moment';
 		if(this.state.disputeWarnMsg) {
 			disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
 								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500' }}>Warning!</span>&nbsp;{this.state.disputeWarnMsg}</span>						
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500', fontWeight: 700 }}>Warning!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeWarnMsg}</span></span>
+								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#F19500'})} onClick={this.resetMsgs.bind(this)}/>
 							</Row>);
 		}
 		let disputeErrorMsgInfo = null;
 		if (this.state.disputeErrorMsg) {
 			disputeErrorMsgInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgba(252, 228, 224, 1)', borderColor: 'rgba(235, 204, 209, 1)' })}>
-				<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#D9443F' }} /></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#D9443F' }}>Error!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
+								<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#D9443F' }} /></span>&nbsp;&nbsp;
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#D9443F', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
+								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#D9443F'})} onClick={this.resetMsgs.bind(this)}/>
 							</Row>);
 		}
         return(

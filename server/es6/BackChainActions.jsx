@@ -782,13 +782,13 @@ export default class BackChainActions {
                     return response.json();
                 }, function(error) {
                     console.error('error getting transaction by transaction id for populateDisputeTransaction');
-                    reject("Transaction with id: " + transactionId + " not found");
+                    reject("Transaction ID: " + transactionId + " could not be found. Please enter a valid transaction ID.");
                 }).then(function(result) {
                     if(result.result.length > 0) {
                         store.disputeTransaction = result.result[0];
                         resolve(true);
                     } else {
-                        reject("Transaction with id: " + transactionId + " not found");
+                        reject("Transaction ID: " + transactionId + " could not be found. Please enter a valid transaction ID.");
                     }
                 });
             }
