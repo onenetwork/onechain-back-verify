@@ -42,8 +42,9 @@ import HeaderView from "./HeaderView";
 		let panelBody = (<div>
                             <Row style={fieldProps.panelBodyTitle}>
                                 <span style={{float:'left'}} > Verifications </span>
-                                <span style={{paddingLeft:'680px'}}><Link to="/home"> <Button className="btn btn-primary" bsSize="large" style={fieldProps.button}>Verify Another Transaction</Button> </Link> </span>
-                            </Row><br/>
+                                <span style={{paddingLeft:'600px'}}><Link to="/home"> <Button className="btn btn-primary" bsSize="large" style={fieldProps.button}>Verify Another Transaction</Button> </Link> </span>
+								&nbsp;&nbsp;<span><Link to="/home"><Button bsStyle="primary"  className="home-button"><i className="fa fa-home" aria-hidden="true" style={{ color: '#0085C8', fontSize: '28px'}}></i></Button></Link></span>
+							</Row><br/>
 						</div>);
         return (
 			<div className={"panel panel-default"} onClick={this.props.action}>

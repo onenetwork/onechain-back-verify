@@ -151,7 +151,7 @@ import moment from 'moment';
 
     render() {
 		const {store} = this.props;
-		let participantsUI = [];
+		let participantsDom = [];
 		let transactionSlices = [];
 		let disputeTransactionDate  = 'N/A';
 		let disputeTransaction = store.disputeTransaction;
@@ -160,17 +160,24 @@ import moment from 'moment';
             transactionSlices = disputeTransaction.transactionSlices;
 			BackChainActions.loadEventsForTransaction(disputeTransaction);
             disputeTransactionDate = moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A')
-        }
-
-        for(let i = 0; i < transactionSlices.length; i++) {
-            let transactionSlice = transactionSlices[i];
-            if(transactionSlice.type == "Intersection") {
-                participantsUI.push(<span key={transactionSlice.enterprises[0]}>{transactionSlice.enterprises[0]}</span>);
-                participantsUI.push(<br key={transactionSlice.enterprises[0]+'br'}/>)
-                participantsUI.push(<span key={transactionSlice.enterprises[1]}>{transactionSlice.enterprises[1]}</span>);
-                participantsUI.push(<br key={transactionSlice.enterprises[1]+'br'}/>)
-            }
-        }
+		}
+		let listOfPartners = [];
+		for (let i = 0; i < transactionSlices.length; i++) {
+			let transactionSlice = transactionSlices[i];
+			if (transactionSlice.type == "Enterprise" && listOfPartners.indexOf(transactionSlice.enterprise) < 0) {
+				listOfPartners.push(transactionSlice.enterprise);
+			} else if (transactionSlice.type == "Intersection") {
+				if (listOfPartners.indexOf(transactionSlice.enterprises[0]) < 0) {
+					listOfPartners.push(transactionSlice.enterprises[0]);
+				}
+				if (listOfPartners.indexOf(transactionSlice.enterprises[1]) < 0) {
+					listOfPartners.push(transactionSlice.enterprises[1]);
+				}
+			}
+		}
+		for(let i=0, len = listOfPartners.length; i < len; i++) {
+			participantsDom.push(<div key={"pt_" + listOfPartners[i]}>{listOfPartners[i]}</div>);
+		}
         
         let evntsUI = [];
         for(let i = 0; i < store.events.length; i++) {
@@ -367,7 +374,7 @@ import moment from 'moment';
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
 													<div style={Object.assign({},fieldProps.eventsParticipantsValDiv,{color: 'gray'})} >
-														{participantsUI}
+														{participantsDom}
 													</div>
 												</Col>
 											</Col>
