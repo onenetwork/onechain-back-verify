@@ -12,7 +12,7 @@ import moment from 'moment';
 		this.setModalBodyRef = this.setModalBodyRef.bind(this);           
 		this.handleClick = this.handleClick.bind(this);
 		this.state = {
-			disputeInfoMsg: null,
+			disputeWarnMsg: null,
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0
         };
@@ -107,21 +107,21 @@ import moment from 'moment';
  
 		let me = this;
 		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
-			me.setState({ disputeErrorMsg: "Please enter transaction id", disputeInfoMsg: null });
+			me.setState({ disputeErrorMsg: null, disputeWarnMsg: "Please enter transaction id" });
 			return;
 		}
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
-			me.setState({ disputeErrorMsg: "Please select reason code.", disputeInfoMsg: null});
+			me.setState({ disputeErrorMsg: null, disputeWarnMsg: "Please select reason code."});
 			return;
 		} else {
-			me.setState({ disputeErrorMsg: null, disputeInfoMsg: null });
+			me.setState({ disputeErrorMsg: null, disputeWarnMsg: null });
 		}
 
 		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
 		.then(function(response) {
 			if(response.success) {
 				if(response.exists) {
-					me.setState({ disputeInfoMsg: response.status, disputeErrorMsg : null});
+					me.setState({ disputeWarnMsg: "You already have a dispute in " + response.status + " status for this transaction. Please close this window and see it in the list.", disputeErrorMsg : null});
 					return;
 				}
 				if(response.mappingFound === false) {
@@ -262,10 +262,10 @@ import moment from 'moment';
 		};
 
 		let disputeInfo = null;
-		if(this.state.disputeInfoMsg) {
+		if(this.state.disputeWarnMsg) {
 			disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
 								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500' }}>Warning!</span>&nbsp;<span>You already have a dispute in {this.state.disputeInfoMsg} status. Please go to <a href='/listDisputes'>disputes page</a> to see existing disputes</span></span>						
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500' }}>Warning!</span>&nbsp;{this.state.disputeWarnMsg}</span>						
 							</Row>);
 		}
 		let disputeErrorMsgInfo = null;
