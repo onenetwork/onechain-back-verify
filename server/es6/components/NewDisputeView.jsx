@@ -124,6 +124,9 @@ import moment from 'moment';
 					me.setState({ disputeInfoMsg: response.status, disputeErrorMsg : null});
 					return;
 				}
+				if(response.mappingFound === false) {
+					console.error("mapping not found!");
+				}
 				BackChainActions.toggleNewDisputeModalView();
 				BackChainActions.clearDisputeTransaction();
 				BackChainActions.clearDisputeId();

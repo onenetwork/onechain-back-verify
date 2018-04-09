@@ -147,10 +147,12 @@ class DisputeHelper {
                         .then(function(response){
                             if(response.success) {
                                 dispute.raisedBy = response.entAddress;
+                                let mappingFound = response.mappingFound;
                                 me.insertDraft(dispute)
                                 .then(function(response){
                                     if(response.success) {
                                         response.raisedBy = dispute.raisedBy;
+                                        response.mappingFound = mappingFound;
                                         resolve(response);
                                     }
                                 }, function(error){
