@@ -103,7 +103,8 @@ import Images from '../Images';
 					fontSize: '18px',
 					fontFamily: "Open Sans",
 					color:'rgb(153, 153, 153)',
-					borderColor: 'rgba(153,153,153,1)'
+					borderColor: 'rgba(153,153,153,1)',
+					padding:'0px'
 				}
 			};
 
