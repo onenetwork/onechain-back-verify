@@ -255,42 +255,48 @@ const fieldProps = {
          * 1. iff the transaction doesn't exist in the db, show a warning when user clicks on the popover.
          * "Transaction <tnxId> couldn't be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.""
          */
+        let eventCountString = null;
+        let eventsPopoverContent = null;
+        let eventsPopoverClassName = 'events-popover';
         if(dispute.transaction) {
-            return (
-                <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
-                    <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
-                        <img
-                            className="counter-img"
-                            src={Images.EVENT_BADGE}
-                            ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
-                        <div className={this.getEventCountCSS(dispute.transaction.eventCount)}>
+            eventCountString = (<div className={this.getEventCountCSS(dispute.transaction.eventCount)}>
                             {this.getEventCountString(dispute.transaction.eventCount)}
-                        </div>
-                        
-                        <Overlay
-                            show={this.state.eventsPopoverVisibilityMap[idx] || false}
-                            onHide={() => this.showEventsPopover(idx, false)}
-                            rootClose={true}
-                            placement="right"
-                            container={document.getElementById("root")}
-                            target={() => this.eventsPopoverRefsMap[idx]}>
-    
-                            <Popover id={"events-popover-" + idx} className="events-popover" title={(
-                                <span>
-                                    <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
-                                    Events:
-                                </span>
-                            )}>
-                                <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} selectedBtIds={dispute.events} />
-                            </Popover>
-    
-                        </Overlay>
-                    </div>
-                </td>
-            );
+                        </div>);
+            eventsPopoverContent = <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} selectedBtIds={dispute.events} />;
         } else {
-            return <td style={fieldProps.columns}></td>;
+            eventsPopoverClassName = null;
+            eventsPopoverContent = "Transaction " + dispute.transactionId +" couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.";
         }
+
+        return (
+            <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
+                <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
+                    <img
+                        className="counter-img"
+                        src={Images.EVENT_BADGE}
+                        ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
+                        {eventCountString}
+                    <Overlay
+                        show={this.state.eventsPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showEventsPopover(idx, false)}
+                        rootClose={true}
+                        placement="right"
+                        container={document.getElementById("root")}
+                        target={() => this.eventsPopoverRefsMap[idx]}>
+    
+                        <Popover id={"events-popover-" + idx} className={eventsPopoverClassName} title={(
+                            <span>
+                                <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
+                                Events:
+                            </span>
+                        )}>
+                            {eventsPopoverContent}
+                        </Popover>
+                            
+                    </Overlay>
+                </div>
+            </td>
+        );
     }
 
 
@@ -310,6 +316,22 @@ const fieldProps = {
 
     renderDisputeParticipantsCell(dispute, idx) {
         let partnerLength = this.getPartnerNames(dispute).length;
+        let participantsContent = null;
+        if(dispute.transaction) {
+            participantsContent = (<ul style={{
+                listStyleType: 'none',
+                marginLeft: '-30px',
+                width: '175px',
+                lineHeight: '18px',
+                paddingTop:'7px'
+            }}>
+                {this.partnerNameInList(dispute)}
+        </ul> );
+        } else {
+            partnerLength = null;
+            participantsContent = "Transaction " + dispute.transactionId +" couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.";
+        }
+
         let disputeParticipantCell = (
             <div className="counter-participants" onClick={() => this.showDisputeParticipantsPopover(idx, true)}>
                 <img
@@ -340,21 +362,13 @@ const fieldProps = {
                         </span>
                     )}>
                         <div id={dispute.id + "_disputeParticipants" + idx} >
-                            <ul style={{
-                                listStyleType: 'none',
-                                marginLeft: '-30px',
-                                width: '175px',
-                                lineHeight: '18px',
-                                paddingTop:'7px'
-                            }}>
-                                {this.partnerNameInList(dispute)}
-                            </ul>    
+                              {participantsContent}
                         </div>
                     </Popover>
                 </Overlay>
             </div>
         );
-        return <td style={fieldProps.columns}>{disputeParticipantCell}</td>;
+        return <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>{disputeParticipantCell}</td>;
     }
 
     renderDisputeActionsCell(dispute,idx) {
