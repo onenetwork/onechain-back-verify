@@ -318,8 +318,8 @@ const fieldProps = {
                     ref={ref => this.disputeParticipantsPopoverRefsMap[idx] = ref} />
                 <div style={{
                     position: 'absolute',
-                    left: '34px',
-                    top: '5px',
+                    left: '33px',
+                    top: '6px',
                     color: 'white',
                     fontSize: '10px'
                 }}>

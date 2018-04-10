@@ -180,3 +180,17 @@ exports.disputeExists = function (req, res) {
 exports.generateDisputeId = function (req, res) {
     res.json(disputeHelper.generateDisputeId(req.params.plainText));
 };
+
+exports.discardDraftDisputes = function (req, res) {
+    disputeHelper.discardDraftDisputes(req.params.disputeId)
+        .then(function (result) {
+            if (result.success) {
+                res.json({ success: true });
+            }else {
+                res.json({ success: false });
+           }
+        })
+        .catch(function (error) {
+            res.json({ success: false });
+        });
+};

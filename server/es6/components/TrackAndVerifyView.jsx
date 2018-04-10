@@ -344,7 +344,7 @@ const fieldProps = {
         return (
             <td style={Object.assign({}, fieldProps.columns )}>
                 {disputeCount > 0  ?(
-                    <div style={{ cursor: 'pointer' }}>
+                    <div style={{ cursor: 'pointer', height: '26px' }}>
                         <Link to='/listDisputes'>
                             <div style={{ textAlign: 'center' }}>
                                 <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     

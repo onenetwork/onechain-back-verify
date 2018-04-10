@@ -830,9 +830,26 @@ export default class BackChainActions {
     @action
     static discardDisputeDraft(disputeId) {
         return new Promise(resolve => {
-            //Should remove draft dispute from database 
-            //Once the request returns, go ahead and update the list of disputes
-            resolve(true); //Decide what to return
+            let uri = '/discardDraftDisputes/' + disputeId;
+            return fetch(uri, { method: 'POST' })
+                .then(function (response) {
+                    return response.json();
+                }, function (error) {
+                    console.error(error);
+                }).then(function (result) {
+                    if (result.success) { 
+                        let currentDisputes = store.disputes;
+                        for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
+                            if (disputeId == currentDisputes[i].id) {
+                                currentDisputes.splice(i, 1);
+                                break;
+                            }
+                        }
+                        store.disputes = currentDisputes;
+                    } else {
+                        console.error('error while discarding dispute draft.');
+                    }
+                })
         })
     }
 
