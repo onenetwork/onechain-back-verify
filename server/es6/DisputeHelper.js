@@ -189,6 +189,31 @@ class DisputeHelper {
     generateDisputeId(plainText) {
         return({success: true, generatedDisputeId : crypto.createHash('sha256').update(plainText).digest('hex')});
     }
+
+    discardDraftDisputes(disputeId) {
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('DraftDisputes').deleteOne({id:disputeId})
+            .then((result) => {
+                resolve({success: true});
+            })
+            .catch((err) => {
+                console.error("Error occurred while discarding dispute as draft: " + err);
+                reject(err);
+            });
+        });
+    }
+
+    submitDispute(disputeId) {
+        return new Promise((resolve, reject) => {
+            // write code to submit dispute
+        });
+    }
+
+    closeDispute(disputeId) {
+        return new Promise((resolve, reject) => {
+            // write code to close dispute
+        });
+    }
 }
 
 export const disputeHelper = new DisputeHelper();
