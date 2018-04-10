@@ -288,6 +288,7 @@ class TransactionHelper {
         for(let j = 0; j < slice.businessTransactions.length; j++) {
             let bt = slice.businessTransactions[j];
             events.push({
+                btid: bt.btid,
                 date: bt.LastModifiedDate.date,
                 actionName: bt.ActionName.split('.')[1]
             });

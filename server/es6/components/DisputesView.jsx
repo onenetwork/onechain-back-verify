@@ -249,11 +249,9 @@ const fieldProps = {
 
     renderDisputeEventsCell(dispute, idx) {
         /**
-         * TODO:Yusuf Missing Tasks
-         * 1. iff dispute.events has a subset of btIds, only fetch the events from the transaction with a corresponding btIds. 
-         * 2. iff the transaction doesn't exist in the db, show a warning when user clicks on the popover. It should say
-         * "It looks like you aren't fully synchronized and the transaction is missing. You can try to initiate sync to display full 
-         * transaction data."
+         * TODO: Missing Tasks
+         * 1. iff the transaction doesn't exist in the db, show a warning when user clicks on the popover.
+         * "Transaction <tnxId> couldn't be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.""
          */
         if(dispute.transaction) {
             return (
@@ -281,7 +279,7 @@ const fieldProps = {
                                     Events:
                                 </span>
                             )}>
-                                <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} />
+                                <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} selectedBtIds={dispute.events} />
                             </Popover>
     
                         </Overlay>
