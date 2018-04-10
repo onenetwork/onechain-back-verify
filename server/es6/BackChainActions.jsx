@@ -99,14 +99,14 @@ export default class BackChainActions {
                     element.openDisputeCount = result;
                     BackChainActions.disputeExists(element.id)
                         .then(function (result) {
-                            element.isDisputeExists = result;
+                            element.disputeExists = result;
                             store.transactions.push(element);
                             if (++count == transactions.length) {
                                 transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
                             }
                         })
                         .catch(function (error) {
-                            element.isDisputeExists = false;
+                            element.disputeExists = false;
                             store.transactions.push(element);
                             if (++count == transactions.length) {
                                 transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
@@ -115,7 +115,7 @@ export default class BackChainActions {
                 })
                 .catch(function (error) {
                     element.openDisputeCount = 0;
-                    element.isDisputeExists = false
+                    element.disputeExists = false
                     store.transactions.push(element);
                     if (++count == transactions.length) {
                         transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
@@ -857,7 +857,7 @@ export default class BackChainActions {
 
     @action
     static disputeExists(transactionId) {
-        let uri = '/isDisputeExists/' + transactionId;
+        let uri = '/disputeExists/' + transactionId;
         return new Promise(resolve => {
             fetch(uri, { method: 'GET' }).then(function (response) {
                 return response.json();

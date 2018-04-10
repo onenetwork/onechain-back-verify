@@ -468,7 +468,7 @@ const fieldProps = {
     renderTransactionActionsCell(transaction, idx) {
         return (
             <td style={Object.assign({}, fieldProps.columns)}>
-                {transaction.isDisputeExists ? (
+                {transaction.disputeExists ? (
                         <div></div>
                 ): (
                         <div style={{ cursor: 'pointer' }}>
