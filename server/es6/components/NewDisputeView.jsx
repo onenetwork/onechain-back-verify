@@ -14,7 +14,8 @@ import moment from 'moment';
 		this.state = {
 			disputeWarnMsg: null,
 			disputeErrorMsg: null,
-			searchTnxIdTimeOut : 0
+			searchTnxIdTimeOut : 0,
+			saveOrSubmitDisputeButtonsDisabled: true
         };
 	}
 	
@@ -33,6 +34,7 @@ import moment from 'moment';
 	componentDidMount() {
 		if(this.props.store.disputeTransaction) {
 			BackChainActions.generateDisputeId(this.props.store.entNameOfLoggedUser+"~"+this.props.store.disputeTransaction.id);
+			this.setState({saveOrSubmitDisputeButtonsDisabled:false});
 		}
 	}
 	
@@ -99,13 +101,17 @@ import moment from 'moment';
 		}
 		me.setState({
 			searchTnxIdTimeOut: setTimeout(function() {
-				BackChainActions.clearDisputeId();
 				BackChainActions.populateDisputeTransaction(event.target.value)
 				.then(function(result){
 					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
+					if(me.props.store.disputeTransaction) {
+						me.setState({saveOrSubmitDisputeButtonsDisabled:false});
+					} else {
+						me.setState({saveOrSubmitDisputeButtonsDisabled:true});
+					}
 				})
 				.catch(function (err) {
-					me.setState({disputeWarnMsg : err, disputeErrorMsg : null});
+					me.setState({disputeWarnMsg : err, disputeErrorMsg : null, saveOrSubmitDisputeButtonsDisabled:true});
 				});
 			}, 3000)
 		});
@@ -409,8 +415,8 @@ import moment from 'moment';
 									<div style={fieldProps.modalBodyBottom}>
 										<div style={fieldProps.modalBodyBottomChildDiv}> 
 											<Button style = {fieldProps.cancelButton} onClick={this.closeModal}>Discard</Button>&nbsp;&nbsp;
-											<Button className="btn btn-primary" onClick={this.saveAsDraft.bind(this)} style={Object.assign({},fieldProps.button, {width: '120px'})}>Save as Draft</Button>&nbsp;&nbsp;
-											<Button className="btn btn-primary" onClick={this.submitToBackchain.bind(this)} style={Object.assign({},fieldProps.button, {width: '174px'})}>Submit to Backchain</Button>
+											<Button className="btn btn-primary" disabled={this.state.saveOrSubmitDisputeButtonsDisabled} onClick={this.saveAsDraft.bind(this)} style={Object.assign({},fieldProps.button, {width: '120px'})}>Save as Draft</Button>&nbsp;&nbsp;
+											<Button className="btn btn-primary" disabled={this.state.saveOrSubmitDisputeButtonsDisabled} onClick={this.submitToBackchain.bind(this)} style={Object.assign({},fieldProps.button, {width: '174px'})}>Submit to Backchain</Button>
 										</div>
 									</div>
 											

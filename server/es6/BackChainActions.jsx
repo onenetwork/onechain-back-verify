@@ -876,6 +876,7 @@ export default class BackChainActions {
 
     @action
     static generateDisputeId(plainText) {
+        this.clearDisputeId();
         let uri = '/generateDisputeId/' + plainText;
         return fetch(uri, { method: 'GET' })
         .then(function(response) {
