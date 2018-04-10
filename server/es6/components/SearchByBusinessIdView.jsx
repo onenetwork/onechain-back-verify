@@ -110,6 +110,23 @@ import Images from '../Images';
 
 			return (
 				<div>
+					<style>
+						{`
+							::-webkit-input-placeholder {
+								font-size: 18px !important;
+							}
+							::-moz-placeholder {
+								font-size: 18px !important;
+							}
+							:-ms-input-placeholder {
+								font-size: 18px !important;
+							}
+							::placeholder {
+								font-size: 18px !important;
+							}
+						`}
+					</style>
+
 					<DisplayMessageViewPopup store={this.props.store}/>
 
 					<div className={"panel panel-default"} onClick={this.props.action}>

@@ -176,17 +176,3 @@
     background-color: #286090 !important;
     border-color: #204d74;
 }
-
-/*defalut for all placeholders. We need to override, In case we want other than this */
-::-webkit-input-placeholder {
-    font-size: 18px !important;
-}
-::-moz-placeholder {
-    font-size: 18px !important;
-}
-:-ms-input-placeholder {
-    font-size: 18px !important;
-}
-::placeholder {
-    font-size: 18px !important;
-}
