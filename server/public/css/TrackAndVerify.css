@@ -91,7 +91,7 @@
 }
 
 .popover.right>.arrow {
-    left: -10px !important;
+    left: -11px !important;
     margin-top: -13px;
 }
 
@@ -107,4 +107,14 @@
 
 .dispute-action-popover.right>.arrow:after {
     border-right-color: white;
+}
+
+.popover .popover-title {
+    background-color: white;
+}
+
+.counter-participants {
+    width: 63px;
+    position: relative;
+    text-align: center;
 }
