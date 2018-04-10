@@ -21,6 +21,7 @@ class Images {
     get DISPUTE_NO_IMAGE()              { return this.baseURL + 'dispute-num-badge.png'; }
     get DISPUTE_NO_TRANSACTION_IMAGE()  { return this.baseURL + 'dispute-num-badge.png'; }
     get DISPUTE_TRANSACTION_CONTAINER_IMAGE() { return this.baseURL + 'dispute-transation-container.png'; }
+    get DISPUTE_PARTICIPANT_BADGE()     { return this.baseURL + 'disputes-user-badge.svg';          }
 }
 
 const images = new Images()

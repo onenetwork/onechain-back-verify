@@ -67,10 +67,12 @@ const fieldProps = {
 
         this.eventsPopoverRefsMap = {};
         this.actionsPopoverRefsMap = {};
+        this.disputeParticipantsPopoverRefsMap = {};
         this.state = {
             redirect: false,
             eventsPopoverVisibilityMap: {},
-            actionsPopoverVisibilityMap: {}
+            actionsPopoverVisibilityMap: {},
+            disputeParticipantsPopoverVisibilityMap: {}
         };
     }
 
@@ -306,27 +308,53 @@ const fieldProps = {
         return <td style={fieldProps.columns}>{dispute.reasonCode}</td>;
     }
 
-    renderDisputeParticipantsCell(dispute) {
-        let partnerNames = '';
-        if (dispute.transaction) {
-            let listOfPartners = [];
-            for (let i = 0; i < dispute.transaction.transactionSlices.length; i++) {
-                let transactionSlice = dispute.transaction.transactionSlices[i];
-                if (transactionSlice.type == "Enterprise" && listOfPartners.indexOf(transactionSlice.enterprise) < 0) {
-                    listOfPartners.push(transactionSlice.enterprise);
-                } else if (transactionSlice.type == "Intersection") {
-                    if (listOfPartners.indexOf(transactionSlice.enterprises[0]) < 0) {
-                        listOfPartners.push(transactionSlice.enterprises[0]);
-                    }
-                    if (listOfPartners.indexOf(transactionSlice.enterprises[1]) < 0) {
-                        listOfPartners.push(transactionSlice.enterprises[1]);
-                    }
-                }
-            }
-            partnerNames = listOfPartners.join(', ');
-        }
+    renderDisputeParticipantsCell(dispute, idx) {
+        let partnerLength = this.getPartnerNames(dispute).length;
+        let disputeParticipantCell = (
+            <div className="counter-participants" onClick={() => this.showDisputeParticipantsPopover(idx, true)}>
+                <img
+                    style={{width: '25px',height: '25px'}}
+                    src={Images.DISPUTE_PARTICIPANT_BADGE}
+                    ref={ref => this.disputeParticipantsPopoverRefsMap[idx] = ref} />
+                <div style={{
+                    position: 'absolute',
+                    left: '34px',
+                    top: '5px',
+                    color: 'white',
+                    fontSize: '10px'
+                }}>
+                    {partnerLength}
+                </div>
+                <Overlay
+                    show={this.state.disputeParticipantsPopoverVisibilityMap[idx] || false}
+                    onHide={() => this.showDisputeParticipantsPopover(idx, false)}
+                    rootClose={true}
+                    placement="right"
+                    container={document.getElementById("root")}
+                    target={() => this.disputeParticipantsPopoverRefsMap[idx]}>
 
-        return <td style={fieldProps.columns}>{partnerNames}</td>;
+                    <Popover id={dispute.id + "_disputeParticipants"} title={(
+                        <span style={{fontWeight: '700',fontSize: '12px',color: '#0085C8'}}>
+                            <i className="fa fa-user" aria-hidden="true" style={{ fontSize: '18px'}}></i>
+                            &nbsp;&nbsp;&nbsp;&nbsp;Participants
+                        </span>
+                    )}>
+                        <div id={dispute.id + "_disputeParticipants" + idx} >
+                            <ul style={{
+                                listStyleType: 'none',
+                                marginLeft: '-30px',
+                                width: '175px',
+                                lineHeight: '18px',
+                                paddingTop:'7px'
+                            }}>
+                                {this.partnerNameInList(dispute)}
+                            </ul>    
+                        </div>
+                    </Popover>
+                </Overlay>
+            </div>
+        );
+        return <td style={fieldProps.columns}>{disputeParticipantCell}</td>;
     }
 
     renderDisputeActionsCell(dispute,idx) {
@@ -366,7 +394,7 @@ const fieldProps = {
         } else if (dispute.status == 'Open') {
             let actionsCell = (
                 <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
-                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
+                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }}
                         ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
                     <Overlay
                         show={this.state.actionsPopoverVisibilityMap[idx] || false}
@@ -421,5 +449,44 @@ const fieldProps = {
         let newMap = Object.assign({}, this.state.actionsPopoverVisibilityMap);
         newMap[idx] = show;
         this.setState({ actionsPopoverVisibilityMap: newMap });
+    }
+
+    showDisputeParticipantsPopover(idx, show) {
+        let newMap = Object.assign({}, this.state.disputeParticipantsPopoverVisibilityMap);
+        newMap[idx] = show;
+        this.setState({ disputeParticipantsPopoverVisibilityMap: newMap });
+    }
+
+    getPartnerNames(dispute) {
+        let partnerNames = [];
+        if (dispute.transaction) {
+            let listOfPartners = [];
+            for (let i = 0; i < dispute.transaction.transactionSlices.length; i++) {
+                let transactionSlice = dispute.transaction.transactionSlices[i];
+                if (transactionSlice.type == "Enterprise" && listOfPartners.indexOf(transactionSlice.enterprise) < 0) {
+                    listOfPartners.push(transactionSlice.enterprise);
+                } else if (transactionSlice.type == "Intersection") {
+                    if (listOfPartners.indexOf(transactionSlice.enterprises[0]) < 0) {
+                        listOfPartners.push(transactionSlice.enterprises[0]);
+                    }
+                    if (listOfPartners.indexOf(transactionSlice.enterprises[1]) < 0) {
+                        listOfPartners.push(transactionSlice.enterprises[1]);
+                    }
+                }
+            }
+            partnerNames = listOfPartners;
+        }
+        return partnerNames;
+    }
+
+    partnerNameInList(dispute) {
+        let partnerNames = this.getPartnerNames(dispute);
+        let partnerList = [];
+        for (let i = 0; i < partnerNames.length; i++) { 
+            partnerList.push(
+                <li key={i} >{partnerNames[i]}</li>
+                )
+        }
+        return partnerList;
     }
 }
