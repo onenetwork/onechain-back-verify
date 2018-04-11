@@ -20,7 +20,7 @@ import DisplaySyncView from "./DisplaySyncView"
 
 	saveInitialConfig() {
 		let me = this;
-		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null) {
+		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null || this.props.store.disputeBlockChainContractAddress == null) {
 			alert('Please input all the following values');
 			return;
 		}
@@ -33,13 +33,14 @@ import DisplaySyncView from "./DisplaySyncView"
 			let bcClient = oneBcClient({
 				blockchain: 'eth',
 				url: this.props.store.blockChainUrl,
-				contractAddress: this.props.store.blockChainContractAddress
+				contractAddress: this.props.store.blockChainContractAddress,
+				disputeContractAddress: this.props.store.disputeBlockChainContractAddress
 			});
 			BackChainActions.verifyBackChainSettings(bcClient,function(error,result){
 				if(error) {
 					me.props.store.displayMessageViewModalActive = true;
 				} else if(result) {
-					BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress);
+					BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress);
 				}
 			});
 		} catch (e) {
@@ -56,7 +57,11 @@ import DisplaySyncView from "./DisplaySyncView"
 	blockChainContractAddress(event){
 		this.props.store.blockChainContractAddress = event.target.value.trim();
 	}
-
+	
+	disputeBlockChainContractAddress(event){
+		this.props.store.disputeBlockChainContractAddress = event.target.value.trim();
+	}
+	
 	render() {
 		if (this.props.store.isInitialSetupDone === true) {
         	return <Redirect push to="/home" />;
@@ -65,7 +70,8 @@ import DisplaySyncView from "./DisplaySyncView"
 			panelPadding: {
 				paddingLeft: '150px',
 				paddingBottom: '50px',
-				height: '40px'
+				height: '40px',
+				paddingTop: '10px'
 			},
 			panelBody: {
 				paddingTop: 60,
@@ -100,25 +106,34 @@ import DisplaySyncView from "./DisplaySyncView"
 				fontSize: '18px',
 				width: '96px',
 				height: '42px'
+			},
+			valueLabelCol: {
+				width:'20%'
 			}
 		};
 		let panelBody = (<div>
 			<DisplayMessageViewPopup store={this.props.store}/>
 			<p></p>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
+				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={8}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl == null ? '' : this.props.store.blockChainUrl}/>
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={2}><div style={fieldProps.valueLabel}>Contract Address: </div></Col>
+				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Content BackChain Contract Address: </div></Col>
 				<Col md={8}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress == null ? '' : this.props.store.blockChainContractAddress} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={2}></Col>
+				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Dispute BackChain Contract Address: </div></Col>
+				<Col md={8}>
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.disputeBlockChainContractAddress.bind(this)}  onChange={this.disputeBlockChainContractAddress.bind(this)} placeholder={this.props.store.disputeBlockChainContractAddress} value= {this.props.store.disputeBlockChainContractAddress == null ? '' : this.props.store.disputeBlockChainContractAddress} />
+				</Col>
+			</Row>
+			<Row style={fieldProps.panelPadding}>
+				<Col md={3} style={fieldProps.valueLabelCol}></Col>
 				<Col md={8}>
 					<div>
 							<button onClick={this.saveInitialConfig.bind(this)} style={fieldProps.buttonStyle} className="btn btn-primary">

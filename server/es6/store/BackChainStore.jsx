@@ -14,6 +14,7 @@ class BackChainStore {
     @observable syncGoingOn = false;
     @observable blockChainUrl = null;
     @observable blockChainContractAddress = null;
+    @observable disputeBlockChainContractAddress = null;
     @observable businessTransactionTextSearch = null;
     @observable entNameOfLoggedUser = null;
     @observable transactions = observable([]);

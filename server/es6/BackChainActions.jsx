@@ -296,10 +296,11 @@ export default class BackChainActions {
     }
 
     @action
-    static saveBlockChainSettings(url, contractAddress) {
+    static saveBlockChainSettings(url, contractAddress, disputeContractAddress) {
         let params = {
             'url':url,
-            'contractAddress': contractAddress
+            'contractAddress': contractAddress,
+            'disputeContractAddress': disputeContractAddress
             };
         fetch('/saveBlockChainSettings', {
             method: 'post',
@@ -323,6 +324,7 @@ export default class BackChainActions {
             store.isInitialSetupDone = false;
             store.blockChainUrl = null;
             store.blockChainContractAddress = null;
+            store.disputeBlockChainContractAddress = null;
           });
     }
 
@@ -368,11 +370,13 @@ export default class BackChainActions {
                     store.isInitialSetupDone = true;
                     store.blockChainUrl = result.settings.blockChain.url;
                     store.blockChainContractAddress = result.settings.blockChain.contractAddress;
+                    store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
                 } else {
                     store.isInitialSetupDone = false;
                     store.mode = result.settings.mode;
                     store.blockChainUrl=config.blockChainUrl;
                     store.blockChainContractAddress=config.blockChainContractAddress;
+                    store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {

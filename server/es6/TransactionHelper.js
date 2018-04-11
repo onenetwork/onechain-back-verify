@@ -88,7 +88,8 @@ class TransactionHelper {
                 if(exist && exist.chainOfCustidy) {
                     exist.blockChain= {
                         'url': config.url,
-                        'contractAddress': config.contractAddress
+                        'contractAddress': config.contractAddress,
+                        'disputeContractAddress': config.disputeContractAddress
                     }
                     data = exist;
                 } else {
@@ -96,7 +97,8 @@ class TransactionHelper {
                         type: 'applicationSettings',
                         blockChain: {
                             'url': config.url,
-                            'contractAddress': config.contractAddress
+                            'contractAddress': config.contractAddress,
+                            'disputeContractAddress': config.disputeContractAddress
                         }
 
                     };
