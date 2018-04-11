@@ -9,14 +9,78 @@ import '../../public/css/disputeFiltersView.css';
     constructor(props) {
         super(props);
         this.state = {
-            showFilterTable: false
+            showFilterTable: false,
+            draftChkBox: true,
+            openChkBox: true,
+            closedChkBox : false
+            
+        };
+        this.searchTnxId = null;
+        this.searchBtId = null;
+        this.searchDisputeId = null;
+        this.disputeFilters = {
+            status : null,
+            searchTnxId : null
         };
     }
 
+    componentWillMount = () => {
+        this.selectedCheckboxes = new Set();
+        this.selectedCheckboxes.add('Draft');
+        this.selectedCheckboxes.add('Open');
+    }
+    
     showHideAdvancedFilters(value) {
         let me = this;
         me.setState({ showFilterTable: value });
     }
+    
+    listenSearchTnxKeyPress(event) {
+        this.searchTnxId = event.target.value.trim();
+        if (event.charCode == 13) {
+            this.disputeFilters.searchTnxId = this.searchTnxId;
+            this.applyFilters();
+        }
+     } 
+    
+    toggleCheckboxChange(event) {
+        let value = event.target.value;
+        let status = [];
+
+        if (event.target.checked) {
+            if (value == "Draft") {
+                this.setState({ draftChkBox: true });
+            } else if (value == "Open") {
+                this.setState({ openChkBox: true });
+            } else if (value == "Closed") {
+                this.setState({ closedChkBox: true });
+            } 
+            this.selectedCheckboxes.add(value);
+        } else {
+            if (value == "Draft") {
+                this.setState({ draftChkBox: false });
+            } else if (value == "Open") {
+                this.setState({ openChkBox: false });
+            } else if (value == "Closed") {
+                this.setState({ closedChkBox: false });
+            }
+
+            if (this.selectedCheckboxes.has(value)) {
+                this.selectedCheckboxes.delete(value);
+            } 
+        }
+        
+        for (let checkBoxValue of this.selectedCheckboxes.values()) {
+            status.push(checkBoxValue);
+        }
+        this.disputeFilters.status = status;
+        this.applyFilters();
+    }
+    
+    applyFilters() {
+         this.props.applyFilters(this.disputeFilters);
+    } 
+     
     render() {
 
         const fieldProps = {
@@ -26,6 +90,7 @@ import '../../public/css/disputeFiltersView.css';
                 height: '15px'
             }
         };
+
 
         let filterUI = null;
         if (!this.state.showFilterTable) {
@@ -46,17 +111,17 @@ import '../../public/css/disputeFiltersView.css';
             <div style={{ display: 'inline', fontWeight: '400', fontStyle: 'normal', fontSize: '12px' }}>
                 Show :
                 &nbsp;&nbsp;
-                <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp; Draft
+                <FormControl type="checkbox" checked={this.state.draftChkBox} value="Draft" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp; Draft
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp; Open
+                <FormControl type="checkbox" checked={this.state.openChkBox} value="Open" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp; Open
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp; Closed
+                <FormControl type="checkbox" checked={this.state.closedChkBox} value="Closed" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp; Closed
             </div>
         );
 
         let searchBox = (
             <div style={{ display: 'inline' }}>
-                <input className="filter-input" type="text" placeholder="Search by Transaction ID" />
+                <input className="filter-input" type="text" placeholder="Search by Transaction ID" onKeyPress={this.listenSearchTnxKeyPress.bind(this)} onChange={this.listenSearchTnxKeyPress.bind(this)}/>
                 <i className="fa fa-search" aria-hidden="true" style={{ position: 'relative', left: '-17px', color: '#A1A1A1' }}></i>
             </div>
         );

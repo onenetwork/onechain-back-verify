@@ -13,7 +13,16 @@ class DisputeHelper {
         //filters will be an object including all the selected filters in the UI, like transactionId,raisedBy etc.
         //Draft records will come from the db and Open/Closed ones will be fetched using oneBcClient apis
         return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('DraftDisputes').find()
+            let query = {};
+            if (filters) {
+                if (filters.status) {
+                    query.status = { $in: JSON.parse(filters.status) };
+                }
+                if (filters.searchTnxId) {
+                    query.transactionId = filters.searchTnxId;
+                }
+            }
+            dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
                 .sort({ creationDate: -1 })
                 .toArray(function (err, result) {
                     if (err) {
@@ -24,7 +33,7 @@ class DisputeHelper {
                         for (var i = 0; i < result.length; i++) {
                             let dispute = result[i];
                             //Fetch transaction data if exists
-                            var prms = new Promise(function(resolve, reject) {
+                            var prms = new Promise(function (resolve, reject) {
                                 transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
                                     if (transaction) {
                                         dispute.transaction = transaction; //Transaction is in the database.
