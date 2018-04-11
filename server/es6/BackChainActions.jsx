@@ -818,9 +818,6 @@ export default class BackChainActions {
                     dispute.transaction = store.disputeTransaction;
                     store.disputes.unshift(dispute);
                 }
-                if(response.raisedBy) {
-                    store.raisedBy = response.raisedBy;
-                }
                 resolve(response);
             })
         })

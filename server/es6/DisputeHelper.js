@@ -141,37 +141,24 @@ class DisputeHelper {
                 if(response.exists) {
                     resolve(response);
                 } else {
-                    if(dispute.raisedBy) {
-                        me.insertDraft(dispute)
-                        .then(function(response){
-                            if(response.success) {
-                                resolve(response);
-                            }
-                        }, function(error){
-                            console.error(error);
-                            reject(error);
-                        });
-                    } else {
-                        transactionHelper.getRaisedByAddress(dispute.entNameOfLoggedUser)
-                        .then(function(response){
-                            if(response.success) {
-                                dispute.raisedBy = response.entAddress;
-                                me.insertDraft(dispute)
-                                .then(function(response){
-                                    if(response.success) {
-                                        response.raisedBy = dispute.raisedBy;
-                                        resolve(response);
-                                    }
-                                }, function(error){
-                                    console.error(error);
-                                    reject(error);
-                                });
-                            }
-                        }, function(error){
-                            console.error(error);
-                            reject(error);
-                        });
-                    }
+                    transactionHelper.getRaisedByAddress(dispute.raisedByName)
+                    .then(function(response){
+                        if(response.success) {
+                            dispute.raisedBy = response.raisedByAddress;
+                            me.insertDraft(dispute)
+                            .then(function(response){
+                                if(response.success) {
+                                    resolve(response);
+                                }
+                            }, function(error){
+                                console.error(error);
+                                reject(error);
+                            });
+                        }
+                    }, function(error){
+                        console.error(error);
+                        reject(error);
+                    });
                 }
             }, function(error) {
                 console.error(error);

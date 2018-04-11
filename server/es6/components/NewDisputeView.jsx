@@ -15,7 +15,8 @@ import moment from 'moment';
 			disputeWarnMsg: null,
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0,
-			saveOrSubmitDisputeButtonsDisabled: true
+			saveOrSubmitDisputeButtonsDisabled: true,
+			raisedByName: null
         };
 	}
 	
@@ -82,10 +83,9 @@ import moment from 'moment';
 				"closedDate": null,
 				"transactionId": disputeTransaction.id,
 				"events" : btIds,
-				"raisedBy": this.props.store.raisedBy,
 				"reasonCode": ReactDOM.findDOMNode(this.select).value,
 				"status": "Draft",
-				"entNameOfLoggedUser": this.props.store.entNameOfLoggedUser
+				"raisedByName": this.state.raisedByName ? this.state.raisedByName : this.props.store.entNameOfLoggedUser
 			}
 		}
 		
@@ -150,6 +150,10 @@ import moment from 'moment';
 	submitToBackchain() {
 		// this.getNewDisputeData()
 		// Todo write code to submit dispute to back chain
+	}
+
+	handleRaisedByChange(event) {
+		this.setState({raisedByName: event.target.value})
 	}
 
     render() {
@@ -403,7 +407,21 @@ import moment from 'moment';
 													Raised By:
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
-													{this.props.store.disputeTransaction ? this.props.store.entNameOfLoggedUser : null}
+													{/* {(() => {
+														let defaultValue = null;
+														if (this.props.store.disputeTransaction) {
+															defaultValue = this.props.store.entNameOfLoggedUser;
+														} else {
+															defaultValue = null;
+														}
+														return <FormControl type="text" defaultValue={defaultValue} onChange={this.handleRaisedByChange.bind(this)}/>
+													})()} */}
+													{this.props.store.disputeTransaction ? 			 
+														<FormControl type="text" defaultValue={this.props.store.entNameOfLoggedUser}  onChange={this.handleRaisedByChange.bind(this)}/>
+														:				 
+														<FormControl type="text" defaultValue={''} onChange={this.handleRaisedByChange.bind(this)}/>
+													}
+														
 												</Col>
 											</Col>
 										</Row><br/>

@@ -296,7 +296,7 @@ class TransactionHelper {
         return events;
     }
 
-    getRaisedByAddress(entName) {
+    getRaisedByAddress(raisedByName) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
                 .toArray(function(err, result) {
@@ -307,9 +307,9 @@ class TransactionHelper {
                         let mappingFound = false;
                         for (let key in result) {
                             if (result.hasOwnProperty(key)) {
-                              if(result[key] == entName) {
+                              if(result[key] == raisedByName) {
                                 mappingFound = true;
-                                resolve({success : true, entAddress : key});
+                                resolve({success : true, raisedByAddress : key});
                                 break;
                               }
                             }
@@ -318,7 +318,7 @@ class TransactionHelper {
                             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' })
                             .then(function (result) {
                                 if (result) {
-                                    resolve({success : true, entAddress : result.blockChain.disputeContractAddress})
+                                    resolve({success : true, raisedByAddress : result.blockChain.disputeContractAddress})
                                 } else {
                                     reject("Couldn't fetch the value");
                                 }
