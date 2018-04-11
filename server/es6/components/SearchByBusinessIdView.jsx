@@ -30,9 +30,11 @@ import Images from '../Images';
 
 	loadTransactionsIntoStore() {
 		let me = this;
+		me.setState({ verifyDisabled: true });
 		BackChainActions.loadTransactions(this.businessIdInputVal, "btId", function(redirect) {
 			if(redirect == false) {
 				me.props.store.displayMessageViewModalActive = true;
+				me.setState({ verifyDisabled: false });
 			} else {
 				me.setState({redirect: redirect});
 			}

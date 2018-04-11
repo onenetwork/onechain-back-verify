@@ -29,9 +29,11 @@ import Images from '../Images';
 
 	loadTransactionIntoStore() {
 		let me = this;
+		me.setState({ verifyDisabled: true });
 		BackChainActions.loadTransactions(this.transactionIdInputVal, "tnxId", function(redirect) {
 			if(redirect == false) {
 				me.props.store.displayMessageViewModalActive = true;
+				me.setState({ verifyDisabled: false });
 			} else {
 				me.setState({redirect: redirect});
 			}
