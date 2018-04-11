@@ -830,7 +830,7 @@ export default class BackChainActions {
     @action
     static discardDisputeDraft(disputeId) {
         return new Promise(resolve => {
-            let uri = '/discardDraftDisputes/' + disputeId;
+            let uri = '/discardDraftDispute/' + disputeId;
             return fetch(uri, { method: 'POST' })
                 .then(function (response) {
                     return response.json();

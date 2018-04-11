@@ -181,8 +181,8 @@ exports.generateDisputeId = function (req, res) {
     res.json(disputeHelper.generateDisputeId(req.params.plainText));
 };
 
-exports.discardDraftDisputes = function (req, res) {
-    disputeHelper.discardDraftDisputes(req.params.disputeId)
+exports.discardDraftDispute = function (req, res) {
+    disputeHelper.discardDraftDispute(req.params.disputeId)
         .then(function (result) {
             if (result.success) {
                 res.json({ success: true });

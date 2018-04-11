@@ -190,7 +190,7 @@ class DisputeHelper {
         return({success: true, generatedDisputeId : crypto.createHash('sha256').update(plainText).digest('hex')});
     }
 
-    discardDraftDisputes(disputeId) {
+    discardDraftDispute(disputeId) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('DraftDisputes').deleteOne({id:disputeId})
             .then((result) => {
