@@ -250,22 +250,24 @@ const fieldProps = {
     }
 
     renderDisputeEventsCell(dispute, idx) {
-        /**
-         * TODO: Missing Tasks
-         * 1. iff the transaction doesn't exist in the db, show a warning when user clicks on the popover.
-         * "Transaction <tnxId> couldn't be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.""
-         */
-        let eventCountString = null;
-        let eventsPopoverContent = null;
-        let eventsPopoverClassName = 'events-popover';
+        let eventCountString , eventsPopoverContent, eventsPopoverClassName, eventBadge;
+        eventCountString = eventsPopoverContent = eventsPopoverClassName = eventBadge = null;
+
         if(dispute.transaction) {
+            eventsPopoverClassName = 'events-popover';
+            eventBadge = Images.EVENT_BADGE;
             eventCountString = (<div className={this.getEventCountCSS(dispute.transaction.eventCount)}>
-                            {this.getEventCountString(dispute.transaction.eventCount)}
-                        </div>);
+                                    {this.getEventCountString(dispute.transaction.eventCount)}
+                                </div>);
             eventsPopoverContent = <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} selectedBtIds={dispute.events} />;
+            
         } else {
             eventsPopoverClassName = null;
+            eventBadge = Images.EVENT_BADGE_ORANGE;
             eventsPopoverContent = "Transaction " + dispute.transactionId +" couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.";
+            eventCountString =  (<div className="counter1">
+                                    <i className="fa fa-exclamation" aria-hidden="true"/>
+                                </div>);
         }
 
         return (
@@ -273,7 +275,7 @@ const fieldProps = {
                 <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
                     <img
                         className="counter-img"
-                        src={Images.EVENT_BADGE}
+                        src={eventBadge}
                         ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
                         {eventCountString}
                     <Overlay
@@ -315,38 +317,33 @@ const fieldProps = {
     }
 
     renderDisputeParticipantsCell(dispute, idx) {
-        let partnerLength = this.getPartnerNames(dispute).length;
-        let participantsContent = null;
+        let partnerLengthOrExclamation, participantsContent, disputeParticipantBadge;
+        partnerLengthOrExclamation = participantsContent = disputeParticipantBadge = null;
+
         if(dispute.transaction) {
-            participantsContent = (<ul style={{
-                listStyleType: 'none',
-                marginLeft: '-30px',
-                width: '175px',
-                lineHeight: '18px',
-                paddingTop:'7px'
-            }}>
-                {this.partnerNameInList(dispute)}
-        </ul> );
+            disputeParticipantBadge = Images.DISPUTE_PARTICIPANT_BADGE;
+            participantsContent=(<ul style={{listStyleType: 'none', marginLeft: '-30px', width: '175px', lineHeight: '18px',paddingTop:'7px'}}>
+                                    {this.partnerNameInList(dispute)}
+                                </ul> );
+            partnerLengthOrExclamation= (<div style={{position: 'absolute', left: '33px', top: '6px', color: 'white', fontSize: '10px'}}>
+                                            {this.getPartnerNames(dispute).length}
+                                        </div>);
         } else {
-            partnerLength = null;
+            disputeParticipantBadge = Images.DISPUTE_PARTICIPANT_BADGE_ORANGE;
             participantsContent = "Transaction " + dispute.transactionId +" couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.";
+            partnerLengthOrExclamation= (<div style={{position: 'absolute', left: '35px', top: '6px', color: 'white', fontSize: '10px'}}>
+                                            <i className="fa fa-exclamation" aria-hidden="true"/>
+                                        </div>);
         }
 
         let disputeParticipantCell = (
             <div className="counter-participants" onClick={() => this.showDisputeParticipantsPopover(idx, true)}>
                 <img
                     style={{width: '25px',height: '25px'}}
-                    src={Images.DISPUTE_PARTICIPANT_BADGE}
+                    src={disputeParticipantBadge}
                     ref={ref => this.disputeParticipantsPopoverRefsMap[idx] = ref} />
-                <div style={{
-                    position: 'absolute',
-                    left: '33px',
-                    top: '6px',
-                    color: 'white',
-                    fontSize: '10px'
-                }}>
-                    {partnerLength}
-                </div>
+                    {partnerLengthOrExclamation}
+
                 <Overlay
                     show={this.state.disputeParticipantsPopoverVisibilityMap[idx] || false}
                     onHide={() => this.showDisputeParticipantsPopover(idx, false)}
@@ -356,11 +353,11 @@ const fieldProps = {
                     target={() => this.disputeParticipantsPopoverRefsMap[idx]}>
 
                     <Popover id={dispute.id + "_disputeParticipants"} title={(
-                        <span style={{fontWeight: '700',fontSize: '12px',color: '#0085C8'}}>
-                            <i className="fa fa-user" aria-hidden="true" style={{ fontSize: '18px'}}></i>
-                            &nbsp;&nbsp;&nbsp;&nbsp;Participants
-                        </span>
-                    )}>
+                            <span style={{fontWeight: '700',fontSize: '12px',color: '#0085C8'}}>
+                                <i className="fa fa-user" aria-hidden="true" style={{ fontSize: '18px'}}></i>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Participants
+                            </span>
+                        )}>
                         <div id={dispute.id + "_disputeParticipants" + idx} >
                               {participantsContent}
                         </div>
