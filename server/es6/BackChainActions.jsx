@@ -567,17 +567,21 @@ export default class BackChainActions {
 
 
     @action
-    static verifyBackChainSettings(oneBcClient,callback) {
+    static verifyBackChainSettings(oneBcClient) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
-            return result;
-        })
-        .then(function (result) {
-            callback(null,result);
+            BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress);
         })
         .catch(function (error) {
-            callback(error,null);
+            BackChainActions.displayAlertPopup("BlockChain Communication Failed", "Could not connect to the blockchain, please check your settings and try again.");
         });
+    }
+
+    @action
+    static displayAlertPopup(title, message) {
+        store.displayMessageViewModalActive = true;
+        store.displayMessageViewModalTitle = title;
+        store.displayMessageViewModalContent = message;
     }
 
     @action

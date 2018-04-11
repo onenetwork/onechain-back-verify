@@ -19,6 +19,14 @@ import DisplaySyncView from "./DisplaySyncView"
 	}
 
 	saveInitialConfig() {
+
+		//Ask for metamask installation
+		if(typeof web3 === 'undefined' || typeof web3.currentProvider === 'undefined' || web3.currentProvider.isMetaMask !== true) {
+			BackChainActions.displayAlertPopup("Missing MetaTask Extension", 
+			["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>, 
+			" in order to use Disputes. Please install the extension first and try again."]);
+			return;
+		}
 		let me = this;
 		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null || this.props.store.disputeBlockChainContractAddress == null) {
 			alert('Please input all the following values');
@@ -36,13 +44,7 @@ import DisplaySyncView from "./DisplaySyncView"
 				contractAddress: this.props.store.blockChainContractAddress,
 				disputeContractAddress: this.props.store.disputeBlockChainContractAddress
 			});
-			BackChainActions.verifyBackChainSettings(bcClient,function(error,result){
-				if(error) {
-					me.props.store.displayMessageViewModalActive = true;
-				} else if(result) {
-					BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress);
-				}
-			});
+			BackChainActions.verifyBackChainSettings(bcClient);
 		} catch (e) {
 			alert(e);
 			return;
@@ -197,7 +199,7 @@ import DisplaySyncView from "./DisplaySyncView"
 @observer class DisplayMessageViewPopup extends React.Component {
     render() {
         return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
-                    <DisplayMessageView title = "Message" msg= {"Could not connect to the blockchain, please check your settings and try again."} store={this.props.store}/>
+                    <DisplayMessageView title = {this.props.store.displayMessageViewModalTitle} msg= {this.props.store.displayMessageViewModalContent} store={this.props.store}/>
                </Modal>);
     }
 }
