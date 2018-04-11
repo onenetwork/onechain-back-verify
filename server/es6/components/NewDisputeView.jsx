@@ -138,9 +138,6 @@ import moment from 'moment';
 					me.setState({ disputeWarnMsg: "You already have a dispute in " + response.status + " status for this transaction. Please close this window and see it in the list.", disputeErrorMsg : null});
 					return;
 				}
-				if(response.mappingFound === false) {
-					console.error("mapping not found!");
-				}
 				BackChainActions.toggleNewDisputeModalView();
 				BackChainActions.clearDisputeTransaction();
 				BackChainActions.clearDisputeId();

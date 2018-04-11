@@ -309,13 +309,20 @@ class TransactionHelper {
                             if (result.hasOwnProperty(key)) {
                               if(result[key] == entName) {
                                 mappingFound = true;
-                                resolve({success : true, entAddress : key, mappingFound : mappingFound});
+                                resolve({success : true, entAddress : key});
                                 break;
                               }
                             }
                         }
                         if(!mappingFound) {
-                            resolve({success : true, mappingFound : mappingFound})
+                            dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' })
+                            .then(function (result) {
+                                if (result) {
+                                    resolve({success : true, entAddress : result.blockChain.disputeContractAddress})
+                                } else {
+                                    reject("Couldn't fetch the value");
+                                }
+                            });
                         }
                     }
                 });
