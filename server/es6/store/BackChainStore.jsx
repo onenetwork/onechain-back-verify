@@ -111,7 +111,8 @@ class BackChainStore {
             return oneBcClient({
                 blockchain: 'eth',
                 url: this.blockChainUrl,
-                contractAddress: this.blockChainContractAddress
+                contractAddress: this.blockChainContractAddress,
+                disputeContractAddress: this.disputeBlockChainContractAddress
             });
         } else {
             return null;
