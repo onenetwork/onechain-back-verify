@@ -14,7 +14,6 @@ class BackChainStore {
     @observable syncGoingOn = false;
     @observable blockChainUrl = null;
     @observable blockChainContractAddress = null;
-    @observable blockChainPrivateKey = null;
     @observable businessTransactionTextSearch = null;
     @observable entNameOfLoggedUser = null;
     @observable transactions = observable([]);
@@ -107,12 +106,11 @@ class BackChainStore {
     }
 
     @computed get oneBcClient() {
-        if (this.blockChainUrl != null && this.blockChainContractAddress != null && this.blockChainPrivateKey != null) {
+        if (this.blockChainUrl != null && this.blockChainContractAddress != null) {
             return oneBcClient({
                 blockchain: 'eth',
                 url: this.blockChainUrl,
-                contractAddress: this.blockChainContractAddress,
-                privateKey: this.blockChainPrivateKey
+                contractAddress: this.blockChainContractAddress
             });
         } else {
             return null;

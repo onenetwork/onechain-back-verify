@@ -296,11 +296,10 @@ export default class BackChainActions {
     }
 
     @action
-    static saveBlockChainSettings(url, contractAddress, privatekey) {
+    static saveBlockChainSettings(url, contractAddress) {
         let params = {
             'url':url,
-            'contractAddress': contractAddress,
-            'privatekey': privatekey
+            'contractAddress': contractAddress
             };
         fetch('/saveBlockChainSettings', {
             method: 'post',
@@ -324,7 +323,6 @@ export default class BackChainActions {
             store.isInitialSetupDone = false;
             store.blockChainUrl = null;
             store.blockChainContractAddress = null;
-            store.blockChainPrivateKey = null;
           });
     }
 
@@ -366,18 +364,15 @@ export default class BackChainActions {
                 return response.json();
             }).then(function(result) {
                 if (result.success && result.settings.blockChain &&
-                    result.settings.blockChain.url && result.settings.blockChain.contractAddress
-                    && result.settings.blockChain.privateKey) {
+                    result.settings.blockChain.url && result.settings.blockChain.contractAddress) {
                     store.isInitialSetupDone = true;
                     store.blockChainUrl = result.settings.blockChain.url;
                     store.blockChainContractAddress = result.settings.blockChain.contractAddress;
-                    store.blockChainPrivateKey = result.settings.blockChain.privateKey;
                 } else {
                     store.isInitialSetupDone = false;
                     store.mode = result.settings.mode;
                     store.blockChainUrl=config.blockChainUrl;
                     store.blockChainContractAddress=config.blockChainContractAddress;
-                    store.blockChainPrivateKey=config.blockChainpPrivateKey;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {

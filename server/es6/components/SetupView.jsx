@@ -20,7 +20,7 @@ import DisplaySyncView from "./DisplaySyncView"
 
 	saveInitialConfig() {
 		let me = this;
-		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null || this.props.store.blockChainPrivateKey == null) {
+		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null) {
 			alert('Please input all the following values');
 			return;
 		}
@@ -33,14 +33,13 @@ import DisplaySyncView from "./DisplaySyncView"
 			let bcClient = oneBcClient({
 				blockchain: 'eth',
 				url: this.props.store.blockChainUrl,
-				contractAddress: this.props.store.blockChainContractAddress,
-				privateKey: this.props.store.blockChainPrivateKey
+				contractAddress: this.props.store.blockChainContractAddress
 			});
 			BackChainActions.verifyBackChainSettings(bcClient,function(error,result){
 				if(error) {
 					me.props.store.displayMessageViewModalActive = true;
 				} else if(result) {
-					BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.blockChainPrivateKey);
+					BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress);
 				}
 			});
 		} catch (e) {
@@ -56,10 +55,6 @@ import DisplaySyncView from "./DisplaySyncView"
 
 	blockChainContractAddress(event){
 		this.props.store.blockChainContractAddress = event.target.value.trim();
-	}
-
-	blockChainPrivateKey(event){
-		this.props.store.blockChainPrivateKey = event.target.value.trim();
 	}
 
 	render() {
@@ -120,12 +115,6 @@ import DisplaySyncView from "./DisplaySyncView"
 				<Col md={2}><div style={fieldProps.valueLabel}>Contract Address: </div></Col>
 				<Col md={8}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress == null ? '' : this.props.store.blockChainContractAddress} />
-				</Col>
-			</Row>
-			<Row style={fieldProps.panelPadding}>
-				<Col md={2}><div style={fieldProps.valueLabel}>Private Key: </div></Col>
-				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder={this.props.store.blockChainPrivateKey} value = {this.props.store.blockChainPrivateKey == null ? '' : this.props.store.blockChainPrivateKey} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
