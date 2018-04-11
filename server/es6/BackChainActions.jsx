@@ -366,7 +366,8 @@ export default class BackChainActions {
                 return response.json();
             }).then(function(result) {
                 if (result.success && result.settings.blockChain &&
-                    result.settings.blockChain.url && result.settings.blockChain.contractAddress) {
+                    result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
+					result.settings.blockChain.disputeContractAddress) {
                     store.isInitialSetupDone = true;
                     store.blockChainUrl = result.settings.blockChain.url;
                     store.blockChainContractAddress = result.settings.blockChain.contractAddress;
