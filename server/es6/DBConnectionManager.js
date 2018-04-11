@@ -16,7 +16,6 @@ class DBConnectionManager {
     }
 
     connect(url, dbName, mode, done) {
-        console.log("pk1: " + mode);
         let me = this;
         if (this.state.db) {
             return done();
