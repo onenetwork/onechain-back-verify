@@ -1,9 +1,11 @@
 import { dbconnectionManager } from './DBConnectionManager';
 import { transactionHelper } from './TransactionHelper';
+import { settingsHelper } from './SettingsHelper';
 import { blockChainVerifier } from './BlockChainVerifier';
 import { observable } from 'mobx';
 import { Long } from 'mongodb';
 import crypto from 'crypto';
+import moment from 'moment'
 
 class DisputeHelper {
 
@@ -197,9 +199,31 @@ class DisputeHelper {
         });
     }
 
-    submitDispute(disputeId) {
+    submitDispute(dispute) {
+        let me = this;
         return new Promise((resolve, reject) => {
-            // write code to submit dispute
+            settingsHelper.getApplicationSettings()
+            .then(result => {
+                if(result && result.blockChain.disputeSubmissionWindowInMinutes) {
+                    let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
+                    transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                        if (transaction) {
+                            let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
+                            let mins = Math.ceil(duration.asMinutes());
+                            if(mins < disputeSubmissionWindowInMinutes) {
+                                /*TODO send dispute to Block chain and on success call this.discardDraftDispute(dispute.id)*/
+                                resolve({success:true, submitDisputeMsg: 'submitted dispute'});
+                            } else {
+                                eject({success:true, submitDisputeMsg: 'Time window to raise a dispute on this transaction has already passed.'});
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(err => {
+                console.error("Application Settings can't be read in submitDispute: " + err);
+                reject(err);
+            });
         });
     }
 

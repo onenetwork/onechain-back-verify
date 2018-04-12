@@ -290,6 +290,8 @@ export default class BackChainActions {
 
     @action
     static saveBlockChainSettings(url, contractAddress, disputeContractAddress) {
+        /*TODO fetch from backChain by oneBcClient.getDisputeSubmmisionWindowInMinutes() and set
+        to store.disputeSubmissionWindowInMinutes*/
         let params = {
             'url':url,
             'contractAddress': contractAddress,
@@ -360,17 +362,19 @@ export default class BackChainActions {
             }).then(function(result) {
                 if (result.success && result.settings.blockChain &&
                     result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
-					result.settings.blockChain.disputeContractAddress) {
+					result.settings.blockChain.disputeContractAddress && result.settings.blockChain.disputeSubmissionWindowInMinutes) {
                     store.isInitialSetupDone = true;
                     store.blockChainUrl = result.settings.blockChain.url;
                     store.blockChainContractAddress = result.settings.blockChain.contractAddress;
                     store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
+                    store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
                 } else {
                     store.isInitialSetupDone = false;
                     store.mode = result.settings.mode;
                     store.blockChainUrl=config.blockChainUrl;
                     store.blockChainContractAddress=config.blockChainContractAddress;
                     store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
+                    store.disputeSubmissionWindowInMinutes = false;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {
@@ -386,6 +390,7 @@ export default class BackChainActions {
             }).catch(function(error) {
                 store.isInitialSetupDone = null;
                 store.authenticationToken = null;
+                store.disputeSubmissionWindowInMinutes = null;
             });
         }
     }
@@ -868,7 +873,15 @@ export default class BackChainActions {
             //First submits dispute to blockchain.
             //If the call is successful, it removes the draft from database.
             //Once both operations are complete, go ahead and update the list of disputes
-            resolve(true); //Decide what to return
+            let uri = '/submitDispute/' + JSON.stringify(dispute);
+            return fetch(uri, { method: 'POST' })
+            .then(function(response) {
+                return response.json();
+            }, function(error) {
+                console.error(error);
+            }).then(function(response) {
+                resolve(response);
+            })
         })
     }
 

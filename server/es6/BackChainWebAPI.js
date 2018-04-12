@@ -194,3 +194,17 @@ exports.discardDraftDispute = function (req, res) {
             res.json({ success: false });
         });
 };
+
+exports.submitDispute = function (req, res) {
+    disputeHelper.submitDispute(JSON.parse(req.params.dispute))
+    .then(function (result) {
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.json({ success: false });
+        }
+    })
+    .catch(function (error) {
+        res.json({ success: false });
+    });
+};

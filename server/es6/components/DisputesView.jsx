@@ -98,7 +98,15 @@ const fieldProps = {
     }
 
     submitDispute(dispute) {
-        BackChainActions.submitDispute(dispute);
+        BackChainActions.submitDispute(dispute)
+        .then(function(result){
+            if(result.success && result.submitDisputeMsg) {
+                alert(result.submitDisputeMsg);
+            }
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
     }
 
 
@@ -174,6 +182,12 @@ const fieldProps = {
             </tr>
         );
     }
+    
+    getMinsInHrsAndMins(mins) {
+        let hours = Math.floor( mins / 60); 
+        let minutes = mins % 60;
+        return hours + "hrs " + minutes + "mins";
+    }
 
     renderDisputeStatusCell(dispute) {
         let statusIconOverHand = null;
@@ -188,13 +202,24 @@ const fieldProps = {
                 statusIconOverHand = <i className="fa fa-exclamation-circle" style={Object.assign({color:'#F19500'},fieldProps.statusIconOverHand)} />;
         }
 
-        let disputeStatusIcon = (<span title={dispute.status} className="fa-stack fa-lg">
-                                    <i className="fa fa-hand-paper-o" style={{fontSize: '18px', color: 'gray'}}>
-                                        {statusIconOverHand}
-                                    </i>
+        let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
+        let mins = Math.ceil(duration.asMinutes());
+        let disputeStatusTime = null;
+        if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
+            disputeStatusTime =  (<span style={{fontSize: '10px', color: '#999999', display: 'inline-block', lineHeight: '10px'}}> 
+                                    {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-mins)}
                                 </span>);
+        }
+        let disputeStatusIcon = (<div>
+                                    <span title={dispute.status} className="fa-stack fa-lg">
+                                        <i className="fa fa-hand-paper-o" style={{fontSize: '18px', color: 'gray'}}>
+                                            {statusIconOverHand}
+                                        </i>
+                                    </span>
+                                    {disputeStatusTime}
+                                </div>);
 
-        return <td style={fieldProps.columns}>{disputeStatusIcon}</td>;
+        return <td style={Object.assign({ width: '90px' }, fieldProps.columns)}>{disputeStatusIcon}</td>;
     }
 
     renderDisputeIdCell(dispute) {
@@ -371,6 +396,18 @@ const fieldProps = {
 
     renderDisputeActionsCell(dispute,idx) {
         if (dispute.status == 'Draft') {
+            let submitDisputeUI = null;
+            let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
+            let mins = Math.ceil(duration.asMinutes());
+            if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
+                submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
+                                        <div id={dispute.id + "_submit"} >    
+                                            <div className="dispute-transation-div" style= {{width:'128px'}} >
+                                                    <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
+                                            </div>
+                                        </div>    
+                                    </Link>);
+            }
             let actionsCell = (
                 <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
                     <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
@@ -384,13 +421,7 @@ const fieldProps = {
                         target={() => this.actionsPopoverRefsMap[idx]}>
 
                         <Popover id={dispute.id} className="dispute-action-popover" >
-                            <Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
-                                <div id={dispute.id + "_submit"} >    
-                                    <div className="dispute-transation-div" style= {{width:'128px'}} >
-                                            <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
-                                    </div>
-                                </div>    
-                            </Link>
+                            {submitDisputeUI}
                             <Link to='#' onClick={this.discardDraftDispute.bind(this, dispute)}>
                                  <div id={dispute.id + "_discard"} >
                                     <div style={{}} className="dispute-transation-div" style={{ width: '128px' }} >
