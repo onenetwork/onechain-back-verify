@@ -303,12 +303,13 @@ const fieldProps = {
 
 
     renderDisputeRaisedByCell(dispute) {
-        const testMapping = {
-            "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051": "CustomerA"
-        }
-        return <td style={fieldProps.columns}>{testMapping[dispute.raisedBy]}</td>;
+        // const testMapping = {
+        //     "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051": "CustomerA"
+        // }
+        // return <td style={fieldProps.columns}>{testMapping[dispute.raisedBy]}</td>;
         //Should get the actual enterprise name from BCAddressToEnterpriseMapping collection
         //If mapping doesn't have the value, we should display a warning message
+        return <td style={fieldProps.columns}>{dispute.raisedByName}</td>;
     }
 
 

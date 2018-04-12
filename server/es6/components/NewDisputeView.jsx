@@ -16,7 +16,7 @@ import moment from 'moment';
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0,
 			saveOrSubmitDisputeButtonsDisabled: true,
-			raisedByName: null
+			raisedByName: ''
         };
 	}
 	
@@ -34,6 +34,7 @@ import moment from 'moment';
 
 	componentDidMount() {
 		if(this.props.store.disputeTransaction) {
+			this.setState({raisedByName: this.props.store.entNameOfLoggedUser});
 			BackChainActions.generateDisputeId(this.props.store.entNameOfLoggedUser+"~"+this.props.store.disputeTransaction.id);
 			this.setState({saveOrSubmitDisputeButtonsDisabled:false});
 		}
@@ -105,8 +106,10 @@ import moment from 'moment';
 				.then(function(result){
 					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
 					if(me.props.store.disputeTransaction) {
+						me.setState({raisedByName: me.props.store.entNameOfLoggedUser});
 						me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 					} else {
+						me.setState({raisedByName: ''});
 						me.setState({saveOrSubmitDisputeButtonsDisabled:true});
 					}
 				})
@@ -407,21 +410,11 @@ import moment from 'moment';
 													Raised By:
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
-													{/* {(() => {
-														let defaultValue = null;
-														if (this.props.store.disputeTransaction) {
-															defaultValue = this.props.store.entNameOfLoggedUser;
-														} else {
-															defaultValue = null;
-														}
-														return <FormControl type="text" defaultValue={defaultValue} onChange={this.handleRaisedByChange.bind(this)}/>
-													})()} */}
-													{this.props.store.disputeTransaction ? 			 
-														<FormControl type="text" defaultValue={this.props.store.entNameOfLoggedUser}  onChange={this.handleRaisedByChange.bind(this)}/>
+													{this.props.store.disputeTransaction ? 
+														(<FormControl type="text" value={this.state.raisedByName}  onChange={this.handleRaisedByChange.bind(this)}/>)
 														:				 
-														<FormControl type="text" defaultValue={''} onChange={this.handleRaisedByChange.bind(this)}/>
+														(<FormControl type="text" value={this.state.raisedByName} onChange={this.handleRaisedByChange.bind(this)}/>)
 													}
-														
 												</Col>
 											</Col>
 										</Row><br/>
