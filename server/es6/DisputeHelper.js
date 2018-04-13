@@ -268,6 +268,11 @@ class DisputeHelper {
                 });
         });
     }
+
+    DisputeOrganizerTask() {
+        /*TODO write related logic*/
+    }
+
 }
 
 export const disputeHelper = new DisputeHelper();
