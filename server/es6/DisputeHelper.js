@@ -360,7 +360,39 @@ class DisputeHelper {
     }
 
     DisputeOrganizerTask() {
-        /*TODO write related logic*/
+        let me = this;
+        settingsHelper.getApplicationSettings()
+            .then(result => {
+                if (result && result.blockChain.disputeSubmissionWindowInMinutes) {
+                    let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
+                    this.getDisputes()
+                    .then(function (result) {
+                        let dispute = null;
+                        for (let i = 0, len = result.length; i < len; i++) {
+                            dispute = result[i];
+                            if (dispute.transaction) {
+                                let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
+                                let mins = Math.ceil(duration.asMinutes());
+                                if (mins > disputeSubmissionWindowInMinutes) {
+                                    me.discardDraftDispute(dispute.id)
+                                        .then(function (result) {
+                                            if (result.sucess) {
+                                                console.log("Old disputes deleted successfully.");
+                                            }
+                                        })
+                                }
+                            }
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log("Some error occured while deleting old disputes "+ error);                            
+                    });
+                }
+            })
+            .catch(err => {
+                console.error("Application Settings can't be read: " + err);
+                reject(err);
+            });
     }
 
 }
