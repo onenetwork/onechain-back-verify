@@ -105,8 +105,7 @@ import Images from '../Images';
 					fontSize: '18px',
 					fontFamily: "Open Sans",
 					color:'rgb(153, 153, 153)',
-					borderColor: 'rgba(153,153,153,1)',
-					padding:'0px'
+					borderColor: 'rgba(153,153,153,1)'
 				}
 			};
 
@@ -116,15 +115,19 @@ import Images from '../Images';
 						{`
 							::-webkit-input-placeholder {
 								font-size: 18px !important;
+								padding: 1px;
 							}
 							::-moz-placeholder {
 								font-size: 18px !important;
+								padding: 1px;
 							}
 							:-ms-input-placeholder {
 								font-size: 18px !important;
+								padding: 1px;
 							}
 							::placeholder {
 								font-size: 18px !important;
+								padding: 1px;
 							}
 						`}
 					</style>

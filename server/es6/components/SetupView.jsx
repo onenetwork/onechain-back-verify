@@ -181,6 +181,26 @@ import DisplaySyncView from "./DisplaySyncView"
 		if(this.props.store.mode=="prod") {
 			return (
 				<div className={"panel panel-default"}>
+					<style>
+						{`
+							::-webkit-input-placeholder {
+								font-size: 18px !important;
+								padding: 1px;
+							}
+							::-moz-placeholder {
+								font-size: 18px !important;
+								padding: 1px;
+							}
+							:-ms-input-placeholder {
+								font-size: 18px !important;
+								padding: 1px;
+							}
+							::placeholder {
+								font-size: 18px !important;
+								padding: 1px;
+							}
+						`}
+					</style>
 					<HeaderView store={this.props.store} size="big" />
 					<div className={"panel-body"} style={fieldProps.panelBody}>{panelBodyProd}</div>
 				</div>
