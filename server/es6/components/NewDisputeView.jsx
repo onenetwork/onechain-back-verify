@@ -15,8 +15,7 @@ import moment from 'moment';
 			disputeWarnMsg: null,
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0,
-			saveOrSubmitDisputeButtonsDisabled: true,
-			raisedByName: ''
+			saveOrSubmitDisputeButtonsDisabled: true
         };
 	}
 	
@@ -34,7 +33,6 @@ import moment from 'moment';
 
 	componentDidMount() {
 		if(this.props.store.disputeTransaction) {
-			this.setState({raisedByName: this.props.store.entNameOfLoggedUser});
 			BackChainActions.generateDisputeId(this.props.store.entNameOfLoggedUser+"~"+this.props.store.disputeTransaction.id);
 			this.setState({saveOrSubmitDisputeButtonsDisabled:false});
 		}
@@ -86,7 +84,8 @@ import moment from 'moment';
 				"events" : btIds,
 				"reasonCode": ReactDOM.findDOMNode(this.select).value,
 				"status": "Draft",
-				"raisedByName": this.state.raisedByName ? this.state.raisedByName : this.props.store.entNameOfLoggedUser
+				"raisedBy": this.props.store.raisedBy,
+				"raisedByName": this.props.store.entNameOfLoggedUser
 			}
 		}
 		
@@ -106,10 +105,8 @@ import moment from 'moment';
 				.then(function(result){
 					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
 					if(me.props.store.disputeTransaction) {
-						me.setState({raisedByName: me.props.store.entNameOfLoggedUser});
 						me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 					} else {
-						me.setState({raisedByName: ''});
 						me.setState({saveOrSubmitDisputeButtonsDisabled:true});
 					}
 				})
@@ -153,10 +150,6 @@ import moment from 'moment';
 	submitToBackchain() {
 		// this.getNewDisputeData()
 		// Todo write code to submit dispute to back chain
-	}
-
-	handleRaisedByChange(event) {
-		this.setState({raisedByName: event.target.value})
 	}
 
     render() {
@@ -410,11 +403,7 @@ import moment from 'moment';
 													Raised By:
 												</Col>
 												<Col style={{marginLeft: '-28px'}} md={7}>
-													{this.props.store.disputeTransaction ? 
-														(<FormControl type="text" value={this.state.raisedByName}  onChange={this.handleRaisedByChange.bind(this)}/>)
-														:				 
-														(<FormControl type="text" value={this.state.raisedByName} onChange={this.handleRaisedByChange.bind(this)}/>)
-													}
+													{this.props.store.disputeTransaction ? this.props.store.entNameOfLoggedUser : null}
 												</Col>
 											</Col>
 										</Row><br/>
