@@ -99,3 +99,21 @@
     padding-left: 40px;
     
 }
+
+.date-control>.form-control {
+    left : 36px !important;
+    top: 0px !important;
+    width:100px !important;
+    height: 30px !important;
+    background: inherit !important;
+    background-color: rgba(255, 255, 255, 1) !important;
+    box-sizing: border-box !important;
+    border-width: 1px !important;
+    border-style: solid;
+    border-color: rgba(153, 153, 153, 1) !important;
+    border-radius: 3px ;
+    display: inline;
+}
+.rdt {
+    display: inline;
+}

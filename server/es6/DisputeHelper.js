@@ -14,15 +14,11 @@ class DisputeHelper {
     getDisputes(filters) {
         //filters will be an object including all the selected filters in the UI, like transactionId,raisedBy etc.
         //Draft records will come from the db and Open/Closed ones will be fetched using oneBcClient apis
+        let me = this;
         return new Promise((resolve, reject) => {
             let query = {};
             if (filters) {
-                if (filters.status) {
-                    query.status = { $in: JSON.parse(filters.status) };
-                }
-                if (filters.searchTnxId) {
-                    query.transactionId = filters.searchTnxId;
-                }
+                query = this.createFilterQuery(filters);
             }
             dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
                 .sort({ creationDate: -1 })
@@ -38,7 +34,11 @@ class DisputeHelper {
                             var prms = new Promise(function (resolve, reject) {
                                 transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
                                     if (transaction) {
-                                        dispute.transaction = transaction; //Transaction is in the database.
+                                        if (filters && JSON.parse(filters.transactionRelatedFilter)) {
+                                            dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
+                                        } else {
+                                            dispute.transaction = transaction; //Transaction is in the database.
+                                        }
                                     }
                                     resolve(dispute);
                                 });
@@ -51,6 +51,96 @@ class DisputeHelper {
                     }
                 });
         });
+    }
+
+    createFilterQuery(filters) {
+        let query = {};
+        if (filters.status != null && filters.status != 'null') {
+            query.status = { $in: JSON.parse(filters.status) };
+        }
+
+        if (filters.searchTnxId != null && filters.searchTnxId != 'null') {
+            query.transactionId = filters.searchTnxId;
+        }
+
+        if (filters.searchDisputeId != null && filters.searchDisputeId != 'null') {
+            query.id = filters.searchDisputeId;
+        }
+
+        if (filters.disputeSubmitFromDate != undefined && filters.disputeSubmitFromDate != 'null') {
+            query.submittedDate = { $gte: JSON.parse(filters.disputeSubmitFromDate) };
+        }
+
+        if (filters.disputeSubmitToDate != undefined && filters.disputeSubmitToDate != 'null') {
+            query.submittedDate = { $lte: JSON.parse(filters.disputeSubmitToDate) };
+        }
+
+        if (filters.disputeCloseFromDate != undefined && filters.disputeCloseFromDate != 'null') {
+            query.closedDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
+        }
+
+        if (filters.disputeCloseToDate != undefined && filters.disputeCloseToDate != 'null') {
+            query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
+        }
+
+        if (filters.raisedBy != null && filters.raisedBy != 'null') {
+            query.raisedByName = filters.raisedBy;
+        }
+        return query;
+    }
+
+    applyTransactionRelatedFilters(dispute, transaction, filters) {
+        if (filters.searchBtId != null && filters.searchBtId != 'null') {
+            let found = false;
+            for (let i = 0; i < transaction.transactionSlices.length; i++) {
+                let transactionSlice = transaction.transactionSlices[i];
+                if (transactionSlice.businessTransactionIds.indexOf(filters.searchBtId) > -1) {
+                    dispute.transaction = transaction;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                dispute = null;
+            }
+        }
+        if (filters.tnxFromDate != undefined && filters.tnxFromDate != 'null') {
+            if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
+                dispute.transaction = transaction;
+            } else if (dispute.transaction.id == transaction.id) {
+                dispute = null;
+            }
+
+        }
+        if (filters.tnxToDate != undefined && filters.tnxToDate != 'null') {
+            if (transaction.date <= JSON.parse(filters.tnxToDate)) {
+                dispute.transaction = transaction;
+            } else if (dispute.transaction.id == transaction.id) {
+                dispute = null;
+            }
+        }
+        if (filters.participants != null && filters.participants != 'null') {
+            let listOfPartners = [];
+            for (let i = 0; i < transaction.transactionSlices.length; i++) {
+                let transactionSlice = transaction.transactionSlices[i];
+                if (transactionSlice.type == "Enterprise" && listOfPartners.indexOf(transactionSlice.enterprise) < 0) {
+                    listOfPartners.push(transactionSlice.enterprise);
+                } else if (transactionSlice.type == "Intersection") {
+                    if (listOfPartners.indexOf(transactionSlice.enterprises[0]) < 0) {
+                        listOfPartners.push(transactionSlice.enterprises[0]);
+                    }
+                    if (listOfPartners.indexOf(transactionSlice.enterprises[1]) < 0) {
+                        listOfPartners.push(transactionSlice.enterprises[1]);
+                    }
+                }
+            }
+            if (listOfPartners.indexOf(filters.participants) > -1) {
+                dispute.transaction = transaction;
+            } else if (dispute.transaction.id == transaction.id) {
+                dispute = null;
+            }
+        }
+        return dispute;
     }
 
     getOpenDisputeCount(transactionId) {

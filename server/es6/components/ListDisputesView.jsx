@@ -14,13 +14,8 @@ import NewDisputeView from './NewDisputeView';
 	}
 
 	componentDidMount() {
-		let status = [];
-		let disputeFilter = {
-			status: ["Draft","Open"]
-		}
 
-		BackChainActions.processApplicationSettings();
-		BackChainActions.loadDisputes(disputeFilter); //Make sure to pass default filters for the initial fetch. 
+		BackChainActions.processApplicationSettings(); 
 		
         /*If disputeTransaction, means we need to open dispute form pop up, with prepopulated values of the disputeTransaction*/
 		if(this.props.store.disputeTransaction) {
@@ -28,9 +23,6 @@ import NewDisputeView from './NewDisputeView';
 		}
 	}
 
-	applyFilters(disputeFilter) {
-		BackChainActions.loadDisputes(disputeFilter);
-	}
 
 	openDisputesPopup() {
 		BackChainActions.clearDisputeTransaction();
@@ -75,7 +67,7 @@ import NewDisputeView from './NewDisputeView';
 					<HeaderView store={this.props.store}/>
 					<div className={"panel-body"} style={fieldProps.panelBody}>
 						{panelBody}
-						<DisputeFiltersView store={this.props.store} applyFilters={this.applyFilters} />
+						<DisputeFiltersView store={this.props.store} />
 						<DisputesView store = {this.props.store} />
 						{this.props.store.newDisputeModalActive ? <NewDisputeView store={this.props.store} /> : null }
 					</div>
