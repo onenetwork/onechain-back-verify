@@ -296,39 +296,6 @@ class TransactionHelper {
         return events;
     }
 
-    getRaisedByAddress(raisedByName) {
-        return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
-                .toArray(function(err, result) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        result = result[0];
-                        let mappingFound = false;
-                        for (let key in result) {
-                            if (result.hasOwnProperty(key)) {
-                              if(result[key] == raisedByName) {
-                                mappingFound = true;
-                                resolve({success : true, raisedByAddress : key});
-                                break;
-                              }
-                            }
-                        }
-                        if(!mappingFound) {
-                            dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' })
-                            .then(function (result) {
-                                if (result) {
-                                    resolve({success : true, raisedByAddress : result.blockChain.disputeContractAddress})
-                                } else {
-                                    reject("Couldn't fetch the value");
-                                }
-                            });
-                        }
-                    }
-                });
-        });
-    }
-
     getRaisedByEnterpriseName(backChainAddress) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
