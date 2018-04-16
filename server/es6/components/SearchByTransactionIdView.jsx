@@ -4,8 +4,8 @@ import BackChainActions from '../BackChainActions';
 import { Link,Redirect } from 'react-router-dom';
 import { observer } from 'mobx-react';
 import HeaderView from "./HeaderView";
-import DisplayMessageView from "./DisplayMessageView";
 import Images from '../Images';
+import { DisplayAlertPopupView } from './AlertPopupView';
 
 @observer export default class SearchByTransactionIdView extends React.Component {
     constructor(props) {
@@ -32,7 +32,10 @@ import Images from '../Images';
 		me.setState({ verifyDisabled: true });
 		BackChainActions.loadTransactions(this.transactionIdInputVal, "tnxId", function(redirect) {
 			if(redirect == false) {
-				me.props.store.displayMessageViewModalActive = true;
+				BackChainActions.setShowNoDataFoundPopUpValue(true);
+				BackChainActions.setAlertPopupTitle('Message');
+				BackChainActions.setAlertPopupContent('Result not found! Try again with different ID.');
+				BackChainActions.setDisplayAlertPopup(true);
 				me.setState({ verifyDisabled: false });
 			} else {
 				me.setState({redirect: redirect});
@@ -130,7 +133,7 @@ import Images from '../Images';
 							}
 						`}
 					</style>
-					<DisplayMessageViewPopup store={this.props.store}/>
+					<DisplayAlertPopupView store={this.props.store} />
 
 					<div className={"panel panel-default"} onClick={this.props.action}>
 						<HeaderView store={this.props.store}/>
@@ -170,13 +173,5 @@ import Images from '../Images';
 			);
 
 		}
-    }
-}
-
-@observer class DisplayMessageViewPopup extends React.Component {
-    render() {
-        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
-                    <DisplayMessageView title = "Message" msg= "Result not found! Try again with different ID." store={this.props.store}/>
-               </Modal>);
     }
 }

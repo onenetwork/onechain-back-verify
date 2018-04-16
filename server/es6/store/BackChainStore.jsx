@@ -45,6 +45,10 @@ class BackChainStore {
     @observable disputeTransaction = null;
     @observable generatedDisputeId = null;
     @observable disputeSubmissionWindowInMinutes = null;
+    @observable displayAlertPopup = false;
+    @observable alertPopupTitle = null;
+    @observable alertPopupContent = null;
+    @observable showNoDataFoundUI = false;
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {

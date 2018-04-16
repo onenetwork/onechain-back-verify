@@ -347,6 +347,31 @@ export default class BackChainActions {
     static toggleNewDisputeModalView() {
         store.newDisputeModalActive = !store.newDisputeModalActive;
     }
+
+    @action
+    static toggleDisplayAlertPopup() {
+        store.displayAlertPopup = !store.displayAlertPopup;
+    }
+
+    @action
+    static setDisplayAlertPopup(value) {
+        store.displayAlertPopup = value;
+    }
+
+    @action
+    static setAlertPopupTitle(value) {
+        store.alertPopupTitle = value;
+    }
+
+    @action
+    static setAlertPopupContent(value) {
+        store.alertPopupContent = value;
+    }
+
+    @action
+    static setShowNoDataFoundPopUpValue(value) {
+        store.showNoDataFoundUI = value;
+    }
     
     @action
     static processApplicationSettings() {
@@ -587,6 +612,10 @@ export default class BackChainActions {
         store.displayMessageViewModalActive = true;
         store.displayMessageViewModalTitle = title;
         store.displayMessageViewModalContent = message;
+        store.showNoDataFoundUI = true;
+        store.alertPopupTitle = title;
+        store.alertPopupContent = message;
+        store.displayAlertPopup = true;
     }
 
     @action

@@ -5,7 +5,7 @@ import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from './HeaderView';
 import oneBcClient from '@onenetwork/one-backchain-client';
-import DisplayMessageView from "./DisplayMessageView";
+import { DisplayAlertPopupView } from './AlertPopupView';
 import DisplaySyncView from "./DisplaySyncView"
 
 @observer export default class SetupView extends React.Component {
@@ -44,7 +44,7 @@ import DisplaySyncView from "./DisplaySyncView"
 				contractAddress: this.props.store.blockChainContractAddress,
 				disputeContractAddress: this.props.store.disputeBlockChainContractAddress
 			});
-			BackChainActions.verifyBackChainSettings(bcClient);
+			BackChainActions.verifyBackChainSettings();
 		} catch (e) {
 			alert(e);
 			return;
@@ -114,7 +114,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			}
 		};
 		let panelBody = (<div>
-			<DisplayMessageViewPopup store={this.props.store}/>
+			<DisplayAlertPopupView store={this.props.store} />
 			<p></p>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
@@ -214,12 +214,4 @@ import DisplaySyncView from "./DisplaySyncView"
 			);
 		}
 	}
-}
-
-@observer class DisplayMessageViewPopup extends React.Component {
-    render() {
-        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
-                    <DisplayMessageView title = {this.props.store.displayMessageViewModalTitle} msg= {this.props.store.displayMessageViewModalContent} store={this.props.store}/>
-               </Modal>);
-    }
 }
