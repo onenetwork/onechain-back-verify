@@ -15,7 +15,6 @@ import BackChainActions from '../BackChainActions';
             draftChkBox: true,
             openChkBox: true,
             closedChkBox: false
-
         };
         
         this.disputeFilters = {
@@ -31,7 +30,8 @@ import BackChainActions from '../BackChainActions';
             disputeCloseToDate: null,
             raisedBy: null,
             participants: null,
-            transactionRelatedFilter: false
+            transactionRelatedFilter: false,
+            reasonCodes: null
         };
     }
 
@@ -196,6 +196,51 @@ import BackChainActions from '../BackChainActions';
 
 @observer class FilterTable extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = { 
+            wrongDataChkBox: false,
+            sentToWrongLocationChkBox: false,
+            enteredWrongDataChkBox: false
+        };
+    }
+
+    componentWillMount = () => { 
+        this.reasonCodeCheckboxes = new Set();
+    }
+
+    toggleCheckboxChange(event) {
+        let value = event.target.value;
+        let resonCodes = [];
+
+        if (event.target.checked) {
+            if (value == "wrongData") {
+                this.setState({ wrongDataChkBox: true });
+            } else if (value == "sentToWrongLocation") {
+                this.setState({ sentToWrongLocationChkBox: true });
+            } else if (value == "enteredWrongData") {
+                this.setState({ enteredWrongDataChkBox: true });
+            }
+            this.reasonCodeCheckboxes.add(value);
+        } else {
+            if (value == "wrongData") {
+                this.setState({ wrongDataChkBox: false });
+            } else if (value == "sentToWrongLocation") {
+                this.setState({ sentToWrongLocationChkBox: false });
+            } else if (value == "enteredWrongData") {
+                this.setState({ enteredWrongDataChkBox: false });
+            }
+
+            if (this.reasonCodeCheckboxes.has(value)) {
+                this.reasonCodeCheckboxes.delete(value);
+            }
+        }
+        for (let reasonCodeValue of this.reasonCodeCheckboxes.values()) {
+            resonCodes.push(reasonCodeValue);
+        }
+        this.props.disputeFilters.reasonCodes = resonCodes;
+    }
+
     listenBtKeyPress(event) {
         this.props.disputeFilters.searchBtId = event.target.value.trim();
         this.props.disputeFilters.transactionRelatedFilter = true;
@@ -306,14 +351,12 @@ import BackChainActions from '../BackChainActions';
                     </div>
                 </div>
                 <div>
-                    <div style={fieldProps.text}>Description: </div>
+                    <div style={fieldProps.text}>Reason Code: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '126px', fontSize: '12px' }}>
-                        <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 1 description here <br />
-                        <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 2 description here <br />
-                        <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 3 description here <br />
-                        <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 4 description here <br />
-                        <FormControl type="checkbox" style={fieldProps.checkbox}/>&nbsp;Reason 5 description here
+                        <FormControl type="checkbox" checked={this.state.wrongDataChkBox} value="wrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Data is wrong <br />
+                        <FormControl type="checkbox" checked={this.state.sentToWrongLocationChkBox} value="sentToWrongLocation" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Sent to wrong location <br />
+                        <FormControl type="checkbox" checked={this.state.enteredWrongDataChkBox} value="enteredWrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Entered wrong data 
                         </div>
                 </div>
             </div>

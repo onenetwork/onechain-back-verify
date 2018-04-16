@@ -20,6 +20,7 @@ class DisputeHelper {
             if (filters) {
                 query = this.createFilterQuery(filters);
             }
+
             dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
                 .sort({ creationDate: -1 })
                 .toArray(function (err, result) {
@@ -85,6 +86,10 @@ class DisputeHelper {
 
         if (filters.raisedBy != null && filters.raisedBy != 'null') {
             query.raisedByName = filters.raisedBy;
+        }
+
+        if (filters.reasonCodes != null && filters.reasonCodes != 'null') {
+            query.reasonCode = { $in: JSON.parse(filters.reasonCodes) };
         }
         return query;
     }
