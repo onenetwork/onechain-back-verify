@@ -371,8 +371,8 @@ export default class BackChainActions {
     }
 
     @action
-    static setShowNoDataFoundPopUpValue(value) {
-        store.showNoDataFoundUI = value;
+    static setAlertPopupLevel(value) {
+        store.alertPopupLevel = value;
     }
     
     @action
@@ -614,7 +614,7 @@ export default class BackChainActions {
 
     @action
     static displayAlertPopup(title, message) {
-        store.showNoDataFoundUI = true;
+        store.alertPopupLevel = 'ERROR';
         store.alertPopupTitle = title;
         store.alertPopupContent = message;
         store.displayAlertPopup = true;

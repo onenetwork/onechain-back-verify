@@ -10,23 +10,22 @@ import { Row, Col,  Panel, Modal } from 'react-bootstrap';
     }
 
     render() {
-        if (this.props.store.showNoDataFoundUI) {
             return (
                 <div>
-                    <DisplayErrorMsgView title={this.props.store.alertPopupTitle} msg={this.props.store.alertPopupContent} />
+                    <DisplayErrorMsgView title={this.props.store.alertPopupTitle} msg={this.props.store.alertPopupContent} store={this.props.store}/>
                 </div>
             )
-        }
+        
     }
 }
 
 class DisplayErrorMsgView extends React.Component {
     render() {
-        let verificationPopupBody = <DisplayErrorMsg msg={this.props.msg} />;
+        let verificationPopupBody = <DisplayErrorMsg msg={this.props.msg} store={this.props.store}/>;
 
         return (
             <div>
-                <DisplayMessagePopup title={this.props.title} body={verificationPopupBody} />
+                <DisplayMessagePopup title={this.props.title} body={verificationPopupBody}  />
             </div>
         )
     }
@@ -34,9 +33,19 @@ class DisplayErrorMsgView extends React.Component {
 
 
 const DisplayErrorMsg = (props) => {
+    let colorCode = "#229978";
+    let className = "fa fa-check-circle fa-3x fa-fw";
+    if (props.store.alertPopupLevel == 'ERROR') { 
+        colorCode = "#bb0400";
+        className = "fa fa-times-circle fa-3x fa-fw";
+    } else if (props.store.alertPopupLevel == 'WARN') {
+        colorCode = "#f19500";
+        className = "fa fa-info-circle fa-3x fa-fw";
+    }
+
     return (
         <Row style={{ paddingLeft: '50px' }}>
-            <Col style={{ color: '#bb0400' }} md={1}><i className="fa fa-times-circle fa-3x fa-fw"></i></Col>
+            <Col style={{ color: colorCode }} md={1}><i className={className}></i></Col>
             <Col style={{ paddingLeft: '30px', fontSize: '20px', color: '#515151' }} md={10}>
                 {props.msg}
             </Col>

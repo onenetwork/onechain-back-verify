@@ -48,7 +48,7 @@ class BackChainStore {
     @observable displayAlertPopup = false;
     @observable alertPopupTitle = null;
     @observable alertPopupContent = null;
-    @observable showNoDataFoundUI = false;
+    @observable alertPopupLevel = 'INFO';
     @observable metaMaskAddressOfLoggedUser = null;
     sliceDataProvidedByAPI = false;
 
