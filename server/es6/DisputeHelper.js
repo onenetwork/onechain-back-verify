@@ -82,6 +82,8 @@ class DisputeHelper {
             query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
         }
         // commenting. Now we are not storing raisedByName in draftdisputes collection.
+        //TODO Send entNAmeofLoggedUser from UI and search its address in a BackChainAddressMapping  collection.
+        // if not found don't do anything.
         // if (this.isValueNotNull(filters.raisedBy)) {
         //     query.raisedByName = filters.raisedBy;
         // }
