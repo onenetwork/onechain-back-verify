@@ -56,46 +56,51 @@ class DisputeHelper {
 
     createFilterQuery(filters) {
         let query = {};
-        if (filters.status != null && filters.status != 'null') {
+        if (this.isValueNotNull(filters.status)) {
             query.status = { $in: JSON.parse(filters.status) };
         }
-
-        if (filters.searchTnxId != null && filters.searchTnxId != 'null') {
+        if (this.isValueNotNull(filters.searchTnxId)) {
             query.transactionId = filters.searchTnxId;
         }
-
-        if (filters.searchDisputeId != null && filters.searchDisputeId != 'null') {
+        if (this.isValueNotNull(filters.searchDisputeId)) {
             query.id = filters.searchDisputeId;
         }
 
-        if (filters.disputeSubmitFromDate != undefined && filters.disputeSubmitFromDate != 'null') {
+        if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
             query.submittedDate = { $gte: JSON.parse(filters.disputeSubmitFromDate) };
         }
 
-        if (filters.disputeSubmitToDate != undefined && filters.disputeSubmitToDate != 'null') {
+        if (this.isValueNotNull(filters.disputeSubmitToDate)) {
             query.submittedDate = { $lte: JSON.parse(filters.disputeSubmitToDate) };
         }
 
-        if (filters.disputeCloseFromDate != undefined && filters.disputeCloseFromDate != 'null') {
+        if (this.isValueNotNull(filters.disputeCloseFromDate)) {
             query.closedDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
         }
 
-        if (filters.disputeCloseToDate != undefined && filters.disputeCloseToDate != 'null') {
+        if (this.isValueNotNull(filters.disputeCloseToDate)) {
             query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
         }
+        // commenting. Now we are not storing raisedByName in draftdisputes collection.
+        // if (this.isValueNotNull(filters.raisedBy)) {
+        //     query.raisedByName = filters.raisedBy;
+        // }
 
-        if (filters.raisedBy != null && filters.raisedBy != 'null') {
-            query.raisedByName = filters.raisedBy;
-        }
-
-        if (filters.reasonCodes != null && filters.reasonCodes != 'null') {
+        if (this.isValueNotNull(filters.reasonCodes)) {
             query.reasonCode = { $in: JSON.parse(filters.reasonCodes) };
         }
         return query;
     }
 
+    isValueNotNull(value) {
+        if (value != null && value != 'null' && value != undefined && value != '') {
+            return true;
+        }
+        return false;
+    }
+
     applyTransactionRelatedFilters(dispute, transaction, filters) {
-        if (filters.searchBtId != null && filters.searchBtId != 'null') {
+        if (this.isValueNotNull(filters.searchBtId)) {
             let found = false;
             for (let i = 0; i < transaction.transactionSlices.length; i++) {
                 let transactionSlice = transaction.transactionSlices[i];
@@ -109,37 +114,15 @@ class DisputeHelper {
                 dispute = null;
             }
         }
-        if (filters.tnxFromDate != undefined && filters.tnxFromDate != 'null') {
+        if (this.isValueNotNull(filters.tnxFromDate)) {
             if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
                 dispute.transaction = transaction;
             } else if (dispute.transaction.id == transaction.id) {
                 dispute = null;
             }
-
         }
-        if (filters.tnxToDate != undefined && filters.tnxToDate != 'null') {
+        if (this.isValueNotNull(filters.tnxToDate)) {
             if (transaction.date <= JSON.parse(filters.tnxToDate)) {
-                dispute.transaction = transaction;
-            } else if (dispute.transaction.id == transaction.id) {
-                dispute = null;
-            }
-        }
-        if (filters.participants != null && filters.participants != 'null') {
-            let listOfPartners = [];
-            for (let i = 0; i < transaction.transactionSlices.length; i++) {
-                let transactionSlice = transaction.transactionSlices[i];
-                if (transactionSlice.type == "Enterprise" && listOfPartners.indexOf(transactionSlice.enterprise) < 0) {
-                    listOfPartners.push(transactionSlice.enterprise);
-                } else if (transactionSlice.type == "Intersection") {
-                    if (listOfPartners.indexOf(transactionSlice.enterprises[0]) < 0) {
-                        listOfPartners.push(transactionSlice.enterprises[0]);
-                    }
-                    if (listOfPartners.indexOf(transactionSlice.enterprises[1]) < 0) {
-                        listOfPartners.push(transactionSlice.enterprises[1]);
-                    }
-                }
-            }
-            if (listOfPartners.indexOf(filters.participants) > -1) {
                 dispute.transaction = transaction;
             } else if (dispute.transaction.id == transaction.id) {
                 dispute = null;
@@ -364,41 +347,7 @@ class DisputeHelper {
         });
     }
 
-    DisputeOrganizerTask() {
-        let me = this;
-        settingsHelper.getApplicationSettings()
-            .then(result => {
-                if (result && result.blockChain.disputeSubmissionWindowInMinutes) {
-                    let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
-                    this.getDisputes()
-                    .then(function (result) {
-                        let dispute = null;
-                        for (let i = 0, len = result.length; i < len; i++) {
-                            dispute = result[i];
-                            if (dispute.transaction) {
-                                let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
-                                let mins = Math.ceil(duration.asMinutes());
-                                if (mins > disputeSubmissionWindowInMinutes) {
-                                    me.discardDraftDispute(dispute.id)
-                                        .then(function (result) {
-                                            if (result.sucess) {
-                                                console.log("Old disputes deleted successfully.");
-                                            }
-                                        })
-                                }
-                            }
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log("Some error occured while deleting old disputes "+ error);                            
-                    });
-                }
-            })
-            .catch(err => {
-                console.error("Application Settings can't be read: " + err);
-                reject(err);
-            });
-    }
+    
 
 }
 

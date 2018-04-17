@@ -609,9 +609,6 @@ export default class BackChainActions {
 
     @action
     static displayAlertPopup(title, message) {
-        store.displayMessageViewModalActive = true;
-        store.displayMessageViewModalTitle = title;
-        store.displayMessageViewModalContent = message;
         store.showNoDataFoundUI = true;
         store.alertPopupTitle = title;
         store.alertPopupContent = message;

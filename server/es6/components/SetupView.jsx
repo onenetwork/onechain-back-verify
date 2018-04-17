@@ -44,7 +44,7 @@ import DisplaySyncView from "./DisplaySyncView"
 				contractAddress: this.props.store.blockChainContractAddress,
 				disputeContractAddress: this.props.store.disputeBlockChainContractAddress
 			});
-			BackChainActions.verifyBackChainSettings();
+			BackChainActions.verifyBackChainSettings(bcClient);
 		} catch (e) {
 			alert(e);
 			return;

@@ -29,7 +29,6 @@ import BackChainActions from '../BackChainActions';
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
-            participants: null,
             transactionRelatedFilter: false,
             reasonCodes: null
         };
@@ -53,10 +52,6 @@ import BackChainActions from '../BackChainActions';
     showHideAdvancedFilters(value) {
         let me = this;
         me.setState({ showFilterTable: value });
-    }
-
-    listenSearchTnxKeyPress(event) {
-        this.disputeFilters.searchTnxId = event.target.value.trim();
     }
 
     toggleCheckboxChange(event) {
@@ -92,7 +87,7 @@ import BackChainActions from '../BackChainActions';
     }
 
     clearDisputeFilters() {
-        this.refs.transactionSearch.value = '';
+        this.refs.transactionId.value = '';
         this.disputeFilters = {
             status: null,
             searchTnxId: null,
@@ -105,7 +100,6 @@ import BackChainActions from '../BackChainActions';
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
-            participants: null,
             transactionRelatedFilter: false
         };
     }
@@ -119,6 +113,8 @@ import BackChainActions from '../BackChainActions';
             }
             this.disputeFilters.status = status;
         }
+        this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim();
+
         BackChainActions.loadDisputes(this.disputeFilters);
         this.clearDisputeFilters();
         this.showHideAdvancedFilters(false);
@@ -176,7 +172,7 @@ import BackChainActions from '../BackChainActions';
 
         let searchBox = (
             <div style={{ display: 'inline' }}>
-                <input className="filter-input" type="text" ref="transactionSearch" placeholder="Search by Transaction ID" onKeyPress={this.listenSearchTnxKeyPress.bind(this)} onChange={this.listenSearchTnxKeyPress.bind(this)} />
+                <input className="filter-input" type="text" ref="transactionId" placeholder="Search by Transaction ID"  />
                 <i className="fa fa-search" aria-hidden="true" style={{ position: 'relative', left: '-17px', color: '#A1A1A1' }}></i>
             </div>
         );
@@ -280,11 +276,6 @@ import BackChainActions from '../BackChainActions';
         this.props.disputeFilters.raisedBy = event.target.value.trim();
     }
 
-    listenParticipantsKeyPress(event) {
-        this.props.disputeFilters.participants = event.target.value.trim();
-        this.props.disputeFilters.transactionRelatedFilter = true;
-    }
-
     render() {
 
         const fieldProps = {
@@ -345,10 +336,10 @@ import BackChainActions from '../BackChainActions';
                     <div style={fieldProps.text}>Transaction Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '73px', fontSize: '12px' }}>
-                        From &nbsp; <Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenTnxFromDate.bind(this)} timeFormat={false} className="date-control"  />&nbsp;&nbsp;
-                        &nbsp;&nbsp;
+                            From &nbsp; <Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenTnxFromDate.bind(this)} timeFormat={false} className="date-control"  />&nbsp;&nbsp;
+                            &nbsp;&nbsp;
                             To &nbsp; <Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
-                    </div>
+                        </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Reason Code: </div>
@@ -392,13 +383,6 @@ import BackChainActions from '../BackChainActions';
                     <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '145px' }}>
                     <FormControl type="text" style={fieldProps.textBox} onKeyPress={this.listenRaisedByKeyPress.bind(this)} onChange={this.listenRaisedByKeyPress.bind(this)}/>
                 </div>
-                <div style={{ display: 'inline' }} style={fieldProps.text}>Participants: </div>
-                &nbsp;&nbsp;
-                    <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '195px' }}>
-                    <FormControl type="text" style={fieldProps.textBox} onKeyPress={this.listenParticipantsKeyPress.bind(this)} onChange={this.listenParticipantsKeyPress.bind(this)}/>
-                </div>
-
-
             </div>
         );
 
