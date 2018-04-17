@@ -203,14 +203,18 @@ const fieldProps = {
                 statusIconOverHand = <i className="fa fa-exclamation-circle" style={Object.assign({color:'#F19500'},fieldProps.statusIconOverHand)} />;
         }
 
-        let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
-        let mins = Math.ceil(duration.asMinutes());
         let disputeStatusTime = null;
-        if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
-            disputeStatusTime =  (<span style={{fontSize: '10px', color: '#999999', display: 'inline-block', lineHeight: '10px'}}> 
+
+        if(dispute.transaction) {
+            let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
+            let mins = Math.ceil(duration.asMinutes());
+            if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
+                disputeStatusTime =  (<span style={{fontSize: '10px', color: '#999999', display: 'inline-block', lineHeight: '10px'}}> 
                                     {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-mins)}
                                 </span>);
+            }
         }
+        
         let disputeStatusIcon = (<div>
                                     <span title={dispute.status} className="fa-stack fa-lg">
                                         <i className="fa fa-hand-paper-o" style={{fontSize: '18px', color: 'gray'}}>
@@ -339,7 +343,9 @@ const fieldProps = {
         //TODO In case while dispute comes from backchain (means dispute.status != "Draft") fetch entName from BackChainAddressMapping using entAddress, 
         //i.e. call disputeHelper.getRaisedByEnterpriseName(backChainAddress), If mapping found then display entName at below line other wise display the entAddress got in dispute.
         if(dispute.status == "Draft")
-        return <td style={fieldProps.columns}>{this.props.store.entNameOfLoggedUser}</td>;
+            return <td style={fieldProps.columns}>{this.props.store.entNameOfLoggedUser}</td>;
+        else
+            return <td style={fieldProps.columns}></td>;
     }
 
 
@@ -402,17 +408,21 @@ const fieldProps = {
     renderDisputeActionsCell(dispute,idx) {
         if (dispute.status == 'Draft') {
             let submitDisputeUI = null;
-            let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
-            let mins = Math.ceil(duration.asMinutes());
-            if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
-                submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
-                                        <div id={dispute.id + "_submit"} >    
-                                            <div className="dispute-transation-div" style= {{width:'128px'}} >
-                                                    <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
-                                            </div>
-                                        </div>    
-                                    </Link>);
+
+            if(dispute.transaction) {
+                let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
+                let mins = Math.ceil(duration.asMinutes());
+                if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
+                    submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
+                                            <div id={dispute.id + "_submit"} >    
+                                                <div className="dispute-transation-div" style= {{width:'128px'}} >
+                                                        <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
+                                                </div>
+                                            </div>    
+                                        </Link>);
+                }
             }
+            
             let actionsCell = (
                 <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
                     <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
