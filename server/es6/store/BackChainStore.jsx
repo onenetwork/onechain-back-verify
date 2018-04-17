@@ -49,6 +49,7 @@ class BackChainStore {
     @observable alertPopupTitle = null;
     @observable alertPopupContent = null;
     @observable showNoDataFoundUI = false;
+    @observable metaMaskAddressOfLoggedUser = null;
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {

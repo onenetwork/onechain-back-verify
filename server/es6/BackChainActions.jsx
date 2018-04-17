@@ -289,13 +289,14 @@ export default class BackChainActions {
     }
 
     @action
-    static saveBlockChainSettings(url, contractAddress, disputeContractAddress) {
+    static saveBlockChainSettings(url, contractAddress, disputeContractAddress, metaMaskAddressOfLoggedUser) {
         /*TODO fetch from backChain by oneBcClient.getDisputeSubmmisionWindowInMinutes() and set
         to store.disputeSubmissionWindowInMinutes*/
         let params = {
             'url':url,
             'contractAddress': contractAddress,
-            'disputeContractAddress': disputeContractAddress
+            'disputeContractAddress': disputeContractAddress,
+            'metaMaskAddressOfLoggedUser': metaMaskAddressOfLoggedUser
             };
         fetch('/saveBlockChainSettings', {
             method: 'post',
@@ -320,6 +321,7 @@ export default class BackChainActions {
             store.blockChainUrl = null;
             store.blockChainContractAddress = null;
             store.disputeBlockChainContractAddress = null;
+            store.metaMaskAddressOfLoggedUser = null;
           });
     }
 
@@ -387,18 +389,21 @@ export default class BackChainActions {
             }).then(function(result) {
                 if (result.success && result.settings.blockChain &&
                     result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
-					result.settings.blockChain.disputeContractAddress && result.settings.blockChain.disputeSubmissionWindowInMinutes) {
+                    result.settings.blockChain.disputeContractAddress && result.settings.blockChain.disputeSubmissionWindowInMinutes
+                    && result.settings.blockChain.metaMaskAddressOfLoggedUser) {
                     store.isInitialSetupDone = true;
                     store.blockChainUrl = result.settings.blockChain.url;
                     store.blockChainContractAddress = result.settings.blockChain.contractAddress;
                     store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
                     store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
+                    store.metaMaskAddressOfLoggedUser = result.settings.blockChain.metaMaskAddressOfLoggedUser;
                 } else {
                     store.isInitialSetupDone = false;
                     store.mode = result.settings.mode;
                     store.blockChainUrl=config.blockChainUrl;
                     store.blockChainContractAddress=config.blockChainContractAddress;
                     store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
+                    store.metaMaskAddressOfLoggedUser = config.metaMaskAddressOfLoggedUser;
                     store.disputeSubmissionWindowInMinutes = false;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
@@ -600,7 +605,7 @@ export default class BackChainActions {
     static verifyBackChainSettings(oneBcClient) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
-            BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress);
+            BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress, me.props.store.metaMaskAddressOfLoggedUser);
         })
         .catch(function (error) {
             BackChainActions.displayAlertPopup("BlockChain Communication Failed", "Could not connect to the blockchain, please check your settings and try again.");

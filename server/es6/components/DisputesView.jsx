@@ -98,6 +98,7 @@ const fieldProps = {
     }
 
     submitDispute(dispute) {
+        dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
         BackChainActions.submitDispute(dispute)
         .then(function(result){
             if(result.success && result.submitDisputeMsg) {
@@ -334,7 +335,11 @@ const fieldProps = {
         // return <td style={fieldProps.columns}>{testMapping[dispute.raisedBy]}</td>;
         //Should get the actual enterprise name from BCAddressToEnterpriseMapping collection
         //If mapping doesn't have the value, we should display a warning message
-        return <td style={fieldProps.columns}>{dispute.raisedByName}</td>;
+        
+        //TODO In case while dispute comes from backchain (means dispute.status != "Draft") fetch entName from BackChainAddressMapping using entAddress, 
+        //i.e. call disputeHelper.getRaisedByEnterpriseName(backChainAddress), If mapping found then display entName at below line other wise display the entAddress got in dispute.
+        if(dispute.status == "Draft")
+        return <td style={fieldProps.columns}>{this.props.store.entNameOfLoggedUser}</td>;
     }
 
 

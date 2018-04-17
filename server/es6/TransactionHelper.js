@@ -89,7 +89,8 @@ class TransactionHelper {
                     exist.blockChain= {
                         'url': config.url,
                         'contractAddress': config.contractAddress,
-                        'disputeContractAddress': config.disputeContractAddress
+                        'disputeContractAddress': config.disputeContractAddress,
+                        'metaMaskAddressOfLoggedUser': config.metaMaskAddressOfLoggedUser
                     }
                     data = exist;
                 } else {
@@ -98,7 +99,8 @@ class TransactionHelper {
                         blockChain: {
                             'url': config.url,
                             'contractAddress': config.contractAddress,
-                            'disputeContractAddress': config.disputeContractAddress
+                            'disputeContractAddress': config.disputeContractAddress,
+                            'metaMaskAddressOfLoggedUser': config.metaMaskAddressOfLoggedUser
                         }
 
                     };
@@ -294,27 +296,6 @@ class TransactionHelper {
             });
         }
         return events;
-    }
-
-    getRaisedByEnterpriseName(backChainAddress) {
-        return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
-                .toArray(function(err, result) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        result = result[0];
-                        for (let key in result) {
-                            if (result.hasOwnProperty(key)) {
-                              if(key == backChainAddress) {
-                                resolve({success : true, entName : result[key]})
-                                break;
-                              }
-                            }
-                          }
-                    }
-                });
-        });
     }
 }
 

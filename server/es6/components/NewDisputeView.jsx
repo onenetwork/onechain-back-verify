@@ -84,8 +84,7 @@ import moment from 'moment';
 				"events" : btIds,
 				"reasonCode": ReactDOM.findDOMNode(this.select).value,
 				"status": "Draft",
-				"raisedBy": this.props.store.raisedBy,
-				"raisedByName": this.props.store.entNameOfLoggedUser
+				"record" : {"raisedBy" : this.props.store.metaMaskAddressOfLoggedUser}
 			}
 		}
 		

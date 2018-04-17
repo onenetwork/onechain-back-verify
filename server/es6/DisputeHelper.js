@@ -221,23 +221,11 @@ class DisputeHelper {
                 if(response.exists) {
                     resolve(response);
                 } else {
-                    /*TODO@PANKAJ [get @observable raisedBy = ""; logic back bcoz it's not worthful to fetch it if it exists in store] 
-                    do it after clearify mappingFound related logic from Yusuf
-                    */
-                    me.getRaisedByAddress(dispute.raisedByName)
+                    me.insertDraft(dispute)
                     .then(function(response){
                         if(response.success) {
-                            dispute.raisedBy = response.raisedByAddress;
-                            me.insertDraft(dispute)
-                            .then(function(response){
-                                if(response.success) {
-                                    resolve(response);
-                                }
-                            }, function(error){
-                                console.error(error);
-                                reject(error);
-                            });
-                        }
+                        resolve(response);
+                    }
                     }, function(error){
                         console.error(error);
                         reject(error);
@@ -314,7 +302,7 @@ class DisputeHelper {
         });
     }
 
-    getRaisedByAddress(raisedByName) {
+    getRaisedByEnterpriseName(backChainAddress) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
                 .toArray(function(err, result) {
@@ -322,33 +310,18 @@ class DisputeHelper {
                         reject(err);
                     } else {
                         result = result[0];
-                        let mappingFound = false;
                         for (let key in result) {
                             if (result.hasOwnProperty(key)) {
-                              if(result[key] == raisedByName) {
-                                mappingFound = true;
-                                resolve({success : true, raisedByAddress : key});
+                              if(key == backChainAddress) {
+                                resolve({success : true, entName : result[key]})
                                 break;
                               }
                             }
-                        }
-                        if(!mappingFound) {
-                            dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' })
-                            .then(function (result) {
-                                if (result) {
-                                    resolve({success : true, raisedByAddress : result.blockChain.disputeContractAddress})
-                                } else {
-                                    reject("Couldn't fetch the value");
-                                }
-                            });
-                        }
+                          }
                     }
                 });
         });
     }
-
-    
-
 }
 
 export const disputeHelper = new DisputeHelper();
