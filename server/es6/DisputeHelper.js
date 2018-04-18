@@ -285,7 +285,7 @@ class DisputeHelper {
                                 /*TODO send dispute to Block chain and on success call this.discardDraftDispute(dispute.id)*/
                                 resolve({success:true, submitDisputeMsg: 'submitted dispute'});
                             } else {
-                                eject({success:true, submitDisputeMsg: 'Time window to raise a dispute on this transaction has already passed.'});
+                                reject({success:true, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed.You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
                             }
                         }
                     });
