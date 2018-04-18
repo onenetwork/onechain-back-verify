@@ -15,7 +15,8 @@ import moment from 'moment';
 			disputeWarnMsg: null,
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0,
-			saveOrSubmitDisputeButtonsDisabled: true
+			saveOrSubmitDisputeButtonsDisabled: true,
+			eventBtids : []
         };
 	}
 	
@@ -63,25 +64,15 @@ import moment from 'moment';
 	
 	getNewDisputeData() {
 		let disputeTransaction = this.props.store.disputeTransaction;
-		let btIds = [];
 		let dispute = {};
 		if(disputeTransaction) {
-			for(let i = 0; i < disputeTransaction.transactionSlices.length; i++) {
-				let transactionSlice = disputeTransaction.transactionSlices[i];
-				if(transactionSlice.type === "Intersection") {
-					for(let j = 0; j < transactionSlice.businessTransactionIds.length; j++) {
-						btIds.push(transactionSlice.businessTransactionIds[j]);
-					}
-				}
-			}
-
 			dispute = {
 				"id": this.props.store.generatedDisputeId,
 				"creationDate": moment().valueOf(),
 				"submittedDate" : null,
 				"closedDate": null,
 				"transactionId": disputeTransaction.id,
-				"events" : btIds,
+				"events" : this.state.eventBtids,
 				"reasonCode": ReactDOM.findDOMNode(this.select).value,
 				"status": "Draft",
 				"raisedBy" : this.props.store.metaMaskAddressOfLoggedUser
@@ -151,6 +142,16 @@ import moment from 'moment';
 		// Todo write code to submit dispute to back chain
 	}
 
+	evntClickHandler(event) {
+		let checkBox = event.currentTarget;
+		if(checkBox.checked) {
+			this.state.eventBtids.push(checkBox.value);
+		} else {
+			let index = this.state.eventBtids.indexOf(checkBox.value);
+			this.state.eventBtids.splice(index,1);
+		}
+	}
+
     render() {
 		const {store} = this.props;
 		let participantsDom = [];
@@ -184,7 +185,7 @@ import moment from 'moment';
         let evntsUI = [];
         for(let i = 0; i < store.events.length; i++) {
             let event = store.events[i];
-            evntsUI.push(<Checkbox key={event}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+            evntsUI.push(<Checkbox value={event.btid} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
 		}
 
 		if(!this.props.store.disputeTransaction) {
