@@ -351,28 +351,8 @@ export default class BackChainActions {
     }
 
     @action
-    static toggleDisplayAlertPopup() {
-        store.displayAlertPopup = !store.displayAlertPopup;
-    }
-
-    @action
-    static setDisplayAlertPopup(value) {
-        store.displayAlertPopup = value;
-    }
-
-    @action
-    static setAlertPopupTitle(value) {
-        store.alertPopupTitle = value;
-    }
-
-    @action
-    static setAlertPopupContent(value) {
-        store.alertPopupContent = value;
-    }
-
-    @action
-    static setAlertPopupLevel(value) {
-        store.alertPopupLevel = value;
+    static closeAlertPopup() {
+        store.displayAlertPopup = false;
     }
     
     @action
@@ -608,13 +588,13 @@ export default class BackChainActions {
             BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress, me.props.store.metaMaskAddressOfLoggedUser);
         })
         .catch(function (error) {
-            BackChainActions.displayAlertPopup("BlockChain Communication Failed", "Could not connect to the blockchain, please check your settings and try again.");
+            BackChainActions.displayAlertPopup("BlockChain Communication Failed", "Could not connect to the blockchain, please check your settings and try again.",'ERROR');
         });
     }
 
     @action
-    static displayAlertPopup(title, message) {
-        store.alertPopupLevel = 'ERROR';
+    static displayAlertPopup(title, message, level) {
+        store.alertPopupLevel = level;
         store.alertPopupTitle = title;
         store.alertPopupContent = message;
         store.displayAlertPopup = true;

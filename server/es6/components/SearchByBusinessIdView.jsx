@@ -32,10 +32,7 @@ import { DisplayAlertPopupView } from './AlertPopupView';
 		me.setState({ verifyDisabled: true });
 		BackChainActions.loadTransactions(this.businessIdInputVal, "btId", function(redirect) {
 			if (redirect == false) {
-				BackChainActions.setAlertPopupLevel('ERROR');
-				BackChainActions.setAlertPopupTitle('Message');
-				BackChainActions.setAlertPopupContent('Result not found! Try again with different ID.');
-				BackChainActions.setDisplayAlertPopup(true);
+				BackChainActions.displayAlertPopup('Message', 'Result not found! Try again with different ID.', 'ERROR');
 				me.setState({ verifyDisabled: false });
 			} else {
 				me.setState({redirect: redirect});

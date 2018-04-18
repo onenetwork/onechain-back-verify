@@ -9,6 +9,7 @@ import { Redirect, Link } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import Images from '../Images';
+import { DisplayAlertPopupView } from './AlertPopupView';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
 
@@ -102,7 +103,7 @@ const fieldProps = {
         BackChainActions.submitDispute(dispute)
         .then(function(result){
             if(result.success && result.submitDisputeMsg) {
-                alert(result.submitDisputeMsg);
+                BackChainActions.displayAlertPopup('Dispute Message', result.submitDisputeMsg);
             }
         })
         .catch(function (err) {
@@ -144,12 +145,14 @@ const fieldProps = {
             return (
                 <div>
                     <Table responsive condensed hover style={fieldProps.table}>
+                        <DisplayAlertPopupView store={this.props.store} />    
                         {tableHead}
                         {tableBody}
                     </Table>
                 </div>
             );
         }
+       
     }
 
     renderDisputeRows(disputes) {

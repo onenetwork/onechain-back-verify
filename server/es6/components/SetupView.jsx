@@ -24,7 +24,7 @@ import DisplaySyncView from "./DisplaySyncView"
 		if(typeof web3 === 'undefined' || typeof web3.currentProvider === 'undefined' || web3.currentProvider.isMetaMask !== true) {
 			BackChainActions.displayAlertPopup("Missing MetaTask Extension", 
 			["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>, 
-			" in order to use Disputes. Please install the extension first and try again."]);
+			" in order to use Disputes. Please install the extension first and try again."],'ERROR');
 			return;
 		}
 		let me = this;
