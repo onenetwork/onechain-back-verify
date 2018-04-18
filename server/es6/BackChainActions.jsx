@@ -585,6 +585,7 @@ export default class BackChainActions {
     static verifyBackChainSettings(oneBcClient) {
         oneBcClient.getOrchestrator()
         .then(function (result) {
+            // TODO store.disputeSubmissionWindowInMinutes = oneBcClient.getDisputeSubmmisionWindowInMinutes() and pass this store in saveBlockChainSettings(,,,,)
             BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress, me.props.store.metaMaskAddressOfLoggedUser);
         })
         .catch(function (error) {

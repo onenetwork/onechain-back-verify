@@ -12,6 +12,7 @@ import moment from 'moment';
 		this.setModalBodyRef = this.setModalBodyRef.bind(this);           
 		this.handleClick = this.handleClick.bind(this);
 		this.state = {
+			disputeInfoMsg : null,
 			disputeWarnMsg: null,
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0,
@@ -20,6 +21,22 @@ import moment from 'moment';
         };
 	}
 	
+	setDisputeMsg(disputeMsg) {
+		switch(disputeMsg.type) {
+			case "reset" :
+				this.setState({disputeErrorMsg : null, disputeWarnMsg : null, disputeInfoMsg : null});
+				break;
+			case "disputeInfoMsg" :
+				this.setState({disputeErrorMsg : null, disputeWarnMsg : null, disputeInfoMsg : disputeMsg.msg});
+				break;
+			case "disputeWarnMsg" :
+				this.setState({disputeErrorMsg : null, disputeWarnMsg : disputeMsg.msg, disputeInfoMsg : null});
+				break;
+			case "disputeErrorMsg" :
+				this.setState({disputeErrorMsg : disputeMsg.msg, disputeWarnMsg : null, disputeInfoMsg : null});
+		}
+	}
+
 	setModalBodyRef(node) {
         this.modalBodyRef = node;
     }
@@ -59,7 +76,7 @@ import moment from 'moment';
 	}
 
 	resetMsgs() {
-		this.setState({disputeErrorMsg : null, disputeWarnMsg : null});
+		this.setDisputeMsg({'type':'reset'});
 	}
 	
 	getNewDisputeData() {
@@ -84,7 +101,7 @@ import moment from 'moment';
 
 	onTnxIdChange(event) {
 		const me = this;
-		me.setState({disputeErrorMsg : null, disputeWarnMsg : null});
+		this.setDisputeMsg({'type':'reset'});
 		event.persist();
 		if (me.state.searchTnxIdTimeOut) {
 			clearTimeout(me.state.searchTnxIdTimeOut);
@@ -93,6 +110,14 @@ import moment from 'moment';
 			searchTnxIdTimeOut: setTimeout(function() {
 				BackChainActions.populateDisputeTransaction(event.target.value)
 				.then(function(result){
+					if(result === true){
+						let duration = moment.duration(moment(new Date()).diff(moment(new Date(me.props.store.disputeTransaction.date))));
+						let mins = Math.ceil(duration.asMinutes());
+						if (mins > me.props.store.disputeSubmissionWindowInMinutes) {
+							me.setState({saveOrSubmitDisputeButtonsDisabled:true});
+							return;
+						}
+					}
 					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
 					if(me.props.store.disputeTransaction) {
 						me.setState({saveOrSubmitDisputeButtonsDisabled:false});
@@ -101,7 +126,8 @@ import moment from 'moment';
 					}
 				})
 				.catch(function (err) {
-					me.setState({disputeWarnMsg : err, disputeErrorMsg : null, saveOrSubmitDisputeButtonsDisabled:true});
+					me.setState({saveOrSubmitDisputeButtonsDisabled:true});
+					me.setDisputeMsg({'type':'disputeWarnMsg', 'msg': err});
 				});
 			}, 3000)
 		});
@@ -111,21 +137,21 @@ import moment from 'moment';
  
 		let me = this;
 		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
-			me.setState({ disputeErrorMsg: null, disputeWarnMsg: "Please enter transaction id" });
+			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please enter transaction id"});
 			return;
 		}
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
-			me.setState({ disputeErrorMsg: null, disputeWarnMsg: "Please select reason code."});
+			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select reason code."});
 			return;
 		} else {
-			me.setState({ disputeErrorMsg: null, disputeWarnMsg: null });
+			me.setDisputeMsg({'type':'reset'});
 		}
 
 		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
 		.then(function(response) {
 			if(response.success) {
 				if(response.exists) {
-					me.setState({ disputeWarnMsg: "You already have a dispute in " + response.status + " status for this transaction. Please close this window and see it in the list.", disputeErrorMsg : null});
+					me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"You already have a dispute in " + response.status + " status for this transaction. Please close this window and see it in the list."});
 					return;
 				}
 				BackChainActions.toggleNewDisputeModalView();
@@ -137,9 +163,21 @@ import moment from 'moment';
 		});
 	}
 
-	submitToBackchain() {
-		// this.getNewDisputeData()
-		// Todo write code to submit dispute to back chain
+	submitDispute() {
+		let me = this;
+		let dispute = this.getNewDisputeData();
+		dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
+        BackChainActions.submitDispute(dispute)
+        .then(function(result){
+            if(result.success) {
+				me.setDisputeMsg({'type':'disputeInfoMsg', 'msg':result.submitDisputeMsg});
+            } else if(result.success === false && result.submitDisputeMsg) {
+				me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':result.submitDisputeMsg});
+            }
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
 	}
 
 	evntClickHandler(event) {
@@ -284,9 +322,9 @@ import moment from 'moment';
 			}
 		};
 
-		let disputeInfo = null;
+		let disputeWarningInfo = null;
 		if(this.state.disputeWarnMsg) {
-			disputeInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
+			disputeWarningInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
 								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
 								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500', fontWeight: 700 }}>Warning!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeWarnMsg}</span></span>
 								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#F19500'})} onClick={this.resetMsgs.bind(this)}/>
@@ -298,6 +336,14 @@ import moment from 'moment';
 								<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#D9443F' }} /></span>&nbsp;&nbsp;
 								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#D9443F', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
 								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#D9443F'})} onClick={this.resetMsgs.bind(this)}/>
+							</Row>);
+		}
+		let disputeSuccessInfoMsg = null;
+		if (this.state.disputeInfoMsg) {
+			disputeSuccessInfoMsg = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgba(212, 237, 218, 1)', borderColor: 'rgba(182, 224, 192, 1)' })}>
+								<span><i className="fa fa-check-circle" style={{ fontSize: '22px', color: '#229978' }} /></span>&nbsp;&nbsp;
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#229978', fontWeight: 700 }}>Success!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeInfoMsg}</span></span>
+								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#229978'})} onClick={this.resetMsgs.bind(this)}/>
 							</Row>);
 		}
         return(
@@ -330,7 +376,8 @@ import moment from 'moment';
 
 									<div style={fieldProps.disputeIdParentDiv}>
 										{disputeErrorMsgInfo}
-										{disputeInfo}
+										{disputeWarningInfo}
+										{disputeSuccessInfoMsg}
 										<br />
 										<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgb(250, 250, 250)', borderColor: 'rgba(242, 242, 242, 1)' })}>
 											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> {this.props.store.generatedDisputeId} </span>
@@ -413,7 +460,7 @@ import moment from 'moment';
 										<div style={fieldProps.modalBodyBottomChildDiv}> 
 											<Button style = {fieldProps.cancelButton} onClick={this.closeModal}>Discard</Button>&nbsp;&nbsp;
 											<Button className="btn btn-primary" disabled={this.state.saveOrSubmitDisputeButtonsDisabled} onClick={this.saveAsDraft.bind(this)} style={Object.assign({},fieldProps.button, {width: '120px'})}>Save as Draft</Button>&nbsp;&nbsp;
-											<Button className="btn btn-primary" disabled={this.state.saveOrSubmitDisputeButtonsDisabled} onClick={this.submitToBackchain.bind(this)} style={Object.assign({},fieldProps.button, {width: '174px'})}>Submit to Backchain</Button>
+											<Button className="btn btn-primary" disabled={this.state.saveOrSubmitDisputeButtonsDisabled} onClick={this.submitDispute.bind(this)} style={Object.assign({},fieldProps.button, {width: '174px'})}>Submit to Backchain</Button>
 										</div>
 									</div>
 											

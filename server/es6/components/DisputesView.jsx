@@ -102,8 +102,10 @@ const fieldProps = {
         dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
         BackChainActions.submitDispute(dispute)
         .then(function(result){
-            if(result.success && result.submitDisputeMsg) {
+            if(result.success) {
                 BackChainActions.displayAlertPopup('Dispute Message', result.submitDisputeMsg);
+            } else if(result.success === false && result.submitDisputeMsg) {
+                BackChainActions.displayAlertPopup('Dispute Message', result.submitDisputeMsg, 'WARN');
             }
         })
         .catch(function (err) {
