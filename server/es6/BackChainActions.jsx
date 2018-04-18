@@ -931,4 +931,11 @@ export default class BackChainActions {
             }
         });
     }
+
+    @action
+    static submitDisputeWindowVisible(date) {
+        let duration = moment.duration(moment(new Date()).diff(moment(new Date(date))));
+        let durationInMinutes = Math.ceil(duration.asMinutes());
+        return {"submitDisputeWindowVisible": durationInMinutes < store.disputeSubmissionWindowInMinutes, "durationInMinutes": durationInMinutes};
+    }
 }

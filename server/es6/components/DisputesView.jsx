@@ -211,11 +211,10 @@ const fieldProps = {
         let disputeStatusTime = null;
 
         if(dispute.transaction) {
-            let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
-            let mins = Math.ceil(duration.asMinutes());
-            if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
+			let result = BackChainActions.submitDisputeWindowVisible(dispute.transaction.date)
+            if(result.submitDisputeWindowVisible) {
                 disputeStatusTime =  (<span style={{fontSize: '10px', color: '#999999', display: 'inline-block', lineHeight: '10px'}}> 
-                                    {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-mins)}
+                                    {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-result.durationInMinutes)}
                                 </span>);
             }
         }
@@ -415,9 +414,7 @@ const fieldProps = {
             let submitDisputeUI = null;
 
             if(dispute.transaction) {
-                let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
-                let mins = Math.ceil(duration.asMinutes());
-                if(mins < this.props.store.disputeSubmissionWindowInMinutes) {
+                if(BackChainActions.submitDisputeWindowVisible(dispute.transaction.date).submitDisputeWindowVisible) {
                     submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
                                             <div id={dispute.id + "_submit"} >    
                                                 <div className="dispute-transation-div" style= {{width:'128px'}} >

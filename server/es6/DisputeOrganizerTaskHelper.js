@@ -10,39 +10,51 @@ class DisputeOrganizerTaskHelper {
         this.deleteOldDisputes();
     }
 
-    deleteOldDisputes() {
-        settingsHelper.getApplicationSettings()
-        .then(result => {
-            if (result && result.blockChain.disputeSubmissionWindowInMinutes) {
-                let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
-                disputeHelper.getDisputes()
-                    .then(function (result) {
-                        let dispute = null;
-                        for (let i = 0, len = result.length; i < len; i++) {
-                            dispute = result[i];
-                            if (dispute.transaction) {
-                                let duration = moment.duration(moment(new Date()).diff(moment(new Date(dispute.transaction.date))));
-                                let mins = Math.ceil(duration.asMinutes());
-                                if (mins > disputeSubmissionWindowInMinutes) {
-                                    disputeHelper.discardDraftDispute(dispute.id)
-                                        .then(function (result) {
-                                            if (result.sucess) {
-                                                console.log("Old disputes deleted successfully.");
-                                            }
-                                        })
-                                }
-                            }
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log("Some error occured while deleting old disputes " + error);
-                    });
-            }
-        })
-        .catch(err => {
-            console.error("Application Settings can't be read: " + err);
-            reject(err);
+    submitDisputeWindowVisible(date) {
+        return new Promise((resolve, reject) => {
+            settingsHelper.getApplicationSettings()
+            .then(result => {
+                if (result && result.blockChain.disputeSubmissionWindowInMinutes) {
+                        let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
+                        let duration = moment.duration(moment(new Date()).diff(moment(new Date(date))));
+                        let durationInMinutes = Math.ceil(duration.asMinutes());
+                        resolve(durationInMinutes < disputeSubmissionWindowInMinutes);
+                    } else {
+                        resolve(true);
+                    }
+                })
+                .catch(err => {
+                    console.error("submitDisputeWindowVisible err: " + err);
+                    reject(err);
+                });
         });
+    }
+
+    deleteOldDisputes() {
+        let me = this;
+        disputeHelper.getDisputes()
+            .then(function (result) {
+                let dispute = null;
+                for (let i = 0, len = result.length; i < len; i++) {
+                    dispute = result[i];
+                    if (dispute.transaction) {
+                        me.submitDisputeWindowVisible(dispute.transaction.date)
+                        .then((resutl)=>{
+                            if(resutl) {
+                                disputeHelper.discardDraftDispute(dispute.id)
+                                .then(function (result) {
+                                    if (result.sucess) {
+                                        console.log("Old disputes deleted successfully.");
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }
+            })
+            .catch(function (error) {
+                console.log("Some error occured while deleting old disputes " + error);
+            });
     }
 }
 

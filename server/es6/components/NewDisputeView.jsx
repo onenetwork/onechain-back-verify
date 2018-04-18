@@ -111,9 +111,7 @@ import moment from 'moment';
 				BackChainActions.populateDisputeTransaction(event.target.value)
 				.then(function(result){
 					if(result === true){
-						let duration = moment.duration(moment(new Date()).diff(moment(new Date(me.props.store.disputeTransaction.date))));
-						let mins = Math.ceil(duration.asMinutes());
-						if (mins > me.props.store.disputeSubmissionWindowInMinutes) {
+						if (BackChainActions.submitDisputeWindowVisible(me.props.store.disputeTransaction.date).submitDisputeWindowVisible) {
 							me.setState({saveOrSubmitDisputeButtonsDisabled:true});
 							return;
 						}

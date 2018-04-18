@@ -198,11 +198,7 @@ exports.discardDraftDispute = function (req, res) {
 exports.submitDispute = function (req, res) {
     disputeHelper.submitDispute(JSON.parse(req.params.dispute))
     .then(function (result) {
-        if (result.success) {
-            res.json(result);
-        } else {
-            res.json({ success: false });
-        }
+        res.json(result);
     })
     .catch(function (error) {
         res.json({ success: false });

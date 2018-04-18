@@ -2,6 +2,7 @@ import { dbconnectionManager } from './DBConnectionManager';
 import { transactionHelper } from './TransactionHelper';
 import { settingsHelper } from './SettingsHelper';
 import { blockChainVerifier } from './BlockChainVerifier';
+import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
 import { observable } from 'mobx';
 import { Long } from 'mongodb';
 import crypto from 'crypto';
@@ -16,42 +17,52 @@ class DisputeHelper {
         //Draft records will come from the db and Open/Closed ones will be fetched using oneBcClient apis
         let me = this;
         return new Promise((resolve, reject) => {
-            this.createFilterQuery(filters)
+            if(filters) {
+                this.createFilterQuery(filters)
                 .then((query) => {
                     if (query.searchInDraftDispute) {
                         delete query.searchInDraftDispute;
-                        dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
-                            .sort({ creationDate: -1 })
-                            .toArray(function (err, result) {
-                                if (err) {
-                                    console.error("Error occurred while fetching transations by sequencenos." + err);
-                                    reject(err);
-                                } else {
-                                    var promisesToWaitOn = [];
-                                    for (var i = 0; i < result.length; i++) {
-                                        let dispute = result[i];
-                                        //Fetch transaction data if exists
-                                        var prms = new Promise(function (resolve, reject) {
-                                            transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
-                                                if (transaction) {
-                                                    if (filters && JSON.parse(filters.transactionRelatedFilter)) {
-                                                        dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
-                                                    } else {
-                                                        dispute.transaction = transaction; //Transaction is in the database.
-                                                    }
-                                                }
-                                                resolve(dispute);
-                                            });
-                                        });
-                                        promisesToWaitOn.push(prms);
-                                    }
-                                    Promise.all(promisesToWaitOn).then(function (disputes) {
-                                        resolve(disputes);
-                                    });
-                                }
-                            });
+                        me.queryDisputes(query,filters);
                     }
                 })
+            } else {
+                filters  = null;
+                queryDisputes({},filters);
+            }
+        });
+    }
+
+    queryDisputes(query,filters) {
+        console.log(query);
+        dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
+        .sort({ creationDate: -1 })
+        .toArray(function (err, result) {
+            if (err) {
+                console.error("Error occurred while fetching transations by sequencenos." + err);
+                reject(err);
+            } else {
+                var promisesToWaitOn = [];
+                for (var i = 0; i < result.length; i++) {
+                    let dispute = result[i];
+                    //Fetch transaction data if exists
+                    var prms = new Promise(function (resolve, reject) {
+                        transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                            if (transaction) {
+                                if (filters && JSON.parse(filters.transactionRelatedFilter)) {
+                                    dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
+                                } else {
+                                    dispute.transaction = transaction; //Transaction is in the database.
+                                }
+                            }
+                            resolve(dispute);
+                        });
+                    });
+                    promisesToWaitOn.push(prms);
+                }
+                Promise.all(promisesToWaitOn).then(function (disputes) {
+                    resolve(disputes);
+                });
+            }
         });
     }
 
@@ -288,30 +299,20 @@ class DisputeHelper {
     }
 
     submitDispute(dispute) {
-        let me = this;
         return new Promise((resolve, reject) => {
-            settingsHelper.getApplicationSettings()
-            .then(result => {
-                if(result && result.blockChain.disputeSubmissionWindowInMinutes) {
-                    let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
-                    transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
-                        if (transaction) {
-                            let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
-                            let mins = Math.ceil(duration.asMinutes());
-                            if(mins < disputeSubmissionWindowInMinutes) {
-                                /*TODO send dispute to Block chain and on success call this.discardDraftDispute(dispute.id)*/
-                                resolve({success:true, submitDisputeMsg: 'Dispute Submitted Successfully.'});
-                            } else {
-                                reject({success:false, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed. You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
-                            }
+            transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                if (transaction) {
+                    disputeOrganizerTaskHelper.submitDisputeWindowVisible(dispute.transaction.date)
+                    .then((resutl)=>{
+                        if(resutl) {
+                            resolve({success:true, submitDisputeMsg: 'Dispute Submitted Successfully.'});
+                        } else {
+                            resolve({success:false, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed. You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
                         }
-                    });
+                    })
                 }
-            })
-            .catch(err => {
-                console.error("Application Settings can't be read in submitDispute: " + err);
-                reject(err);
             });
+
         });
     }
 

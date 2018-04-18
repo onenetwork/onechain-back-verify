@@ -466,11 +466,9 @@ const fieldProps = {
     }
 
     renderTransactionActionsCell(transaction, idx) {
-        let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
-        let mins = Math.ceil(duration.asMinutes());
         return (
             <td style={Object.assign({}, fieldProps.columns)}>
-                {transaction.disputeExists && mins > this.props.store.disputeSubmissionWindowInMinutes ? (
+                {transaction.disputeExists && !BackChainActions.submitDisputeWindowVisible(transaction.date).submitDisputeWindowVisible ? (
                         <div></div>
                 ): (
                         <div style={{ cursor: 'pointer' }}>
