@@ -308,7 +308,7 @@ class DisputeHelper {
         return new Promise((resolve, reject) => {
             transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
                 if (transaction) {
-                    disputeOrganizerTaskHelper.submitDisputeWindowVisible(dispute.transaction.date)
+                    disputeOrganizerTaskHelper.submitDisputeWindowVisible(transaction.date)
                     .then((resutl)=>{
                         if(resutl) {
                             resolve({success:true, submitDisputeMsg: 'Dispute Submitted Successfully.'});

@@ -39,8 +39,8 @@ class DisputeOrganizerTaskHelper {
                     dispute = result[i];
                     if (dispute.transaction) {
                         me.submitDisputeWindowVisible(dispute.transaction.date)
-                        .then((resutl)=>{
-                            if(resutl) {
+                        .then((result)=>{
+                            if(result) {
                                 disputeHelper.discardDraftDispute(dispute.id)
                                 .then(function (result) {
                                     if (result.sucess) {

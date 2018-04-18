@@ -112,7 +112,7 @@ import moment from 'moment';
 				.then(function(result){
 					if(result === true){
 						if (BackChainActions.submitDisputeWindowVisible(me.props.store.disputeTransaction.date).submitDisputeWindowVisible) {
-							me.setState({saveOrSubmitDisputeButtonsDisabled:true});
+							me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 							return;
 						}
 					}
