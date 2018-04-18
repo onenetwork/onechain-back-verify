@@ -22,47 +22,53 @@ class DisputeHelper {
                 .then((query) => {
                     if (query.searchInDraftDispute) {
                         delete query.searchInDraftDispute;
-                        me.queryDisputes(query,filters);
+                        me.queryDisputes(query, filters)
+                            .then((result) => {
+                                resolve(result);
+                        })
                     }
                 })
             } else {
-                filters  = null;
-                queryDisputes({},filters);
+                me.queryDisputes({}, null)
+                    .then((result) => {
+                        resolve(result);
+                    })
             }
         });
     }
 
     queryDisputes(query,filters) {
-        console.log(query);
-        dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
-        .sort({ creationDate: -1 })
-        .toArray(function (err, result) {
-            if (err) {
-                console.error("Error occurred while fetching transations by sequencenos." + err);
-                reject(err);
-            } else {
-                var promisesToWaitOn = [];
-                for (var i = 0; i < result.length; i++) {
-                    let dispute = result[i];
-                    //Fetch transaction data if exists
-                    var prms = new Promise(function (resolve, reject) {
-                        transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
-                            if (transaction) {
-                                if (filters && JSON.parse(filters.transactionRelatedFilter)) {
-                                    dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
-                                } else {
-                                    dispute.transaction = transaction; //Transaction is in the database.
-                                }
-                            }
-                            resolve(dispute);
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
+                .sort({ creationDate: -1 })
+                .toArray(function (err, result) {
+                    if (err) {
+                        console.error("Error occurred while fetching transations by sequencenos." + err);
+                        reject(err);
+                    } else {
+                        var promisesToWaitOn = [];
+                        for (var i = 0; i < result.length; i++) {
+                            let dispute = result[i];
+                            //Fetch transaction data if exists
+                            var prms = new Promise(function (resolve, reject) {
+                                transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                                    if (transaction) {
+                                        if (filters && JSON.parse(filters.transactionRelatedFilter)) {
+                                            dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
+                                        } else {
+                                            dispute.transaction = transaction; //Transaction is in the database.
+                                        }
+                                    }
+                                    resolve(dispute);
+                                });
+                            });
+                            promisesToWaitOn.push(prms);
+                        }
+                        Promise.all(promisesToWaitOn).then(function (disputes) {
+                            resolve(disputes);
                         });
-                    });
-                    promisesToWaitOn.push(prms);
-                }
-                Promise.all(promisesToWaitOn).then(function (disputes) {
-                    resolve(disputes);
+                    }
                 });
-            }
         });
     }
 
