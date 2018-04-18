@@ -304,7 +304,7 @@ class DisputeHelper {
         });
     }
 
-    getRaisedByEnterpriseName(backChainAddress) {
+    getRaisedByEnterpriseName(metaMaskAddressOfLoggedUser) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
                 .toArray(function(err, result) {
@@ -314,7 +314,7 @@ class DisputeHelper {
                         result = result[0];
                         for (let key in result) {
                             if (result.hasOwnProperty(key)) {
-                              if(key == backChainAddress) {
+                              if(key == metaMaskAddressOfLoggedUser) {
                                 resolve({success : true, entName : result[key]})
                                 break;
                               }
