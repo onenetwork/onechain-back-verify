@@ -16,106 +16,111 @@ class DisputeHelper {
         //Draft records will come from the db and Open/Closed ones will be fetched using oneBcClient apis
         let me = this;
         return new Promise((resolve, reject) => {
-            let query = {};
-            if (filters) {
-                query = this.createFilterQuery(filters);
-            }
-
-            dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
-                .sort({ creationDate: -1 })
-                .toArray(function (err, result) {
-                    if (err) {
-                        console.error("Error occurred while fetching transations by sequencenos." + err);
-                        reject(err);
-                    } else {
-                        var promisesToWaitOn = [];
-                        for (var i = 0; i < result.length; i++) {
-                            let dispute = result[i];
-                            //Fetch transaction data if exists
-                            var prms = new Promise(function (resolve, reject) {
-                                transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
-                                    if (transaction) {
-                                        if (filters && JSON.parse(filters.transactionRelatedFilter)) {
-                                            dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
-                                        } else {
-                                            dispute.transaction = transaction; //Transaction is in the database.
-                                        }
-                                    }
-                                    resolve(dispute);
+            this.createFilterQuery(filters)
+                .then((query) => {
+                    dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
+                        .sort({ creationDate: -1 })
+                        .toArray(function (err, result) {
+                            if (err) {
+                                console.error("Error occurred while fetching transations by sequencenos." + err);
+                                reject(err);
+                            } else {
+                                var promisesToWaitOn = [];
+                                for (var i = 0; i < result.length; i++) {
+                                    let dispute = result[i];
+                                    //Fetch transaction data if exists
+                                    var prms = new Promise(function (resolve, reject) {
+                                        transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                                            if (transaction) {
+                                                if (filters && JSON.parse(filters.transactionRelatedFilter)) {
+                                                    dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
+                                                } else {
+                                                    dispute.transaction = transaction; //Transaction is in the database.
+                                                }
+                                            }
+                                            resolve(dispute);
+                                        });
+                                    });
+                                    promisesToWaitOn.push(prms);
+                                }
+                                Promise.all(promisesToWaitOn).then(function (disputes) {
+                                    resolve(disputes);
                                 });
-                            });
-                            promisesToWaitOn.push(prms);
-                        }
-                        Promise.all(promisesToWaitOn).then(function (disputes) {
-                            resolve(disputes);
+                            }
                         });
-                    }
-                });
+                })
         });
     }
 
     createFilterQuery(filters) {
-        let query = {};
-        if (this.isValueNotNull(filters.status)) {
-            query.status = { $in: JSON.parse(filters.status) };
-        }
-        if (this.isValueNotNull(filters.searchTnxId)) {
-            query.transactionId = filters.searchTnxId;
-        }
-        if (this.isValueNotNull(filters.searchDisputeId)) {
-            query.id = filters.searchDisputeId;
-        }
+        let me = this;
+        return new Promise((resolve, reject) => {
+            var promisesToWaitOn = [];
+            let query = {};
+            if (this.isValueNotNull(filters.status)) {
+                query.status = { $in: JSON.parse(filters.status) };
+            }
+            if (this.isValueNotNull(filters.searchTnxId)) {
+                query.transactionId = filters.searchTnxId;
+            }
+            if (this.isValueNotNull(filters.searchDisputeId)) {
+                query.id = filters.searchDisputeId;
+            }
 
-        if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
-            query.submittedDate = { $gte: JSON.parse(filters.disputeSubmitFromDate) };
-        }
+            if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
+                query.submittedDate = { $gte: JSON.parse(filters.disputeSubmitFromDate) };
+            }
 
-        if (this.isValueNotNull(filters.disputeSubmitToDate)) {
-            query.submittedDate = { $lte: JSON.parse(filters.disputeSubmitToDate) };
-        }
+            if (this.isValueNotNull(filters.disputeSubmitToDate)) {
+                query.submittedDate = { $lte: JSON.parse(filters.disputeSubmitToDate) };
+            }
 
-        if (this.isValueNotNull(filters.disputeCloseFromDate)) {
-            query.closedDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
-        }
+            if (this.isValueNotNull(filters.disputeCloseFromDate)) {
+                query.closedDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
+            }
 
-        if (this.isValueNotNull(filters.disputeCloseToDate)) {
-            query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
-        }
-        // commenting. Now we are not storing raisedByName in draftdisputes collection.
-        //TODO Send entNAmeofLoggedUser from UI and search its address in a BackChainAddressMapping  collection.
-        // if not found don't do anything.
-        // if (this.isValueNotNull(filters.raisedBy)) {
-        //     query.raisedByName = filters.raisedBy;
-        // }
+            if (this.isValueNotNull(filters.disputeCloseToDate)) {
+                query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
+            }
 
-        if (this.isValueNotNull(filters.reasonCodes)) {
-            query.reasonCode = { $in: JSON.parse(filters.reasonCodes) };
-        }
-        return query;
+            if (this.isValueNotNull(filters.raisedBy)) {
+                var prms = new Promise(function (resolve, reject) {
+                    me.getRaisedByAddress(filters.raisedBy)
+                        .then((result) => {
+                            if (result) {
+                                query.raisedBy = result.raisedByAddress;
+                                resolve(query);
+                            } else {
+                                query.raisedBy = null;
+                                resolve(query);
+                            }
+                        })
+                });
+                promisesToWaitOn.push(prms);
+            }
+
+            if (this.isValueNotNull(filters.reasonCodes)) {
+                query.reasonCode = { $in: JSON.parse(filters.reasonCodes) };
+            }
+
+            if (this.isValueNotNull(filters.searchBtId)) {
+                query.events = filters.searchBtId;
+            }
+
+            Promise.all(promisesToWaitOn).then(function (promise) {
+                resolve(query);
+            });
+        });
     }
 
     isValueNotNull(value) {
-        if (value != null && value != 'null' && value != undefined && value != '') {
+        if (value != null && value != 'null' && value != undefined && value != '' && value != '[]') {
             return true;
         }
         return false;
     }
 
     applyTransactionRelatedFilters(dispute, transaction, filters) {
-        if (this.isValueNotNull(filters.searchBtId)) {
-            let found = false;
-            for (let i = 0; i < transaction.transactionSlices.length; i++) {
-                let transactionSlice = transaction.transactionSlices[i];
-                if (transactionSlice.businessTransactionIds.indexOf(filters.searchBtId) > -1) {
-                    dispute.transaction = transaction;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                dispute = null;
-            }
-        }
         if (this.isValueNotNull(filters.tnxFromDate)) {
             if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
                 dispute.transaction = transaction;
@@ -320,6 +325,32 @@ class DisputeHelper {
                               }
                             }
                           }
+                    }
+                });
+        });
+    }
+
+    getRaisedByAddress(raisedByName) {
+        return new Promise((resolve, reject) => {
+            dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
+                .toArray(function (err, result) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        result = result[0];
+                        let mappingFound = false;
+                        for (let key in result) {
+                            if (result.hasOwnProperty(key)) {
+                                if (result[key] == raisedByName) {
+                                    mappingFound = true;
+                                    resolve({ success: true, raisedByAddress: key });
+                                    break;
+                                }
+                            }
+                        }
+                        if (!mappingFound) {
+                            resolve({ success: false })
+                        }
                     }
                 });
         });

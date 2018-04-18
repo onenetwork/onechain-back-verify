@@ -180,7 +180,7 @@ import BackChainActions from '../BackChainActions';
         return (
             <div className="filter-div">
                 {filterUI}
-                {this.state.showFilterTable ? <FilterTable disputeFilters={this.disputeFilters} /> : ''}
+                {this.state.showFilterTable ? <FilterTable disputeFilters={this.disputeFilters} store={this.props.store}/> : ''}
                 &nbsp;&nbsp;&nbsp;&nbsp;
                 {searchBox}
                 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -197,12 +197,18 @@ import BackChainActions from '../BackChainActions';
         this.state = { 
             wrongDataChkBox: false,
             sentToWrongLocationChkBox: false,
-            enteredWrongDataChkBox: false
+            enteredWrongDataChkBox: false,
+            raisedBy : this.props.store.entNameOfLoggedUser
         };
     }
 
+     
     componentWillMount = () => { 
         this.reasonCodeCheckboxes = new Set();
+    }
+
+    componentDidMount = () => {
+        this.props.disputeFilters.raisedBy = this.props.store.entNameOfLoggedUser;
     }
 
     toggleCheckboxChange(event) {
@@ -239,7 +245,6 @@ import BackChainActions from '../BackChainActions';
 
     listenBtKeyPress(event) {
         this.props.disputeFilters.searchBtId = event.target.value.trim();
-        this.props.disputeFilters.transactionRelatedFilter = true;
     }
 
     listenDisputeKeyPress(event) {
@@ -273,6 +278,7 @@ import BackChainActions from '../BackChainActions';
     }
 
     listenRaisedByKeyPress(event) {
+        this.setState({ raisedBy: event.target.value.trim() });
         this.props.disputeFilters.raisedBy = event.target.value.trim();
     }
 
@@ -381,7 +387,7 @@ import BackChainActions from '../BackChainActions';
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Raised By: </div>
                 &nbsp;&nbsp;
                     <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '145px' }}>
-                    <FormControl type="text" style={fieldProps.textBox} onKeyPress={this.listenRaisedByKeyPress.bind(this)} onChange={this.listenRaisedByKeyPress.bind(this)}/>
+                    <FormControl type="text" value={this.state.raisedBy} style={fieldProps.textBox} onKeyPress={this.listenRaisedByKeyPress.bind(this)} onChange={this.listenRaisedByKeyPress.bind(this)} />
                 </div>
             </div>
         );
