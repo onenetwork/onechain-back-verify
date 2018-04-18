@@ -42,9 +42,5 @@ import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
         syncTransactionTaskHelper.startSyncing();
         disputeOrganizerTaskHelper.disputeOrganizerTask();
         commandLineUtils.readCommands();
-        
-        // setInterval(function(){
-        //     disputeHelper.DisputeOrganizerTask();
-        // }, 1000*60*5);
     });
 })();
