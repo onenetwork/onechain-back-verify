@@ -30,7 +30,8 @@ import BackChainActions from '../BackChainActions';
             disputeCloseToDate: null,
             raisedBy: null,
             transactionRelatedFilter: false,
-            reasonCodes: null
+            reasonCodes: null,
+            metaMaskAddress: null
         };
     }
 
@@ -100,7 +101,8 @@ import BackChainActions from '../BackChainActions';
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
-            transactionRelatedFilter: false
+            transactionRelatedFilter: false,
+            metaMaskAddress : null
         };
     }
 
@@ -209,6 +211,7 @@ import BackChainActions from '../BackChainActions';
 
     componentDidMount = () => {
         this.props.disputeFilters.raisedBy = this.props.store.entNameOfLoggedUser;
+        this.props.disputeFilters.metaMaskAddress = this.props.store.metaMaskAddressOfLoggedUser;
     }
 
     toggleCheckboxChange(event) {
@@ -278,8 +281,14 @@ import BackChainActions from '../BackChainActions';
     }
 
     listenRaisedByKeyPress(event) {
-        this.setState({ raisedBy: event.target.value.trim() });
-        this.props.disputeFilters.raisedBy = event.target.value.trim();
+        let raisedByValue = event.target.value.trim();
+        this.setState({ raisedBy: raisedByValue });
+        if (raisedByValue == this.props.store.entNameOfLoggedUser) {
+            this.props.disputeFilters.metaMaskAddress = this.props.store.metaMaskAddressOfLoggedUser;
+        } else {
+            this.props.disputeFilters.metaMaskAddress = null;
+        }
+        this.props.disputeFilters.raisedBy = raisedByValue;
     }
 
     render() {

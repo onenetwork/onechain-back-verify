@@ -18,36 +18,39 @@ class DisputeHelper {
         return new Promise((resolve, reject) => {
             this.createFilterQuery(filters)
                 .then((query) => {
-                    dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
-                        .sort({ creationDate: -1 })
-                        .toArray(function (err, result) {
-                            if (err) {
-                                console.error("Error occurred while fetching transations by sequencenos." + err);
-                                reject(err);
-                            } else {
-                                var promisesToWaitOn = [];
-                                for (var i = 0; i < result.length; i++) {
-                                    let dispute = result[i];
-                                    //Fetch transaction data if exists
-                                    var prms = new Promise(function (resolve, reject) {
-                                        transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
-                                            if (transaction) {
-                                                if (filters && JSON.parse(filters.transactionRelatedFilter)) {
-                                                    dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
-                                                } else {
-                                                    dispute.transaction = transaction; //Transaction is in the database.
+                    if (query.searchInDraftDispute) {
+                        delete query.searchInDraftDispute;
+                        dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
+                            .sort({ creationDate: -1 })
+                            .toArray(function (err, result) {
+                                if (err) {
+                                    console.error("Error occurred while fetching transations by sequencenos." + err);
+                                    reject(err);
+                                } else {
+                                    var promisesToWaitOn = [];
+                                    for (var i = 0; i < result.length; i++) {
+                                        let dispute = result[i];
+                                        //Fetch transaction data if exists
+                                        var prms = new Promise(function (resolve, reject) {
+                                            transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                                                if (transaction) {
+                                                    if (filters && JSON.parse(filters.transactionRelatedFilter)) {
+                                                        dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
+                                                    } else {
+                                                        dispute.transaction = transaction; //Transaction is in the database.
+                                                    }
                                                 }
-                                            }
-                                            resolve(dispute);
+                                                resolve(dispute);
+                                            });
                                         });
+                                        promisesToWaitOn.push(prms);
+                                    }
+                                    Promise.all(promisesToWaitOn).then(function (disputes) {
+                                        resolve(disputes);
                                     });
-                                    promisesToWaitOn.push(prms);
                                 }
-                                Promise.all(promisesToWaitOn).then(function (disputes) {
-                                    resolve(disputes);
-                                });
-                            }
-                        });
+                            });
+                    }
                 })
         });
     }
@@ -57,6 +60,7 @@ class DisputeHelper {
         return new Promise((resolve, reject) => {
             var promisesToWaitOn = [];
             let query = {};
+            query.searchInDraftDispute = true;
             if (this.isValueNotNull(filters.status)) {
                 query.status = { $in: JSON.parse(filters.status) };
             }
@@ -84,19 +88,27 @@ class DisputeHelper {
             }
 
             if (this.isValueNotNull(filters.raisedBy)) {
-                var prms = new Promise(function (resolve, reject) {
-                    me.getRaisedByAddress(filters.raisedBy)
-                        .then((result) => {
-                            if (result) {
-                                query.raisedBy = result.raisedByAddress;
-                                resolve(query);
-                            } else {
-                                query.raisedBy = null;
-                                resolve(query);
-                            }
-                        })
-                });
-                promisesToWaitOn.push(prms);
+
+                if (this.isValueNotNull(filters.metaMaskAddress)) {
+                    query.raisedBy = filters.metaMaskAddress;
+                }
+                else {
+                    query.searchInDraftDispute = false;
+                    var prms = new Promise(function (resolve, reject) {
+                        me.getRaisedByAddress(filters.raisedBy)
+                            .then((result) => {
+                                if (result) {
+                                    query.raisedBy = result.raisedByAddress;
+                                    resolve(query);
+                                } else {
+                                    query.raisedBy = null;
+                                    resolve(query);
+                                }
+                            })
+                    });
+                    query.raisedBy = filters.raisedBy
+                    promisesToWaitOn.push(prms);
+                }
             }
 
             if (this.isValueNotNull(filters.reasonCodes)) {
