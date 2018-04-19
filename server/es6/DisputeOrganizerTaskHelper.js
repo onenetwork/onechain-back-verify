@@ -10,13 +10,13 @@ class DisputeOrganizerTaskHelper {
         this.deleteOldDisputes();
     }
 
-    submitDisputeWindowVisible(date) {
+    submitDisputeWindowVisibleForTnx(transaction) {
         return new Promise((resolve, reject) => {
             settingsHelper.getApplicationSettings()
             .then(result => {
                 if (result && result.blockChain.disputeSubmissionWindowInMinutes) {
                         let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
-                        let duration = moment.duration(moment(new Date()).diff(moment(new Date(date))));
+                        let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
                         let durationInMinutes = Math.ceil(duration.asMinutes());
                         resolve(durationInMinutes < disputeSubmissionWindowInMinutes);
                     } else {
@@ -24,7 +24,7 @@ class DisputeOrganizerTaskHelper {
                     }
                 })
                 .catch(err => {
-                    console.error("submitDisputeWindowVisible err: " + err);
+                    console.error("submitDisputeWindowVisibleForTnx err: " + err);
                     reject(err);
                 });
         });
@@ -38,7 +38,7 @@ class DisputeOrganizerTaskHelper {
                 for (let i = 0, len = result.length; i < len; i++) {
                     dispute = result[i];
                     if (dispute.transaction) {
-                        me.submitDisputeWindowVisible(dispute.transaction.date)
+                        me.submitDisputeWindowVisibleForTnx(dispute.transaction)
                         .then((result)=>{
                             if(result) {
                                 disputeHelper.discardDraftDispute(dispute.id)

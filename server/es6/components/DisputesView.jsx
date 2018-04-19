@@ -211,10 +211,10 @@ const fieldProps = {
         let disputeStatusTime = null;
 
         if(dispute.transaction) {
-			let result = BackChainActions.submitDisputeWindowVisible(dispute.transaction.date)
-            if(result.submitDisputeWindowVisible) {
+			let result = BackChainActions.chkSubmitDisputeWindowVisibleForTnx(dispute.transaction)
+            if(result.visible) {
                 disputeStatusTime =  (<span style={{fontSize: '10px', color: '#999999', display: 'inline-block', lineHeight: '10px'}}> 
-                                    {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-result.durationInMinutes)}
+                                    {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-result.tnxDurationInMinutes)}
                                 </span>);
             }
         }
@@ -414,7 +414,7 @@ const fieldProps = {
             let submitDisputeUI = null;
 
             if(dispute.transaction) {
-                if(BackChainActions.submitDisputeWindowVisible(dispute.transaction.date).submitDisputeWindowVisible) {
+                if(BackChainActions.chkSubmitDisputeWindowVisibleForTnx(dispute.transaction).visible) {
                     submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
                                             <div id={dispute.id + "_submit"} >    
                                                 <div className="dispute-transation-div" style= {{width:'128px'}} >

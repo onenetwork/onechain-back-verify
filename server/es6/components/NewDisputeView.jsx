@@ -117,7 +117,7 @@ import moment from 'moment';
 				BackChainActions.populateDisputeTransaction(event.target.value)
 				.then(function(result){
 					if(result === true){
-						if (BackChainActions.submitDisputeWindowVisible(me.props.store.disputeTransaction.date).submitDisputeWindowVisible) {
+						if (BackChainActions.chkSubmitDisputeWindowVisibleForTnx(me.props.store.disputeTransaction).visible) {
 							me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 						}
 					}

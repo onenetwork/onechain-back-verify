@@ -933,9 +933,9 @@ export default class BackChainActions {
     }
 
     @action
-    static submitDisputeWindowVisible(date) {
-        let duration = moment.duration(moment(new Date()).diff(moment(new Date(date))));
-        let durationInMinutes = Math.ceil(duration.asMinutes());
-        return {"submitDisputeWindowVisible": durationInMinutes < store.disputeSubmissionWindowInMinutes, "durationInMinutes": durationInMinutes};
+    static chkSubmitDisputeWindowVisibleForTnx(transaction) {
+        let tnxDuration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
+        let tnxDurationInMinutes = Math.ceil(tnxDuration.asMinutes());
+        return {"visible": tnxDurationInMinutes < store.disputeSubmissionWindowInMinutes, "tnxDurationInMinutes": tnxDurationInMinutes};
     }
 }
