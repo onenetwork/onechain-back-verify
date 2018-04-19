@@ -50,7 +50,7 @@ import NewDisputeView from './NewDisputeView';
 			button : {
 				height: '42px',
 				width: '169px',
-				backgroundColor: '#1d85c6'
+				boxShadow: 'rgba(0, 0, 0, 0.75) 1px 2px 2px'
 			}
         };
 		
