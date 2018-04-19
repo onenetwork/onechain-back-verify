@@ -17,7 +17,8 @@ import moment from 'moment';
 			disputeErrorMsg: null,
 			searchTnxIdTimeOut : 0,
 			saveOrSubmitDisputeButtonsDisabled: true,
-			eventBtids : []
+			eventBtids : [],
+			tnxIdInputDisabled: false
         };
 	}
 	
@@ -106,6 +107,11 @@ import moment from 'moment';
 		if (me.state.searchTnxIdTimeOut) {
 			clearTimeout(me.state.searchTnxIdTimeOut);
 		}
+		if(!event.target.value) {
+			BackChainActions.clearDisputeTransaction();
+			BackChainActions.clearDisputeId();
+			return;
+		}
 		me.setState({
 			searchTnxIdTimeOut: setTimeout(function() {
 				BackChainActions.populateDisputeTransaction(event.target.value)
@@ -113,7 +119,6 @@ import moment from 'moment';
 					if(result === true){
 						if (BackChainActions.submitDisputeWindowVisible(me.props.store.disputeTransaction.date).submitDisputeWindowVisible) {
 							me.setState({saveOrSubmitDisputeButtonsDisabled:false});
-							return;
 						}
 					}
 					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
@@ -145,6 +150,7 @@ import moment from 'moment';
 			me.setDisputeMsg({'type':'reset'});
 		}
 
+		me.setState({saveOrSubmitDisputeButtonsDisabled:true});
 		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
 		.then(function(response) {
 			if(response.success) {
@@ -163,13 +169,32 @@ import moment from 'moment';
 
 	submitDispute() {
 		let me = this;
+		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
+			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please enter transaction id"});
+			return;
+		}
+		else if (ReactDOM.findDOMNode(this.select).value == "select") {
+			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select reason code."});
+			return;
+		} else {
+			me.setDisputeMsg({'type':'reset'});
+		}
+
+		me.setState({saveOrSubmitDisputeButtonsDisabled:true});
+		me.setState({tnxIdInputDisabled:true});
 		let dispute = this.getNewDisputeData();
 		dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
         BackChainActions.submitDispute(dispute)
         .then(function(result){
             if(result.success) {
+				setTimeout(function() {
+					BackChainActions.toggleNewDisputeModalView();
+					BackChainActions.clearDisputeTransaction();
+					BackChainActions.clearDisputeId();
+				}, 1000*5);
 				me.setDisputeMsg({'type':'disputeInfoMsg', 'msg':result.submitDisputeMsg});
             } else if(result.success === false && result.submitDisputeMsg) {
+				me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 				me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':result.submitDisputeMsg});
             }
         })
@@ -324,7 +349,7 @@ import moment from 'moment';
 		if(this.state.disputeWarnMsg) {
 			disputeWarningInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
 								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#F19500', fontWeight: 700 }}>Warning!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeWarnMsg}</span></span>
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute', paddingRight: '48px' }}>&nbsp;<span style={{ color: '#F19500', fontWeight: 700 }}>Warning!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeWarnMsg}</span></span>
 								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#F19500'})} onClick={this.resetMsgs.bind(this)}/>
 							</Row>);
 		}
@@ -332,7 +357,7 @@ import moment from 'moment';
 		if (this.state.disputeErrorMsg) {
 			disputeErrorMsgInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgba(252, 228, 224, 1)', borderColor: 'rgba(235, 204, 209, 1)' })}>
 								<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#D9443F' }} /></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#D9443F', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute', paddingRight: '48px' }}>&nbsp;<span style={{ color: '#D9443F', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
 								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#D9443F'})} onClick={this.resetMsgs.bind(this)}/>
 							</Row>);
 		}
@@ -340,7 +365,7 @@ import moment from 'moment';
 		if (this.state.disputeInfoMsg) {
 			disputeSuccessInfoMsg = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgba(212, 237, 218, 1)', borderColor: 'rgba(182, 224, 192, 1)' })}>
 								<span><i className="fa fa-check-circle" style={{ fontSize: '22px', color: '#229978' }} /></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', top: '67px', position: 'absolute' }}>&nbsp;<span style={{ color: '#229978', fontWeight: 700 }}>Success!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeInfoMsg}</span></span>
+								<span style={{ fontSize: '14px', top: '67px', position: 'absolute', paddingRight: '48px' }}>&nbsp;<span style={{ color: '#229978', fontWeight: 700 }}>Success!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeInfoMsg}</span></span>
 								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#229978'})} onClick={this.resetMsgs.bind(this)}/>
 							</Row>);
 		}
@@ -390,7 +415,7 @@ import moment from 'moment';
 													Transaction ID:
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
-													<FormControl inputRef={(ref) => { this.transactionId = ref }} type="text" onChange={this.onTnxIdChange.bind(this)} placeholder="Enter transaction ID" defaultValue={disputeTransaction == null ? '' : disputeTransaction.id} />
+													<FormControl disabled={this.state.tnxIdInputDisabled} inputRef={(ref) => { this.transactionId = ref }} type="text" onChange={this.onTnxIdChange.bind(this)} placeholder="Enter transaction ID" defaultValue={disputeTransaction == null ? '' : disputeTransaction.id} />
 												</Col>
 											</Col>
 
