@@ -176,3 +176,9 @@
     background-color: #286090 !important;
     border-color: #204d74;
 }
+
+.popover>.popover-content .largePopoverContent {
+    max-width: 276px;
+    word-wrap: break-word;
+    padding: 4px 15px;
+}

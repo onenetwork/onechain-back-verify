@@ -300,7 +300,7 @@ const fieldProps = {
         } else {
             eventsPopoverClassName = null;
             eventBadge = Images.EVENT_BADGE_ORANGE;
-            eventsPopoverContent = "Transaction " + dispute.transactionId +" couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.";
+            eventsPopoverContent = <div className="largePopoverContent">Transaction&nbsp;<span style={{fontWeight: 600}}>{dispute.transactionId}</span>&nbsp;couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.</div>;
             eventCountString =  (<div className="counter1">
                                     <i className="fa fa-exclamation" aria-hidden="true"/>
                                 </div>);
@@ -321,7 +321,7 @@ const fieldProps = {
                         placement="right"
                         container={document.getElementById("root")}
                         target={() => this.eventsPopoverRefsMap[idx]}>
-    
+
                         <Popover id={"events-popover-" + idx} className={eventsPopoverClassName} title={(
                             <span>
                                 <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
@@ -373,7 +373,7 @@ const fieldProps = {
                                         </div>);
         } else {
             disputeParticipantBadge = Images.DISPUTE_PARTICIPANT_BADGE_ORANGE;
-            participantsContent = "Transaction " + dispute.transactionId +" couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.";
+            participantsContent = <div className="largePopoverContent">Transaction&nbsp;<span style={{fontWeight: 600}}>{dispute.transactionId}</span>&nbsp;couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.</div>;
             partnerLengthOrExclamation= (<div style={{position: 'absolute', left: '35px', top: '6px', color: 'white', fontSize: '10px'}}>
                                             <i className="fa fa-exclamation" aria-hidden="true"/>
                                         </div>);
