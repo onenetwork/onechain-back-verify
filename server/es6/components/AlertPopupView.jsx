@@ -10,10 +10,12 @@ import { Row, Col,  Panel, Modal } from 'react-bootstrap';
     }
 
     render() {
-            return (
+        return (
+            <Modal dialogClassName={"display-msg-modal"} show={this.props.store.displayAlertPopup} onHide={BackChainActions.closeAlertPopup}>
                 <div>
                     <DisplayMessagePopup store={this.props.store} />
                 </div>
+            </Modal>
             )
     }
 }
@@ -78,14 +80,6 @@ class DisplayMessagePopup extends React.Component {
                 </div>
             </div>
         );
-    }
-}
-
-@observer export class DisplayAlertPopupView extends React.Component {
-    render() {
-        return (<Modal dialogClassName={"display-msg-modal"} show={this.props.store.displayAlertPopup} onHide={BackChainActions.closeAlertPopup}>
-            <AlertPopupView store={this.props.store} />
-        </Modal>);
     }
 }
 

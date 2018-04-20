@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import Images from '../Images';
-import { DisplayAlertPopupView } from './AlertPopupView';
+import AlertPopupView from './AlertPopupView';
 
 @observer export default class SearchByBusinessIdView extends React.Component {
     constructor(props) {
@@ -131,7 +131,7 @@ import { DisplayAlertPopupView } from './AlertPopupView';
 						`}
 					</style>
 
-					<DisplayAlertPopupView store={this.props.store} />
+					<AlertPopupView store={this.props.store} />
 
 					<div className={"panel panel-default"} onClick={this.props.action}>
 						<HeaderView store={this.props.store}/>

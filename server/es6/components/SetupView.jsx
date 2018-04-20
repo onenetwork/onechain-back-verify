@@ -5,7 +5,7 @@ import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from './HeaderView';
 import oneBcClient from '@onenetwork/one-backchain-client';
-import { DisplayAlertPopupView } from './AlertPopupView';
+import AlertPopupView from './AlertPopupView';
 import DisplaySyncView from "./DisplaySyncView"
 
 @observer export default class SetupView extends React.Component {
@@ -114,7 +114,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			}
 		};
 		let panelBody = (<div>
-			<DisplayAlertPopupView store={this.props.store} />
+			<AlertPopupView store={this.props.store} />
 			<p></p>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>

@@ -9,7 +9,7 @@ import { Redirect, Link } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import Images from '../Images';
-import { DisplayAlertPopupView } from './AlertPopupView';
+import AlertPopupView from './AlertPopupView';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
 
@@ -147,7 +147,7 @@ const fieldProps = {
             return (
                 <div>
                     <Table responsive condensed hover style={fieldProps.table}>
-                        <DisplayAlertPopupView store={this.props.store} />    
+                        <AlertPopupView store={this.props.store} />    
                         {tableHead}
                         {tableBody}
                     </Table>
