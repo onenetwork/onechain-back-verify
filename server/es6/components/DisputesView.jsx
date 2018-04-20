@@ -192,7 +192,9 @@ const fieldProps = {
     getMinsInHrsAndMins(mins) {
         let hours = Math.floor( mins / 60); 
         let minutes = mins % 60;
-        return hours + "hrs " + minutes + "mins";
+        let hrsAndMins = hours == 0 ? "" : hours + "hrs ";
+        hrsAndMins += minutes + "mins";
+        return hrsAndMins;
     }
 
     renderDisputeStatusCell(dispute) {
@@ -213,9 +215,9 @@ const fieldProps = {
         if(dispute.transaction) {
 			let result = BackChainActions.chkSubmitDisputeWindowVisibleForTnx(dispute.transaction)
             if(result.visible) {
-                disputeStatusTime =  (<span style={{fontSize: '10px', color: '#999999', display: 'inline-block', lineHeight: '10px'}}> 
-                                    {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-result.tnxDurationInMinutes)}
-                                </span>);
+                disputeStatusTime =  (<div style={{fontSize: '10px', color: '#999999', lineHeight: '10px'}}> 
+                                        {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-result.tnxDurationInMinutes)}
+                                      </div>);
             }
         }
         
