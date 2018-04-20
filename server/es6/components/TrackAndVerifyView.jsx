@@ -11,6 +11,7 @@ import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popov
 import MyView from './MyView';
 import EventsPopoverContent from './EventsPopoverContent';
 import DiffView from './DiffView';
+import DisputesView from "./DisputesView";
 import BackChainActions from '../BackChainActions';
 import filesaver from '../FileSaver';
 import Images from '../Images';
@@ -69,6 +70,11 @@ const fieldProps = {
         }
     }
 
+    componentDidMount() {
+        this.props.store.showDisputeDetailsInPopup = this.props.showDisputeDetailsInPopup;
+        this.props.store.showDisputeActions = this.props.showDisputeActions;
+    }
+
     getProgressBarImg() {
         let barImg = Images.VERIFY_IMAGE_PROCESSING;
         if(this.props.store.verificationStatus.endResult == 'verified') {
@@ -96,6 +102,7 @@ const fieldProps = {
             <div>
                 {progressBar}
                 <TransctionsTable store={this.props.store} />
+                <DisputesViewModal store = {this.props.store} />
             </div>
 		);
     }
@@ -180,7 +187,7 @@ const fieldProps = {
                     <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Disputes</th>
                     <th style={fieldProps.columns}>Executing User</th>
                     {this.renderEnterpriseHeaders(variableViewNames)}
-                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>
+                    {this.props.store.showDisputeActions===true ? <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th> : null}
                 </tr>
             </thead>
         );
@@ -264,7 +271,7 @@ const fieldProps = {
                 {this.renderTransactionExecutingUsersCell(transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
-                {this.renderTransactionActionsCell(transaction, idx)}
+                {this.props.store.showDisputeActions === true ? this.renderTransactionActionsCell(transaction, idx) : null}
             </tr>
         );
     }
@@ -339,22 +346,27 @@ const fieldProps = {
         );
     }
 
+    renderListDisputes() {
+        if(this.props.store.showDisputeDetailsInPopup === true) {
+            BackChainActions.loadDisputes();
+            BackChainActions.toggleDisputesModalViewActive();
+		} else {
+            this.setState({redirectToListDisputes : true});
+        }
+    }
+
     renderTransactionDisputesCell(transaction) {
         const disputeCount = transaction.openDisputeCount;
         return (
             <td style={Object.assign({}, fieldProps.columns )}>
                 {disputeCount > 0  ?(
-                    <div style={{ cursor: 'pointer', height: '26px' }}>
-                        <Link to='/listDisputes'>
-                            <div style={{ textAlign: 'center' }}>
-                                <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     
-                                <img
-                                    src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
-                                    style={{ height: '20px', width: '23px', position: 'relative', top: '5px', left: '-8px' }}
-                                />
-                                <div className="dispute-counter">{disputeCount}</div>
-                            </div>
-                        </Link>
+                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden' }} onClick={this.renderListDisputes.bind(this)}>
+                        <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     
+                        <img
+                            src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
+                            style={{ height: '17px', width: '23px', position: 'relative', top: '5px', left: '-8px' }}
+                        />
+                        <span className="dispute-counter">{disputeCount}</span>
                     </div>) :(<div></div>)  
                 }
             </td>    
@@ -614,3 +626,22 @@ const ViewOrDownloadTxn = props => {
         </div>
     );
 }
+
+@observer class DisputesViewModal extends React.Component {
+	render() {
+	  return(
+          <div>
+            <style>
+                {`
+                    .disputes-modal {
+                        width:1135px !important
+                    }
+                `}
+            </style>
+            <Modal dialogClassName = {"disputes-modal"} show={this.props.store.disputesModalViewActive} onHide={BackChainActions.toggleDisputesModalViewActive}>
+                    <DisputesView store = {this.props.store} />
+            </Modal>
+        </div>
+         );
+	}
+  }

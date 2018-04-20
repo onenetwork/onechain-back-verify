@@ -351,6 +351,11 @@ export default class BackChainActions {
     }
 
     @action
+    static toggleDisputesModalViewActive() {
+        store.disputesModalViewActive = !store.disputesModalViewActive;
+    }
+    
+    @action
     static closeAlertPopup() {
         store.displayAlertPopup = false;
     }

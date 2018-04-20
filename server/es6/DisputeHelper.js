@@ -53,7 +53,7 @@ class DisputeHelper {
                             var prms = new Promise(function (resolve, reject) {
                                 transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
                                     if (transaction) {
-                                        if (filters && JSON.parse(filters.transactionRelatedFilter)) {
+                                        if (filters && typeof filters.transactionRelatedFilter !== "undefined" && JSON.parse(filters.transactionRelatedFilter)) {
                                             dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
                                         } else {
                                             dispute.transaction = transaction; //Transaction is in the database.

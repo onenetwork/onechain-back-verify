@@ -130,7 +130,7 @@ const fieldProps = {
                     <th style={fieldProps.columns}>Raised By</th>
                     <th style={fieldProps.columns}>Reason Code</th>
                     <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Participants</th>
-                    <th style={fieldProps.columns}>Actions</th>
+                    {this.props.store.showDisputeActions===true ? <th style={fieldProps.columns}>Actions</th> : null}
                 </tr>
             </thead>
         );
@@ -184,7 +184,7 @@ const fieldProps = {
                 {this.renderDisputeRaisedByCell(dispute)}
                 {this.renderDisputeReasonCell(dispute)}
                 {this.renderDisputeParticipantsCell(dispute, idx)}
-                {this.renderDisputeActionsCell(dispute, idx)}
+                {this.props.store.showDisputeActions===true ? this.renderDisputeActionsCell(dispute, idx) : null}
             </tr>
         );
     }
