@@ -772,6 +772,7 @@ export default class BackChainActions {
                 console.error('error getting dispute count');
             }).then(function (result) {
                 if (result.success) {
+                    store.openDisputeCountOfLoggedUser = result.disputeCount;
                     resolve(result.disputeCount);
                 } else {
                     console.error('error getting dispute count');

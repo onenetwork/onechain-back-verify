@@ -50,6 +50,7 @@ class BackChainStore {
     @observable alertPopupContent = null;
     @observable alertPopupLevel = 'INFO';
     @observable metaMaskAddressOfLoggedUser = null;
+    @observable openDisputeCountOfLoggedUser = 0;
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {

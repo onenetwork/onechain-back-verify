@@ -143,7 +143,7 @@ class DisputeHelper {
     }
 
     isValueNotNull(value) {
-        if (value != null && value != 'null' && value != undefined && value != '' && value != '[]') {
+        if (value != null && value != 'null' && value != undefined && value != '' && value != '[]' && value != 'undefined') {
             return true;
         }
         return false;
@@ -179,7 +179,7 @@ class DisputeHelper {
          * resolve or reject depending on the result
          */
         return new Promise((resolve, reject) => {
-            if (transactionId == null) {
+            if (!this.isValueNotNull(transactionId)) {
                 this.getDraftCount()
                     .then((count) => {
                         resolve(count);
@@ -209,7 +209,7 @@ class DisputeHelper {
          * resolve or reject depending on the result
          */
         return new Promise((resolve, reject) => {
-            if (transactionId == null) {
+            if (!this.isValueNotNull(transactionId)) {
                 dbconnectionManager.getConnection().collection('DraftDisputes').count()
                     .then((count) => {
                         resolve(count);

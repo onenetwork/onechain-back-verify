@@ -41,13 +41,16 @@ import BackChainActions from '../BackChainActions';
         this.selectedCheckboxes.add('Open');
     }
 
-    componentDidMount() {
-        let status = [];
-        let disputeFilter = {
+    componentDidMount() {       
+        let loggedInUser = this.props.store.entNameOfLoggedUser;
+        let maskAddress = this.props.store.metaMaskAddressOfLoggedUser;
+        this.disputeFilters = {
         	status: ["Draft", "Open"],
-        	transactionRelatedFilter: false
+            transactionRelatedFilter: false,
+            raisedBy: loggedInUser,
+            metaMaskAddress: maskAddress
         }
-        BackChainActions.loadDisputes(disputeFilter); //Make sure to pass default filters for the initial fetch. 
+        BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
     }
 
     showHideAdvancedFilters(value) {

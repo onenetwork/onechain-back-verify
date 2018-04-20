@@ -17,6 +17,7 @@ import Images from '../Images';
     BackChainActions.isInitialSyncDone();
     BackChainActions.processApplicationSettings();
     BackChainActions.syncStatisticsInfo();
+    BackChainActions.getOpenDisputeCount();
   }
 
   divClick(callBack) {
@@ -197,7 +198,7 @@ import Images from '../Images';
                             <div className="mouseOver" style={fieldProps.mouseOver} >
                               <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
                               <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '132px', position: 'absolute', top: '210px' }} /> 
-                              <div className="disputes-counter">4</div>
+                              <div className="disputes-counter">{this.props.store.openDisputeCountOfLoggedUser}</div>
                               <div style={{display: 'inline'}}> &nbsp;&nbsp;&nbsp;Disputes</div>
                             </div>
                         </div>
