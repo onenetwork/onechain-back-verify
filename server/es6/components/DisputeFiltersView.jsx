@@ -121,7 +121,8 @@ import BackChainActions from '../BackChainActions';
         this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim();
 
         BackChainActions.loadDisputes(this.disputeFilters);
-        this.clearDisputeFilters();
+        //TODO as per Yusuf's email commenting clear dispute
+        // this.clearDisputeFilters();
         this.showHideAdvancedFilters(false);
     }
 
@@ -199,15 +200,22 @@ import BackChainActions from '../BackChainActions';
 
     constructor(props) {
         super(props);
-        this.state = { 
+        this.state = {
             wrongDataChkBox: false,
             sentToWrongLocationChkBox: false,
             enteredWrongDataChkBox: false,
-            raisedBy : this.props.store.entNameOfLoggedUser
+            raisedBy: null,
+            searchBtId: null,
+            searchDisputeId: null,
+            tnxFromDate: null,
+            tnxToDate: null,
+            disputeSubmitFromDate: null,
+            disputeSubmitToDate: null,
+            disputeCloseFromDate: null,
+            disputeCloseToDate : null
         };
     }
 
-     
     componentWillMount = () => { 
         this.reasonCodeCheckboxes = new Set();
     }
@@ -215,6 +223,48 @@ import BackChainActions from '../BackChainActions';
     componentDidMount = () => {
         this.props.disputeFilters.raisedBy = this.props.store.entNameOfLoggedUser;
         this.props.disputeFilters.metaMaskAddress = this.props.store.metaMaskAddressOfLoggedUser;
+        this.setAllStateValues()
+    }
+
+    setAllStateValues() {
+        let me = this;
+        let localState = {}
+        if (this.props.disputeFilters.reasonCodes) {
+            let reasonCodeArray = this.props.disputeFilters.reasonCodes
+            localState.wrongDataChkBox = reasonCodeArray.indexOf("wrongData") > -1 ? true : false;
+            localState.sentToWrongLocationChkBox = reasonCodeArray.indexOf("sentToWrongLocation") > -1 ? true : false;
+            localState.enteredWrongDataChkBox = reasonCodeArray.indexOf("enteredWrongData") > -1 ? true : false;
+
+            for (var i = 0; i < reasonCodeArray.length; i++) {
+                me.reasonCodeCheckboxes.add(reasonCodeArray[i]);
+            }
+        }
+
+        localState.raisedBy = this.props.store.entNameOfLoggedUser == null ? '' : this.props.store.entNameOfLoggedUser;
+        localState.searchBtId = this.props.disputeFilters.searchBtId == null ? '' : this.props.disputeFilters.searchBtId;
+        localState.searchDisputeId = this.props.disputeFilters.searchDisputeId == null ? '' : this.props.disputeFilters.searchDisputeId;
+        localState.tnxFromDate = this.props.disputeFilters.tnxFromDate == null ? '' : moment(new Date(this.props.disputeFilters.tnxFromDate)).format('MM/DD/YYYY');
+        localState.tnxToDate = this.props.disputeFilters.tnxToDate == null ? '' : moment(new Date(this.props.disputeFilters.tnxToDate)).format('MM/DD/YYYY');
+        localState.disputeSubmitFromDate = this.props.disputeFilters.disputeSubmitFromDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeSubmitFromDate)).format('MM/DD/YYYY');
+        localState.disputeSubmitToDate = this.props.disputeFilters.disputeSubmitToDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeSubmitToDate)).format('MM/DD/YYYY');
+        localState.disputeCloseFromDate = this.props.disputeFilters.disputeCloseFromDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeCloseFromDate)).format('MM/DD/YYYY');
+        localState.disputeCloseToDate = this.props.disputeFilters.disputeCloseToDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeCloseToDate)).format('MM/DD/YYYY');
+        
+
+        this.setState({
+            wrongDataChkBox: localState.wrongDataChkBox,
+            sentToWrongLocationChkBox: localState.sentToWrongLocationChkBox,
+            enteredWrongDataChkBox: localState.enteredWrongDataChkBox,
+            raisedBy: localState.raisedBy,
+            searchBtId: localState.searchBtId,
+            searchDisputeId: localState.searchDisputeId,
+            tnxFromDate: localState.tnxFromDate,
+            tnxToDate: localState.tnxToDate,
+            disputeSubmitFromDate: localState.disputeSubmitFromDate,
+            disputeSubmitToDate: localState.disputeSubmitToDate,
+            disputeCloseFromDate: localState.disputeCloseFromDate,
+            disputeCloseToDate: localState.disputeCloseToDate
+        });
     }
 
     toggleCheckboxChange(event) {
@@ -250,10 +300,12 @@ import BackChainActions from '../BackChainActions';
     }
 
     listenBtKeyPress(event) {
+        this.setState({ searchBtId: event.target.value.trim() });
         this.props.disputeFilters.searchBtId = event.target.value.trim();
     }
 
     listenDisputeKeyPress(event) {
+        this.setState({ searchDisputeId: event.target.value.trim() });
         this.props.disputeFilters.searchDisputeId = event.target.value.trim();
     }
 
@@ -348,15 +400,15 @@ import BackChainActions from '../BackChainActions';
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Businees Transaction ID: </div>
                 &nbsp;&nbsp;
                     <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '26px' }}>
-                    <FormControl type="text" style={fieldProps.textBox} onKeyPress={this.listenBtKeyPress.bind(this)} onChange={this.listenBtKeyPress.bind(this)}/>
+                    <FormControl type="text" value={this.state.searchBtId} style={fieldProps.textBox} onKeyPress={this.listenBtKeyPress.bind(this)} onChange={this.listenBtKeyPress.bind(this)}/>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Transaction Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '73px', fontSize: '12px' }}>
-                            From &nbsp; <Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenTnxFromDate.bind(this)} timeFormat={false} className="date-control"  />&nbsp;&nbsp;
+                        From &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxFromDate} dateFormat="MM/DD/YYYY" onChange={this.listenTnxFromDate.bind(this)} timeFormat={false} className="date-control"  />&nbsp;&nbsp;
                             &nbsp;&nbsp;
-                            To &nbsp; <Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
+                            To &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxToDate}  dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
                         </div>
                 </div>
                 <div>
@@ -376,24 +428,24 @@ import BackChainActions from '../BackChainActions';
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Dispute ID: </div>
                 &nbsp;&nbsp;
                     <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '5px' }}>
-                    <FormControl type="text" style={fieldProps.textBox} onKeyPress={this.listenDisputeKeyPress.bind(this)} onChange={this.listenDisputeKeyPress.bind(this)}/>
+                    <FormControl type="text" value={this.state.searchDisputeId} style={fieldProps.textBox} onKeyPress={this.listenDisputeKeyPress.bind(this)} onChange={this.listenDisputeKeyPress.bind(this)}/>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Dispute Submitted Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '50px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control"  />
+                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitFromDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control"  />
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
+                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitToDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
                     </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Dispute Closed Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '100px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control"  />
+                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseFromDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control"  />
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
+                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseToDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
                     </div>
                 </div>
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Raised By: </div>

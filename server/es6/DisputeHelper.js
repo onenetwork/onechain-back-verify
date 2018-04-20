@@ -37,7 +37,8 @@ class DisputeHelper {
         });
     }
 
-    queryDisputes(query,filters) {
+    queryDisputes(query, filters) {
+        let me = this;
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
                 .sort({ creationDate: -1 })
@@ -143,7 +144,8 @@ class DisputeHelper {
     }
 
     isValueNotNull(value) {
-        if (value != null && value != 'null' && value != undefined && value != '' && value != '[]' && value != 'undefined') {
+        if (value != null && value != 'null' && value != undefined && value != ''
+            && value != '[]' && value != 'undefined' && value != 'NaN') {
             return true;
         }
         return false;
@@ -153,14 +155,14 @@ class DisputeHelper {
         if (this.isValueNotNull(filters.tnxFromDate)) {
             if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.transaction.id == transaction.id) {
+            } else if (dispute.transactionId == transaction.id) {
                 dispute = null;
             }
         }
-        if (this.isValueNotNull(filters.tnxToDate)) {
+        if (dispute != null && this.isValueNotNull(filters.tnxToDate)) {
             if (transaction.date <= JSON.parse(filters.tnxToDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.transaction.id == transaction.id) {
+            } else if (dispute.transactionId == transaction.id) {
                 dispute = null;
             }
         }
