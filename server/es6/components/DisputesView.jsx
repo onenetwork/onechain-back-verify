@@ -290,8 +290,8 @@ const fieldProps = {
         if(dispute.transaction) {
             eventsPopoverClassName = 'events-popover';
             eventBadge = Images.EVENT_BADGE;
-            eventCountString = (<div className={this.getEventCountCSS(dispute.transaction.eventCount)}>
-                                    {this.getEventCountString(dispute.transaction.eventCount)}
+            eventCountString = (<div className={this.getEventCountCSS(dispute.events.length == 0 ? dispute.transaction.eventCount : dispute.events.length)}>
+                                    {this.getEventCountString(dispute.events.length == 0 ? dispute.transaction.eventCount : dispute.events.length)}
                                 </div>);
             eventsPopoverContent = <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} selectedBtIds={dispute.events} />;
             
