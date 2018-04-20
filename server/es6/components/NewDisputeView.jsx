@@ -144,7 +144,7 @@ import moment from 'moment';
 			return;
 		}
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
-			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select reason code."});
+			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select a reason code."});
 			return;
 		} else {
 			me.setDisputeMsg({'type':'reset'});
@@ -174,7 +174,7 @@ import moment from 'moment';
 			return;
 		}
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
-			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select reason code."});
+			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select a reason code."});
 			return;
 		} else {
 			me.setDisputeMsg({'type':'reset'});
@@ -461,7 +461,7 @@ import moment from 'moment';
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
 													<FormControl ref={select => { this.select = select }} componentClass="select" placeholder="select">
-														<option value="select">select</option>
+														<option value="select">Please select a reason code</option>
 														<option value="wrongData">Data is wrong</option>
 														<option value="sentToWrongLocation">Sent to wrong location</option>
 														<option value="enteredWrongData">Entered wrong data</option>
