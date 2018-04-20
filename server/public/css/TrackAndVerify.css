@@ -44,7 +44,7 @@
     top: 26px !important;
 }
 
-.transaction-id-popover .arrow {
+.transaction-id-popover .arrow, .dispute-id-popover .arrow{
     left: 50px !important;
 }
 
