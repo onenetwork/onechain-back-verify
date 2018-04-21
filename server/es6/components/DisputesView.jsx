@@ -10,6 +10,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import Images from '../Images';
 import AlertPopupView from './AlertPopupView';
+import {disputeHelper} from '../DisputeHelper';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
 
@@ -213,7 +214,7 @@ const fieldProps = {
         let disputeStatusTime = null;
 
         if(dispute.transaction) {
-			let result = BackChainActions.chkSubmitDisputeWindowVisibleForTnx(dispute.transaction)
+			let result = disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes);
             if(result.visible) {
                 disputeStatusTime =  (<div style={{fontSize: '10px', color: '#999999', lineHeight: '10px'}}> 
                                         {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-result.tnxDurationInMinutes)}
@@ -416,7 +417,7 @@ const fieldProps = {
             let submitDisputeUI = null;
 
             if(dispute.transaction) {
-                if(BackChainActions.chkSubmitDisputeWindowVisibleForTnx(dispute.transaction).visible) {
+                if(disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction).visible) {
                     submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
                                             <div id={dispute.id + "_submit"} >    
                                                 <div className="dispute-transation-div" style= {{width:'128px'}} >

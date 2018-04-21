@@ -376,6 +376,12 @@ class DisputeHelper {
                 });
         });
     }
+
+    isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes) {
+        let tnxDuration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
+        let tnxDurationInMinutes = Math.ceil(tnxDuration.asMinutes());
+        return {"visible": tnxDurationInMinutes < disputeSubmissionWindowInMinutes, "tnxDurationInMinutes": tnxDurationInMinutes};
+    }
 }
 
 export const disputeHelper = new DisputeHelper();
