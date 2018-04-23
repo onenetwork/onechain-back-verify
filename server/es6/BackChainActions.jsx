@@ -591,7 +591,7 @@ export default class BackChainActions {
         oneBcClient.getOrchestrator()
         .then(function (result) {
             // TODO store.disputeSubmissionWindowInMinutes = oneBcClient.getDisputeSubmmisionWindowInMinutes() and pass this store in saveBlockChainSettings(,,,,)
-            BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.disputeBlockChainContractAddress, me.props.store.metaMaskAddressOfLoggedUser);
+            BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.metaMaskAddressOfLoggedUser);
         })
         .catch(function (error) {
             BackChainActions.displayAlertPopup("BlockChain Communication Failed", "Could not connect to the blockchain, please check your settings and try again.",'ERROR');

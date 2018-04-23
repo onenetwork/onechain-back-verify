@@ -18,7 +18,7 @@ class DisputeOrganizerTaskHelper {
                         let disputeSubmissionWindowInMinutes = result.blockChain.disputeSubmissionWindowInMinutes;
                         let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
                         let durationInMinutes = Math.ceil(duration.asMinutes());
-                        resolve(durationInMinutes < disputeSubmissionWindowInMinutes);
+                        resolve(durationInMinutes > disputeSubmissionWindowInMinutes);
                     } else {
                         resolve(true);
                     }

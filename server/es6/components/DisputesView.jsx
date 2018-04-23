@@ -100,6 +100,82 @@ const fieldProps = {
     }
 
     submitDispute(dispute) {
+		//Ask for metamask installation
+		if(typeof web3 === 'undefined' || typeof web3.currentProvider === 'undefined' || web3.currentProvider.isMetaMask !== true) {
+			BackChainActions.displayAlertPopup("Missing MetaTask Extension", 
+			["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>, 
+			" in order to use Submit or Close Disputes. Please install the extension first and try again."],'ERROR');
+			return;
+		} else {
+			let web3js = new Web3(web3.currentProvider);
+			//To check if user logged in. We can check our specific account type or just existence of any account.
+            const me = this;
+            web3js.eth.getAccounts(function(err, accounts){
+				if (err != null) {
+					console.error("There's an issue getting metamask account: "+err);
+				} else if(accounts.length == 0)  {
+                    BackChainActions.displayAlertPopup("MetaTask is Locked", 
+                    ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"],'ERROR');
+				} else {
+                    web3js.eth.defaultAccount = accounts[0];
+                    /**
+                     * TODO
+                     * - Send this account number to PLT so it can be added to the mapping. Also put it in store. Find a better name for the variable.
+                     * - Change abi definition once PLT finalizes the contract
+                     * - Change contractAddress to dispute back chain address once the contract is ready
+                     * - Add proper warning messages like "Submission failed. Make sure you're connected to the right node"
+                     *     "Please change the account in metamask to your own account"
+                     * - We may add a time out value for waitForReceipt in case it never returns.
+                     */
+					var abi = [{"type":"function","payable":false,"outputs":[{"type":"uint256","name":""}],"name":"hashCount","inputs":[],"constant":true},{"type":"function","payable":false,"outputs":[{"type":"bytes32","name":""}],"name":"getHash","inputs":[{"type":"uint256","name":"index"}],"constant":true},{"type":"function","payable":false,"outputs":[{"type":"bool","name":""}],"name":"verify","inputs":[{"type":"bytes32","name":"hash"}],"constant":true},{"type":"function","payable":false,"outputs":[],"name":"post","inputs":[{"type":"bytes32","name":"hash"}],"constant":false},{"type":"function","payable":false,"outputs":[{"type":"address","name":""}],"name":"orchestrator","inputs":[],"constant":true},{"type":"function","payable":false,"outputs":[{"type":"bool","name":""}],"name":"hashMapping","inputs":[{"type":"bytes32","name":""}],"constant":true},{"type":"constructor","payable":false,"inputs":[]}];
+					var contract = web3js.eth.contract(abi).at(me.props.store.blockChainContractAddress); 
+
+					function waitForReceipt(hash, cb) {
+						web3js.eth.getTransactionReceipt(hash, function (err, receipt) {
+						  if (err) {
+							//TODO find a proper action. If there are well known error, we may  display an error popup and let the user now.
+						  } else if (receipt) {
+							// Transaction went through
+							if (cb) {
+							  cb(receipt);
+							}
+						  } else {
+							// Try again in 1 second
+							window.setTimeout(function () {
+							  waitForReceipt(hash, cb);
+							}, 1000);
+						  }
+						});
+					}
+					contract.post.sendTransaction("0xc37775887f3fac95868cbfcee3e1222545daa8afb5f5715ed4a1351cc5f0a275", {
+						"from": web3js.eth.defaultAccount,
+						"gas": 300000
+						}, function (err, hash) {
+                        
+                        if (err) {
+                            if(err.indexOf('User denied transaction signature') > -1) {
+                                BackChainActions.displayAlertPopup("MetaTask Transaction was Denied", 
+                                ["You have to approve the transaction in metamask in order to submit the Dispute. Please submit again and approve the transaction."],'ERROR');
+                            } else {
+                                BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                                ["Dispute Submission failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
+                            }
+						} else {
+                            waitForReceipt(hash, function (receipt) {
+                                if(receipt && receipt.status == 1) {
+                                    //TODO Make sure to update the list
+                                    BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "INFO");
+                                } else {
+                                    BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                                    "Dispute submission failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
+                                }
+                            });
+                        }						
+					});
+				}
+			});
+		}
+        /*
         dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
         BackChainActions.submitDispute(dispute)
         .then(function(result){
@@ -112,6 +188,7 @@ const fieldProps = {
         .catch(function (err) {
             console.error(err);
         });
+        */
     }
 
 
@@ -417,7 +494,7 @@ const fieldProps = {
             let submitDisputeUI = null;
 
             if(dispute.transaction) {
-                if(disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction).visible) {
+                if(disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes).visible) {
                     submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
                                             <div id={dispute.id + "_submit"} >    
                                                 <div className="dispute-transation-div" style= {{width:'128px'}} >
