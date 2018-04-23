@@ -5,13 +5,48 @@ import '../../public/css/disputeFiltersView.css';
 import Datetime from 'react-datetime';
 import moment from 'moment';
 import BackChainActions from '../BackChainActions';
+import { disputeHelper } from '../DisputeHelper';
 
+const fieldProps = {
+    filterDiv: {
+        borderWidth: '0px',
+        width: '142px',
+        height: '20px',
+        background: 'inherit',
+        backgroundColor: 'rgba(242, 242, 242, 1)',
+        border: 'none',
+        borderRadius: '10px',
+        boxShadow: 'none',
+        fontSize: '12px',
+        textAlign: 'left',
+        display: 'inline',
+        paddingLeft: '6px',
+        paddingRight: '6px'
+    },
+    closeDiv: {
+        borderWidth: '0px',
+        width: '11px',
+        height: '13px',
+        background: 'inherit',
+        backgroundColor: 'rgba(242, 242, 242, 1)',
+        border: 'none',
+        borderRadius: '0px',
+        boxShadow: 'none',
+        fontWeight: '400',
+        fontStyle: 'normal',
+        fontSize: '11px',
+        color: '#A1A1A1',
+        textAlign: 'left',
+        display: 'inline'
+    }
+};
 @observer export default class DisputeFiltersView extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             showFilterTable: false,
+            displayFilters:false,
             draftChkBox: true,
             openChkBox: true,
             closedChkBox: false
@@ -118,12 +153,18 @@ import BackChainActions from '../BackChainActions';
             }
             this.disputeFilters.status = status;
         }
-        this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim();
-
+        if (this.refs && this.refs.transactionId) {
+            this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim();
+        }
+        this.setState({ displayFilters: true }); 
         BackChainActions.loadDisputes(this.disputeFilters);
         //TODO as per Yusuf's email commenting clear dispute
         // this.clearDisputeFilters();
         this.showHideAdvancedFilters(false);
+    }
+
+    resetFilters() {
+        this.setState({ displayFilters: false });
     }
 
     render() {
@@ -142,6 +183,19 @@ import BackChainActions from '../BackChainActions';
                 textAlign: 'center',
                 lineHeight: '0px',
                 float:'right'
+            },
+            resetButton: {
+                width: '80px',
+                height: '26px',
+                boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+                textAlign: 'center',
+                lineHeight: '0px',
+                padding: '7px 23px',
+                borderColor: 'rgb(0, 120, 215)',
+                color: 'rgb(0, 120, 215)',
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+                position: 'absolute',
+                right: '143px'
             }
         };
 
@@ -172,6 +226,7 @@ import BackChainActions from '../BackChainActions';
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <FormControl type="checkbox" checked={this.state.closedChkBox} value="Closed" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Closed
                
+                <Button style={fieldProps.resetButton} className="btn btn-primary resetButton" onClick={this.resetFilters.bind(this)}>Reset</Button>   
                 <Button style={fieldProps.applyButton} className="btn btn-primary" onClick={this.applyFilters.bind(this)}>Apply</Button> 
             </div>
         );
@@ -184,14 +239,17 @@ import BackChainActions from '../BackChainActions';
         );
 
         return (
-            <div className="filter-div">
-                {filterUI}
-                {this.state.showFilterTable ? <FilterTable disputeFilters={this.disputeFilters} store={this.props.store}/> : ''}
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                {searchBox}
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                {checkBox}
-            </div>
+            <div>
+                {this.state.displayFilters ? <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} />: ''} 
+                <div className="filter-div">
+                    {filterUI}
+                    {this.state.showFilterTable ? <FilterTable disputeFilters={this.disputeFilters} store={this.props.store}/> : ''}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    {searchBox}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    {checkBox}
+                </div>
+            </div>    
         );
     }
 }
@@ -221,7 +279,7 @@ import BackChainActions from '../BackChainActions';
     }
 
     componentDidMount = () => {
-        this.props.disputeFilters.raisedBy = this.props.store.entNameOfLoggedUser;
+        this.props.disputeFilters.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy : this.props.store.entNameOfLoggedUser;;
         this.props.disputeFilters.metaMaskAddress = this.props.store.metaMaskAddressOfLoggedUser;
         this.setAllStateValues()
     }
@@ -240,9 +298,10 @@ import BackChainActions from '../BackChainActions';
             }
         }
 
-        localState.raisedBy = this.props.store.entNameOfLoggedUser == null ? '' : this.props.store.entNameOfLoggedUser;
-        localState.searchBtId = this.props.disputeFilters.searchBtId == null ? '' : this.props.disputeFilters.searchBtId;
-        localState.searchDisputeId = this.props.disputeFilters.searchDisputeId == null ? '' : this.props.disputeFilters.searchDisputeId;
+        // added to localState, if we want to set value depends on some condition
+        localState.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy:this.props.store.entNameOfLoggedUser;
+        localState.searchBtId = this.props.disputeFilters.searchBtId;
+        localState.searchDisputeId = this.props.disputeFilters.searchDisputeId;
         localState.tnxFromDate = this.props.disputeFilters.tnxFromDate == null ? '' : moment(new Date(this.props.disputeFilters.tnxFromDate)).format('MM/DD/YYYY');
         localState.tnxToDate = this.props.disputeFilters.tnxToDate == null ? '' : moment(new Date(this.props.disputeFilters.tnxToDate)).format('MM/DD/YYYY');
         localState.disputeSubmitFromDate = this.props.disputeFilters.disputeSubmitFromDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeSubmitFromDate)).format('MM/DD/YYYY');
@@ -400,24 +459,24 @@ import BackChainActions from '../BackChainActions';
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Businees Transaction ID: </div>
                 &nbsp;&nbsp;
                     <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '26px' }}>
-                    <FormControl type="text" value={this.state.searchBtId} style={fieldProps.textBox} onKeyPress={this.listenBtKeyPress.bind(this)} onChange={this.listenBtKeyPress.bind(this)}/>
+                    <FormControl type="text" value={this.state.searchBtId || ''} style={fieldProps.textBox} onKeyPress={this.listenBtKeyPress.bind(this)} onChange={this.listenBtKeyPress.bind(this)}/>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Transaction Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '73px', fontSize: '12px' }}>
-                        From &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxFromDate} dateFormat="MM/DD/YYYY" onChange={this.listenTnxFromDate.bind(this)} timeFormat={false} className="date-control"  />&nbsp;&nbsp;
+                        From &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxFromDate || ''} dateFormat="MM/DD/YYYY" onChange={this.listenTnxFromDate.bind(this)} timeFormat={false} className="date-control"  />&nbsp;&nbsp;
                             &nbsp;&nbsp;
-                            To &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxToDate}  dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
+                            To &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxToDate || ''}  dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
                         </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Reason Code: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '126px', fontSize: '12px' }}>
-                        <FormControl type="checkbox" checked={this.state.wrongDataChkBox} value="wrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Data is wrong <br />
-                        <FormControl type="checkbox" checked={this.state.sentToWrongLocationChkBox} value="sentToWrongLocation" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Sent to wrong location <br />
-                        <FormControl type="checkbox" checked={this.state.enteredWrongDataChkBox} value="enteredWrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Entered wrong data 
+                        <FormControl type="checkbox" checked={this.state.wrongDataChkBox || false} value="wrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Data is wrong <br />
+                        <FormControl type="checkbox" checked={this.state.sentToWrongLocationChkBox || false} value="sentToWrongLocation" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Sent to wrong location <br />
+                        <FormControl type="checkbox" checked={this.state.enteredWrongDataChkBox || false} value="enteredWrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Entered wrong data 
                         </div>
                 </div>
             </div>
@@ -428,30 +487,30 @@ import BackChainActions from '../BackChainActions';
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Dispute ID: </div>
                 &nbsp;&nbsp;
                     <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '5px' }}>
-                    <FormControl type="text" value={this.state.searchDisputeId} style={fieldProps.textBox} onKeyPress={this.listenDisputeKeyPress.bind(this)} onChange={this.listenDisputeKeyPress.bind(this)}/>
+                    <FormControl type="text" value={this.state.searchDisputeId || ''}  style={fieldProps.textBox} onKeyPress={this.listenDisputeKeyPress.bind(this)} onChange={this.listenDisputeKeyPress.bind(this)}/>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Dispute Submitted Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '50px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitFromDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control"  />
+                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control"  />
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitToDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
+                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitToDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
                     </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Dispute Closed Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '100px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseFromDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control"  />
+                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control"  />
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseToDate} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
+                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseToDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
                     </div>
                 </div>
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Raised By: </div>
                 &nbsp;&nbsp;
                     <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '145px' }}>
-                    <FormControl type="text" value={this.state.raisedBy} style={fieldProps.textBox} onKeyPress={this.listenRaisedByKeyPress.bind(this)} onChange={this.listenRaisedByKeyPress.bind(this)} />
+                    <FormControl type="text" value={this.state.raisedBy || ''} style={fieldProps.textBox} onKeyPress={this.listenRaisedByKeyPress.bind(this)} onChange={this.listenRaisedByKeyPress.bind(this)} />
                 </div>
             </div>
         );
@@ -462,5 +521,77 @@ import BackChainActions from '../BackChainActions';
                 {filterRightMenus}
             </div>
         );
+    }
+}
+
+@observer class DisplayFilters extends React.Component { 
+    constructor(props) { 
+        super(props);
+        this.map = {
+            searchBtId: "Bus Trans",
+            tnxFromDate: "Trans Date",
+            reasonCodes: "Reason",
+            searchDisputeId: "Dispute ID",
+            disputeSubmitFromDate: "Submit Date",
+            disputeCloseFromDate: "Close Date",
+            raisedBy: "Raised By"
+        };
+    }
+
+    closeFilter(filterValue) {
+        this.props.disputeFilters[filterValue] = null;
+        this.props.applyFilters();
+    }
+   
+    render() {
+        return (
+            <div style={{paddingBottom:'5px'}}>
+                {this.renderFilterDivs(this.props.disputeFilters)}
+            </div>
+        );
+    }
+
+    renderFilterDivs(disputeFilters) {        
+        let filters = [];
+        for (var filterName in disputeFilters) { 
+            if (disputeHelper.isValueNotNull(disputeFilters[filterName])
+                && this.map.hasOwnProperty(filterName)) {
+                filters.push(this.createFilterDivs(this.map[filterName], disputeFilters, filterName));
+            }
+        }
+        return filters;
+    }
+
+    createFilterDivs(name, disputeFilters, filterName) {
+        if (filterName == "tnxFromDate" || filterName =="tnxToDate") {
+            return (
+                <div key={filterName} style={{ display: 'inline' }}>
+                    <div style={fieldProps.filterDiv} >{name}:{moment(new Date(disputeFilters['tnxFromDate'])).format('MM/DD/YYYY')}&nbsp;-&nbsp;{moment(new Date(disputeFilters['tnxToDate'])).format('MM/DD/YYYY')}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                    &nbsp;&nbsp;
+             </div>
+            );
+        } else if (filterName == "disputeSubmitFromDate" || filterName == "disputeSubmitToDate") {
+            return (
+                <div key={filterName} style={{ display: 'inline' }}>
+                    <div style={fieldProps.filterDiv} >{name}:{moment(new Date(disputeFilters['disputeSubmitFromDate'])).format('MM/DD/YYYY')}&nbsp;-&nbsp;{moment(new Date(disputeFilters['disputeSubmitToDate'])).format('MM/DD/YYYY')} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                    &nbsp;&nbsp;
+             </div>
+            );
+        } else if (filterName == "disputeCloseFromDate" || filterName == "disputeCloseToDate") {
+            return (
+                <div key={filterName} style={{ display: 'inline' }}>
+                    <div style={fieldProps.filterDiv} >{name}:{moment(new Date(disputeFilters['disputeCloseFromDate'])).format('MM/DD/YYYY')}&nbsp;-&nbsp;{moment(new Date(disputeFilters['disputeCloseToDate'])).format('MM/DD/YYYY')} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                    &nbsp;&nbsp;
+             </div>
+            );
+        }
+        else {
+            return (
+                <div key={filterName} style={{ display: 'inline' }}>
+                    <div style={fieldProps.filterDiv} >{name}:{disputeFilters[filterName]}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                    &nbsp;&nbsp;
+             </div>
+            );
+        }
     }
 }
