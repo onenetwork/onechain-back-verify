@@ -26,6 +26,7 @@ const fieldProps = {
     },
     columns: {
         padding: '10px',
+        paddingTop :'13px',
         fontSize: '12px',
         lineHeight: rowLineHeight,
         height: rowLineHeight

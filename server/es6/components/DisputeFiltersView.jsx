@@ -10,8 +10,6 @@ import { disputeHelper } from '../DisputeHelper';
 const fieldProps = {
     filterDiv: {
         borderWidth: '0px',
-        width: '142px',
-        height: '20px',
         background: 'inherit',
         backgroundColor: 'rgba(242, 242, 242, 1)',
         border: 'none',
@@ -44,6 +42,7 @@ const fieldProps = {
 
     constructor(props) {
         super(props);
+        this.filterApplied = false;
         this.state = {
             showFilterTable: false,
             displayFilters:false,
@@ -146,6 +145,7 @@ const fieldProps = {
 
     applyFilters() {
         let me = this;
+        this.filterApplied = true;
         if (!this.disputeFilters.status) {
             let status = [];
             for (let checkBoxValue of this.selectedCheckboxes.values()) {
@@ -156,7 +156,7 @@ const fieldProps = {
         if (this.refs && this.refs.transactionId) {
             this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim();
         }
-        this.setState({ displayFilters: true }); 
+        // this.setState({ displayFilters: true }); 
         BackChainActions.loadDisputes(this.disputeFilters);
         //TODO as per Yusuf's email commenting clear dispute
         // this.clearDisputeFilters();
@@ -240,7 +240,8 @@ const fieldProps = {
 
         return (
             <div>
-                {this.state.displayFilters ? <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} />: ''} 
+                {/* {this.state.displayFilters ? <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} />: ''}  */}
+                <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} filterApplied={this.filterApplied}/>
                 <div className="filter-div">
                     {filterUI}
                     {this.state.showFilterTable ? <FilterTable disputeFilters={this.disputeFilters} store={this.props.store}/> : ''}
@@ -293,7 +294,7 @@ const fieldProps = {
             localState.sentToWrongLocationChkBox = reasonCodeArray.indexOf("sentToWrongLocation") > -1 ? true : false;
             localState.enteredWrongDataChkBox = reasonCodeArray.indexOf("enteredWrongData") > -1 ? true : false;
 
-            for (var i = 0; i < reasonCodeArray.length; i++) {
+            for (let i = 0; i < reasonCodeArray.length; i++) {
                 me.reasonCodeCheckboxes.add(reasonCodeArray[i]);
             }
         }
@@ -302,12 +303,12 @@ const fieldProps = {
         localState.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy:this.props.store.entNameOfLoggedUser;
         localState.searchBtId = this.props.disputeFilters.searchBtId;
         localState.searchDisputeId = this.props.disputeFilters.searchDisputeId;
-        localState.tnxFromDate = this.props.disputeFilters.tnxFromDate == null ? '' : moment(new Date(this.props.disputeFilters.tnxFromDate)).format('MM/DD/YYYY');
-        localState.tnxToDate = this.props.disputeFilters.tnxToDate == null ? '' : moment(new Date(this.props.disputeFilters.tnxToDate)).format('MM/DD/YYYY');
-        localState.disputeSubmitFromDate = this.props.disputeFilters.disputeSubmitFromDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeSubmitFromDate)).format('MM/DD/YYYY');
-        localState.disputeSubmitToDate = this.props.disputeFilters.disputeSubmitToDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeSubmitToDate)).format('MM/DD/YYYY');
-        localState.disputeCloseFromDate = this.props.disputeFilters.disputeCloseFromDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeCloseFromDate)).format('MM/DD/YYYY');
-        localState.disputeCloseToDate = this.props.disputeFilters.disputeCloseToDate == null ? '' : moment(new Date(this.props.disputeFilters.disputeCloseToDate)).format('MM/DD/YYYY');
+        localState.tnxFromDate = this.props.disputeFilters.tnxFromDate ? moment(new Date(this.props.disputeFilters.tnxFromDate)).format('MM/DD/YYYY'): '' ;
+        localState.tnxToDate = this.props.disputeFilters.tnxToDate ? moment(new Date(this.props.disputeFilters.tnxToDate)).format('MM/DD/YYYY') :'';
+        localState.disputeSubmitFromDate = this.props.disputeFilters.disputeSubmitFromDate ? moment(new Date(this.props.disputeFilters.disputeSubmitFromDate)).format('MM/DD/YYYY') : '';
+        localState.disputeSubmitToDate = this.props.disputeFilters.disputeSubmitToDate ? moment(new Date(this.props.disputeFilters.disputeSubmitToDate)).format('MM/DD/YYYY') : '';
+        localState.disputeCloseFromDate = this.props.disputeFilters.disputeCloseFromDate ? moment(new Date(this.props.disputeFilters.disputeCloseFromDate)).format('MM/DD/YYYY') : '';
+        localState.disputeCloseToDate = this.props.disputeFilters.disputeCloseToDate ? moment(new Date(this.props.disputeFilters.disputeCloseToDate)).format('MM/DD/YYYY') : '';
         
 
         this.setState({
@@ -527,33 +528,59 @@ const fieldProps = {
 @observer class DisplayFilters extends React.Component { 
     constructor(props) { 
         super(props);
+        this.displayTransactionDate = true;
+        this.displaySubmittedDate = true;
+        this.displayCloseDate = true;
         this.map = {
             searchBtId: "Bus Trans",
             tnxFromDate: "Trans Date",
+            tnxToDate: "Trans Date",
             reasonCodes: "Reason",
             searchDisputeId: "Dispute ID",
             disputeSubmitFromDate: "Submit Date",
+            disputeSubmitToDate: "Submit Date",
             disputeCloseFromDate: "Close Date",
-            raisedBy: "Raised By"
+            disputeCloseToDate: "Close Date",
+            raisedBy: "Raised By",
+            wrongData: "Data is wrong",
+            sentToWrongLocation : "Sent to wrong location",
+            enteredWrongData:"Entered wrong data"
         };
     }
 
-    closeFilter(filterValue) {
-        this.props.disputeFilters[filterValue] = null;
-        this.props.applyFilters();
+    componentDidUpdate = () => {
+        this.displayTransactionDate = true;
+        this.displaySubmittedDate = true;
+        this.displayCloseDate = true;
     }
-   
-    render() {
-        return (
-            <div style={{paddingBottom:'5px'}}>
-                {this.renderFilterDivs(this.props.disputeFilters)}
-            </div>
-        );
+
+    closeFilter(filterValue, reasonCode) {
+        if (filterValue == "reasonCodes") {
+            for (let i = 0; i < this.props.disputeFilters["reasonCodes"].length; i++) { 
+                if (reasonCode == this.props.disputeFilters["reasonCodes"][i]) {
+                    this.props.disputeFilters["reasonCodes"][i] = null;
+                    break;
+                }
+            }     
+        } else if (filterValue == "tnxFromDate" || filterValue == "tnxToDate") {
+            this.props.disputeFilters.tnxFromDate = null;
+            this.props.disputeFilters.tnxToDate = null;
+        } else if (filterValue == "disputeSubmitFromDate" || filterValue == "disputeSubmitToDate") {
+            this.props.disputeFilters.disputeSubmitFromDate = null;
+            this.props.disputeFilters.disputeSubmitToDate = null;
+        } else if (filterValue == "disputeCloseFromDate" || filterValue == "disputeCloseToDate") {
+            this.props.disputeFilters.disputeCloseFromDate = null;
+            this.props.disputeFilters.disputeCloseToDate = null;
+        } else {
+            this.props.disputeFilters[filterValue] = null;
+            
+        }
+        this.props.applyFilters();
     }
 
     renderFilterDivs(disputeFilters) {        
         let filters = [];
-        for (var filterName in disputeFilters) { 
+        for (let filterName in disputeFilters) { 
             if (disputeHelper.isValueNotNull(disputeFilters[filterName])
                 && this.map.hasOwnProperty(filterName)) {
                 filters.push(this.createFilterDivs(this.map[filterName], disputeFilters, filterName));
@@ -563,35 +590,83 @@ const fieldProps = {
     }
 
     createFilterDivs(name, disputeFilters, filterName) {
-        if (filterName == "tnxFromDate" || filterName =="tnxToDate") {
-            return (
-                <div key={filterName} style={{ display: 'inline' }}>
-                    <div style={fieldProps.filterDiv} >{name}:{moment(new Date(disputeFilters['tnxFromDate'])).format('MM/DD/YYYY')}&nbsp;-&nbsp;{moment(new Date(disputeFilters['tnxToDate'])).format('MM/DD/YYYY')}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
-                    &nbsp;&nbsp;
-             </div>
-            );
-        } else if (filterName == "disputeSubmitFromDate" || filterName == "disputeSubmitToDate") {
-            return (
-                <div key={filterName} style={{ display: 'inline' }}>
-                    <div style={fieldProps.filterDiv} >{name}:{moment(new Date(disputeFilters['disputeSubmitFromDate'])).format('MM/DD/YYYY')}&nbsp;-&nbsp;{moment(new Date(disputeFilters['disputeSubmitToDate'])).format('MM/DD/YYYY')} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
-                    &nbsp;&nbsp;
-             </div>
-            );
-        } else if (filterName == "disputeCloseFromDate" || filterName == "disputeCloseToDate") {
-            return (
-                <div key={filterName} style={{ display: 'inline' }}>
-                    <div style={fieldProps.filterDiv} >{name}:{moment(new Date(disputeFilters['disputeCloseFromDate'])).format('MM/DD/YYYY')}&nbsp;-&nbsp;{moment(new Date(disputeFilters['disputeCloseToDate'])).format('MM/DD/YYYY')} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
-                    &nbsp;&nbsp;
-             </div>
-            );
+
+        switch (filterName) { 
+            case "tnxFromDate":
+            case "tnxToDate":
+                if (this.displayTransactionDate && disputeFilters[filterName]) {
+                    this.displayTransactionDate = false;
+                    return this.dateDiv(name, disputeFilters, "tnxFromDate", "tnxToDate", filterName);
+                }
+                break;
+            case "disputeSubmitFromDate":
+            case "disputeSubmitToDate":
+                if (this.displaySubmittedDate && disputeFilters[filterName]) {
+                    this.displaySubmittedDate = false;
+                    return this.dateDiv(name, disputeFilters, "disputeSubmitFromDate", "disputeSubmitToDate", filterName);
+                }    
+                break;
+            case "disputeCloseFromDate":
+            case "disputeCloseToDate":
+                if (this.displayCloseDate && disputeFilters[filterName]) {
+                    this.displayCloseDate = false;
+                    return this.dateDiv(name, disputeFilters, "disputeCloseFromDate", "disputeCloseToDate", filterName); 
+                }
+                break;
+            case "reasonCodes" :
+                return this.reasonDiv(name, disputeFilters, filterName);
+                break;
+            default:
+                return this.defaultDiv(name, disputeFilters, filterName);
+                break; 
         }
-        else {
-            return (
-                <div key={filterName} style={{ display: 'inline' }}>
-                    <div style={fieldProps.filterDiv} >{name}:{disputeFilters[filterName]}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+    }
+
+    reasonDiv(name, disputeFilters, filterName) {
+        let reasons = [];
+            for (let i = 0; i < disputeFilters[filterName].length; i++) {
+                if (disputeFilters[filterName][i]) {
+                    reasons.push(this.reasonCodesDiv(name, disputeFilters[filterName][i], filterName,i));
+                }
+            }    
+            return reasons;
+    }
+
+    reasonCodesDiv(name, value, filterName, count) {
+        return (<div key={name + count} style={{ display: 'inline-block' } }>
+            <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.map[value]} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName, value)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                     &nbsp;&nbsp;
+            </div>
+        );
+    }
+
+    getDateDisplayValue(disputeFilters,filterName) {
+       return disputeFilters[filterName] ? moment(new Date(disputeFilters[filterName])).format('MM/DD/YYYY') : '';
+    }
+
+    dateDiv(name, disputeFilters, fromDateFilterName, toDateFilterName, filterName) {
+        return (
+            <div key={name + filterName + disputeFilters} style={{ display: 'inline-block' }}>
+                <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.getDateDisplayValue(disputeFilters, fromDateFilterName)}&nbsp;-&nbsp;{this.getDateDisplayValue(disputeFilters, toDateFilterName)}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                     &nbsp;&nbsp;
-             </div>
+                </div>
             );
-        }
+    }
+
+    defaultDiv(name,disputeFilters,filterName ) {
+        return (
+            <div key={filterName + disputeFilters} style={{ display: 'inline-block'}}>
+                    <div style={fieldProps.filterDiv} >{name}:&nbsp; {disputeFilters[filterName]}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                    &nbsp;&nbsp;
+                </div>
+            );
+    }
+
+    render() {
+        return (
+            <div style={{ paddingBottom: '5px' }}>
+                {this.props.filterApplied ? this.renderFilterDivs(this.props.disputeFilters) : ''}
+            </div>
+        );
     }
 }
