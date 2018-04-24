@@ -51,9 +51,6 @@ class BackChainStore {
     @observable alertPopupLevel = 'INFO';
     @observable metaMaskAddressOfLoggedUser = null;
     @observable openDisputeCountOfLoggedUser = 0;
-    @observable showDisputeDetailsInPopup = false;
-    @observable showDisputeActions = true;
-    @observable disputesModalViewActive = false;
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {

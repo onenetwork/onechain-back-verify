@@ -217,7 +217,7 @@ const fieldProps = {
                     <th style={fieldProps.columns}>Raised By</th>
                     <th style={fieldProps.columns}>Reason Code</th>
                     <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Participants</th>
-                    {this.props.store.showDisputeActions===true ? <th style={fieldProps.columns}>Actions</th> : null}
+                    {this.props.showDisputeActions===false ? null : <th style={fieldProps.columns}>Actions</th>}
                 </tr>
             </thead>
         );
@@ -271,7 +271,7 @@ const fieldProps = {
                 {this.renderDisputeRaisedByCell(dispute)}
                 {this.renderDisputeReasonCell(dispute)}
                 {this.renderDisputeParticipantsCell(dispute, idx)}
-                {this.props.store.showDisputeActions===true ? this.renderDisputeActionsCell(dispute, idx) : null}
+                {this.props.showDisputeActions===false ? null : this.renderDisputeActionsCell(dispute, idx)}
             </tr>
         );
     }

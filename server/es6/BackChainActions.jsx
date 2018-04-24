@@ -349,11 +349,6 @@ export default class BackChainActions {
     static toggleNewDisputeModalView() {
         store.newDisputeModalActive = !store.newDisputeModalActive;
     }
-
-    @action
-    static toggleDisputesModalViewActive() {
-        store.disputesModalViewActive = !store.disputesModalViewActive;
-    }
     
     @action
     static closeAlertPopup() {
