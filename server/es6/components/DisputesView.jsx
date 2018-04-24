@@ -146,32 +146,41 @@ const fieldProps = {
 							}, 1000);
 						  }
 						});
-					}
-					contract.post.sendTransaction("0xc37775887f3fac95868cbfcee3e1222545daa8afb5f5715ed4a1351cc5f0a275", {
-						"from": web3js.eth.defaultAccount,
-						"gas": 300000
-						}, function (err, hash) {
-                        
-                        if (err) {
-                            if(err.indexOf('User denied transaction signature') > -1) {
-                                BackChainActions.displayAlertPopup("MetaTask Transaction was Denied", 
-                                ["You have to approve the transaction in metamask in order to submit the Dispute. Please submit again and approve the transaction."],'ERROR');
-                            } else {
-                                BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                    }
+                    let gasEstimate = contract.post.estimateGas("0xc37775887f3fac95868cbfcee3e1222545daa8afb5f5715ed4a1351cc5f0a275",{
+                        from: web3js.eth.defaultAccount
+                    }, function(err, gasEstimate) {
+                        if(err) {
+                            BackChainActions.displayAlertPopup("Dispute Submission Failed", 
                                 ["Dispute Submission failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
-                            }
-						} else {
-                            waitForReceipt(hash, function (receipt) {
-                                if(receipt && receipt.status == 1) {
-                                    //TODO Make sure to update the list
-                                    BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "INFO");
+                        } else {
+                            contract.post.sendTransaction("0xc37775887f3fac95868cbfcee3e1222545daa8afb5f5715ed4a1351cc5f0a275", {
+                                "from": web3js.eth.defaultAccount,
+                                "gas": gasEstimate
+                                }, function (err, hash) {
+                                
+                                if (err) {
+                                    if(err.indexOf('User denied transaction signature') > -1) {
+                                        BackChainActions.displayAlertPopup("MetaTask Transaction was Denied", 
+                                        ["You have to approve the transaction in metamask in order to submit the Dispute. Please submit again and approve the transaction."],'ERROR');
+                                    } else {
+                                        BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                                        ["Dispute Submission failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
+                                    }
                                 } else {
-                                    BackChainActions.displayAlertPopup("Dispute Submission Failed", 
-                                    "Dispute submission failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
-                                }
+                                    waitForReceipt(hash, function (receipt) {
+                                        if(receipt && receipt.status == 1) {
+                                            //TODO Make sure to update the list
+                                            BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "INFO");
+                                        } else {
+                                            BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                                            "Dispute submission failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
+                                        }
+                                    });
+                                }						
                             });
-                        }						
-					});
+                        }                        
+                    });					
 				}
 			});
 		}
