@@ -881,13 +881,24 @@ export default class BackChainActions {
     }
 
     @action
-    static submitDispute(dispute) {
+    static submitDispute(dispute, disputeSubmissionWindowInMinutes) {
         return new Promise(resolve => {
             //First submits dispute to blockchain.
             //If the call is successful, it removes the draft from database.
             //Once both operations are complete, go ahead and update the list of disputes
-            let uri = '/submitDispute/' + JSON.stringify(dispute);
-            return fetch(uri, { method: 'POST' })
+            let params = {
+                'dispute': dispute,
+                'disputeSubmissionWindowInMinutes': disputeSubmissionWindowInMinutes
+            };
+            fetch('/submitDispute', {
+                method: 'post',
+                headers: new Headers({
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }),
+                body: requestHelper.jsonToUrlParams(params)
+            })
             .then(function(response) {
                 return response.json();
             }, function(error) {
@@ -931,12 +942,5 @@ export default class BackChainActions {
                 store.generatedDisputeId = response.generatedDisputeId;
             }
         });
-    }
-
-    @action
-    static chkSubmitDisputeWindowVisibleForTnx(transaction) {
-        let tnxDuration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
-        let tnxDurationInMinutes = Math.ceil(tnxDuration.asMinutes());
-        return {"visible": tnxDurationInMinutes < store.disputeSubmissionWindowInMinutes, "tnxDurationInMinutes": tnxDurationInMinutes};
     }
 }

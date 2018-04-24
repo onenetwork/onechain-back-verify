@@ -16,6 +16,8 @@ import BackChainActions from '../BackChainActions';
 import filesaver from '../FileSaver';
 import Images from '../Images';
 
+import {disputeHelper} from '../DisputeHelper';
+
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
 
 const rowLineHeight = '26px';
@@ -480,7 +482,7 @@ const fieldProps = {
     renderTransactionActionsCell(transaction, idx) {
         return (
             <td style={Object.assign({}, fieldProps.columns)}>
-                {transaction.disputeExists || !BackChainActions.chkSubmitDisputeWindowVisibleForTnx(transaction).visible ? (
+                {transaction.disputeExists || !(disputeHelper.isSubmitDisputeWindowStillOpen(transaction, this.props.store.disputeSubmissionWindowInMinutes).visible) ? (
                         <div></div>
                 ): (
                         <div style={{ cursor: 'pointer' }}>

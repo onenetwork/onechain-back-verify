@@ -306,18 +306,15 @@ class DisputeHelper {
         });
     }
 
-    submitDispute(dispute) {
+    submitDispute(dispute, disputeSubmissionWindowInMinutes) {
+        let me = this;
         return new Promise((resolve, reject) => {
             transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
                 if (transaction) {
-                    disputeOrganizerTaskHelper.submitDisputeWindowVisibleForTnx(transaction)
-                    .then((resutl)=>{
-                        if(resutl) {
-                            resolve({success:true, submitDisputeMsg: 'Dispute Submitted Successfully.'});
-                        } else {
-                            resolve({success:false, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed. You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
-                        }
-                    })
+                    me.isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes).visible ?
+                        resolve({success:true, submitDisputeMsg: 'Dispute Submitted Successfully.'})
+                        :
+                        resolve({success:false, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed. You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
                 }
             });
 

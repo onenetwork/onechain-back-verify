@@ -5,6 +5,8 @@ import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import moment from 'moment';
 
+import {disputeHelper} from '../DisputeHelper';
+
 @observer export default class NewDisputeView extends React.Component {
 
 	constructor(props) {
@@ -117,8 +119,11 @@ import moment from 'moment';
 				BackChainActions.populateDisputeTransaction(event.target.value)
 				.then(function(result){
 					if(result === true){
-						if (BackChainActions.chkSubmitDisputeWindowVisibleForTnx(me.props.store.disputeTransaction).visible) {
+						if (disputeHelper.isSubmitDisputeWindowStillOpen(me.props.store.disputeTransaction, me.props.store.disputeSubmissionWindowInMinutes).visible) {
 							me.setState({saveOrSubmitDisputeButtonsDisabled:false});
+						} else {
+							me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Time window to raise a dispute on this transaction has already passed. You have " + me.props.store.disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
+							return;
 						}
 					}
 					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
@@ -184,7 +189,7 @@ import moment from 'moment';
 		me.setState({tnxIdInputDisabled:true});
 		let dispute = this.getNewDisputeData();
 		dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
-        BackChainActions.submitDispute(dispute)
+        BackChainActions.submitDispute(dispute, this.props.store.disputeSubmissionWindowInMinutes)
         .then(function(result){
             if(result.success) {
 				setTimeout(function() {

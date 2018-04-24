@@ -187,7 +187,7 @@ const fieldProps = {
 		}
         /*
         dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
-        BackChainActions.submitDispute(dispute)
+        BackChainActions.submitDispute(dispute, this.props.store.disputeSubmissionWindowInMinutes)
         .then(function(result){
             if(result.success) {
                 BackChainActions.displayAlertPopup('Dispute Message', result.submitDisputeMsg);
