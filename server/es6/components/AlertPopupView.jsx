@@ -1,8 +1,7 @@
 import { observer } from "mobx-react";
 import React from 'react';
 import BackChainActions from '../BackChainActions';
-import { Row, Col,  Panel, Modal } from 'react-bootstrap';
- 
+import { Row, Col, Panel, Modal, Button } from 'react-bootstrap'; 
 
 @observer export default class AlertPopupView extends React.Component {
     constructor(props) {
@@ -36,45 +35,63 @@ class DisplayMessagePopup extends React.Component {
             panelHeading: {
                 borderTopLeftRadius: '7px',
                 borderTopRightRadius: '7px',
-                backgroundColor: 'white',
             },
             panelTitle: {
-                fontWeight: 'bold',
                 display: 'inline-block',
-                color: '#646464'
+                color: '#FFFFFF',
+                fontWeight: '700'
             },
             panelBody: {
                 paddingTop: 40,
-                paddingBottom: 40,
+                paddingBottom: 20,
                 backgroundColor: 'white',
                 borderRadius: '8px'
+            },
+            applyButton: {
+                fontWeight: '700',
+                width: '85px',
+                height: '42px',
+                position: 'absolute',
+                left:'200px',
+                top: '30px'
             }
         };
 
-        let colorCode = "#229978";
-        let className = "fa fa-check-circle fa-3x fa-fw";
+        let title = "Info";
+        let backgroundColor = "#75b3df";
+        let colorCode = "#75b3df";
+        let className = "fa fa-info-circle fa-3x fa-fw";
         if (this.props.store.alertPopupLevel == 'ERROR') {
-            colorCode = "#bb0400";
+            title = "Error";
+            backgroundColor = "#d9443f";
+            colorCode = "#d9443f";
             className = "fa fa-times-circle fa-3x fa-fw";
         } else if (this.props.store.alertPopupLevel == 'WARN') {
-            colorCode = "#f19500";
+            title = "Warning";
+            backgroundColor = "#ffbf55";
+            colorCode = "#ffbf55";
             className = "fa fa-info-circle fa-3x fa-fw";
         }
 
         return (
             <div className={"panel panel-default"} style={fieldProps.panel}>
-                <div className={"panel-heading"} style={fieldProps.panelHeading}>
-                    <div className="panel-title" style={fieldProps.panelTitle}>
-                        <i className="fa fa-envelope-open" aria-hidden="true"></i>&nbsp;&nbsp;
-					{this.props.store.alertPopupTitle}
+                <div className={"panel-heading"} style={fieldProps.panelHeading} style={{ backgroundColor: backgroundColor }}>
+                    <div className="panel-title" style={fieldProps.panelTitle} >
+                        {title}
                     </div>
-                    <i onClick={BackChainActions.closeAlertPopup} className="fa fa-times" style={{ float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px' }} />
+                    <i onClick={BackChainActions.closeAlertPopup} className="fa fa-times" style={{ float: 'right', cursor: 'pointer', color: '#FFFFFF', fontSize: '21px' }} />
                 </div>
                 <div className={"panel-body"} style={fieldProps.panelBody}>
-                    <Row style={{ paddingLeft: '50px' }}>
+                    <Row style={{ paddingLeft: '30px' }}>
                         <Col style={{ color: colorCode }} md={1}><i className={className}></i></Col>
-                        <Col style={{ paddingLeft: '30px', fontSize: '20px', color: '#515151' }} md={10}>
+                        <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '24px', color: '#333333', fontWeight: '600', lineHeight:'32px' }} md={10}>
+                            {this.props.store.alertPopupTitle}    
+                        </Col>
+                        <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '32px' }} md={10}>
                             {this.props.store.alertPopupContent}
+                        </Col>
+                        <Col style={{ paddingLeft: '35px', height: '80px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '32px' }} md={10}>
+                            <Button style={fieldProps.applyButton} className="btn btn-primary" onClick={BackChainActions.closeAlertPopup}>OK</Button> 
                         </Col>
                     </Row>
                 </div>

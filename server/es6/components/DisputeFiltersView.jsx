@@ -143,9 +143,9 @@ const fieldProps = {
         };
     }
 
-    applyFilters() {
+    applyFilters(filterApplied) {
         let me = this;
-        this.filterApplied = true;
+        this.filterApplied = filterApplied;
         if (!this.disputeFilters.status) {
             let status = [];
             for (let checkBoxValue of this.selectedCheckboxes.values()) {
@@ -156,7 +156,6 @@ const fieldProps = {
         if (this.refs && this.refs.transactionId) {
             this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim();
         }
-        // this.setState({ displayFilters: true }); 
         BackChainActions.loadDisputes(this.disputeFilters);
         //TODO as per Yusuf's email commenting clear dispute
         // this.clearDisputeFilters();
@@ -164,7 +163,9 @@ const fieldProps = {
     }
 
     resetFilters() {
-        this.setState({ displayFilters: false });
+        this.clearDisputeFilters();
+        this.showHideAdvancedFilters(false);
+        this.applyFilters(false);
     }
 
     render() {
@@ -554,28 +555,38 @@ const fieldProps = {
         this.displayCloseDate = true;
     }
 
-    closeFilter(filterValue, reasonCode) {
-        if (filterValue == "reasonCodes") {
-            for (let i = 0; i < this.props.disputeFilters["reasonCodes"].length; i++) { 
-                if (reasonCode == this.props.disputeFilters["reasonCodes"][i]) {
-                    this.props.disputeFilters["reasonCodes"][i] = null;
-                    break;
+    closeFilter(filterName, reasonCode) {
+
+        switch (filterName) {
+            case "tnxFromDate":
+            case "tnxToDate":
+                this.props.disputeFilters.tnxFromDate = null;
+                this.props.disputeFilters.tnxToDate = null;
+                break;
+            case "disputeSubmitFromDate":
+            case "disputeSubmitToDate":
+                this.props.disputeFilters.disputeSubmitFromDate = null;
+                this.props.disputeFilters.disputeSubmitToDate = null;
+                break;
+            case "disputeCloseFromDate":
+            case "disputeCloseToDate":
+                this.props.disputeFilters.disputeCloseFromDate = null;
+                this.props.disputeFilters.disputeCloseToDate = null;
+                break;
+            case "reasonCodes":
+                let selectedReasonCodes = [];
+                for (let i = 0; i < this.props.disputeFilters["reasonCodes"].length; i++) { 
+                    if (reasonCode != this.props.disputeFilters["reasonCodes"][i]) {
+                        selectedReasonCodes.push(this.props.disputeFilters["reasonCodes"][i]);
+                    }
                 }
-            }     
-        } else if (filterValue == "tnxFromDate" || filterValue == "tnxToDate") {
-            this.props.disputeFilters.tnxFromDate = null;
-            this.props.disputeFilters.tnxToDate = null;
-        } else if (filterValue == "disputeSubmitFromDate" || filterValue == "disputeSubmitToDate") {
-            this.props.disputeFilters.disputeSubmitFromDate = null;
-            this.props.disputeFilters.disputeSubmitToDate = null;
-        } else if (filterValue == "disputeCloseFromDate" || filterValue == "disputeCloseToDate") {
-            this.props.disputeFilters.disputeCloseFromDate = null;
-            this.props.disputeFilters.disputeCloseToDate = null;
-        } else {
-            this.props.disputeFilters[filterValue] = null;
-            
+                this.props.disputeFilters.reasonCodes = selectedReasonCodes;
+                break;
+            default:
+                this.props.disputeFilters[filterValue] = null;
+                break;
         }
-        this.props.applyFilters();
+        this.props.applyFilters(true);
     }
 
     renderFilterDivs(disputeFilters) {        
@@ -590,7 +601,6 @@ const fieldProps = {
     }
 
     createFilterDivs(name, disputeFilters, filterName) {
-
         switch (filterName) { 
             case "tnxFromDate":
             case "tnxToDate":
