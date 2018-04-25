@@ -72,7 +72,7 @@ exports.getApplicationSettings = function(req, res) {
 
 
 exports.startSyncFromCertainDate = function(req, res) {
-    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, (error, result) => {
+    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, req.body.metaMaskAddressOfLoggedUser, (error, result) => {
         if(error) {
             res.json({success : false});
         } else {

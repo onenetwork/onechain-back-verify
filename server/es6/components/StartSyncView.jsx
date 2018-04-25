@@ -51,7 +51,7 @@ class SyncForm extends React.Component {
 	}
 
 	startSync() {
-		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
+		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl, this.props.store.metaMaskAddressOfLoggedUser);
 	}
 
 	onHover() {

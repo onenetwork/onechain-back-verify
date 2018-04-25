@@ -473,14 +473,15 @@ export default class BackChainActions {
     }
 
     @action
-    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
+    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, metaMaskAddressOfLoggedUser, callback) {
         store.startSync = true;
         store.syncGoingOn = true;
         store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
-            'chainOfCustodyUrl' : chainOfCustodyUrl
+            'chainOfCustodyUrl' : chainOfCustodyUrl,
+            'metaMaskAddressOfLoggedUser' : metaMaskAddressOfLoggedUser
         };
         fetch('/startSyncFromCertainDate', {
             method: 'post',

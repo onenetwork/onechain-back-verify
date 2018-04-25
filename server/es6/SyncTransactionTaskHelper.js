@@ -75,6 +75,28 @@ class SyncTransactionTaskHelper {
             }
         }
 
+        registerAddress(authenticationToken, chainOfCustodyUrl, metaMaskAddressOfLoggedUser) {
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/registerAddress?address='+metaMaskAddressOfLoggedUser), {
+                method: 'get',
+                headers: new Headers({
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'token ' + authenticationToken
+                })
+            }).then(response => {
+                return response.json();
+            }).then(result => {
+                if(!result) {
+                    throw new Error("registerAddress response was empty");
+                }
+                if(!result.success) {
+                    throw new Error("registerAddress not successful: " + result.msg);
+                }
+                console.info("Address registered !");
+            });
+        }
+
         makeConsumeRequest(authenticationToken, chainOfCustodyUrl) {
             return fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
                 method: 'get',
@@ -156,7 +178,7 @@ class SyncTransactionTaskHelper {
             });
         }
 
-        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, callback) {
+        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, metaMaskAddressOfLoggedUser, callback) {
             // TODO: don't add duplicates
             pendingResets.unshift({
                 authenticationToken: authenticationToken,
@@ -165,6 +187,7 @@ class SyncTransactionTaskHelper {
                 callback: callback
             });
             this.syncMessages(authenticationToken, chainOfCustodyUrl);
+            this.registerAddress(authenticationToken, chainOfCustodyUrl, metaMaskAddressOfLoggedUser);
         }
 
         startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
