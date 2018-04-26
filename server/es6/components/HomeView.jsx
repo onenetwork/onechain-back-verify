@@ -4,6 +4,7 @@ import {Row,  Col, Button, Panel,Tooltip,OverlayTrigger,Modal} from 'react-boots
 import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
+import AlertPopupView from "./AlertPopupView";
 import '../../public/css/homePage.css';
 import DBSyncView from "./DBSyncView";
 import Images from '../Images';
@@ -29,8 +30,6 @@ import Images from '../Images';
   }
 
   render() {
-    let syncPop = '';
-    syncPop = <StartSyncViewModal store={this.props.store} />
 
     if(this.props.store.isInitialSetupDone === null) {
       return null;
@@ -210,7 +209,7 @@ import Images from '../Images';
         {disputes}    
         <div className={"panel-body"} style={fieldProps.panelBody}>
           {panelBody}
-          {syncPop}
+          <AlertPopupView store={this.props.store} />
         </div>
         </div>
     );
@@ -223,114 +222,4 @@ import Images from '../Images';
                 <DBSyncView store={this.props.store} syncType={this.props.syncType} />
        </Modal>);
   }
-}
-@observer class StartSyncViewModal extends React.Component {
-  render() {
-    return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.startSyncViewModalActive} onHide={BackChainActions.toggleStartSyncModalView}>
-         <StartSyncPopup store={this.props.store} />
-      </Modal>);
-  }
-}
-
-@observer
-class StartSyncPopup extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-  let syncPopupBody = "";
-
-  if (this.props.store.syncGoingOn && this.props.store.startSync) {
-    syncPopupBody = <SyncRefresh msgs={["Attempting to start synchronization.", "This may take a few minutes."]} btnName="OK" closeModal={this.closeModal} />
-  } else if (this.props.store.syncGoingOn == false && this.props.store.syncFailed == false) {
-    syncPopupBody = <SyncDone msg={"Your database will begin synchronizing shortly."} btnName="OK" closeModal={this.closeModal}  />
-  } else if (this.props.store.syncFailed ) {
-    syncPopupBody = <SyncFailed msg={"Couldn't start synchronization. Please try again later!"} btnName="OK" closeModal={this.closeModal}  />
-  }
-  return syncPopupBody;
-  }
-}
-
-const SyncRefresh = (props) => {
-  let fieldProps = {
-    button : {
-      height: '35px',
-      boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
-      fontStyle: 'normal',
-      fontSize: '16px'
-    }
-  }
-  return (
-    <div>
-      <Row style={{ paddingLeft: '90px',paddingTop:'53px'}}>
-        <Col style={{color:'#0085C8'}} md={1}><i className="fa fa-refresh fa-spin fa-4x fa-fw"></i></Col>
-        <Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
-          {props.msgs.map(i => {
-            return <div key={i}>{i}</div>;
-          })}
-        </Col>
-      </Row><br/>
-      <Row style={{ paddingBottom: '33px' }}>
-        <Col md={5}></Col>
-        <Col md={2}>
-          <Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
-        </Col>
-      </Row>
-    </div>
-  )
-}
-
-const SyncDone = (props) => {
-  let fieldProps = {
-    button: {
-      height: '35px',
-      boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
-      fontStyle: 'normal',
-      fontSize: '16px'
-    }
-  }
-  return (
-    <div>
-      <Row style={{ paddingLeft: '90px', paddingTop: '53px'}}>
-      <Col style={{color:'#3c763d'}} md={1}><i className="fa fa-check-circle fa-4x fa-fw"></i></Col>
-      <Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
-        {props.msg}
-      </Col>
-    </Row> <br />
-    <Row style={{ paddingBottom: '33px' }}>
-      <Col md={5}></Col>
-      <Col md={2}>
-          <Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
-      </Col>
-    </Row>
-    </div >
-  )
-}
-
-const SyncFailed = (props) => {
-  let fieldProps = {
-    button: {
-      height: '35px',
-      boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
-      fontStyle: 'normal',
-      fontSize: '16px'
-    }
-  }
-  return (
-    <div>
-    <Row style={{ paddingLeft: '90px', paddingTop: '53px'}}>
-      <Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
-      <Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
-        {props.msg}
-      </Col>
-    </Row><br/>
-    <Row style={{ paddingBottom: '33px' }}>
-      <Col md={5}></Col>
-      <Col md={2}>
-          <Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
-      </Col>
-      </Row>
-    </div>
-  )
 }

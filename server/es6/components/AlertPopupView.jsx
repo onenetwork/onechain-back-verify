@@ -57,20 +57,42 @@ class DisplayMessagePopup extends React.Component {
             }
         };
 
-        let title = "Info";
-        let backgroundColor = "#75b3df";
-        let colorCode = "#75b3df";
-        let className = "fa fa-info-circle fa-3x fa-fw";
-        if (this.props.store.alertPopupLevel == 'ERROR') {
-            title = "Error";
-            backgroundColor = "#d9443f";
-            colorCode = "#d9443f";
-            className = "fa fa-times-circle fa-3x fa-fw";
-        } else if (this.props.store.alertPopupLevel == 'WARN') {
-            title = "Warning";
-            backgroundColor = "#ffbf55";
-            colorCode = "#ffbf55";
-            className = "fa fa-info-circle fa-3x fa-fw";
+        let title = null;
+        let backgroundColor = null;
+        let colorCode = null;
+        let className = null;
+
+        switch (this.props.store.alertPopupLevel) {
+            case 'ERROR':
+                title = "Error";
+                backgroundColor = "#d9443f";
+                colorCode = "#d9443f";
+                className = "fa fa-times-circle fa-3x fa-fw";
+                break;
+            case 'WARN':
+                title = "Warning";
+                backgroundColor = "#ffbf55";
+                colorCode = "#ffbf55";
+                className = "fa fa-info-circle fa-3x fa-fw";    
+                break;
+            case 'SUCCESS':
+                title = "Success";
+                backgroundColor = "#73d5a4";
+                colorCode = "#73d5a4";
+                className = "fa fa-check-circle fa-3x fa-fw"; 
+                break;
+            case 'CONFIRM':
+                title = "?";
+                backgroundColor = "#75b3df";
+                colorCode = "#75b3df";
+                className = "fa fa-question-circle fa-3x fa-fw"; 
+                break;
+            default:
+                title = "Info";
+                backgroundColor = "#75b3df";
+                colorCode = "#75b3df";
+                className = "fa fa-info-circle fa-3x fa-fw";
+                break;          
         }
 
         return (
@@ -84,13 +106,13 @@ class DisplayMessagePopup extends React.Component {
                 <div className={"panel-body"} style={fieldProps.panelBody}>
                     <Row style={{ paddingLeft: '30px' }}>
                         <Col style={{ color: colorCode }} md={1}><i className={className}></i></Col>
-                        <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '24px', color: '#333333', fontWeight: '600', lineHeight:'32px' }} md={10}>
+                        <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '24px', color: '#333333', fontWeight: '600', lineHeight:'21px' }} md={10}>
                             {this.props.store.alertPopupTitle}    
                         </Col>
-                        <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '32px' }} md={10}>
+                        <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '21px' }} md={10}>
                             {this.props.store.alertPopupContent}
                         </Col>
-                        <Col style={{ paddingLeft: '35px', height: '80px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '32px' }} md={10}>
+                        <Col style={{ paddingLeft: '35px', height: '80px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '21px' }} md={10}>
                             <Button style={fieldProps.applyButton} className="btn btn-primary" onClick={BackChainActions.closeAlertPopup}>OK</Button> 
                         </Col>
                     </Row>

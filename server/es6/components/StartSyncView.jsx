@@ -17,8 +17,7 @@ import 'react-datetime/css/react-datetime.css';
 		if(this.props.store.startSync) {
 			return <Redirect push to="/home" />;
 		}
-		let syncPopupBody = null;
-		syncPopupBody = <SyncForm store={this.props.store} startSync={this.startSync}/>;
+		let syncPopupBody = <SyncForm store={this.props.store} startSync={this.startSync}/>;
 
 		return (
 			<div>
