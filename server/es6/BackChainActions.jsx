@@ -341,11 +341,6 @@ export default class BackChainActions {
     }
 
     @action
-    static toggleStartSyncModalView() {
-        store.startSyncViewModalActive = !store.startSyncViewModalActive;
-    }
-
-    @action
     static toggleNewDisputeModalView() {
         store.newDisputeModalActive = !store.newDisputeModalActive;
     }
@@ -524,9 +519,7 @@ export default class BackChainActions {
             }
             return;
         }
-        store.startSync = true;
-        store.syncGoingOn = true;
-        store.startSyncViewModalActive = true;
+        BackChainActions.displayAlertPopup('Syncing', 'Refreshing your database.This may take a few minutes.');
         let params = {
             'authenticationToken': authenticationToken,
             'gaps': gaps,
@@ -550,26 +543,18 @@ export default class BackChainActions {
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
-                store.syncFailed = false;
-                store.syncGoingOn = false;
-                store.startSync = false;
-                store.startSyncViewModalActive = true;
                 store.isInitialSyncDone = true;
+                BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
                 if(callback){
                     callback(null,true);
                 }
             } else {
-                store.syncFailed = true;
-                store.syncGoingOn = false;
-                store.startSync = false;
-                store.startSyncViewModalActive = true;
+                BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
             }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT: ' + err);
-            store.syncFailed = true;
-            store.startSync = false;
-            store.startSyncViewModalActive = true;
+            BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
         });
     }
 

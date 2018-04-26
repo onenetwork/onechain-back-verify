@@ -10,8 +10,6 @@ class BackChainStore {
     @observable isInitialSetupDone = null;
     @observable authenticationToken = null;
     @observable lastSyncTimeInMillis = null;
-    @observable syncFailed = false;
-    @observable syncGoingOn = false;
     @observable blockChainUrl = null;
     @observable blockChainContractAddress = null;
     @observable disputeBlockChainContractAddress = null;
@@ -40,7 +38,6 @@ class BackChainStore {
     @observable syncStatistics = null;
     @observable syncStatisticsReport = [];
     @observable dbSyncModalViewActive = false;
-    @observable startSyncViewModalActive = false;
     @observable newDisputeModalActive = false;
     @observable disputeTransaction = null;
     @observable generatedDisputeId = null;
