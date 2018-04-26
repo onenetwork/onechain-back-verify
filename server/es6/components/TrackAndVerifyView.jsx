@@ -209,7 +209,7 @@ const fieldProps = {
                         {tableHead}
                         {tableBody}
                     </Table>
-                    <DisputesViewModal store = {this.props.store} hideDisputesModalViewActive= {this.hideDisputesModalViewActive.bind(this)} disputesModalViewActive={this.state.disputesModalViewActive} showDisputeDetailsInPopup = {this.props.showDisputeDetailsInPopup} showDisputeActions = {this.props.showDisputeActions}/>
+                    <DisputesViewModal store = {this.props.store} hideDisputesModalViewActive= {this.hideDisputesModalViewActive.bind(this)} disputesModalViewActive={this.state.disputesModalViewActive} showDisputeActions = {this.props.showDisputeActions}/>
                 </div>
             );
         }
@@ -646,7 +646,7 @@ const ViewOrDownloadTxn = props => {
                 `}
             </style>
             <Modal dialogClassName = {"disputes-modal"} show={this.props.disputesModalViewActive} onHide={this.hideDisputesModalViewActive.bind(this)}>
-                <DisputesView store = {this.props.store} showDisputeDetailsInPopup = {this.props.showDisputeDetailsInPopup} showDisputeActions = {this.props.showDisputeActions}/>
+                <DisputesView store = {this.props.store} showDisputeActions = {this.props.showDisputeActions}/>
             </Modal>
         </div>
          );
