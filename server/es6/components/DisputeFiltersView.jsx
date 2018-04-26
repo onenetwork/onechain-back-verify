@@ -156,6 +156,12 @@ const fieldProps = {
         if (this.refs && this.refs.transactionId) {
             this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim().length>0?this.refs.transactionId.value.trim() : null;
         }
+        if (this.disputeFilters.tnxFromDate || this.disputeFilters.tnxToDate) {
+            this.disputeFilters.transactionRelatedFilter = true;
+        }
+        else {
+            this.disputeFilters.transactionRelatedFilter = false;
+        }
         BackChainActions.loadDisputes(this.disputeFilters);
         //TODO as per Yusuf's email commenting clear dispute
         // this.clearDisputeFilters();
@@ -218,7 +224,8 @@ const fieldProps = {
 
         let checkBox = (
             <div style={{
-                display: 'inline', fontWeight: '400', fontStyle: 'normal', fontSize: '12px', width: '70%', float: 'right', paddingRight: '15px' }}>
+                display: 'inline', fontWeight: '400', fontStyle: 'normal', fontSize: '12px', width: '70%', float: 'right', paddingRight: '15px'
+            }} className="checkBox-div">
                 Show :
                 &nbsp;&nbsp;
                 <FormControl type="checkbox" checked={this.state.draftChkBox} value="Draft" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Draft
@@ -374,13 +381,11 @@ const fieldProps = {
     }
 
     listenTnxFromDate(date) {
-        this.props.disputeFilters.tnxFromDate = isNaN(moment(date).valueOf()) ? null :moment(date).valueOf() ;
-        this.props.disputeFilters.transactionRelatedFilter = true;
+        this.props.disputeFilters.tnxFromDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf();
     }
 
     listenTnxToDate(date) {
-        this.props.disputeFilters.tnxToDate = isNaN(moment(date).valueOf()) ? null :moment(date).valueOf()  ;
-        this.props.disputeFilters.transactionRelatedFilter = true;
+        this.props.disputeFilters.tnxToDate  = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf();
     }
 
     listenDisuputeSubmitFromDate(date) {
@@ -648,7 +653,7 @@ const fieldProps = {
     }
 
     reasonCodesDiv(name, value, filterName, count) {
-        return (<div key={name + count} style={{ display: 'inline-block',position:'absolute',bottom:'0px' } }>
+        return (<div key={name + count} style={{ display: 'inline-block' } }>
             <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.map[value]} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName, value)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                      &nbsp;&nbsp;
             </div>
@@ -661,7 +666,7 @@ const fieldProps = {
 
     dateDiv(name, disputeFilters, fromDateFilterName, toDateFilterName, filterName) {
         return (
-            <div key={name + filterName + disputeFilters} style={{ display: 'inline-block',position:'absolute',bottom:'0px' }}>
+            <div key={name + filterName + disputeFilters} style={{ display: 'inline-block' }}>
                 <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.getDateDisplayValue(disputeFilters, fromDateFilterName)}&nbsp;-&nbsp;{this.getDateDisplayValue(disputeFilters, toDateFilterName)}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                     &nbsp;&nbsp;
                 </div>
@@ -670,7 +675,7 @@ const fieldProps = {
 
     defaultDiv(name,disputeFilters,filterName ) {
         return (
-            <div key={filterName + disputeFilters} style={{ display: 'inline-block',position:'absolute',bottom:'0px'}}>
+            <div key={filterName + disputeFilters} style={{ display: 'inline-block'}}>
                     <div style={fieldProps.filterDiv} >{name}:&nbsp; {disputeFilters[filterName]}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                     &nbsp;&nbsp;
                 </div>
@@ -679,7 +684,7 @@ const fieldProps = {
 
     render() {
         return (
-            <div style={{ paddingBottom: '5px',minHeight: '65px',position:'relative' }}>
+            <div style={{ paddingBottom: '5px',minHeight: '65px' }}>
                 {this.props.filterApplied ? this.renderFilterDivs(this.props.disputeFilters) : ''}
             </div>
         );
