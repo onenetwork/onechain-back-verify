@@ -144,8 +144,7 @@ class DisputeHelper {
     }
 
     isValueNotNull(value) {
-        if (value != null && value != 'null' && value != undefined && value != ''
-            && value != '[]' && value != 'undefined' && value != 'NaN') {
+        if(value &&  value != 'null'){
             return true;
         }
         return false;

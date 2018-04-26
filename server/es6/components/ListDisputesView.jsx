@@ -44,7 +44,7 @@ import NewDisputeView from './NewDisputeView';
 			panelBodyTitle : {
 				paddingLeft: '15px',
 				fontSize: '26px',
-				paddingBottom: '30px',
+				paddingBottom: '5px',
 				paddingTop: '14px'
 			},
 			button : {

@@ -63,6 +63,12 @@ const fieldProps = {
     }
 };
 
+const map = {
+    wrongData: "Data is wrong",
+    sentToWrongLocation : "Sent to wrong location",
+    enteredWrongData:"Entered wrong data"
+};
+
 @observer export default class DisputesView extends React.Component {
 
     constructor(...args) {
@@ -444,7 +450,7 @@ const fieldProps = {
 
 
     renderDisputeReasonCell(dispute) {
-        return <td style={fieldProps.columns}>{dispute.reasonCode}</td>;
+        return <td style={fieldProps.columns}>{map[dispute.reasonCode]}</td>;
     }
 
     renderDisputeParticipantsCell(dispute, idx) {

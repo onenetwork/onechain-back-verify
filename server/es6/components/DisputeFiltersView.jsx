@@ -154,7 +154,7 @@ const fieldProps = {
             this.disputeFilters.status = status;
         }
         if (this.refs && this.refs.transactionId) {
-            this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim();
+            this.disputeFilters.searchTnxId = this.refs.transactionId.value.trim().length>0?this.refs.transactionId.value.trim() : null;
         }
         BackChainActions.loadDisputes(this.disputeFilters);
         //TODO as per Yusuf's email commenting clear dispute
@@ -330,7 +330,7 @@ const fieldProps = {
 
     toggleCheckboxChange(event) {
         let value = event.target.value;
-        let resonCodes = [];
+        let resonCodes = null;
 
         if (event.target.checked) {
             if (value == "wrongData") {
@@ -354,50 +354,53 @@ const fieldProps = {
                 this.reasonCodeCheckboxes.delete(value);
             }
         }
-        for (let reasonCodeValue of this.reasonCodeCheckboxes.values()) {
-            resonCodes.push(reasonCodeValue);
+        if(this.reasonCodeCheckboxes.size > 0) {
+            resonCodes = [];
+            for (let reasonCodeValue of this.reasonCodeCheckboxes.values()) {
+                resonCodes.push(reasonCodeValue);
+            }
         }
         this.props.disputeFilters.reasonCodes = resonCodes;
     }
 
     listenBtKeyPress(event) {
         this.setState({ searchBtId: event.target.value.trim() });
-        this.props.disputeFilters.searchBtId = event.target.value.trim();
+        this.props.disputeFilters.searchBtId = event.target.value.trim().length> 0 ? event.target.value.trim() : null;
     }
 
     listenDisputeKeyPress(event) {
         this.setState({ searchDisputeId: event.target.value.trim() });
-        this.props.disputeFilters.searchDisputeId = event.target.value.trim();
+        this.props.disputeFilters.searchDisputeId = event.target.value.trim().length> 0 ? event.target.value.trim() : null;
     }
 
     listenTnxFromDate(date) {
-        this.props.disputeFilters.tnxFromDate = moment(date).valueOf();
+        this.props.disputeFilters.tnxFromDate = isNaN(moment(date).valueOf()) ? null :moment(date).valueOf() ;
         this.props.disputeFilters.transactionRelatedFilter = true;
     }
 
     listenTnxToDate(date) {
-        this.props.disputeFilters.tnxToDate = moment(date).valueOf();
+        this.props.disputeFilters.tnxToDate = isNaN(moment(date).valueOf()) ? null :moment(date).valueOf()  ;
         this.props.disputeFilters.transactionRelatedFilter = true;
     }
 
     listenDisuputeSubmitFromDate(date) {
-        this.props.disputeFilters.disputeSubmitFromDate = moment(date).valueOf();
+        this.props.disputeFilters.disputeSubmitFromDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
     }
 
     listenDisuputeSubmitToDate(date) {
-        this.props.disputeFilters.disputeSubmitToDate = moment(date).valueOf();
+        this.props.disputeFilters.disputeSubmitToDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
     }
 
     listenDisuputeCloseFromDate(date) {
-        this.props.disputeFilters.disputeCloseFromDate = moment(date).valueOf();
+        this.props.disputeFilters.disputeCloseFromDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
     }
 
     listenDisuputeCloseToDate(date) {
-        this.props.disputeFilters.disputeCloseToDate = moment(date).valueOf();
+        this.props.disputeFilters.disputeCloseToDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
     }
 
     listenRaisedByKeyPress(event) {
-        let raisedByValue = event.target.value.trim();
+        let raisedByValue = event.target.value.trim().length > 0 ? event.target.value.trim() : null;
         this.setState({ raisedBy: raisedByValue });
         if (raisedByValue == this.props.store.entNameOfLoggedUser) {
             this.props.disputeFilters.metaMaskAddress = this.props.store.metaMaskAddressOfLoggedUser;
@@ -467,9 +470,9 @@ const fieldProps = {
                     <div style={fieldProps.text}>Transaction Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '73px', fontSize: '12px' }}>
-                        From &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxFromDate || ''} dateFormat="MM/DD/YYYY" onChange={this.listenTnxFromDate.bind(this)} timeFormat={false} className="date-control"  />&nbsp;&nbsp;
+                        From &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxFromDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxFromDate.bind(this)} className="date-control"  />&nbsp;&nbsp;
                             &nbsp;&nbsp;
-                            To &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxToDate || ''}  dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
+                            To &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxToDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
                         </div>
                 </div>
                 <div>
@@ -495,18 +498,18 @@ const fieldProps = {
                     <div style={fieldProps.text}>Dispute Submitted Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '50px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control"  />
+                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control"  />
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitToDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
+                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
                     </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Dispute Closed Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '100px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control"  />
+                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control"  />
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseToDate || false} dateFormat="MM/DD/YYYY" timeFormat={false} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
+                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
                     </div>
                 </div>
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Raised By: </div>
@@ -556,7 +559,6 @@ const fieldProps = {
     }
 
     closeFilter(filterName, reasonCode) {
-
         switch (filterName) {
             case "tnxFromDate":
             case "tnxToDate":
@@ -580,10 +582,13 @@ const fieldProps = {
                         selectedReasonCodes.push(this.props.disputeFilters["reasonCodes"][i]);
                     }
                 }
+                if(selectedReasonCodes.length == 0) {
+                    selectedReasonCodes = null;
+                }
                 this.props.disputeFilters.reasonCodes = selectedReasonCodes;
                 break;
             default:
-                this.props.disputeFilters[filterValue] = null;
+                this.props.disputeFilters[filterName] = null;
                 break;
         }
         this.props.applyFilters(true);
@@ -643,7 +648,7 @@ const fieldProps = {
     }
 
     reasonCodesDiv(name, value, filterName, count) {
-        return (<div key={name + count} style={{ display: 'inline-block' } }>
+        return (<div key={name + count} style={{ display: 'inline-block',position:'absolute',bottom:'0px' } }>
             <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.map[value]} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName, value)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                      &nbsp;&nbsp;
             </div>
@@ -656,7 +661,7 @@ const fieldProps = {
 
     dateDiv(name, disputeFilters, fromDateFilterName, toDateFilterName, filterName) {
         return (
-            <div key={name + filterName + disputeFilters} style={{ display: 'inline-block' }}>
+            <div key={name + filterName + disputeFilters} style={{ display: 'inline-block',position:'absolute',bottom:'0px' }}>
                 <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.getDateDisplayValue(disputeFilters, fromDateFilterName)}&nbsp;-&nbsp;{this.getDateDisplayValue(disputeFilters, toDateFilterName)}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                     &nbsp;&nbsp;
                 </div>
@@ -665,7 +670,7 @@ const fieldProps = {
 
     defaultDiv(name,disputeFilters,filterName ) {
         return (
-            <div key={filterName + disputeFilters} style={{ display: 'inline-block'}}>
+            <div key={filterName + disputeFilters} style={{ display: 'inline-block',position:'absolute',bottom:'0px'}}>
                     <div style={fieldProps.filterDiv} >{name}:&nbsp; {disputeFilters[filterName]}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                     &nbsp;&nbsp;
                 </div>
@@ -674,7 +679,7 @@ const fieldProps = {
 
     render() {
         return (
-            <div style={{ paddingBottom: '5px' }}>
+            <div style={{ paddingBottom: '5px',minHeight: '65px',position:'relative' }}>
                 {this.props.filterApplied ? this.renderFilterDivs(this.props.disputeFilters) : ''}
             </div>
         );
