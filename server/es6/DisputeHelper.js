@@ -180,8 +180,8 @@ class DisputeHelper {
          * resolve or reject depending on the result
          */
         return new Promise((resolve, reject) => {
-            if (!this.isValueNotNull(transactionId)) {
-                this.getDraftCount()
+            if (transactionId) {
+                this.getDraftCount(transactionId)
                     .then((count) => {
                         resolve(count);
                     })
@@ -190,7 +190,7 @@ class DisputeHelper {
                         reject(err);
                     });
             } else {
-                this.getDraftCount(transactionId)
+                this.getDraftCount()
                     .then((count) => {
                         resolve(count);
                     })
@@ -210,8 +210,8 @@ class DisputeHelper {
          * resolve or reject depending on the result
          */
         return new Promise((resolve, reject) => {
-            if (!this.isValueNotNull(transactionId)) {
-                dbconnectionManager.getConnection().collection('DraftDisputes').count()
+            if (transactionId) {
+                dbconnectionManager.getConnection().collection('DraftDisputes').find({ "transactionId": transactionId }).count()
                     .then((count) => {
                         resolve(count);
                     })
@@ -220,7 +220,7 @@ class DisputeHelper {
                         reject(err);
                     });
             } else {
-                dbconnectionManager.getConnection().collection('DraftDisputes').find({ "transactionId": transactionId }).count()
+                dbconnectionManager.getConnection().collection('DraftDisputes').count()
                     .then((count) => {
                         resolve(count);
                     })
