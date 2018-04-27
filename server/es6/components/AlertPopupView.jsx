@@ -73,7 +73,7 @@ class DisplayMessagePopup extends React.Component {
                 title = "Warning";
                 backgroundColor = "#ffbf55";
                 colorCode = "#ffbf55";
-                className = "fa fa-info-circle fa-3x fa-fw";    
+                className = "fa fa-exclamation-triangle fa-3x fa-fw";    
                 break;
             case 'SUCCESS':
                 title = "Success";

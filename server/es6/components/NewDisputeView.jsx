@@ -353,26 +353,26 @@ import {disputeHelper} from '../DisputeHelper';
 
 		let disputeWarningInfo = null;
 		if(this.state.disputeWarnMsg) {
-			disputeWarningInfo = (<Row style= {Object.assign({}, fieldProps.disputeIdChildDiv, {backgroundColor: 'rgba(252, 248, 227, 1)', borderColor: 'rgba(250, 235, 204, 1)'})}>
-								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#F19500'})} onClick={this.resetMsgs.bind(this)}/>
-								<span><i className="fa fa-info-circle" style={{fontSize:'22px',color:'#F19500'}}/></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', paddingRight: '48px' }}>&nbsp;<span style={{ color: '#F19500', fontWeight: 700 }}>Warning!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeWarnMsg}</span></span>
+			disputeWarningInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: '#f7f1cb', borderColor: '#f4deb0'})}>
+								<i className="fa fa-times resetMsgs" style={Object.assign({}, fieldProps.msgTimes, { color: '#ef941b'})} onClick={this.resetMsgs.bind(this)}/>
+								<span><i className="fa fa-exclamation-triangle" style={{ fontSize: '22px', color:'#ef941b'}}/></span>&nbsp;&nbsp;
+								<span style={{ fontSize: '14px', paddingRight: '48px', position:'relative',top:'-2px' }}>&nbsp;<span style={{ color: '#ef941b', fontWeight: 700 }}>Warning!</span>&nbsp;<span style={{ color: '#ef941b',fontWeight: '400' }}>{this.state.disputeWarnMsg}</span></span>
 							</Row>);
 		}
 		let disputeErrorMsgInfo = null;
 		if (this.state.disputeErrorMsg) {
-			disputeErrorMsgInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgba(252, 228, 224, 1)', borderColor: 'rgba(235, 204, 209, 1)' })}>
-								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#D9443F'})} onClick={this.resetMsgs.bind(this)}/>
-								<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#D9443F' }} /></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', paddingRight: '48px' }}>&nbsp;<span style={{ color: '#D9443F', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
+			disputeErrorMsgInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: '#f2dede', borderColor: '#ebcbd1' })}>
+								<i className="fa fa-times resetMsgs" style={Object.assign({}, fieldProps.msgTimes, { color: '#d83f3f'})} onClick={this.resetMsgs.bind(this)}/>
+								<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#d83f3f' }} /></span>&nbsp;&nbsp;
+								<span style={{ fontSize: '14px', paddingRight: '48px', position:'relative',top:'-2px' }}>&nbsp;<span style={{ color: '#d83f3f', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#d83f3f',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
 							</Row>);
 		}
 		let disputeSuccessInfoMsg = null;
 		if (this.state.disputeInfoMsg) {
-			disputeSuccessInfoMsg = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgba(212, 237, 218, 1)', borderColor: 'rgba(182, 224, 192, 1)' })}>
-								<i className="fa fa-times resetMsgs" style={Object.assign({},fieldProps.msgTimes,{color: '#229978'})} onClick={this.resetMsgs.bind(this)}/>
-								<span><i className="fa fa-check-circle" style={{ fontSize: '22px', color: '#229978' }} /></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', paddingRight: '48px' }}>&nbsp;<span style={{ color: '#229978', fontWeight: 700 }}>Success!</span>&nbsp;<span style={{ color: '#999999',fontWeight: '400' }}>{this.state.disputeInfoMsg}</span></span>
+			disputeSuccessInfoMsg = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: '#dff0da', borderColor: '#cee8c2' })}>
+								<i className="fa fa-times resetMsgs" style={Object.assign({}, fieldProps.msgTimes, { color: '#249a79'})} onClick={this.resetMsgs.bind(this)}/>
+								<span><i className="fa fa-check-circle" style={{ fontSize: '22px', color: '#249a79' }} /></span>&nbsp;&nbsp;
+								<span style={{ fontSize: '14px', paddingRight: '48px', position: 'relative', top: '-2px' }}>&nbsp;<span style={{ color: '#249a79', fontWeight: 700 }}>Success!</span>&nbsp;<span style={{ color: '#249a79',fontWeight: '400' }}>{this.state.disputeInfoMsg}</span></span>
 							</Row>);
 		}
         return(

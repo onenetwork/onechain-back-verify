@@ -267,6 +267,10 @@ const map = {
                 disputeStatusTime =  (<div style={{fontSize: '10px', color: '#999999', lineHeight: '10px'}}> 
                                         {this.getMinsInHrsAndMins(this.props.store.disputeSubmissionWindowInMinutes-result.tnxDurationInMinutes)}
                                       </div>);
+            } else {
+                disputeStatusTime = (<div style={{ fontSize: '10px', color: '#999999', lineHeight: '10px' }}>
+                   Expired
+                </div>);
             }
         }
         
