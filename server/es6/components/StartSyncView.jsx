@@ -13,6 +13,10 @@ import 'react-datetime/css/react-datetime.css';
 		super(props);
 	}
 
+	componentDidMount = () => { 
+		BackChainActions.toggleDBSyncModalViewActive();
+	}
+
 	render() {
 		if(this.props.store.startSync) {
 			return <Redirect push to="/home" />;
