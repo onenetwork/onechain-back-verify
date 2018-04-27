@@ -22,11 +22,7 @@ import Images from '../Images';
   }
 
   divClick(callBack) {
-    // TODO@Ravi : somehow call back is coming in this function when close button of modal is clicked
-    // so given a name to button
-    if(callBack.target.name!="closeModal") {
       BackChainActions.toggleDBSyncModalViewActive();
-    }
   }
 
   render() {
@@ -162,7 +158,6 @@ import Images from '../Images';
       );
 
     let dbIcon = (<div onClick={this.divClick}>
-                {dbSync}
                 <OverlayTrigger  placement="top" overlay={tooltip}>
                 <div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
                 <span>
@@ -211,6 +206,7 @@ import Images from '../Images';
           {panelBody}
           <AlertPopupView store={this.props.store} />
         </div>
+        {dbSync}
         </div>
     );
   }
