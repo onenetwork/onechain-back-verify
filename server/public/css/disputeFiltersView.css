@@ -79,7 +79,7 @@
     z-index: 1;
     position: absolute;
     left: 31px;
-    top: 330px;
+    top: 315px;
     width: 1108px;
     height: 232px;
     background: inherit;
@@ -118,6 +118,6 @@
     display: inline;
 }
 
-.filter-div>.resetButton :hover {
-    background-color: #d4d4d4 !important;
+.filter-div>.checkBox-div>.resetButton:hover {
+     background-color: #d4d4d4 !important;
 }

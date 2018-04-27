@@ -151,9 +151,7 @@ class DisputeHelper {
     }
 
     applyTransactionRelatedFilters(dispute, transaction, filters) {
-        let attachTransactionToDispute = true;
         if (this.isValueNotNull(filters.tnxFromDate)) {
-            attachTransactionToDispute = false;
             if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
                 dispute.transaction = transaction;
             } else if (dispute.transactionId == transaction.id) {
@@ -161,18 +159,12 @@ class DisputeHelper {
             }
         }
         if (dispute != null && this.isValueNotNull(filters.tnxToDate)) {
-            attachTransactionToDispute = false;
             if (transaction.date <= JSON.parse(filters.tnxToDate)) {
                 dispute.transaction = transaction;
             } else if (dispute.transactionId == transaction.id) {
                 dispute = null;
             }
         }
-
-        if (attachTransactionToDispute) {
-            dispute.transaction = transaction;
-        }
-
         return dispute;
     }
 
