@@ -684,7 +684,7 @@ const fieldProps = {
 
     render() {
         return (
-            <div style={{ paddingBottom: '5px',minHeight: '65px' }}>
+            <div style={{ paddingBottom: '5px', position: 'relative'}}>
                 {this.props.filterApplied ? this.renderFilterDivs(this.props.disputeFilters) : ''}
             </div>
         );
