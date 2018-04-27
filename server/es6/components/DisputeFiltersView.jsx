@@ -163,8 +163,6 @@ const fieldProps = {
             this.disputeFilters.transactionRelatedFilter = false;
         }
         BackChainActions.loadDisputes(this.disputeFilters);
-        //TODO as per Yusuf's email commenting clear dispute
-        // this.clearDisputeFilters();
         this.showHideAdvancedFilters(false);
     }
 
