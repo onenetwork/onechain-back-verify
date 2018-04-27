@@ -16,7 +16,6 @@ class DisputeOrganizerTaskHelper {
             })
             .catch(err => {
                 console.error("submitDisputeWindowVisibleForTnx err: " + err);
-                reject(err);
             });
     }
 
