@@ -1,39 +1,44 @@
 import { settingsHelper } from './SettingsHelper';
 import { disputeHelper } from './DisputeHelper';
-import {backChainUtil} from  './BackChainUtil';
-import {dbconnectionManager} from './DBConnectionManager';
-import moment from 'moment'
+import { backChainUtil } from './BackChainUtil';
+import { dbconnectionManager } from './DBConnectionManager';
+import moment from 'moment';
+import config from './config';
 
 
 class DisputeOrganizerTaskHelper {
 
-    disputeOrganizerTask() {
-        console.log("Deleting old disputes && getting ent address !!");
+    executeTask() {
+        console.log("Deleting old disputes && getting enterprise account number mappings from PLT.");
         settingsHelper.getApplicationSettings()
             .then(result => {
                 this.deleteOldDisputes(result);
-                this.getEnterpriseAddress(result);
+                this.getEnterpriseAccountMapping(result);
+                setTimeout(() => {
+                    this.executeTask();
+                }, config.disputeOrganizerIntervalInMillis);
             })
             .catch(err => {
+                setTimeout(() => {
+                    this.executeTask();
+                }, config.disputeOrganizerIntervalInMillis);
                 console.error("submitDisputeWindowVisibleForTnx err: " + err);
             });
     }
 
-    submitDisputeWindowVisibleForTnx(transaction, settings) {
-        return new Promise((resolve, reject) => {
-            if (settings && settings.blockChain.disputeSubmissionWindowInMinutes) {
-                    let disputeSubmissionWindowInMinutes = settings.blockChain.disputeSubmissionWindowInMinutes;
-                    let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
-                    let durationInMinutes = Math.ceil(duration.asMinutes());
-                    resolve(durationInMinutes > disputeSubmissionWindowInMinutes);
-                } else {
-                    resolve(true);
-                }
-        });
+    isSubmissionWindowOver(transaction, settings) {
+        if (settings && settings.blockChain.disputeSubmissionWindowInMinutes) {
+            let disputeSubmissionWindowInMinutes = settings.blockChain.disputeSubmissionWindowInMinutes;
+            let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
+            let durationInMinutes = Math.ceil(duration.asMinutes());
+            return durationInMinutes > disputeSubmissionWindowInMinutes;
+        } else {
+            return true;
+        }
     }
 
-    getEnterpriseAddress(settings) {
-        if(settings && settings.chainOfCustidy && settings.chainOfCustidy.authenticationToken && settings.chainOfCustidy.chainOfCustodyUrl) {
+    getEnterpriseAccountMapping(settings) {
+        if (settings && settings.chainOfCustidy && settings.chainOfCustidy.authenticationToken && settings.chainOfCustidy.chainOfCustodyUrl) {
             fetch(backChainUtil.returnValidURL(settings.chainOfCustidy.chainOfCustodyUrl + '/oms/rest/backchain/v1/addresses'), {
                 method: 'get',
                 headers: new Headers({
@@ -45,16 +50,18 @@ class DisputeOrganizerTaskHelper {
             }).then(response => {
                 return response.json();
             }).then(result => {
-                if(!result) {
-                    throw new Error("registerAddress response was empty");
+                if (!result) {
+                    console.error("Couldn't get back chain address -> enterprise mapping.");
                 }
-                if(result.length > 0) {
+                if (result.length > 0) {
                     let backChainAddressMappings = {};
-                    for(let i = 0; i < result.length; i++) {
+                    for (let i = 0; i < result.length; i++) {
                         Object.assign(backChainAddressMappings, result[i]);
                     }
                     this.writeBackChainAddressMapping(backChainAddressMappings);
                 }
+            }).catch(error => {
+                console.error("Couldn't get back chain address -> enterprise mapping. Error:" + error);
             });
         }
     }
@@ -62,14 +69,14 @@ class DisputeOrganizerTaskHelper {
     writeBackChainAddressMapping(backChainAddressMappings) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('BackChainAddressMapping').update({}, backChainAddressMappings, { upsert: true })
-            .then(() => {
-                console.info("BackChainAddressMapping written successfully !");
-                resolve({success: true});
-            })
-            .catch((err) => {
-                console.error("Error occurred while writing BackChainAddressMapping: " + err);
-                reject(err);
-            });
+                .then(() => {
+                    console.info("BackChainAddressMapping written successfully !");
+                    resolve({ success: true });
+                })
+                .catch((err) => {
+                    console.error("Error occurred while writing BackChainAddressMapping: " + err);
+                    reject(err);
+                });
         });
     }
 
@@ -81,17 +88,14 @@ class DisputeOrganizerTaskHelper {
                 for (let i = 0, len = result.length; i < len; i++) {
                     dispute = result[i];
                     if (dispute.transaction) {
-                        me.submitDisputeWindowVisibleForTnx(dispute.transaction, settings)
-                        .then((result)=>{
-                            if(result) {
-                                disputeHelper.discardDraftDispute(dispute.id)
+                        if (me.isSubmissionWindowOver(dispute.transaction, settings)) {
+                            disputeHelper.discardDraftDispute(dispute.id)
                                 .then(function (result) {
                                     if (result.sucess) {
                                         console.log("Old disputes deleted successfully.");
                                     }
                                 })
-                            }
-                        })
+                        }
                     }
                 }
             })
@@ -100,9 +104,5 @@ class DisputeOrganizerTaskHelper {
             });
     }
 }
-
-setInterval(() => {
-    disputeOrganizerTaskHelper.disputeOrganizerTask();
-}, 1000 * 60 * 5);
 
 export const disputeOrganizerTaskHelper = new DisputeOrganizerTaskHelper();

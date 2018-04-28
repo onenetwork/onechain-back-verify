@@ -2,7 +2,6 @@ import { dbconnectionManager } from './DBConnectionManager';
 import { transactionHelper } from './TransactionHelper';
 import { settingsHelper } from './SettingsHelper';
 import { blockChainVerifier } from './BlockChainVerifier';
-import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
 import { observable } from 'mobx';
 import { Long } from 'mongodb';
 import crypto from 'crypto';
@@ -17,17 +16,17 @@ class DisputeHelper {
         //Draft records will come from the db and Open/Closed ones will be fetched using oneBcClient apis
         let me = this;
         return new Promise((resolve, reject) => {
-            if(filters) {
+            if (filters) {
                 this.createFilterQuery(filters)
-                .then((query) => {
-                    if (query.searchInDraftDispute) {
-                        delete query.searchInDraftDispute;
-                        me.queryDisputes(query, filters)
-                            .then((result) => {
-                                resolve(result);
-                        })
-                    }
-                })
+                    .then((query) => {
+                        if (query.searchInDraftDispute) {
+                            delete query.searchInDraftDispute;
+                            me.queryDisputes(query, filters)
+                                .then((result) => {
+                                    resolve(result);
+                                })
+                        }
+                    })
             } else {
                 me.queryDisputes({}, null)
                     .then((result) => {
@@ -144,7 +143,7 @@ class DisputeHelper {
     }
 
     isValueNotNull(value) {
-        if(value &&  value != 'null'){
+        if (value && value != 'null') {
             return true;
         }
         return false;
@@ -236,17 +235,17 @@ class DisputeHelper {
         // TODO check if dispute exists in blockchain
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('DraftDisputes').findOne({ "transactionId": transactionId })
-            .then((result) => {
-                if(result) {
-                    resolve({success:true, exists:true, status:result.status});
-                } else {
-                    resolve({ success: true, exists: false});
-                }
-            })
-            .catch((err) => {
-                console.error("Error occurred while fetching DraftDisputes" + err);
-                reject(err);
-            });
+                .then((result) => {
+                    if (result) {
+                        resolve({ success: true, exists: true, status: result.status });
+                    } else {
+                        resolve({ success: true, exists: false });
+                    }
+                })
+                .catch((err) => {
+                    console.error("Error occurred while fetching DraftDisputes" + err);
+                    reject(err);
+                });
         });
     }
 
@@ -254,54 +253,54 @@ class DisputeHelper {
         var me = this;
         return new Promise((resolve, reject) => {
             this.disputeExists(dispute.transactionId)
-            .then(function(response) {
-                if(response.exists) {
-                    resolve(response);
-                } else {
-                    me.insertDraft(dispute)
-                    .then(function(response){
-                        if(response.success) {
+                .then(function (response) {
+                    if (response.exists) {
                         resolve(response);
+                    } else {
+                        me.insertDraft(dispute)
+                            .then(function (response) {
+                                if (response.success) {
+                                    resolve(response);
+                                }
+                            }, function (error) {
+                                console.error(error);
+                                reject(error);
+                            });
                     }
-                    }, function(error){
-                        console.error(error);
-                        reject(error);
-                    });
-                }
-            }, function(error) {
-                console.error(error);
-                reject(error);
-            });
+                }, function (error) {
+                    console.error(error);
+                    reject(error);
+                });
         });
     }
 
     insertDraft(dispute) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('DraftDisputes').insert(dispute)
-            .then(() => {
-                resolve({success: true});
-            })
-            .catch((err) => {
-                console.error("Error occurred while saving dispute as draft: " + err);
-                reject(err);
-            });
+                .then(() => {
+                    resolve({ success: true });
+                })
+                .catch((err) => {
+                    console.error("Error occurred while saving dispute as draft: " + err);
+                    reject(err);
+                });
         });
     }
 
     generateDisputeId(plainText) {
-        return({success: true, generatedDisputeId : crypto.createHash('sha256').update(plainText).digest('hex')});
+        return ({ success: true, generatedDisputeId: crypto.createHash('sha256').update(plainText).digest('hex') });
     }
 
     discardDraftDispute(disputeId) {
         return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('DraftDisputes').deleteOne({id:disputeId})
-            .then((result) => {
-                resolve({success: true});
-            })
-            .catch((err) => {
-                console.error("Error occurred while discarding dispute as draft: " + err);
-                reject(err);
-            });
+            dbconnectionManager.getConnection().collection('DraftDisputes').deleteOne({ id: disputeId })
+                .then((result) => {
+                    resolve({ success: true });
+                })
+                .catch((err) => {
+                    console.error("Error occurred while discarding dispute as draft: " + err);
+                    reject(err);
+                });
         });
     }
 
@@ -311,9 +310,9 @@ class DisputeHelper {
             transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
                 if (transaction) {
                     me.isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes).visible ?
-                        resolve({success:true, submitDisputeMsg: 'Dispute Submitted Successfully.'})
+                        resolve({ success: true, submitDisputeMsg: 'Dispute Submitted Successfully.' })
                         :
-                        resolve({success:false, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed. You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
+                        resolve({ success: false, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed. You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction." });
                 }
             });
 
@@ -329,19 +328,19 @@ class DisputeHelper {
     getRaisedByEnterpriseName(metaMaskAddressOfLoggedUser) {
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
-                .toArray(function(err, result) {
+                .toArray(function (err, result) {
                     if (err) {
                         reject(err);
                     } else {
                         result = result[0];
                         for (let key in result) {
                             if (result.hasOwnProperty(key)) {
-                              if(key == metaMaskAddressOfLoggedUser) {
-                                resolve({success : true, entName : result[key]})
-                                break;
-                              }
+                                if (key == metaMaskAddressOfLoggedUser) {
+                                    resolve({ success: true, entName: result[key] })
+                                    break;
+                                }
                             }
-                          }
+                        }
                     }
                 });
         });
@@ -376,7 +375,7 @@ class DisputeHelper {
     isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes) {
         let tnxDuration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
         let tnxDurationInMinutes = Math.ceil(tnxDuration.asMinutes());
-        return {"visible": tnxDurationInMinutes < disputeSubmissionWindowInMinutes, "tnxDurationInMinutes": tnxDurationInMinutes};
+        return { "visible": tnxDurationInMinutes < disputeSubmissionWindowInMinutes, "tnxDurationInMinutes": tnxDurationInMinutes };
     }
 }
 

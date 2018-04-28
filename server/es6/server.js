@@ -38,9 +38,8 @@ import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
         app.get('*', function(req, res) {
             res.sendFile(path.join(__dirname + "/../" + "index.html"));
         });
-
         syncTransactionTaskHelper.startSyncing();
-        disputeOrganizerTaskHelper.disputeOrganizerTask();
+        disputeOrganizerTaskHelper.executeTask();
         commandLineUtils.readCommands();
     });
 })();
