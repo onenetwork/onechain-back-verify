@@ -404,7 +404,7 @@ const map = {
         //If mapping doesn't have the value, we should display a warning message
         
         //TODO In case while dispute comes from backchain (means dispute.status != "Draft") fetch entName from BackChainAddressMapping using disputingParty, 
-        //i.e. call disputeHelper.getRaisedByEnterpriseName(backChainAddress), If mapping found then display entName at below line other wise display the disputingParty got in dispute.
+        //i.e. call disputeHelper.getRaisedByEnterpriseName(backChainAccountOfLoggedUser), If mapping found then display entName at below line other wise display the disputingParty got in dispute.
         if(dispute.status == "Draft")
             return <td style={fieldProps.columns}>{this.props.store.entNameOfLoggedUser}</td>;
         else

@@ -77,7 +77,7 @@ const fieldProps = {
 
     componentDidMount() {       
         let loggedInUser = this.props.store.entNameOfLoggedUser;
-        let maskAddress = this.props.store.metaMaskAddressOfLoggedUser;
+        let maskAddress = this.props.store.backChainAccountOfLoggedUser;
         this.disputeFilters = {
         	status: ["Draft", "Open"],
             transactionRelatedFilter: false,
@@ -287,7 +287,7 @@ const fieldProps = {
 
     componentDidMount = () => {
         this.props.disputeFilters.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy : this.props.store.entNameOfLoggedUser;;
-        this.props.disputeFilters.metaMaskAddress = this.props.store.metaMaskAddressOfLoggedUser;
+        this.props.disputeFilters.metaMaskAddress = this.props.store.backChainAccountOfLoggedUser;
         this.setAllStateValues()
     }
 
@@ -406,7 +406,7 @@ const fieldProps = {
         let raisedByValue = event.target.value.trim().length > 0 ? event.target.value.trim() : null;
         this.setState({ raisedBy: raisedByValue });
         if (raisedByValue == this.props.store.entNameOfLoggedUser) {
-            this.props.disputeFilters.metaMaskAddress = this.props.store.metaMaskAddressOfLoggedUser;
+            this.props.disputeFilters.metaMaskAddress = this.props.store.backChainAccountOfLoggedUser;
         } else {
             this.props.disputeFilters.metaMaskAddress = null;
         }

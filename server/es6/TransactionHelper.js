@@ -89,8 +89,7 @@ class TransactionHelper {
                     exist.blockChain= {
                         'url': config.url,
                         'contractAddress': config.contractAddress,
-                        'disputeContractAddress': config.disputeContractAddress,
-                        'metaMaskAddressOfLoggedUser': config.metaMaskAddressOfLoggedUser
+                        'disputeContractAddress': config.disputeContractAddress
                     }
                     data = exist;
                 } else {
@@ -99,8 +98,7 @@ class TransactionHelper {
                         blockChain: {
                             'url': config.url,
                             'contractAddress': config.contractAddress,
-                            'disputeContractAddress': config.disputeContractAddress,
-                            'metaMaskAddressOfLoggedUser': config.metaMaskAddressOfLoggedUser
+                            'disputeContractAddress': config.disputeContractAddress
                         }
 
                     };

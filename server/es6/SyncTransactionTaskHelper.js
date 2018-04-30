@@ -181,7 +181,7 @@ class SyncTransactionTaskHelper {
             });
         }
 
-        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, metaMaskAddressOfLoggedUser, callback) {
+        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, callback) {
             // TODO: don't add duplicates
             pendingResets.unshift({
                 authenticationToken: authenticationToken,
@@ -190,7 +190,6 @@ class SyncTransactionTaskHelper {
                 callback: callback
             });
             this.syncMessages(authenticationToken, chainOfCustodyUrl);
-            this.registerAddress(authenticationToken, chainOfCustodyUrl, metaMaskAddressOfLoggedUser);
         }
 
         startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {

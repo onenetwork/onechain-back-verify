@@ -94,8 +94,8 @@ import {disputeHelper} from '../DisputeHelper';
 				"transactionId": disputeTransaction.id,
 				"events" : this.state.eventBtids,
 				"reasonCode": ReactDOM.findDOMNode(this.select).value,
-				"status": "Draft",
-				"raisedBy" : this.props.store.metaMaskAddressOfLoggedUser
+				"status": "Draft"
+				// "raisedBy" : this.props.store.backChainAccountOfLoggedUser TODO@Pankaj: Query@Yusuf Should we call metaMaskHelper.detectAndReadMetaMaskAccount() like DisputesView.submitDispute(dispute) OR should we call disputeHelper.getRaisedByAddress(raisedByName)?
 			}
 		}
 		
@@ -188,7 +188,6 @@ import {disputeHelper} from '../DisputeHelper';
 		me.setState({saveOrSubmitDisputeButtonsDisabled:true});
 		me.setState({tnxIdInputDisabled:true});
 		let dispute = this.getNewDisputeData();
-		dispute.raisedBy = this.props.store.metaMaskAddressOfLoggedUser;
         BackChainActions.submitDispute(dispute, this.props.store.disputeSubmissionWindowInMinutes)
         .then(function(result){
             if(result.success) {
