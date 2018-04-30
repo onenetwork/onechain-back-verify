@@ -922,4 +922,30 @@ export default class BackChainActions {
             }
         });
     }
+
+    @action
+    static registerAddress(backChainAccountOfLoggedUser) {
+        let params = {
+            'authenticationToken': store.authenticationToken,
+            'chainOfCustodyUrl': store.chainOfCustodyUrl,
+            'backChainAccountOfLoggedUser':backChainAccountOfLoggedUser
+        };
+        fetch('/registerAddress', {
+            method: 'post',
+            headers: new Headers({
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }),
+            body: requestHelper.jsonToUrlParams(params)
+        })
+        .then(function(response) {
+            return response.json();
+        }, function(error) {
+            console.error(error);
+        }).then(function(response) {
+            if(response.success)
+                store.backChainAccountOfLoggedUser = backChainAccountOfLoggedUser;
+        })
+    }
 }

@@ -128,6 +128,10 @@ const map = {
             .then(function (receipt) {
                 if(receipt && receipt.status == 1) {
                     //TODO Make sure to update the list
+                    if(this.props.store.backChainAccountOfLoggedUser !== accountNumber) {
+                        BackChainActions.registerAddress(accountNumber);
+                    }
+
                     BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "SUCCESS");
                 } else {
                     BackChainActions.displayAlertPopup("Dispute Submission Failed", 

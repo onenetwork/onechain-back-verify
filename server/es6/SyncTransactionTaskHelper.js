@@ -75,8 +75,8 @@ class SyncTransactionTaskHelper {
             }
         }
 
-        registerAddress(authenticationToken, chainOfCustodyUrl, metaMaskAddressOfLoggedUser) {
-            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/registerAddress?address='+metaMaskAddressOfLoggedUser), {
+        registerAddress(authenticationToken, chainOfCustodyUrl, backChainAccountOfLoggedUser) {
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/registerAddress?address='+backChainAccountOfLoggedUser), {
                 method: 'get',
                 headers: new Headers({
                     'Cache-Control': 'no-cache',
@@ -93,7 +93,9 @@ class SyncTransactionTaskHelper {
                 if(!result.success) {
                     throw new Error("registerAddress not successful: " + result.msg);
                 }
+                
                 console.info("Address registered !");
+                return result;
             });
         }
 

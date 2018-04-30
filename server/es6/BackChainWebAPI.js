@@ -208,3 +208,13 @@ exports.submitDispute = function (req, res) {
         res.json({ success: false });
     });
 };
+
+exports.registerAddress = function (req, res) {
+    syncTransactionTaskHelper.registerAddress(req.body.authenticationToken, req.body.chainOfCustodyUrl, req.body.backChainAccountOfLoggedUser)
+    .then(function (result) {
+        res.json(result);
+    })
+    .catch(function (error) {
+        res.json({ success: false });
+    });
+};
