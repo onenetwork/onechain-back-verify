@@ -210,7 +210,7 @@ exports.submitDispute = function (req, res) {
 };
 
 exports.registerAddress = function (req, res) {
-    syncTransactionTaskHelper.registerAddress(req.body.authenticationToken, req.body.chainOfCustodyUrl, req.body.backChainAccountOfLoggedUser)
+    disputeHelper.registerAddress(req.body.authenticationToken, req.body.chainOfCustodyUrl, req.body.backChainAccountOfLoggedUser)
     .then(function (result) {
         res.json(result);
     })

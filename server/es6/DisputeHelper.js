@@ -374,6 +374,28 @@ class DisputeHelper {
         let tnxDurationInMinutes = Math.ceil(tnxDuration.asMinutes());
         return { "visible": tnxDurationInMinutes < disputeSubmissionWindowInMinutes, "tnxDurationInMinutes": tnxDurationInMinutes };
     }
+
+    registerAddress(authenticationToken, chainOfCustodyUrl, backChainAccountOfLoggedUser) {
+        return new Promise((resolve, reject) => {
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/registerAddress?address='+backChainAccountOfLoggedUser), {
+                method: 'get',
+                headers: new Headers({
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'token ' + authenticationToken
+                })
+            }).then(response => {
+                return response.json();
+            }).then(result => {
+                console.info("Address registered ! " + result);
+                resolve(result);
+            }).catch((err) => {
+                console.error("Address registeration failed: " + err);
+                reject(err);
+            });
+        });
+    }
 }
 
 export const disputeHelper = new DisputeHelper();

@@ -75,31 +75,6 @@ class SyncTransactionTaskHelper {
             }
         }
 
-        registerAddress(authenticationToken, chainOfCustodyUrl, backChainAccountOfLoggedUser) {
-            return new Promise(resolve => {
-                fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/registerAddress?address='+backChainAccountOfLoggedUser), {
-                    method: 'get',
-                    headers: new Headers({
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Authorization': 'token ' + authenticationToken
-                    })
-                }).then(response => {
-                    return response.json();
-                }).then(result => {
-                    if(!result) {
-                        throw new Error("registerAddress response was empty");
-                    }
-                    if(!result.success) {
-                        throw new Error("registerAddress not successful: " + result.msg);
-                    }
-                    console.info("Address registered !");
-                    resolve(result);
-                });
-            });
-        }
-
         makeConsumeRequest(authenticationToken, chainOfCustodyUrl) {
             return fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
                 method: 'get',
