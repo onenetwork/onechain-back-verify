@@ -106,10 +106,7 @@ class DisputeHelper {
 
             if (this.isValueNotNull(filters.raisedBy)) {
 
-                if (this.isValueNotNull(filters.metaMaskAddress)) {
-                    query.raisedBy = filters.metaMaskAddress;
-                }
-                else {
+                if (filters.entNameOfLoggedUser !== filters.raisedBy) {
                     query.searchInDraftDispute = false;
                     var prms = new Promise(function (resolve, reject) {
                         me.getRaisedByAddress(filters.raisedBy)

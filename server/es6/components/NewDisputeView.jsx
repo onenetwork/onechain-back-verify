@@ -95,7 +95,6 @@ import {disputeHelper} from '../DisputeHelper';
 				"events" : this.state.eventBtids,
 				"reasonCode": ReactDOM.findDOMNode(this.select).value,
 				"status": "Draft"
-				// "raisedBy" : this.props.store.backChainAccountOfLoggedUser TODO@Pankaj: Query@Yusuf Should we call metaMaskHelper.detectAndReadMetaMaskAccount() like DisputesView.submitDispute(dispute) OR should we call disputeHelper.getRaisedByAddress(raisedByName)?
 			}
 		}
 		

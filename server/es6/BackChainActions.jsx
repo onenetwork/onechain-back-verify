@@ -724,7 +724,7 @@ export default class BackChainActions {
             console.error('error getting disputes');
         }).then(function (result) {
             store.loadingData = false;
-            if (result.success) {
+            if (result && result.success) {
                 for (let i = 0, len = result.disputes.length; i < len; i++) {
                     store.disputes.push(result.disputes[i]);
                 }

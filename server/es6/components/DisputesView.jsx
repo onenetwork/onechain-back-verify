@@ -118,7 +118,9 @@ const map = {
             * - Add proper warning messages like "Submission failed. Make sure you're connected to the right node"
             *     "Please change the account in metamask to your own account"
             */
-           let bcClient = oneBcClient({
+
+            dispute.disputingParty = accountNumber;
+            let bcClient = oneBcClient({
                 blockchain: 'eth',
                 web3Provider : web3.currentProvider,
                 fromAddress: accountNumber,

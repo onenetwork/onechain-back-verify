@@ -65,7 +65,7 @@ const fieldProps = {
             raisedBy: null,
             transactionRelatedFilter: false,
             reasonCodes: null,
-            metaMaskAddress: null
+            entNameOfLoggedUser: this.props.store.entNameOfLoggedUser
         };
     }
 
@@ -75,14 +75,13 @@ const fieldProps = {
         this.selectedCheckboxes.add('Open');
     }
 
-    componentDidMount() {       
+    componentDidMount() {      
         let loggedInUser = this.props.store.entNameOfLoggedUser;
-        let maskAddress = this.props.store.backChainAccountOfLoggedUser;
         this.disputeFilters = {
         	status: ["Draft", "Open"],
             transactionRelatedFilter: false,
             raisedBy: loggedInUser,
-            metaMaskAddress: maskAddress
+            entNameOfLoggedUser: this.props.store.entNameOfLoggedUser
         }
         BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
     }
@@ -138,8 +137,7 @@ const fieldProps = {
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
-            transactionRelatedFilter: false,
-            metaMaskAddress : null
+            transactionRelatedFilter: false
         };
     }
 
@@ -286,8 +284,7 @@ const fieldProps = {
     }
 
     componentDidMount = () => {
-        this.props.disputeFilters.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy : this.props.store.entNameOfLoggedUser;;
-        this.props.disputeFilters.metaMaskAddress = this.props.store.backChainAccountOfLoggedUser;
+        this.props.disputeFilters.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy : this.props.store.entNameOfLoggedUser;
         this.setAllStateValues()
     }
 
@@ -404,12 +401,7 @@ const fieldProps = {
 
     listenRaisedByKeyPress(event) {
         let raisedByValue = event.target.value.trim().length > 0 ? event.target.value.trim() : null;
-        this.setState({ raisedBy: raisedByValue });
-        if (raisedByValue == this.props.store.entNameOfLoggedUser) {
-            this.props.disputeFilters.metaMaskAddress = this.props.store.backChainAccountOfLoggedUser;
-        } else {
-            this.props.disputeFilters.metaMaskAddress = null;
-        }
+        this.setState({ raisedBy: raisedByValue });        
         this.props.disputeFilters.raisedBy = raisedByValue;
     }
 
