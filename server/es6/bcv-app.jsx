@@ -56,7 +56,7 @@ window.BackchainVerifyAPI = {
         BackChainActions.init(backChainStore, options);
 
         const componentToRender = options.showOnlyVerifyView
-            ? <TrackAndVerifyView store={backChainStore} hideProgressBar />
+            ? <TrackAndVerifyView store={backChainStore} showDisputeDetailsInPopup = {options.showDisputeDetailsInPopup} showDisputeActions = {options.showDisputeActions !== false} hideProgressBar />
             : <RoutedApp/>;
 
         if (typeof renderTo == 'string') {
