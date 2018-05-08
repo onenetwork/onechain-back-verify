@@ -362,7 +362,8 @@ export default class BackChainActions {
             }).then(function(result) {
                 if (result.success && result.settings.blockChain &&
                     result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
-                    result.settings.blockChain.disputeContractAddress && result.settings.blockChain.disputeSubmissionWindowInMinutes) {
+                    result.settings.blockChain.disputeContractAddress && /*submissionWindow can return as 0 if PLT hasn't submitted a value 0 is considered as false*/
+                    typeof result.settings.blockChain.disputeSubmissionWindowInMinutes != 'undefined') {
                     store.isInitialSetupDone = true;
                     store.blockChainUrl = result.settings.blockChain.url;
                     store.blockChainContractAddress = result.settings.blockChain.contractAddress;
@@ -371,10 +372,10 @@ export default class BackChainActions {
                 } else {
                     store.isInitialSetupDone = false;
                     store.mode = result.settings.mode;
-                    store.blockChainUrl=config.blockChainUrl;
-                    store.blockChainContractAddress=config.blockChainContractAddress;
+                    store.blockChainUrl = config.blockChainUrl;
+                    store.blockChainContractAddress = config.blockChainContractAddress;
                     store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
-                    store.disputeSubmissionWindowInMinutes = false;
+                    store.disputeSubmissionWindowInMinutes = 0;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {
