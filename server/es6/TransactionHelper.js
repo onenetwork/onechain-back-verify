@@ -90,7 +90,7 @@ class TransactionHelper {
                         'url': config.url,
                         'contractAddress': config.contractAddress,
                         'disputeContractAddress': config.disputeContractAddress,
-                        'disputeSubmissionWindowInMinutes': config.disputeSubmissionWindowInMinutes
+                        'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes)
                     }
                     data = exist;
                 } else {
@@ -100,7 +100,7 @@ class TransactionHelper {
                             'url': config.url,
                             'contractAddress': config.contractAddress,
                             'disputeContractAddress': config.disputeContractAddress,
-                            'disputeSubmissionWindowInMinutes': config.disputeSubmissionWindowInMinutes
+                            'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes)
                         }
 
                     };

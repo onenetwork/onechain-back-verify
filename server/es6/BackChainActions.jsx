@@ -576,7 +576,7 @@ export default class BackChainActions {
 
                 disputeBcClient.getDisputeSubmissionWindowInMinutes().
                 then(function(result){
-                    store.disputeSubmissionWindowInMinutes = result;
+                    store.disputeSubmissionWindowInMinutes = parseInt(result);
                     BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.disputeSubmissionWindowInMinutes);
                 }).
                 catch(function(error) {
