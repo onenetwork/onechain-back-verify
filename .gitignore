@@ -2,6 +2,7 @@
 build/
 log/
 node_modules/
+attachments/
 server/es5/
 server/public/dist/
 package.json
