@@ -89,7 +89,8 @@ class TransactionHelper {
                     exist.blockChain= {
                         'url': config.url,
                         'contractAddress': config.contractAddress,
-                        'disputeContractAddress': config.disputeContractAddress
+                        'disputeContractAddress': config.disputeContractAddress,
+                        'disputeSubmissionWindowInMinutes': config.disputeSubmissionWindowInMinutes
                     }
                     data = exist;
                 } else {
@@ -98,7 +99,8 @@ class TransactionHelper {
                         blockChain: {
                             'url': config.url,
                             'contractAddress': config.contractAddress,
-                            'disputeContractAddress': config.disputeContractAddress
+                            'disputeContractAddress': config.disputeContractAddress,
+                            'disputeSubmissionWindowInMinutes': config.disputeSubmissionWindowInMinutes
                         }
 
                     };

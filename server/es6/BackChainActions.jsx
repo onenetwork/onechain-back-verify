@@ -7,6 +7,7 @@ import moment from 'moment';
 import "isomorphic-fetch";
 import config from './config';
 import { observable } from 'mobx';
+import oneBcClient from '@onenetwork/one-backchain-client';
 import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 
@@ -289,14 +290,13 @@ export default class BackChainActions {
     }
 
     @action
-    static saveBlockChainSettings(url, contractAddress, disputeContractAddress) {
-        /*TODO fetch from backChain by oneBcClient.getDisputeSubmmisionWindowInMinutes() and set
-        to store.disputeSubmissionWindowInMinutes*/
+    static saveBlockChainSettings(url, contractAddress, disputeContractAddress, disputeSubmissionWindowInMinutes) {
         let params = {
             'url':url,
             'contractAddress': contractAddress,
-            'disputeContractAddress': disputeContractAddress
-            };
+            'disputeContractAddress': disputeContractAddress,
+            'disputeSubmissionWindowInMinutes': disputeSubmissionWindowInMinutes
+        };
         fetch('/saveBlockChainSettings', {
             method: 'post',
             headers: new Headers({
@@ -309,7 +309,7 @@ export default class BackChainActions {
             return response.json();
           }).then(function(result) {
             if(result.success === true){
-                  store.isInitialSetupDone = true;
+                store.isInitialSetupDone = true;
             }else{
                 store.isInitialSetupDone = false;
             }
@@ -320,7 +320,7 @@ export default class BackChainActions {
             store.blockChainUrl = null;
             store.blockChainContractAddress = null;
             store.disputeBlockChainContractAddress = null;
-          });
+        });
     }
 
     @action
@@ -554,15 +554,42 @@ export default class BackChainActions {
 
 
     @action
-    static verifyBackChainSettings(oneBcClient) {
-        oneBcClient.getOrchestrator()
-        .then(function (result) {
-            // TODO store.disputeSubmissionWindowInMinutes = oneBcClient.getDisputeSubmmisionWindowInMinutes() and pass this store in saveBlockChainSettings(,,,,)
-            BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress);
-        })
-        .catch(function (error) {
-            BackChainActions.displayAlertPopup("BlockChain Communication Failed", "Could not connect to the blockchain, please check your settings and try again.",'ERROR');
-        });
+    static verifyBackChainSettings() {
+        //Verify orchestrator first and then getDisputeSubmissionWindows to make sure required things work.
+        try {
+            let contentBcClient = oneBcClient.createContentBcClient({
+                blockchain: 'eth',
+                url: store.blockChainUrl,
+                contentBackchainContractAddress: store.blockChainContractAddress,
+                disputeBackchainContractAddress: store.disputeBlockChainContractAddress
+            });
+            
+            contentBcClient.getOrchestrator()
+            .then(function (result) {
+                //Content BackChain credentials are correct and the connection is established. Try it for disputeContentBackChain
+                let disputeBcClient = oneBcClient.createDisputeBcClient({
+                    blockchain: 'eth',
+                    url: store.blockChainUrl,
+                    contentBackchainContractAddress: store.blockChainContractAddress,
+                    disputeBackchainContractAddress: store.disputeBlockChainContractAddress
+                });	
+
+                disputeBcClient.getDisputeSubmissionWindowInMinutes().
+                then(function(result){
+                    store.disputeSubmissionWindowInMinutes = result;
+                    BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.disputeSubmissionWindowInMinutes);
+                }).
+                catch(function(error) {
+                    BackChainActions.displayAlertPopup("Dispute BackChain Communication Failed", "Could not connect to the dispute backchain, please check dispute backchain contract address and try again.",'ERROR');
+                });
+            })
+            .catch(function (error) {
+                BackChainActions.displayAlertPopup("Content BackChain Communication Failed", "Could not connect to the content backchain, please check your settings and try again.",'ERROR');
+            });
+        } catch(error) {
+            BackChainActions.displayAlertPopup("BackChain Communication Failed", "Could not connect to the backchain, please check your settings and try again.",'ERROR');
+            console.error(error);
+        }                
     }
 
     @action

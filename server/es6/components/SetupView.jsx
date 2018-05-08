@@ -4,7 +4,6 @@ import { Row, Col, Button, Panel, FormControl,Modal } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from './HeaderView';
-import oneBcClient from '@onenetwork/one-backchain-client';
 import AlertPopupView from './AlertPopupView';
 import DisplaySyncView from "./DisplaySyncView"
 
@@ -18,6 +17,10 @@ import DisplaySyncView from "./DisplaySyncView"
 		BackChainActions.processApplicationSettings();
 	}
 
+	isEmpty(value) {
+		return value == null || typeof value == 'undefined' || value == "";
+	}
+
 	saveInitialConfig() {
 
 		//Ask for metamask installation
@@ -28,28 +31,15 @@ import DisplaySyncView from "./DisplaySyncView"
 			return;
 		}
 		let me = this;
-		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null || this.props.store.disputeBlockChainContractAddress == null) {
-			alert('Please input all the following values');
+		if (this.isEmpty(this.props.store.blockChainUrl) || this.isEmpty(this.props.store.blockChainContractAddress) || this.isEmpty(this.props.store.disputeBlockChainContractAddress)) {
+			BackChainActions.displayAlertPopup("Missing Required Fields", "Please fill in all the required fields and try again.",'WARN');
 			return;
 		}
 		if (!this.props.store.blockChainUrl.toLowerCase().startsWith("http://") && !this.props.store.blockChainUrl.toLowerCase().startsWith("https://")) {
-			alert('Inivalid server url');
+			BackChainActions.displayAlertPopup("Invalid BlockChain Url", "Please enter a valie block chain url and try again.",'WARN');
 			return;
 		}
-		try {
-			//verify if all inputs are valid
-			let bcClient = oneBcClient({
-				blockchain: 'eth',
-				url: this.props.store.blockChainUrl,
-				contractAddress: this.props.store.blockChainContractAddress,
-				disputeContractAddress: this.props.store.disputeBlockChainContractAddress
-			});
-			BackChainActions.verifyBackChainSettings(bcClient);
-		} catch (e) {
-			alert(e);
-			return;
-		}
-
+		BackChainActions.verifyBackChainSettings();
 	}
 
 	blockChainUrl(event){
