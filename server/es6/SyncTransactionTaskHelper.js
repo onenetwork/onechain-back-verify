@@ -1,6 +1,10 @@
 import config from './config';
 import {dbconnectionManager} from './DBConnectionManager';
 import moment from 'moment';
+import fs from 'fs';
+import url from 'url';
+import http from 'http';
+import https from 'https';
 import {requestHelper} from './RequestHelper';
 import {backChainUtil} from  './BackChainUtil';
 import "isomorphic-fetch";
@@ -9,6 +13,18 @@ import { receiveTransactionsTask } from './ReceiveTransactionsTask';
 
 let syncing = false;
 let pendingResets = [];
+let pendingAttachments = {};
+
+let adapter = function() {
+    let adapters = {
+        'http:': http,
+        'https:': https
+    };
+
+    return function(inputUrl) {
+        return adapters[url.parse(inputUrl).protocol];
+    }
+}();
 
 /*
  Helper class contains synch related APIs
@@ -38,7 +54,13 @@ class SyncTransactionTaskHelper {
             }
             syncing = true;
 
-            if(pendingResets.length > 0) {
+            if(Object.keys(pendingAttachments).length > 0) {
+                this.downloadAttachment(authenticationToken, chainOfCustodyUrl).then(result => {
+                    syncing = false;
+                    this.syncMessages(authenticationToken, chainOfCustodyUrl);
+                });
+            }
+            else if(pendingResets.length > 0) {
                 this.makeResetRequest().then(result => {
                     syncing = false;
                     this.syncMessages(authenticationToken, chainOfCustodyUrl);
@@ -49,11 +71,12 @@ class SyncTransactionTaskHelper {
                     syncing = false;
 
                     if(result.transactionMessages.length) {
+                        this.processMessagesForAttachments(result.transactionMessages);
                         receiveTransactionsTask.insertMessages(result.transactionMessages);
                     }
 
                     let lastSyncTimeInMillis = receiveTransactionsTask.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
-                    if(result.hasMorePages || pendingResets.length > 0) {
+                    if(result.hasMorePages || pendingResets.length > 0 || Object.keys(pendingAttachments).length > 0) {
                         setTimeout(() => {
                             this.syncMessages(authenticationToken, chainOfCustodyUrl);
                         }, 1000);
@@ -76,7 +99,7 @@ class SyncTransactionTaskHelper {
         }
 
         makeConsumeRequest(authenticationToken, chainOfCustodyUrl) {
-            return fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume?limitInKb=1024'), {
+            return fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/consume', { limitInKb: 1024 }), {
                 method: 'get',
                 headers: new Headers({
                     'Cache-Control': 'no-cache',
@@ -106,11 +129,14 @@ class SyncTransactionTaskHelper {
             let url;
             if(request.fromDate) {
                 let dateAsString = moment(new Date(parseInt(request.fromDate, 10))).format('YYYYMMDD');
-                url = backChainUtil.returnValidURL(baseUrl + '?fromDate=' + dateAsString);
+                url = backChainUtil.returnValidURL(baseUrl, { fromDate: dateAsString });
                 console.log('Sync from date: ' + dateAsString);
             }
             else if(request.fromSequence) {
-                url = backChainUtil.returnValidURL(baseUrl + '?fromSequence=' + request.fromSequence + '&toSequence=' + request.toSequence);
+                url = backChainUtil.returnValidURL(baseUrl, {
+                    fromSequence: request.fromSequence,
+                    toSequence: request.toSequence
+                });
                 console.log('Sync gap: ' + request.fromSequence + (request.toSequence ? (" - " + request.toSequence) : ""));
             }
             else {
@@ -154,6 +180,99 @@ class SyncTransactionTaskHelper {
                     request.callback(err, null);
                 }
             });
+        }
+
+        downloadAttachment(authenticationToken, chainOfCustodyUrl) {
+            return new Promise((resolve, reject) => {
+                let pendingAttachmentIds = Object.keys(pendingAttachments);
+
+                // Check that there are pending attachments.
+                if(!pendingAttachmentIds.length) {
+                    resolve();
+                    return;
+                }
+
+                let attachmentsDir = "attachments";
+                if (!fs.existsSync(attachmentsDir)) {
+                    fs.mkdirSync(attachmentsDir);
+                }
+
+                let pendingAttachment = pendingAttachments[pendingAttachmentIds[0]];
+                let fileName = pendingAttachment.id.replace(/[\/\\]/g, '_');
+                let filePath = attachmentsDir + "/" + fileName;
+                
+                // Check that the attachment isn't already downloaded.
+                if (fs.existsSync(filePath)) {
+                    delete pendingAttachments[pendingAttachment.id];
+                    resolve();
+                    return;
+                }
+
+                console.log('Downloading attachment ' + pendingAttachment.id);
+
+                let attachmentUrl = backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/attachment', {
+                    transactionId: pendingAttachment.txnId,
+                    transactionSliceHash: pendingAttachment.txnSliceHash,
+                    sequence: pendingAttachment.txnSequence,
+                    businessTransactionId: pendingAttachment.businessTxnId,
+                    attachmentId: pendingAttachment.id
+                });
+                let options = url.parse(attachmentUrl);
+                console.log(options);
+                options.headers = {
+                    Authorization: 'token ' + authenticationToken
+                };
+
+                // Create the file and try to download the contents.
+                let file = fs.createWriteStream(filePath);
+                let request = adapter(attachmentUrl).get(options, response => {
+                    response.pipe(file);
+
+                    const { statusCode } = response;
+                    if(statusCode != 200) {
+                        console.log('Failed to download attachment ' + pendingAttachment.id + ', statusCode: ' + statusCode);
+                    }
+
+                    file.on('finish', () => {
+                        delete pendingAttachments[pendingAttachment.id];
+                        resolve();
+                    }).on('error', err => {
+                        // Delete the file.
+                        fs.unlink(filePath);
+
+                        console.log('Failed to download attachment ' + pendingAttachment.id + ' for txn '
+                            + pendingAttachment.txnId + ' and business txn ' + pendingAttachment.businessTxnId);
+                        resolve();
+                    });
+                });
+            });
+        }
+
+        processMessagesForAttachments(transactionMessages) {
+            for(let i = 0; i < transactionMessages.length; i++) {
+                let transactionMessage = transactionMessages[i];
+                let transactionSlice = JSON.parse(transactionMessage.transactionSliceString);
+                for(let j = 0; j < transactionSlice.businessTransactions.length; j++) {
+                    let businessTransaction = transactionSlice.businessTransactions[j];
+                    if(!businessTransaction.Attachments) {
+                        continue;
+                    }
+
+                    for(let k in businessTransaction.Attachments) {
+                        let attachmentArr = businessTransaction.Attachments[k];
+                        for(let l = 0; l < attachmentArr.length; l++) {
+                            let id = attachmentArr[l].id;
+                            if(!pendingAttachments[id]) {
+                                let att = pendingAttachments[id] = attachmentArr[l];
+                                att.txnId = transactionMessage.id;
+                                att.txnSliceHash = transactionMessage.transactionSliceHash;
+                                att.txnSequence = transactionMessage.sequence;
+                                att.businessTxnId = businessTransaction.btid;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, callback) {
