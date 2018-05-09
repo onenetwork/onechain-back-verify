@@ -22,15 +22,6 @@ import DisplaySyncView from "./DisplaySyncView"
 	}
 
 	saveInitialConfig() {
-
-		//Ask for metamask installation
-		if(typeof web3 === 'undefined' || typeof web3.currentProvider === 'undefined' || web3.currentProvider.isMetaMask !== true) {
-			BackChainActions.displayAlertPopup("Missing MetaTask Extension", 
-			["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>, 
-			" in order to use Disputes. Please install the extension first and try again."],'ERROR');
-			return;
-		}
-		let me = this;
 		if (this.isEmpty(this.props.store.blockChainUrl) || this.isEmpty(this.props.store.blockChainContractAddress) || this.isEmpty(this.props.store.disputeBlockChainContractAddress)) {
 			BackChainActions.displayAlertPopup("Missing Required Fields", "Please fill in all the required fields and try again.",'WARN');
 			return;

@@ -113,24 +113,32 @@ const map = {
         metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber)=>{
             /**
             * TODO
-            * - Send this accountNumber to PLT so it can be added to the mapping. Also put it in store. Find a better name for the variable.          
-            * - Change contractAddress to dispute back chain address once the contract is ready
+            * - Send this accountNumber to PLT so it can be added to the mapping. Also put it in store. Find a better name for the variable.
             * - Add proper warning messages like "Submission failed. Make sure you're connected to the right node"
             *     "Please change the account in metamask to your own account"
             */
 
-            dispute.disputingParty = accountNumber;
-            let bcClient = oneBcClient({
+            let disputeBcClient = oneBcClient.createDisputeBcClient({
                 blockchain: 'eth',
                 web3Provider : web3.currentProvider,
                 fromAddress: accountNumber,
-                contractAddress: me.props.store.blockChainContractAddress
+                contentBackchainContractAddress: me.props.store.blockChainContractAddress,
+                disputeBackchainContractAddress: me.props.store.disputeBlockChainContractAddress
             });	
-            bcClient.post("0x893204584796245970fb09eb7cd94ef39f9b7bb2f35baa259ffcad0ef5197cad")
-            .then(function (receipt) {
+            /**
+             * TEMP conversion operation. Needs to be removed.
+             * Make sure the data structure matches the data structure in BlockChain so we don't need conversion. 
+             */
+            dispute.id = dispute.id.startsWith('0x') ? dispute.id :  '0x' + dispute.id;
+            dispute.disputedTransactionID = '0x' + dispute.transactionId;
+            dispute.disputedBusinessTransactionIDs = dispute.events;
+            dispute.reason = dispute.reasonCode = 'HASH_NOT_FOUND'; 
+
+            disputeBcClient.submitDispute(dispute)
+            .then(function(receipt){
                 if(receipt && receipt.status == 1) {
                     //TODO Make sure to update the list
-                    if(this.props.store.backChainAccountOfLoggedUser !== accountNumber) {
+                    if(me.props.store.backChainAccountOfLoggedUser !== accountNumber) {
                         BackChainActions.registerAddress(accountNumber);
                     }
 
@@ -139,8 +147,8 @@ const map = {
                     BackChainActions.displayAlertPopup("Dispute Submission Failed", 
                     "Dispute submission failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
                 }
-            })
-            .catch(function (error) {
+            }).
+            catch(function(error) {
                 if (error) {
                     if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
                         BackChainActions.displayAlertPopup("MetaMask Transaction was Denied", 
@@ -151,6 +159,8 @@ const map = {
                     }
                 }
             });
+            
+            
         }).catch((error)=> {
             if(error.code == 'error.metamask.missing') {
                 BackChainActions.displayAlertPopup("Missing MetaTask Extension", 

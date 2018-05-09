@@ -375,7 +375,7 @@ export default class BackChainActions {
                     store.blockChainUrl = config.blockChainUrl;
                     store.blockChainContractAddress = config.blockChainContractAddress;
                     store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
-                    store.disputeSubmissionWindowInMinutes = 0;
+                    store.disputeSubmissionWindowInMinutes = 24 * 60; //Default value is one day in minutes.
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {
