@@ -113,7 +113,7 @@ class BackChainStore {
 
     @computed get oneBcClient() {
         if (this.blockChainUrl != null && this.blockChainContractAddress != null) {
-            return oneBcClient({
+            return oneBcClient.createContentBcClient({
                 blockchain: 'eth',
                 url: this.blockChainUrl,
                 contractAddress: this.blockChainContractAddress,
