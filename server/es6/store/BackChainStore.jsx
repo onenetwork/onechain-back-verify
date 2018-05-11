@@ -48,6 +48,9 @@ class BackChainStore {
     @observable alertPopupLevel = 'INFO';
     @observable backChainAccountOfLoggedUser = null;
     @observable openDisputeCountOfLoggedUser = 0;
+    @observable businessTransactionIds = [];
+    @observable enterpriseBusinessTransactions = [];
+    @observable intersectionBusinessTransactions = [];
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {
@@ -162,6 +165,77 @@ class BackChainStore {
             "totalCompleted": totalCompleted,
             "endResult": endResult
         };
+    }
+
+    /**
+     * Putting @computed listBusinessTransactionIds setter after listBusinessTransactionIds getter is recomended.
+     */
+    @computed get listBusinessTransactionIds() {
+        return this.businessTransactionIds;
+    }
+
+    set listBusinessTransactionIds(businessTransactionId) {
+        this.businessTransactionIds.splice(0, this.businessTransactionIds.length);
+
+        /*TODO@Pankaj remove below lines*/
+        this.enterpriseBusinessTransactions.splice(0, this.enterpriseBusinessTransactions.length);
+        this.intersectionBusinessTransactions.splice(0, this.intersectionBusinessTransactions.length);
+
+        /*TODO@Pankaj enable below lines*/
+        // this.enterpriseBusinessTransactions = this.viewTransactions.enterprise.transactionSlice.businessTransactions;
+        // this.intersectionBusinessTransactions = this.viewTransactions.intersection.transactionSlice.businessTransactions;
+
+
+        /*TODO@Pankaj remove below for loop don't know why i am getting btransaction as stirng*/
+        for(let i = 0; i < this.viewTransactions.enterprise.transactionSlice.businessTransactions.length; i++) {
+            let enterpriseBusinessTransaction = this.viewTransactions.enterprise.transactionSlice.businessTransactions[i];
+            //TODO@PANKAJ temp fix don't know why i am getting btransaction as stirng
+            if(typeof enterpriseBusinessTransaction==='string') {
+                enterpriseBusinessTransaction = JSON.parse(enterpriseBusinessTransaction)
+            }
+            this.enterpriseBusinessTransactions.push(enterpriseBusinessTransaction);
+        }
+
+        /*TODO@Pankaj remove below for with if, don't know why i am getting btransaction as stirng */
+        if(this.viewTransactions.intersection) {
+            for(let i = 0; i < this.viewTransactions.intersection.transactionSlice.businessTransactions.length; i++) {
+                let intersectioneBusinessTransaction = this.viewTransactions.intersection.transactionSlice.businessTransactions[i];
+                //TODO@PANKAJ temp fix don't know why i am getting btransaction as stirng
+                if(typeof intersectioneBusinessTransaction==='string') {
+                    intersectioneBusinessTransaction = JSON.parse(intersectioneBusinessTransaction)
+                }
+                this.intersectionBusinessTransactions.push(intersectioneBusinessTransaction);
+            }
+        }
+
+        for(let i = 0; i < this.enterpriseBusinessTransactions.length; i++) {
+            let enterpriseBusinessTransaction = this.enterpriseBusinessTransactions[i];
+
+            //TODO@PANKAJ temp fix don't know why out of three transaction other two transactions are of type String
+            if(typeof enterpriseBusinessTransaction==='string') {
+                enterpriseBusinessTransaction = JSON.parse(enterpriseBusinessTransaction)
+            }
+
+            this.businessTransactionIds.push(enterpriseBusinessTransaction.btid);
+        }
+        
+        if(businessTransactionId) {
+            for (let i = this.businessTransactionIds.length-1; i >= 0; i--) {
+                if(!((this.businessTransactionIds[i].toString()).match(businessTransactionId))) {
+                    this.businessTransactionIds.splice(i, 1);
+                    this.enterpriseBusinessTransactions.splice(i, 1);
+                    this.intersectionBusinessTransactions.splice(i, 1);
+                }
+            }
+        }
+    }
+
+    @computed get listEnterpriseBusinessTransactions() {
+        return this.enterpriseBusinessTransactions;
+    }
+
+    @computed get listIntersectionBusinessTransactions() {
+        return this.intersectionBusinessTransactions;
     }
 }
 export const backChainStore = new BackChainStore();

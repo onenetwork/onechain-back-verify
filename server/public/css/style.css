@@ -145,7 +145,7 @@
 
 @media (min-width: 768px) {
     .transaction-preview-modal{	
-        width:50% !important;
+        width:70% !important;
     }
     .transaction-diff-preview-modal{	
         width:80% !important;
