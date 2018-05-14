@@ -145,7 +145,7 @@ export default class MyView extends React.Component {
       }
     };
 
-    let btIds = this.props.store.businessTransactionIds;
+    let btIds = this.props.store.listBusinessTransactionIds;
     let btIdsListUI = [];
 
     for (let i = 0; i < btIds.length; i++) {

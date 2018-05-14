@@ -176,52 +176,19 @@ class BackChainStore {
 
     set listBusinessTransactionIds(businessTransactionId) {
         this.businessTransactionIds.splice(0, this.businessTransactionIds.length);
-
-        /*TODO@Pankaj remove below lines*/
-        this.enterpriseBusinessTransactions.splice(0, this.enterpriseBusinessTransactions.length);
-        this.intersectionBusinessTransactions.splice(0, this.intersectionBusinessTransactions.length);
-
-        /*TODO@Pankaj enable below lines*/
-        // this.enterpriseBusinessTransactions = this.viewTransactions.enterprise.transactionSlice.businessTransactions;
-        // this.intersectionBusinessTransactions = this.viewTransactions.intersection.transactionSlice.businessTransactions;
-
-
-        /*TODO@Pankaj remove below for loop don't know why i am getting btransaction as stirng*/
-        for(let i = 0; i < this.viewTransactions.enterprise.transactionSlice.businessTransactions.length; i++) {
-            let enterpriseBusinessTransaction = this.viewTransactions.enterprise.transactionSlice.businessTransactions[i];
-            //TODO@PANKAJ temp fix don't know why i am getting btransaction as stirng
-            if(typeof enterpriseBusinessTransaction==='string') {
-                enterpriseBusinessTransaction = JSON.parse(enterpriseBusinessTransaction)
-            }
-            this.enterpriseBusinessTransactions.push(enterpriseBusinessTransaction);
-        }
-
-        /*TODO@Pankaj remove below for with if, don't know why i am getting btransaction as stirng */
+        this.enterpriseBusinessTransactions = this.viewTransactions.enterprise.transactionSlice.businessTransactions;
         if(this.viewTransactions.intersection) {
-            for(let i = 0; i < this.viewTransactions.intersection.transactionSlice.businessTransactions.length; i++) {
-                let intersectioneBusinessTransaction = this.viewTransactions.intersection.transactionSlice.businessTransactions[i];
-                //TODO@PANKAJ temp fix don't know why i am getting btransaction as stirng
-                if(typeof intersectioneBusinessTransaction==='string') {
-                    intersectioneBusinessTransaction = JSON.parse(intersectioneBusinessTransaction)
-                }
-                this.intersectionBusinessTransactions.push(intersectioneBusinessTransaction);
-            }
+            this.intersectionBusinessTransactions = this.viewTransactions.intersection.transactionSlice.businessTransactions;
         }
 
         for(let i = 0; i < this.enterpriseBusinessTransactions.length; i++) {
-            let enterpriseBusinessTransaction = this.enterpriseBusinessTransactions[i];
-
-            //TODO@PANKAJ temp fix don't know why out of three transaction other two transactions are of type String
-            if(typeof enterpriseBusinessTransaction==='string') {
-                enterpriseBusinessTransaction = JSON.parse(enterpriseBusinessTransaction)
-            }
-
-            this.businessTransactionIds.push(enterpriseBusinessTransaction.btid);
+            this.businessTransactionIds.push(this.enterpriseBusinessTransactions[i].btid);
         }
         
         if(businessTransactionId) {
+            var businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
             for (let i = this.businessTransactionIds.length-1; i >= 0; i--) {
-                if(!((this.businessTransactionIds[i].toString()).match(businessTransactionId))) {
+                if(!((this.businessTransactionIds[i].toString()).match(businessTransactionIdRegEx))) {
                     this.businessTransactionIds.splice(i, 1);
                     this.enterpriseBusinessTransactions.splice(i, 1);
                     this.intersectionBusinessTransactions.splice(i, 1);
