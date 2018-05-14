@@ -131,7 +131,10 @@ const map = {
              */
             dispute.id = dispute.id.startsWith('0x') ? dispute.id :  '0x' + dispute.id;
             dispute.disputedTransactionID = '0x' + dispute.transactionId;
-            dispute.disputedBusinessTransactionIDs = dispute.events;
+            dispute.disputedBusinessTransactionIDs =[];
+            for(let i=0,len=dispute.events.length;i < len;i++) {
+                dispute.disputedBusinessTransactionIDs[i] = '0x' + dispute.events[i];
+            }
             dispute.reason = dispute.reasonCode = 'HASH_NOT_FOUND'; 
 
             disputeBcClient.submitDispute(dispute)
@@ -172,9 +175,7 @@ const map = {
             } else {
                 BackChainActions.displayAlertPopup("Problem Occured", 
                 ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."],'ERROR');
-                if(error.error) { //Original error
-                    console.error(error.error);
-                }
+                console.error(error);
             }
         });
     }

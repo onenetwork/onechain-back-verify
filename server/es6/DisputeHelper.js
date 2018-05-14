@@ -5,34 +5,44 @@ import { blockChainVerifier } from './BlockChainVerifier';
 import { observable } from 'mobx';
 import { Long } from 'mongodb';
 import crypto from 'crypto';
-import moment from 'moment'
+import moment from 'moment';
+import oneBcClient from '@onenetwork/one-backchain-client';
 
 class DisputeHelper {
 
     constructor() { }
 
     getDisputes(filters) {
-        //filters will be an object including all the selected filters in the UI, like transactionId,raisedBy etc.
-        //Draft records will come from the db and Open/Closed ones will be fetched using oneBcClient apis
         let me = this;
         return new Promise((resolve, reject) => {
-            if (filters) {
-                this.createFilterQuery(filters)
-                    .then((query) => {
-                        if (query.searchInDraftDispute) {
-                            delete query.searchInDraftDispute;
-                            me.queryDisputes(query, filters)
-                                .then((result) => {
-                                    resolve(result);
-                                })
-                        }
-                    })
-            } else {
-                me.queryDisputes({}, null)
-                    .then((result) => {
-                        resolve(result);
-                    })
-            }
+            this.createFilterQuery(filters)
+            .then((query) => {
+                settingsHelper.getApplicationSettings()
+                .then(settings => {
+                    let promisesToWaitOn = [];
+                    if(query.searchInDraftDisputes) {
+                        //Search in DraftDisputesCollection as well
+                        promisesToWaitOn.push(me.queryDisputes({}, query));
+                    }       
+                    let disputeBcClient = oneBcClient.createDisputeBcClient({
+                        blockchain: 'eth',
+                        url : settings.blockChain.url,
+                        contentBackchainContractAddress: settings.blockChain.contractAddress,
+                        disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
+                    });      
+                    promisesToWaitOn.push(disputeBcClient.filterDisputes(query));
+                    Promise.all(promisesToWaitOn).then(function (disputes) {
+                        resolve(disputes[0].concat(disputes[1])); //DraftDisputes + Disputes from BlockChain
+                    }).catch(err => {
+                        reject(err);
+                        console.error("Error occured while fetching disputes:" + err);
+                    });
+                })
+                .catch(err => {
+                    reject("Database Connection has an issue. Check the database's health.");
+                });
+                
+            });            
         });
     }
 
@@ -74,10 +84,10 @@ class DisputeHelper {
 
     createFilterQuery(filters) {
         let me = this;
+        filters = filters || {};
         return new Promise((resolve, reject) => {
-            var promisesToWaitOn = [];
             let query = {};
-            query.searchInDraftDispute = true;
+            query.searchInDraftDisputes = true;
             if (this.isValueNotNull(filters.status)) {
                 query.status = { $in: JSON.parse(filters.status) };
             }
@@ -104,27 +114,6 @@ class DisputeHelper {
                 query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
             }
 
-            if (this.isValueNotNull(filters.raisedBy)) {
-
-                if (filters.entNameOfLoggedUser !== filters.raisedBy) {
-                    query.searchInDraftDispute = false;
-                    var prms = new Promise(function (resolve, reject) {
-                        me.getRaisedByAddress(filters.raisedBy)
-                            .then((result) => {
-                                if (result) {
-                                    query.raisedBy = result.raisedByAddress;
-                                    resolve(query);
-                                } else {
-                                    query.raisedBy = null;
-                                    resolve(query);
-                                }
-                            })
-                    });
-                    query.raisedBy = filters.raisedBy
-                    promisesToWaitOn.push(prms);
-                }
-            }
-
             if (this.isValueNotNull(filters.reasonCodes)) {
                 query.reasonCode = { $in: JSON.parse(filters.reasonCodes) };
             }
@@ -133,9 +122,18 @@ class DisputeHelper {
                 query.events = filters.searchBtId;
             }
 
-            Promise.all(promisesToWaitOn).then(function (promise) {
+            if (this.isValueNotNull(filters.raisedBy) && filters.entNameOfLoggedUser !== filters.raisedBy) {
+
+                query.searchInDraftDisputes = false;
+
+                me.getRaisedByAddress(filters.raisedBy)
+                    .then((result) => {
+                        query.raisedBy = result ? result.raisedByAddress : null;
+                        resolve(query);
+                    });
+            } else {
                 resolve(query);
-            });
+            }
         });
     }
 
@@ -377,7 +375,7 @@ class DisputeHelper {
 
     registerAddress(authenticationToken, chainOfCustodyUrl, backChainAccountOfLoggedUser) {
         return new Promise((resolve, reject) => {
-            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/registerAddress?address='+backChainAccountOfLoggedUser), {
+            fetch(backChainUtil.returnValidURL(chainOfCustodyUrl + '/oms/rest/backchain/v1/registerAddress?address=' + backChainAccountOfLoggedUser), {
                 method: 'get',
                 headers: new Headers({
                     'Cache-Control': 'no-cache',

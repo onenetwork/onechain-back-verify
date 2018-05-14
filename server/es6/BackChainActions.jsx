@@ -743,7 +743,7 @@ export default class BackChainActions {
                 'Pragma': 'no-cache',
                 'Content-Type': 'application/x-www-form-urlencoded',
             }),
-            body: filters ? requestHelper.jsonToUrlParams(filters) : null
+            body: requestHelper.jsonToUrlParams(filters)
         }).then(function (response) {
             return response.json();
         }, function (error) {
