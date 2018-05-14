@@ -114,7 +114,7 @@ class BackChainStore {
         return viewsMap;
     }
 
-    @computed get oneBcClient() {
+    @computed get oneContentBcClient() {
         if (this.blockChainUrl != null && this.blockChainContractAddress != null) {
             return oneBcClient.createContentBcClient({
                 blockchain: 'eth',

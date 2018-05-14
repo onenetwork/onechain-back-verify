@@ -147,7 +147,7 @@ class TransactionHelper {
         }
         store.canStartVerifying = false;
         const myEntName = store.entNameOfLoggedUser;
-        const oneBcClient = store.oneBcClient;
+        const oneContentBcClient = store.oneContentBcClient;
 
         transactions.forEach(transaction => {
             if (!transaction) {
@@ -178,11 +178,11 @@ class TransactionHelper {
                     continue;
                 }
                 if(sliceHash === trueSliceHash) {
-                    if(oneBcClient) {
+                    if(oneContentBcClient) {
                         store.verifications.set(key, 'verifying');
                         let merkleRoot = this.generateMerkleRoot(sliceHash, sliceObj.merklePath);
                         (function(verificationKey, hashToVerify) {
-                            blockChainVerifier.verifyHash(hashToVerify, oneBcClient)
+                            blockChainVerifier.verifyHash(hashToVerify, oneContentBcClient)
                                 .then(function (result) {
                                     store.verifications.set(verificationKey, result === true ? 'verified' : 'failed');
                                 })
