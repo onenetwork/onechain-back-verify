@@ -16,7 +16,7 @@ export default class MyView extends React.Component {
   }
 
   componentDidMount() {
-    this.props.store.listBusinessTransactionIds = null;
+    BackChainActions.populateBusinessTransactionIds(null);
     document.getElementById("defaultOpen").click();
   }
 
@@ -55,7 +55,7 @@ export default class MyView extends React.Component {
 
   onBtIdChange(event) {
     this.setState({activeBtIdIndex : 0});
-    this.props.store.listBusinessTransactionIds = event.target.value.trim();
+    BackChainActions.populateBusinessTransactionIds(event.target.value.trim());
   }
 
   openTab(tabName, evt) {

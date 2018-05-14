@@ -16,14 +16,14 @@ export default class DiffView extends React.Component {
     this.state = {
       partnerEntName: null,
       activeBtIdIndex: 0,
-      currentTabBodyName : null,
+      currentTabContentId : null,
       currentTabName: null,
-      cleanupTabs: []
+      resetTabsName: []
     };
   }
 
   componentDidMount() {
-    this.props.store.listBusinessTransactionIds = null;
+    BackChainActions.populateBusinessTransactionIds(null);
     document.getElementById("defaultOpen").click();
   }
 
@@ -35,7 +35,7 @@ export default class DiffView extends React.Component {
     
     for (let i = 0; i < this.props.store.listBusinessTransactionIds.length; i++) {
       if(this.props.store.listBusinessTransactionIds[i] === businessTransactionId) {
-        this.openTab(this.state.currentTabBodyName, this.props.store.listEnterpriseBusinessTransactions[i], this.props.store.listIntersectionBusinessTransactions[i], this.state.cleanupTabs, this.state.currentTabName);
+        this.openTab(this.state.currentTabContentId, this.props.store.listEnterpriseBusinessTransactions[i], this.props.store.listIntersectionBusinessTransactions[i], this.state.resetTabsName, this.state.currentTabName);
         break;
       }
     }
@@ -61,7 +61,7 @@ export default class DiffView extends React.Component {
 
   onBtIdChange(event) {
     this.setState({activeBtIdIndex : 0});
-    this.props.store.listBusinessTransactionIds = event.target.value.trim();
+    BackChainActions.populateBusinessTransactionIds(event.target.value.trim());
   }
 
 
@@ -72,12 +72,12 @@ export default class DiffView extends React.Component {
     this.state.partnerEntName = indexOfMyEntName == 0 ? transactionSlice.enterprises[1]:transactionSlice.enterprises[0];
   }
 
-  openTab(currentTabBodyName, myViewObj, partnerViewObj, cleanupTabs, currentTabName) {
+  openTab(currentTabContentId, myViewObj, partnerViewObj, resetTabsName, currentTabName) {
     // Declare all variables
     let i, tabcontent, tablinks;
-    this.state.currentTabBodyName = currentTabBodyName;
+    this.state.currentTabContentId = currentTabContentId;
     this.state.currentTabName = currentTabName;
-    this.state.cleanupTabs = cleanupTabs;
+    this.state.resetTabsName = resetTabsName;
     // Get all elements with class="tabcontent" and hide them
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
@@ -91,7 +91,7 @@ export default class DiffView extends React.Component {
     }
 
     // Show the current tab, and add an "active" class to the button that opened the tab
-    document.getElementById(currentTabBodyName).style.display = "block";
+    document.getElementById(currentTabContentId).style.display = "block";
     this.findPartnerEntName(this.props.store.viewTransactions.intersection);
 
     let currentTabElement = document.getElementsByClassName(currentTabName)[0];
@@ -99,8 +99,8 @@ export default class DiffView extends React.Component {
     currentTabElement.style.backgroundColor = 'rgba(0, 133, 200, 1)';
     currentTabElement.style.color = 'white';
 
-    for(let i = 0; i < cleanupTabs.length; i++) {
-      let element = currentTabElement.parentElement.getElementsByClassName(cleanupTabs[i])[0];
+    for(let i = 0; i < resetTabsName.length; i++) {
+      let element = currentTabElement.parentElement.getElementsByClassName(resetTabsName[i])[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
     }
@@ -109,16 +109,13 @@ export default class DiffView extends React.Component {
     if(myViewObj == null || partnerViewObj == null) {
       return;
     }
-
-    var copymyView = JSON.parse(JSON.stringify(myViewObj));
-    var copypartnerView = JSON.parse(JSON.stringify(partnerViewObj));
-
-    if(currentTabBodyName === 'Diff') {
-      JsonHelper.diffUsingJS(copymyView, copypartnerView);
-    } else if (currentTabBodyName === 'Common') {
-      let common = intersect(copymyView, copypartnerView);
+    
+    if(currentTabContentId === 'Diff') {
+      JsonHelper.diffUsingJS(myViewObj, partnerViewObj);
+    } else if (currentTabContentId === 'Common') {
+      let common = intersect(myViewObj, partnerViewObj);
       JsonHelper.showCommon(common);
-    } else if (currentTabBodyName === 'Docs') {
+    } else if (currentTabContentId === 'Docs') {
 
     }
   }
