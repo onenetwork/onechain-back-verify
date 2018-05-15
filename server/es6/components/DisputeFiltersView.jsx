@@ -244,7 +244,6 @@ const fieldProps = {
 
         return (
             <div>
-                {/* {this.state.displayFilters ? <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} />: ''}  */}
                 <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} filterApplied={this.filterApplied}/>
                 <div className="filter-div">
                     {filterUI}
@@ -264,9 +263,12 @@ const fieldProps = {
     constructor(props) {
         super(props);
         this.state = {
-            wrongDataChkBox: false,
-            sentToWrongLocationChkBox: false,
-            enteredWrongDataChkBox: false,
+            hashNotFound: false,
+            inputDisputed: false,
+            tnxDateDisputed: false,
+            tnxPartiesDisputed: false,
+            bisputeBt: false,
+            financialDispute: false,
             raisedBy: null,
             searchBtId: null,
             searchDisputeId: null,
@@ -292,10 +294,13 @@ const fieldProps = {
         let me = this;
         let localState = {}
         if (this.props.disputeFilters.reasonCodes) {
-            let reasonCodeArray = this.props.disputeFilters.reasonCodes
-            localState.wrongDataChkBox = reasonCodeArray.indexOf("wrongData") > -1 ? true : false;
-            localState.sentToWrongLocationChkBox = reasonCodeArray.indexOf("sentToWrongLocation") > -1 ? true : false;
-            localState.enteredWrongDataChkBox = reasonCodeArray.indexOf("enteredWrongData") > -1 ? true : false;
+            let reasonCodeArray = this.props.disputeFilters.reasonCodes; 
+            localState.hashNotFound = reasonCodeArray.indexOf("HASH_NOT_FOUND") > -1 ? true : false;
+            localState.inputDisputed = reasonCodeArray.indexOf("INPUT_DISPUTED") > -1 ? true : false;
+            localState.tnxDateDisputed = reasonCodeArray.indexOf("TRANSACTION_DATE_DISPUTED") > -1 ? true : false;
+            localState.tnxPartiesDisputed = reasonCodeArray.indexOf("TRANSACTION_PARTIES_DISPUTED") > -1 ? true : false;
+            localState.bisputeBt = reasonCodeArray.indexOf("DISPUTE_BUSINESS_TRANSACTIONS") > -1 ? true : false;
+            localState.financialDispute = reasonCodeArray.indexOf("FINANCIAL_DISPUTED") > -1 ? true : false;
 
             for (let i = 0; i < reasonCodeArray.length; i++) {
                 me.reasonCodeCheckboxes.add(reasonCodeArray[i]);
@@ -315,9 +320,12 @@ const fieldProps = {
         
 
         this.setState({
-            wrongDataChkBox: localState.wrongDataChkBox,
-            sentToWrongLocationChkBox: localState.sentToWrongLocationChkBox,
-            enteredWrongDataChkBox: localState.enteredWrongDataChkBox,
+            hashNotFound: localState.hashNotFound,
+            inputDisputed: localState.inputDisputed,
+            tnxDateDisputed: localState.tnxDateDisputed,
+            tnxPartiesDisputed: localState.tnxPartiesDisputed,
+            bisputeBt: localState.bisputeBt,
+            financialDispute: localState.financialDispute,
             raisedBy: localState.raisedBy,
             searchBtId: localState.searchBtId,
             searchDisputeId: localState.searchDisputeId,
@@ -329,27 +337,40 @@ const fieldProps = {
             disputeCloseToDate: localState.disputeCloseToDate
         });
     }
-
+    
     toggleCheckboxChange(event) {
         let value = event.target.value;
-        let resonCodes = null;
-
+    let resonCodes = null;
+    
+     
         if (event.target.checked) {
-            if (value == "wrongData") {
-                this.setState({ wrongDataChkBox: true });
-            } else if (value == "sentToWrongLocation") {
-                this.setState({ sentToWrongLocationChkBox: true });
-            } else if (value == "enteredWrongData") {
-                this.setState({ enteredWrongDataChkBox: true });
+            if (value == "HASH_NOT_FOUND") {
+                this.setState({ hashNotFound: true });
+            } else if (value == "INPUT_DISPUTED") {
+                this.setState({ inputDisputed: true });
+            } else if (value == "TRANSACTION_DATE_DISPUTED") {
+                this.setState({ tnxDateDisputed: true });
+            } else if (value == "TRANSACTION_PARTIES_DISPUTED") {
+                this.setState({ tnxPartiesDisputed: true });
+            } else if (value == "DISPUTE_BUSINESS_TRANSACTIONS") {
+                this.setState({ bisputeBt: true });
+            } else if (value == "FINANCIAL_DISPUTED") {
+                this.setState({ financialDispute: true });
             }
             this.reasonCodeCheckboxes.add(value);
         } else {
-            if (value == "wrongData") {
-                this.setState({ wrongDataChkBox: false });
-            } else if (value == "sentToWrongLocation") {
-                this.setState({ sentToWrongLocationChkBox: false });
-            } else if (value == "enteredWrongData") {
-                this.setState({ enteredWrongDataChkBox: false });
+            if (value == "HASH_NOT_FOUND") {
+                this.setState({ hashNotFound: false });
+            } else if (value == "INPUT_DISPUTED") {
+                this.setState({ inputDisputed: false });
+            } else if (value == "TRANSACTION_DATE_DISPUTED") {
+                this.setState({ tnxDateDisputed: false });
+            } else if (value == "TRANSACTION_PARTIES_DISPUTED") {
+                this.setState({ tnxPartiesDisputed: false });
+            } else if (value == "DISPUTE_BUSINESS_TRANSACTIONS") {
+                this.setState({ bisputeBt: false });
+            } else if (value == "FINANCIAL_DISPUTED") {
+                this.setState({ financialDispute: false });
             }
 
             if (this.reasonCodeCheckboxes.has(value)) {
@@ -474,9 +495,12 @@ const fieldProps = {
                     <div style={fieldProps.text}>Reason Code: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '126px', fontSize: '12px' }}>
-                        <FormControl type="checkbox" checked={this.state.wrongDataChkBox || false} value="wrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Data is wrong <br />
-                        <FormControl type="checkbox" checked={this.state.sentToWrongLocationChkBox || false} value="sentToWrongLocation" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Sent to wrong location <br />
-                        <FormControl type="checkbox" checked={this.state.enteredWrongDataChkBox || false} value="enteredWrongData" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)}/>&nbsp;Entered wrong data 
+                            <FormControl type="checkbox" checked={this.state.hashNotFound || false} value="HASH_NOT_FOUND" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp;Hash Not Found <br />
+                            <FormControl type="checkbox" checked={this.state.inputDisputed || false} value="INPUT_DISPUTED" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp;Incorrect Data Input <br />
+                            <FormControl type="checkbox" checked={this.state.tnxDateDisputed || false} value="TRANSACTION_DATE_DISPUTED" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp;Incorrect Transaction Date <br />
+                            <FormControl type="checkbox" checked={this.state.tnxPartiesDisputed || false} value="TRANSACTION_PARTIES_DISPUTED" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp;Incorrect Transaction Participants <br />
+                            <FormControl type="checkbox" checked={this.state.bisputeBt || false} value="DISPUTE_BUSINESS_TRANSACTIONS" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp;Incorrect Transaction Events <br />
+                            <FormControl type="checkbox" checked={this.state.financialDispute || false} value="FINANCIAL_DISPUTED" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp;Financial Issue
                         </div>
                 </div>
             </div>
@@ -541,9 +565,12 @@ const fieldProps = {
             disputeCloseFromDate: "Close Date",
             disputeCloseToDate: "Close Date",
             raisedBy: "Raised By",
-            wrongData: "Data is wrong",
-            sentToWrongLocation : "Sent to wrong location",
-            enteredWrongData:"Entered wrong data"
+            hashNotFound: "Hash Not Found",
+            inputDisputed: "Incorrect Data Input" ,
+            tnxDateDisputed: "Incorrect Transaction Date",
+            tnxPartiesDisputed: "Incorrect Transaction Participants",
+            bisputeBt: "Incorrect Transaction Events",
+            financialDispute: "Financial Issue",
         };
     }
 

@@ -468,9 +468,12 @@ import {disputeHelper} from '../DisputeHelper';
 												<Col style={{paddingLeft:'0px'}} md={9}>
 													<FormControl ref={select => { this.select = select }} componentClass="select" placeholder="select">
 														<option value="select">Please select a reason code</option>
-														<option value="wrongData">Data is wrong</option>
-														<option value="sentToWrongLocation">Sent to wrong location</option>
-														<option value="enteredWrongData">Entered wrong data</option>
+														<option value="HASH_NOT_FOUND">Hash Not Found</option>
+														<option value="INPUT_DISPUTED">Incorrect Data Input</option>
+														<option value="TRANSACTION_DATE_DISPUTED">Incorrect Transaction Date</option>
+														<option value="TRANSACTION_PARTIES_DISPUTED">Incorrect Transaction Participants</option>
+														<option value="DISPUTE_BUSINESS_TRANSACTIONS">Incorrect Transaction Events</option>
+														<option value="FINANCIAL_DISPUTED">Financial Issue</option>
 													</FormControl>
 												</Col>
 											</Col>
