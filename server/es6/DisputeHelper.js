@@ -61,7 +61,7 @@ class DisputeHelper {
                             let dispute = result[i];
                             //Fetch transaction data if exists
                             var prms = new Promise(function (resolve, reject) {
-                                transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
+                                transactionHelper.getTransactionById(dispute.disputedTransactionId.slice(2), (err, transaction) => {
                                     if (transaction) {
                                         if (filters && filters.transactionRelatedFilter && JSON.parse(filters.transactionRelatedFilter)) {
                                             dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
@@ -148,14 +148,14 @@ class DisputeHelper {
         if (this.isValueNotNull(filters.tnxFromDate)) {
             if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.disputedTransactionId == transaction.id) {
+            } else if (dispute.disputedTransactionId.slice(2) == transaction.id) {
                 dispute = null;
             }
         }
         if (dispute != null && this.isValueNotNull(filters.tnxToDate)) {
             if (transaction.date <= JSON.parse(filters.tnxToDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.disputedTransactionId == transaction.id) {
+            } else if (dispute.disputedTransactionId.slice(2) == transaction.id) {
                 dispute = null;
             }
         }
