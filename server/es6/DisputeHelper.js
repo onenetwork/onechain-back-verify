@@ -275,7 +275,7 @@ class DisputeHelper {
 
     discardDraftDispute(disputeId) {
         return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('DraftDisputes').deleteOne({ id: disputeId })
+            dbconnectionManager.getConnection().collection('DraftDisputes').deleteOne({ disputeId: disputeId })
                 .then((result) => {
                     resolve({ success: true });
                 })

@@ -859,7 +859,7 @@ export default class BackChainActions {
                     if (result.success) { 
                         let currentDisputes = store.disputes;
                         for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
-                            if (disputeId == currentDisputes[i].id) {
+                            if (disputeId == currentDisputes[i].disputeId) {
                                 currentDisputes.splice(i, 1);
                                 break;
                             }
