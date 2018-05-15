@@ -148,11 +148,8 @@ exports.getDisputes = function(req, res) {
 };
 
 exports.getOpenDisputeCount = function (req, res) {
-    /*WORKAROUND: req use queryString so null or undefined will be of type String*/
-    if(req.params.transactionId == 'null' || req.params.transactionId == 'undefined')
-        req.params.transactionId = null;
-
-    disputeHelper.getOpenDisputeCount(req.params.transactionId)
+    let tnxId = req.params.transactionId == 'null' || req.params.transactionId == 'undefined' ? null : req.params.transactionId;
+    disputeHelper.getOpenDisputeCount(tnxId)
     .then(function (result) {
         res.json({ success: true, disputeCount: result });
     })

@@ -16,33 +16,33 @@ class DisputeHelper {
         let me = this;
         return new Promise((resolve, reject) => {
             this.createFilterQuery(filters)
-            .then((query) => {
-                settingsHelper.getApplicationSettings()
-                .then(settings => {
-                    let promisesToWaitOn = [];
-                    if(query.searchInDraftDisputes) {
-                        //Search in DraftDisputesCollection as well
-                        promisesToWaitOn.push(me.queryDisputes({}, query));
-                    }       
-                    let disputeBcClient = oneBcClient.createDisputeBcClient({
-                        blockchain: 'eth',
-                        url : settings.blockChain.url,
-                        contentBackchainContractAddress: settings.blockChain.contractAddress,
-                        disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
-                    });      
-                    promisesToWaitOn.push(disputeBcClient.filterDisputes(query));
-                    Promise.all(promisesToWaitOn).then(function (disputes) {
-                        resolve(disputes[0].concat(disputes[1])); //DraftDisputes + Disputes from BlockChain
-                    }).catch(err => {
-                        reject(err);
-                        console.error("Error occured while fetching disputes:" + err);
-                    });
-                })
-                .catch(err => {
-                    reject("Database Connection has an issue. Check the database's health.");
+                .then((query) => {
+                    settingsHelper.getApplicationSettings()
+                        .then(settings => {
+                            let promisesToWaitOn = [];
+                            if (query.searchInDraftDisputes) {
+                                //Search in DraftDisputesCollection as well
+                                promisesToWaitOn.push(me.queryDisputes({}, query));
+                            }
+                            let disputeBcClient = oneBcClient.createDisputeBcClient({
+                                blockchain: 'eth',
+                                url: settings.blockChain.url,
+                                contentBackchainContractAddress: settings.blockChain.contractAddress,
+                                disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
+                            });
+                            promisesToWaitOn.push(disputeBcClient.filterDisputes(query));
+                            Promise.all(promisesToWaitOn).then(function (disputes) {
+                                resolve(disputes[0].concat(disputes[1])); //DraftDisputes + Disputes from BlockChain
+                            }).catch(err => {
+                                reject(err);
+                                console.error("Error occured while fetching disputes:" + err);
+                            });
+                        })
+                        .catch(err => {
+                            reject("Database Connection has an issue. Check the database's health.");
+                        });
+
                 });
-                
-            });            
         });
     }
 
@@ -163,46 +163,33 @@ class DisputeHelper {
     }
 
     getOpenDisputeCount(transactionId) {
-        /**
-         * Remove the callback function. Use a promise object instead
-         * iff transactionId is null, this should fetch records from:
-         *   - getDraftCount() => DraftDisputes count
-         *   - onechain-back-client will have an api for this. For now you can skip this one
-         * iff transactionId is given, this should fetch records from:
-         *   - getDraftCount(transactionId) => DraftDisputes filtered by transactionId
-         *   - onechain-back-client's api will have an option to filter by transactionId. We'll add this later.
-         * resolve or reject depending on the result
-         */
+        let me = this;
         return new Promise((resolve, reject) => {
-            if (transactionId) {
-                this.getDraftCount(transactionId)
-                    .then((count) => {
-                        resolve(count);
-                    })
-                    .catch((err) => {
-                        console.error("Error occurred while fetching open dispute count." + err);
-                        reject(err);
+            settingsHelper.getApplicationSettings()
+                .then(settings => {
+                    let promisesToWaitOn = [];
+                    promisesToWaitOn.push(me.getDraftCount(transactionId));
+                    let disputeBcClient = oneBcClient.createDisputeBcClient({
+                        blockchain: 'eth',
+                        url: settings.blockChain.url,
+                        contentBackchainContractAddress: settings.blockChain.contractAddress,
+                        disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                     });
-            } else {
-                this.getDraftCount()
-                    .then((count) => {
-                        resolve(count);
-                    })
-                    .catch((err) => {
-                        console.error("Error occurred while fetching open dispute count." + err);
+                    //Need to call  disputeBcClient.disputeSummary call once the api is ready. This will return the count from the db.
+                    Promise.all(promisesToWaitOn).then(function (counts) {
+                        resolve(counts[0]); //Make sure to change and aggregate counts returning from DraftDisputes and BlockChain
+                    }).catch(err => {
                         reject(err);
+                        console.error("Error occurred while fetching open dispute count." + err);
                     });
-            }
+                })
+                .catch(err => {
+                    reject("Database Connection has an issue. Check the database's health.");
+                });
         });
     }
 
     getDraftCount(transactionId) {
-        /**
-         * Should return a promise
-         * iff transactionId is null, fetch the total count of DraftDisputes collections
-         * iff transactionId is given, fetch the total count of DraftDisputes per transaction from the collection.
-         * resolve or reject depending on the result
-         */
         return new Promise((resolve, reject) => {
             if (transactionId) {
                 dbconnectionManager.getConnection().collection('DraftDisputes').find({ "transactionId": transactionId }).count()
