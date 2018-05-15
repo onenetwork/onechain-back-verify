@@ -61,7 +61,7 @@ class DisputeHelper {
                             let dispute = result[i];
                             //Fetch transaction data if exists
                             var prms = new Promise(function (resolve, reject) {
-                                transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+                                transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
                                     if (transaction) {
                                         if (filters && filters.transactionRelatedFilter && JSON.parse(filters.transactionRelatedFilter)) {
                                             dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
@@ -89,13 +89,13 @@ class DisputeHelper {
             let query = {};
             query.searchInDraftDisputes = true;
             if (this.isValueNotNull(filters.status)) {
-                query.status = { $in: JSON.parse(filters.status) };
+                query.state = { $in: JSON.parse(filters.status) };
             }
             if (this.isValueNotNull(filters.searchTnxId)) {
-                query.transactionId = filters.searchTnxId;
+                query.disputedTransactionId = filters.searchTnxId;
             }
             if (this.isValueNotNull(filters.searchDisputeId)) {
-                query.id = filters.searchDisputeId;
+                query.disputeId = filters.searchDisputeId;
             }
 
             if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
@@ -107,19 +107,19 @@ class DisputeHelper {
             }
 
             if (this.isValueNotNull(filters.disputeCloseFromDate)) {
-                query.closedDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
+                query.closeDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
             }
 
             if (this.isValueNotNull(filters.disputeCloseToDate)) {
-                query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
+                query.closeDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
             }
 
             if (this.isValueNotNull(filters.reasonCodes)) {
-                query.reasonCode = { $in: JSON.parse(filters.reasonCodes) };
+                query.reason = { $in: JSON.parse(filters.reasonCodes) };
             }
 
             if (this.isValueNotNull(filters.searchBtId)) {
-                query.events = filters.searchBtId;
+                query.disputedBusinessTransactionIds = filters.searchBtId;
             }
 
             if (this.isValueNotNull(filters.raisedBy) && filters.entNameOfLoggedUser !== filters.raisedBy) {
@@ -128,7 +128,7 @@ class DisputeHelper {
 
                 me.getRaisedByAddress(filters.raisedBy)
                     .then((result) => {
-                        query.raisedBy = result ? result.raisedByAddress : null;
+                        query.disputingParty = result ? result.raisedByAddress : null;
                         resolve(query);
                     });
             } else {
@@ -148,27 +148,27 @@ class DisputeHelper {
         if (this.isValueNotNull(filters.tnxFromDate)) {
             if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.transactionId == transaction.id) {
+            } else if (dispute.disputedTransactionId == transaction.id) {
                 dispute = null;
             }
         }
         if (dispute != null && this.isValueNotNull(filters.tnxToDate)) {
             if (transaction.date <= JSON.parse(filters.tnxToDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.transactionId == transaction.id) {
+            } else if (dispute.disputedTransactionId == transaction.id) {
                 dispute = null;
             }
         }
         return dispute;
     }
 
-    getOpenDisputeCount(transactionId) {
+    getOpenDisputeCount(disputedTransactionId) {
         let me = this;
         return new Promise((resolve, reject) => {
             settingsHelper.getApplicationSettings()
                 .then(settings => {
                     let promisesToWaitOn = [];
-                    promisesToWaitOn.push(me.getDraftCount(transactionId));
+                    promisesToWaitOn.push(me.getDraftCount(disputedTransactionId));
                     let disputeBcClient = oneBcClient.createDisputeBcClient({
                         blockchain: 'eth',
                         url: settings.blockChain.url,
@@ -189,10 +189,10 @@ class DisputeHelper {
         });
     }
 
-    getDraftCount(transactionId) {
+    getDraftCount(disputedTransactionId) {
         return new Promise((resolve, reject) => {
-            if (transactionId) {
-                dbconnectionManager.getConnection().collection('DraftDisputes').find({ "transactionId": transactionId }).count()
+            if (disputedTransactionId) {
+                dbconnectionManager.getConnection().collection('DraftDisputes').find({ "disputedTransactionId": disputedTransactionId }).count()
                     .then((count) => {
                         resolve(count);
                     })
@@ -213,13 +213,13 @@ class DisputeHelper {
         });
     }
 
-    disputeExists(transactionId) {
+    disputeExists(disputedTransactionId) {
         // TODO check if dispute exists in blockchain
         return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('DraftDisputes').findOne({ "transactionId": transactionId })
+            dbconnectionManager.getConnection().collection('DraftDisputes').findOne({ "disputedTransactionId": disputedTransactionId })
                 .then((result) => {
                     if (result) {
-                        resolve({ success: true, exists: true, status: result.status });
+                        resolve({ success: true, exists: true, status: result.state });
                     } else {
                         resolve({ success: true, exists: false });
                     }
@@ -234,7 +234,7 @@ class DisputeHelper {
     saveAsDraft(dispute) {
         var me = this;
         return new Promise((resolve, reject) => {
-            this.disputeExists(dispute.transactionId)
+            this.disputeExists(dispute.disputedTransactionId)
                 .then(function (response) {
                     if (response.exists) {
                         resolve(response);
@@ -289,7 +289,7 @@ class DisputeHelper {
     submitDispute(dispute, disputeSubmissionWindowInMinutes) {
         let me = this;
         return new Promise((resolve, reject) => {
-            transactionHelper.getTransactionById(dispute.transactionId, (err, transaction) => {
+            transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
                 if (transaction) {
                     me.isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes).visible ?
                         resolve({ success: true, submitDisputeMsg: 'Dispute Submitted Successfully.' })

@@ -911,8 +911,8 @@ export default class BackChainActions {
     }
 
     @action
-    static disputeExists(transactionId) {
-        let uri = '/disputeExists/' + transactionId;
+    static disputeExists(disputedTransactionId) {
+        let uri = '/disputeExists/' + disputedTransactionId;
         return new Promise(resolve => {
             fetch(uri, { method: 'GET' }).then(function (response) {
                 return response.json();

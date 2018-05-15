@@ -169,7 +169,7 @@ exports.saveDisputeAsDraft = function (req, res) {
 };
 
 exports.disputeExists = function (req, res) { 
-    disputeHelper.disputeExists(req.params.transactionId)
+    disputeHelper.disputeExists(req.params.disputedTransactionId)
         .then(function (result) {
             res.json({ success: result.success, exists: result.exists });
         })
