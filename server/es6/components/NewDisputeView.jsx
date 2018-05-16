@@ -85,15 +85,11 @@ import {disputeHelper} from '../DisputeHelper';
 	getNewDisputeData() {
 		let disputeTransaction = this.props.store.disputeTransaction;
 		let dispute = {};
-		let disputedBusinessTransactionIds = [];
-		for(let i = 0; i < this.state.eventBtids.length; i++) {
-			disputedBusinessTransactionIds.push('0x' + this.state.eventBtids[i]);
-		}
 		if(disputeTransaction) {
 			dispute = {
-				"disputeId": '0x' + this.props.store.generatedDisputeId,
-				"disputedTransactionId": '0x' + disputeTransaction.id,
-				"disputedBusinessTransactionIds": disputedBusinessTransactionIds,
+				"disputeId": this.props.store.generatedDisputeId,
+				"disputedTransactionId": disputeTransaction.id,
+				"disputedBusinessTransactionIds": this.state.eventBtids,
 				"submittedDate" : null,
 				"closedDate": null,
 				"state": "Draft",
