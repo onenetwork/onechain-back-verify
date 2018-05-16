@@ -11,35 +11,26 @@ export default class MyView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeBtIdIndex: 0
+      btIdsListUI:[],
+      activeBtIdIndex: 0,
+      indexOfBusinessTranction: 0
     };
   }
 
   componentDidMount() {
-    BackChainActions.populateBusinessTransactionIds(null);
+    this.listBusinessTransactionIds();
     document.getElementById("defaultOpen").click();
   }
 
-  toggleActiveBtId(position, businessTransactionId) {
+  toggleActiveBtId(position, businessTransactionId, indexOfBusinessTranction) {
     if (this.state.activeBtIdIndex === position) {
       return;
     }
-    this.setState({activeBtIdIndex : position})
-    
-    let businessTransactionIds = this.props.store.listBusinessTransactionIds;
-    for (let i = 0; i < businessTransactionIds.length; i++) {
-      if(businessTransactionIds[i] === businessTransactionId) {
-        JsonHelper.showCommon(this.props.store.listEnterpriseBusinessTransactions[i]);
-        break;
-      }
-    }
+    this.setState({activeBtIdIndex : position, indexOfBusinessTranction: indexOfBusinessTranction});
   }
 
   setActiveBtIdColor(position) {
-    if (this.state.activeBtIdIndex === position) {
-      return "lightgray";
-    }
-    return "";
+    return this.state.activeBtIdIndex === position ? "lightgray" : "";
   }
 
   onHoverBtId(event) {
@@ -53,9 +44,40 @@ export default class MyView extends React.Component {
     event.currentTarget.style.backgroundColor = 'white';
   }
 
+  listBusinessTransactionIds(businessTransactionId) {
+    this.state.btIdsListUI.splice(0, this.state.btIdsListUI.length);
+    let businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
+    let businessTransactions = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions;
+    
+    if(businessTransactionId) {
+      let indexOfBusinessTranction = 0;
+      for (let i = 0; i < businessTransactions.length; i++) {
+        if((businessTransactions[i].btid.toString()).match(businessTransactionIdRegEx)) {
+          indexOfBusinessTranction = i;
+          this.state.btIdsListUI.push(<tr key={businessTransactions[i].btid} onClick={this.toggleActiveBtId.bind(this, i, businessTransactions[i].btid, i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
+                                        <td style={{lineHeight:'0.8'}}>
+                                          {businessTransactions[i].btid}
+                                        </td>
+                                      </tr>);
+        }
+      }
+      if(this.state.btIdsListUI.length == 1) {
+        this.setState({indexOfBusinessTranction: indexOfBusinessTranction});
+      }
+    } else {
+      for (let i = 0; i < businessTransactions.length; i++) {
+        this.state.btIdsListUI.push(<tr key={businessTransactions[i].btid} onClick={this.toggleActiveBtId.bind(this, i, businessTransactions[i].btid, i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
+                                      <td style={{lineHeight:'0.8'}}>
+                                        {businessTransactions[i].btid}
+                                      </td>
+                                    </tr>);
+      }
+    }
+  }
+
   onBtIdChange(event) {
     this.setState({activeBtIdIndex : 0});
-    BackChainActions.populateBusinessTransactionIds(event.target.value.trim());
+    this.listBusinessTransactionIds(event.target.value.trim());
   }
 
   openTab(tabName, evt) {
@@ -75,7 +97,6 @@ export default class MyView extends React.Component {
       let element = evt.currentTarget.parentElement.getElementsByClassName('docsTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      JsonHelper.showCommon(this.props.store.listEnterpriseBusinessTransactions[0]);
     } else if (tabName === 'Docs') {
       let element = evt.currentTarget.parentElement.getElementsByClassName('tnxMsgTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
@@ -145,17 +166,7 @@ export default class MyView extends React.Component {
       }
     };
 
-    let btIds = this.props.store.listBusinessTransactionIds;
-    let btIdsListUI = [];
-
-    for (let i = 0; i < btIds.length; i++) {
-      btIdsListUI.push(<tr key={btIds[i]} onClick={this.toggleActiveBtId.bind(this, i, btIds[i])} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
-                      <td style={{lineHeight:'0.8'}}>
-                        {btIds[i]}
-                      </td>
-                    </tr>);
-    }
-
+    JsonHelper.showCommon(this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction]);
     const tabContents = (<Row style={{marginLeft: '0px'}}>
                               <Col xs={1} className="tablinks tnxMsgTab" onClick={(e) => this.openTab('TnxMsg', e)} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)', width:'19%'})}>
                                 <span style={{verticalAlign : 'sub'}}>Transaction Message</span>
@@ -192,15 +203,13 @@ export default class MyView extends React.Component {
                     <div className={"table-responsive"} style={styles.btidTblDiv}>
                       <table className={"table"}>
                         <tbody>
-                          {btIdsListUI}
+                          {this.state.btIdsListUI}
                         </tbody>
                       </table>
                     </div>
                   </div>
-
                   {tabContents}
                 </div>
-
               </div>
           </div>);
   }

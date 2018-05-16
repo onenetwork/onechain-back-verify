@@ -14,38 +14,32 @@ export default class DiffView extends React.Component {
     super(props);
     this.findPartnerEntName = this.findPartnerEntName.bind(this);
     this.state = {
-      partnerEntName: null,
+      btIdsListUI:[],
       activeBtIdIndex: 0,
-      currentTabContentId : null,
-      currentTabName: null,
-      resetTabsName: []
+      partnerEntName: null,
+      currentTabName: 'diffTab',
+      indexOfBusinessTranction: 0,
+      currentTabContentId : 'Diff',
+      resetTabsName: ['commonTab', 'docsTab']
     };
   }
 
   componentDidMount() {
-    BackChainActions.populateBusinessTransactionIds(null);
+    this.listBusinessTransactionIds();
     document.getElementById("defaultOpen").click();
+    this.openTab(this.state.currentTabContentId, this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction], this.state.resetTabsName, this.state.currentTabName);
   }
 
-  toggleActiveBtId(position, businessTransactionId) {
+  toggleActiveBtId(position, businessTransactionId, indexOfBusinessTranction) {
     if (this.state.activeBtIdIndex === position) {
       return;
     }
-    this.setState({activeBtIdIndex : position})
-    
-    for (let i = 0; i < this.props.store.listBusinessTransactionIds.length; i++) {
-      if(this.props.store.listBusinessTransactionIds[i] === businessTransactionId) {
-        this.openTab(this.state.currentTabContentId, this.props.store.listEnterpriseBusinessTransactions[i], this.props.store.listIntersectionBusinessTransactions[i], this.state.resetTabsName, this.state.currentTabName);
-        break;
-      }
-    }
+    this.setState({activeBtIdIndex : position, indexOfBusinessTranction: indexOfBusinessTranction})
+    this.openTab(this.state.currentTabContentId, this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[indexOfBusinessTranction], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[indexOfBusinessTranction], this.state.resetTabsName, this.state.currentTabName);
   }
 
   setActiveBtIdColor(position) {
-    if (this.state.activeBtIdIndex === position) {
-      return "lightgray";
-    }
-    return "";
+    return this.state.activeBtIdIndex === position ? "lightgray" : "";
   }
 
   onHoverBtId(event) {
@@ -59,11 +53,41 @@ export default class DiffView extends React.Component {
     event.currentTarget.style.backgroundColor = 'white';
   }
 
-  onBtIdChange(event) {
-    this.setState({activeBtIdIndex : 0});
-    BackChainActions.populateBusinessTransactionIds(event.target.value.trim());
+  listBusinessTransactionIds(businessTransactionId) {
+    this.state.btIdsListUI.splice(0, this.state.btIdsListUI.length);
+    let businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
+    let businessTransactions = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions;
+    
+    if(businessTransactionId) {
+      let indexOfBusinessTranction = 0;
+      for (let i = 0; i < businessTransactions.length; i++) {
+        if((businessTransactions[i].btid.toString()).match(businessTransactionIdRegEx)) {
+          indexOfBusinessTranction = i;
+          this.state.btIdsListUI.push(<tr key={businessTransactions[i].btid} onClick={this.toggleActiveBtId.bind(this, i, businessTransactions[i].btid, i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
+                                        <td style={{lineHeight:'0.8'}}>
+                                          {businessTransactions[i].btid}
+                                        </td>
+                                      </tr>);
+        }
+      }
+      if(this.state.btIdsListUI.length == 1) {
+        this.setState({indexOfBusinessTranction: indexOfBusinessTranction});
+      }
+    } else {
+      for (let i = 0; i < businessTransactions.length; i++) {
+        this.state.btIdsListUI.push(<tr key={businessTransactions[i].btid} onClick={this.toggleActiveBtId.bind(this, i, businessTransactions[i].btid, i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
+                                      <td style={{lineHeight:'0.8'}}>
+                                        {businessTransactions[i].btid}
+                                      </td>
+                                    </tr>);
+      }
+    }
   }
 
+  onBtIdChange(event) {
+    this.setState({activeBtIdIndex : 0});
+    this.listBusinessTransactionIds(event.target.value.trim());
+  }
 
   findPartnerEntName(partnerViewObj) {
     let transactionSlice = partnerViewObj.transactionSlice;
@@ -177,22 +201,11 @@ export default class DiffView extends React.Component {
       }
     };
 
-    let btIds = this.props.store.listBusinessTransactionIds;
-    let btIdsListUI = [];
-
-    for (let i = 0; i < btIds.length; i++) {
-      btIdsListUI.push(<tr key={btIds[i]} onClick={this.toggleActiveBtId.bind(this, i, btIds[i])} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
-                      <td style={{lineHeight:'0.8'}}>
-                        {btIds[i]}
-                      </td>
-                    </tr>);
-    }
-
     const tabContents = (<Row style={{marginLeft: '0px'}}>
-                            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.listEnterpriseBusinessTransactions[0], this.props.store.listIntersectionBusinessTransactions[0], ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
+                            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[0], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[0], ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
                               <span style={{verticalAlign : 'sub'}}>Difference</span>
                             </Col>
-                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.listEnterpriseBusinessTransactions[0], this.props.store.listIntersectionBusinessTransactions[0], ['diffTab', 'docsTab'], 'commonTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[0], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[0], ['diffTab', 'docsTab'], 'commonTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                               <span className="fa-stack">
                                 <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
                                 <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
@@ -227,7 +240,7 @@ export default class DiffView extends React.Component {
           <div className={"table-responsive"} style={styles.btidTblDiv}>
             <table className={"table"}>
               <tbody>
-                {btIdsListUI}
+                {this.state.btIdsListUI}
               </tbody>
             </table>
           </div>

@@ -970,9 +970,4 @@ export default class BackChainActions {
                 store.backChainAccountOfLoggedUser = backChainAccountOfLoggedUser;
         })
     }
-
-    @action
-    static populateBusinessTransactionIds(businessTransactionId) {
-        store.listBusinessTransactionIds = businessTransactionId;
-    }
 }

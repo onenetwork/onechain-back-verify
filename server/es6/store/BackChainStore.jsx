@@ -48,9 +48,6 @@ class BackChainStore {
     @observable alertPopupLevel = 'INFO';
     @observable backChainAccountOfLoggedUser = null;
     @observable openDisputeCountOfLoggedUser = 0;
-    @observable businessTransactionIds = [];
-    @observable enterpriseBusinessTransactions = [];
-    @observable intersectionBusinessTransactions = [];
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {
@@ -165,44 +162,6 @@ class BackChainStore {
             "totalCompleted": totalCompleted,
             "endResult": endResult
         };
-    }
-
-    /**
-     * Putting @computed listBusinessTransactionIds setter after listBusinessTransactionIds getter is recomended.
-     */
-    @computed get listBusinessTransactionIds() {
-        return this.businessTransactionIds;
-    }
-
-    set listBusinessTransactionIds(businessTransactionId) {
-        this.businessTransactionIds.splice(0, this.businessTransactionIds.length);
-        this.enterpriseBusinessTransactions = this.viewTransactions.enterprise.transactionSlice.businessTransactions;
-        if(this.viewTransactions.intersection) {
-            this.intersectionBusinessTransactions = this.viewTransactions.intersection.transactionSlice.businessTransactions;
-        }
-
-        for(let i = 0; i < this.enterpriseBusinessTransactions.length; i++) {
-            this.businessTransactionIds.push(this.enterpriseBusinessTransactions[i].btid);
-        }
-        
-        if(businessTransactionId) {
-            var businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
-            for (let i = this.businessTransactionIds.length-1; i >= 0; i--) {
-                if(!((this.businessTransactionIds[i].toString()).match(businessTransactionIdRegEx))) {
-                    this.businessTransactionIds.splice(i, 1);
-                    this.enterpriseBusinessTransactions.splice(i, 1);
-                    this.intersectionBusinessTransactions.splice(i, 1);
-                }
-            }
-        }
-    }
-
-    @computed get listEnterpriseBusinessTransactions() {
-        return this.enterpriseBusinessTransactions;
-    }
-
-    @computed get listIntersectionBusinessTransactions() {
-        return this.intersectionBusinessTransactions;
     }
 }
 export const backChainStore = new BackChainStore();
