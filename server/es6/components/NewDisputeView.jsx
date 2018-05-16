@@ -95,7 +95,7 @@ import {disputeHelper} from '../DisputeHelper';
 				"disputedTransactionId": '0x' + disputeTransaction.id,
 				"disputedBusinessTransactionIds": disputedBusinessTransactionIds,
 				"submittedDate" : null,
-				"closeDate": null,
+				"closedDate": null,
 				"state": "Draft",
 				"reason": ReactDOM.findDOMNode(this.select).value,
 			}

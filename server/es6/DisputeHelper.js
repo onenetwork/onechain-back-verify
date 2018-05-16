@@ -107,11 +107,11 @@ class DisputeHelper {
             }
 
             if (this.isValueNotNull(filters.disputeCloseFromDate)) {
-                query.closeDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
+                query.closedDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
             }
 
             if (this.isValueNotNull(filters.disputeCloseToDate)) {
-                query.closeDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
+                query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
             }
 
             if (this.isValueNotNull(filters.reasonCodes)) {
