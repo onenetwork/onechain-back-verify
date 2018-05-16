@@ -12,7 +12,7 @@
     color: white;
     position: absolute;
     line-height: 12px;
-    bottom: 0px;
+    bottom: 1px;
 }
 .counter1  {
     font-size: 10px;
@@ -44,6 +44,76 @@
     top: 26px !important;
 }
 
-.transaction-id-popover .arrow {
+.transaction-id-popover .arrow, .dispute-id-popover .arrow{
     left: 50px !important;
+}
+
+.dispute-transation-div {
+    height: 39px;
+    width: 145px;
+    padding-top: 10px;
+    padding-left: 8px;
+    color:#0085C8;
+}
+ 
+.dispute-transation-div:hover {
+     background-color: #dff3f8;
+}
+
+.dispute-counter {
+    position: relative;
+    padding-left: 23px;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 11px;
+    color: #FFFFFF;
+    top: 6px;
+    right: 45px;
+}
+
+.action-popover {
+    border-color: #bcbcbc !important;
+    border-radius: 0px;
+    height: 48px;
+}
+
+.action-popover .arrow {
+    top: 35% !important;
+}
+
+.action-popover.right>.arrow:after {
+    border-right-color:white;
+}
+
+.popover .popover-content {
+    padding: 4px 4px !important;
+}
+
+.popover.right>.arrow {
+    left: -11px !important;
+    margin-top: -13px;
+}
+
+.dispute-action-popover {
+    border-color: #bcbcbc !important;
+    border-radius: 0px;
+    height: 48px;
+}
+
+.dispute-action-popover .arrow {
+    top: 50% !important;
+}
+
+.dispute-action-popover.right>.arrow:after {
+    border-right-color: white;
+}
+
+.popover .popover-title {
+    background-color: white;
+}
+
+.counter-participants {
+    width: 63px;
+    position: relative;
+    text-align: center;
 }

@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask'
 import { syncTransactionTaskHelper } from './SyncTransactionTaskHelper';
 import { commandLineUtils } from './CommandLineUtils';
+import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
 
 (() => {
     const url = "mongodb://localhost:27017";
@@ -37,8 +38,8 @@ import { commandLineUtils } from './CommandLineUtils';
         app.get('*', function(req, res) {
             res.sendFile(path.join(__dirname + "/../" + "index.html"));
         });
-
         syncTransactionTaskHelper.startSyncing();
+        disputeOrganizerTaskHelper.executeTask();
         commandLineUtils.readCommands();
     });
 })();

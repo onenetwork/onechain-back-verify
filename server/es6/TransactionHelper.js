@@ -89,7 +89,8 @@ class TransactionHelper {
                     exist.blockChain= {
                         'url': config.url,
                         'contractAddress': config.contractAddress,
-                        'privateKey': config.privatekey
+                        'disputeContractAddress': config.disputeContractAddress,
+                        'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes)
                     }
                     data = exist;
                 } else {
@@ -98,7 +99,8 @@ class TransactionHelper {
                         blockChain: {
                             'url': config.url,
                             'contractAddress': config.contractAddress,
-                            'privateKey': config.privatekey
+                            'disputeContractAddress': config.disputeContractAddress,
+                            'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes)
                         }
 
                     };
@@ -145,7 +147,7 @@ class TransactionHelper {
         }
         store.canStartVerifying = false;
         const myEntName = store.entNameOfLoggedUser;
-        const oneBcClient = store.oneBcClient;
+        const oneContentBcClient = store.oneContentBcClient;
 
         transactions.forEach(transaction => {
             if (!transaction) {
@@ -176,11 +178,11 @@ class TransactionHelper {
                     continue;
                 }
                 if(sliceHash === trueSliceHash) {
-                    if(oneBcClient) {
+                    if(oneContentBcClient) {
                         store.verifications.set(key, 'verifying');
                         let merkleRoot = this.generateMerkleRoot(sliceHash, sliceObj.merklePath);
                         (function(verificationKey, hashToVerify) {
-                            blockChainVerifier.verifyHash(hashToVerify, oneBcClient)
+                            blockChainVerifier.verifyHash(hashToVerify, oneContentBcClient)
                                 .then(function (result) {
                                     store.verifications.set(verificationKey, result === true ? 'verified' : 'failed');
                                 })
@@ -288,6 +290,7 @@ class TransactionHelper {
         for(let j = 0; j < slice.businessTransactions.length; j++) {
             let bt = slice.businessTransactions[j];
             events.push({
+                btid: bt.btid,
                 date: bt.LastModifiedDate.date,
                 actionName: bt.ActionName.split('.')[1]
             });

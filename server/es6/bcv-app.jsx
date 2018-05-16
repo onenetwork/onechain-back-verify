@@ -71,6 +71,14 @@ window.BackchainVerifyAPI = {
           Images.baseURL = options.baseImageURL;
         }
 
+        if (options.showDisputeDetailsInPopup != undefined) {
+          backChainStore.showDisputeDetailsInPopup = options.showDisputeDetailsInPopup;
+        }
+
+        if (options.showDisputeActions != undefined) {
+          backChainStore.showDisputeActions = options.showDisputeActions;
+        }
+
         ReactDOM.render(componentToRender, renderTo);
     },
 

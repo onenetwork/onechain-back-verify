@@ -146,3 +146,72 @@ exports.getDisputes = function(req, res) {
         res.json({success: false});
     });
 };
+
+exports.getOpenDisputeCount = function (req, res) {
+    let tnxId = req.params.transactionId == 'null' || req.params.transactionId == 'undefined' ? null : req.params.transactionId;
+    disputeHelper.getOpenDisputeCount(tnxId)
+    .then(function (result) {
+        res.json({ success: true, disputeCount: result });
+    })
+    .catch(function (error) {
+        res.json({ success: false });
+    });
+};
+
+exports.saveDisputeAsDraft = function (req, res) {
+    disputeHelper.saveAsDraft(JSON.parse(req.params.dispute))
+    .then(function (result) {
+        res.json(result);
+    })
+    .catch(function (error) {
+        res.json({ success: false });
+    });
+};
+
+exports.disputeExists = function (req, res) { 
+    disputeHelper.disputeExists(req.params.disputedTransactionId)
+        .then(function (result) {
+            res.json({ success: result.success, exists: result.exists });
+        })
+        .catch(function (error) {
+            res.json({ success: false });
+        });
+};
+
+exports.generateDisputeId = function (req, res) {
+    res.json(disputeHelper.generateDisputeId(req.params.plainText));
+};
+
+exports.discardDraftDispute = function (req, res) {
+    disputeHelper.discardDraftDispute(req.params.disputeId)
+        .then(function (result) {
+            if (result.success) {
+                res.json({ success: true });
+            }else {
+                res.json({ success: false });
+           }
+        })
+        .catch(function (error) {
+            res.json({ success: false });
+        });
+};
+
+exports.submitDispute = function (req, res) {
+    disputeHelper.submitDispute(JSON.parse(req.body.dispute), req.body.disputeSubmissionWindowInMinutes)
+    .then(function (result) {
+        res.json(result);
+    })
+    .catch(function (error) {
+        res.json({ success: false });
+    });
+};
+
+exports.registerAddress = function (req, res) {
+    disputeHelper.registerAddress(req.body.authenticationToken, req.body.chainOfCustodyUrl, req.body.backChainAccountOfLoggedUser)
+    .then(function (result) {
+        res.json(result);
+    })
+    .catch(function (error) {
+        res.json({ success: false });
+    });
+};

@@ -6,6 +6,7 @@ import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import moment from 'moment';
 import Datetime from 'react-datetime';
+import AlertPopupView from './AlertPopupView';
 import 'react-datetime/css/react-datetime.css';
 
 @observer export default class StartSyncView extends React.Component {
@@ -13,12 +14,15 @@ import 'react-datetime/css/react-datetime.css';
 		super(props);
 	}
 
+	componentDidMount = () => { 
+		BackChainActions.toggleDBSyncModalViewActive();
+	}
+
 	render() {
 		if(this.props.store.startSync) {
 			return <Redirect push to="/home" />;
 		}
-		let syncPopupBody = null;
-		syncPopupBody = <SyncForm store={this.props.store} startSync={this.startSync}/>;
+		let syncPopupBody = <SyncForm store={this.props.store} startSync={this.startSync}/>;
 
 		return (
 			<div>
@@ -50,7 +54,19 @@ class SyncForm extends React.Component {
 		this.props.store.chainOfCustodyUrl  = event.target.value.trim();
 	}
 
+	isEmpty(value) {
+		return value == null || typeof value == 'undefined' || value == "";
+	}
+
 	startSync() {
+		if (this.isEmpty(this.props.store.authenticationToken) || this.isEmpty(this.props.store.lastSyncTimeInMillis) || this.isEmpty(this.props.store.chainOfCustodyUrl)) {
+			BackChainActions.displayAlertPopup("Missing Required Fields", "Please fill in all the required fields and try again.",'WARN');
+			return;
+		}
+		if (!this.props.store.chainOfCustodyUrl.toLowerCase().startsWith("http://") && !this.props.store.chainOfCustodyUrl.toLowerCase().startsWith("https://")) {
+			BackChainActions.displayAlertPopup("Invalid One Network's Audit Repository Url", "Please enter a valie One Network's Audit Repository url and try again.",'WARN');
+			return;
+		}
 		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
 	}
 
@@ -82,6 +98,7 @@ class SyncForm extends React.Component {
 
 		return (
 			<div>
+				<AlertPopupView store={this.props.store} />
 				<Row style={{paddingLeft: '15px'}}>
 					<Col style={{backgroundColor : 'rgba(253, 244, 181, 1)', borderRadius: '5px', lineHeight: '40px', width: '64.66%',paddingLeft: '0px'}} md={8}>
 						<Col md={1} style={{paddingTop: '2px', width: '7%'}}><i className="fa fa-exclamation-circle" aria-hidden="true" style={{fontSize: '1.5em', color : "#F19500"}}/></Col>

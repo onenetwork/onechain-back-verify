@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import { Row, Col, Button, Panel} from 'react-bootstrap';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
+import AlertPopupView from "./AlertPopupView";
 import {BigNumber} from 'bignumber.js';
 import moment from 'moment';
 import {Link} from 'react-router-dom';
@@ -243,6 +244,7 @@ import {Link} from 'react-router-dom';
                     {latestNEarliestSync}<br/>
                     <SyncGapButtons store={this.props.store} parentState={this.state}  selectedGapsLbl = {"Sync Selected Gaps"} allGapsLbl = {"Sync All Gaps"}/>
                 </div>
+                <AlertPopupView store={this.props.store} />
 		  	</div>
         )
     }
