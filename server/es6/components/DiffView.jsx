@@ -189,7 +189,9 @@ export default class DiffView extends React.Component {
         paddingLeft: '0px',
         marginRight: '35px',
         marginTop: '5px',
-        width: '190px'
+        width: '190px',
+        overflowX: 'hidden',
+        overflowY: 'scroll'
       },
       tablinks: {
         borderTopLeftRadius: '8px',
