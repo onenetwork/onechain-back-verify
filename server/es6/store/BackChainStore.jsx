@@ -48,7 +48,12 @@ class BackChainStore {
     @observable alertPopupLevel = 'INFO';
     @observable backChainAccountOfLoggedUser = null;
     @observable openDisputeCountOfLoggedUser = 0;
+    
+    // props modified by API
+    @observable showDisputeDetailsInPopup = false;
+    @observable showDisputeActions = true;
     sliceDataProvidedByAPI = false;
+    disputeDataProvidedByAPI = false;
 
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;

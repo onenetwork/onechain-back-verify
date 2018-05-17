@@ -9,9 +9,6 @@ import DisputeFiltersView from './DisputeFiltersView';
 import NewDisputeView from './NewDisputeView';
 
 @observer export default class ListDisputesView extends React.Component {
-	constructor(props) {
-		super(props);
-	}
 
 	componentDidMount() {
 
@@ -68,11 +65,11 @@ import NewDisputeView from './NewDisputeView';
 					<div className={"panel-body"} style={fieldProps.panelBody}>
 						{panelBody}
 						<DisputeFiltersView store={this.props.store} />
-						<DisputesView store = {this.props.store} showDisputeActions = {this.props.location.state ? this.props.location.state.showDisputeActions : null}/>
+						<DisputesView store={this.props.store} />
 						{this.props.store.newDisputeModalActive ? <NewDisputeView store={this.props.store} /> : null }
 					</div>
 				</div>
-			</div>	
+			</div>
 		);
     }
 }
