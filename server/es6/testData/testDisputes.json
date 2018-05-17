@@ -8,7 +8,7 @@
         "events" : [9868367292, 5769927272], //list of btIds
         "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", //0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051=CustomerA. Mapping will be in mongoDB
         "reasonCode": "Data is wrong",
-        "status": "Draft" //Open, Closed
+        "status": "DRAFT" //Open, Closed
     },
     {
         "id": 1234568,
@@ -19,7 +19,7 @@
         "events" : [], //Empty list means, all the btIds in the enterprise slice.
         "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
         "reasonCode": "Sent to wrong location",
-        "status": "Draft"
+        "status": "DRAFT"
     },
     {
         "id": 1234569,
@@ -30,7 +30,7 @@
         "events" : [9868367292, 5769927272], 
         "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
         "reasonCode": "Entered wrong data",
-        "status": "Open"
+        "status": "OPEN"
     },
     {
         "id": 1234567,
@@ -41,7 +41,7 @@
         "events" : [9868367292, 5769927272], 
         "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
         "reasonCode": "Data is wrong",
-        "status": "Open"
+        "status": "OPEN"
     },
     {
         "id": 1234567,
@@ -52,6 +52,6 @@
         "events" : [9868367292, 5769927272], 
         "raisedBy": "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051", 
         "reasonCode": "Sent to wrong location",
-        "status": "Closed"
+        "status": "CLOSED"
     }
 ]

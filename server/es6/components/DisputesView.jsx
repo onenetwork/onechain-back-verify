@@ -65,10 +65,13 @@ const fieldProps = {
     }
 };
 
-const map = {
-    wrongData: "Data is wrong",
-    sentToWrongLocation : "Sent to wrong location",
-    enteredWrongData:"Entered wrong data"
+const reasonCodeMap = {
+    "HASH_NOT_FOUND" : "Hash Not Found",
+    "INPUT_DISPUTED" : "Incorrect Data Input",
+    "TRANSACTION_DATE_DISPUTED" : "Incorrect Transaction Date",
+    "TRANSACTION_PARTIES_DISPUTED" : "Incorrect Transaction Participants",
+    "DISPUTE_BUSINESS_TRANSACTIONS" : "Incorrect Transaction Events",
+    "FINANCIAL_DISPUTED" : "Financial Issue"
 };
 
 @observer export default class DisputesView extends React.Component {
@@ -125,7 +128,6 @@ const map = {
                 contentBackchainContractAddress: me.props.store.blockChainContractAddress,
                 disputeBackchainContractAddress: me.props.store.disputeBlockChainContractAddress
             });
-
             disputeBcClient.submitDispute(dispute)
             .then(function(receipt){
                 if(receipt && receipt.status == 1) {
@@ -255,13 +257,13 @@ const map = {
     renderDisputeStatusCell(dispute) {
         let statusIconOverHand = null;
         switch(dispute.state) {
-            case "Draft":
+            case "DRAFT":
                 statusIconOverHand = <i className="fa fa-pencil-square" style={Object.assign({color:'#0085C8'},fieldProps.statusIconOverHand)} />;
                 break;
-            case "Closed":
+            case "CLOSED":
                 statusIconOverHand = <i className="fa fa-check-circle" style={Object.assign({color:'#229978'},fieldProps.statusIconOverHand)} />;
                 break;
-            case "Open":
+            case "OPEN":
                 statusIconOverHand = <i className="fa fa-exclamation-circle" style={Object.assign({color:'#F19500'},fieldProps.statusIconOverHand)} />;
         }
 
@@ -405,9 +407,9 @@ const map = {
         //Should get the actual enterprise name from BCAddressToEnterpriseMapping collection
         //If mapping doesn't have the value, we should display a warning message
         
-        //TODO In case while dispute comes from backchain (means dispute.state != "Draft") fetch entName from BackChainAddressMapping using disputingParty, 
+        //TODO In case while dispute comes from backchain (means dispute.state != "DRAFT") fetch entName from BackChainAddressMapping using disputingParty, 
         //i.e. call disputeHelper.getRaisedByEnterpriseName(backChainAccountOfLoggedUser), If mapping found then display entName at below line other wise display the disputingParty got in dispute.
-        if(dispute.state == "Draft")
+        if(dispute.state == "DRAFT")
             return <td style={fieldProps.columns}>{this.props.store.entNameOfLoggedUser}</td>;
         else
             return <td style={fieldProps.columns}></td>;
@@ -415,7 +417,7 @@ const map = {
 
 
     renderDisputeReasonCell(dispute) {
-        return <td style={fieldProps.columns}>{map[dispute.reason]}</td>;
+        return <td style={fieldProps.columns}>{reasonCodeMap[dispute.reason]}</td>;
     }
 
     renderDisputeParticipantsCell(dispute, idx) {
@@ -471,7 +473,7 @@ const map = {
     }
 
     renderDisputeActionsCell(dispute,idx) {
-        if (dispute.state == 'Draft') {
+        if (dispute.state == "DRAFT") {
             let submitDisputeUI = null;
 
             if(dispute.transaction) {
@@ -512,7 +514,7 @@ const map = {
                 </div>
             );
             return <td style={fieldProps.columns}>{actionsCell}</td>;
-        } else if (dispute.state == 'Open') {
+        } else if (dispute.state == "OPEN") {
             let actionsCell = (
                 <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
                     <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }}

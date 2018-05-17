@@ -92,7 +92,7 @@ import {disputeHelper} from '../DisputeHelper';
 				"disputedBusinessTransactionIds": this.state.eventBtids,
 				"submittedDate" : null,
 				"closedDate": null,
-				"state": "Draft",
+				"state": "DRAFT",
 				"reason": ReactDOM.findDOMNode(this.select).value,
 			}
 		}

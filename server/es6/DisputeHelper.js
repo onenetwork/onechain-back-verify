@@ -30,9 +30,15 @@ class DisputeHelper {
                                 contentBackchainContractAddress: settings.blockChain.contractAddress,
                                 disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                             });
-                            promisesToWaitOn.push(disputeBcClient.filterDisputes(query));
+                            //TODO: Pass the actual filters once you fix the issues with it. Mongo filters and backchain filters should be different
+                            promisesToWaitOn.push(disputeBcClient.filterDisputes({}));
                             Promise.all(promisesToWaitOn).then(function (disputes) {
-                                resolve(disputes[0].concat(disputes[1])); //DraftDisputes + Disputes from BlockChain
+                                me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
+                                me.findAndAddDisputeTransactions(disputes[1], filters). //find and attach transaction data
+                                then(function(backChainDisputes) {
+                                    resolve(disputes[0].concat(backChainDisputes));
+                                });
+                                
                             }).catch(err => {
                                 reject(err);
                                 console.error("Error occured while fetching disputes:" + err);
@@ -56,30 +62,64 @@ class DisputeHelper {
                         console.error("Error occurred while fetching transations by sequencenos." + err);
                         reject(err);
                     } else {
-                        var promisesToWaitOn = [];
-                        for (var i = 0; i < result.length; i++) {
-                            let dispute = result[i];
-                            //Fetch transaction data if exists
-                            var prms = new Promise(function (resolve, reject) {
-                                transactionHelper.getTransactionById(dispute.disputedTransactionId.slice(2), (err, transaction) => {
-                                    if (transaction) {
-                                        if (filters && filters.transactionRelatedFilter && JSON.parse(filters.transactionRelatedFilter)) {
-                                            dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
-                                        } else {
-                                            dispute.transaction = transaction; //Transaction is in the database.
-                                        }
-                                    }
-                                    resolve(dispute);
-                                });
-                            });
-                            promisesToWaitOn.push(prms);
-                        }
-                        Promise.all(promisesToWaitOn).then(function (disputes) {
+                        me.findAndAddDisputeTransactions(result, filters).
+                        then(function(disputes) {
                             resolve(disputes);
                         });
                     }
                 });
         });
+    }
+
+    /**
+     * Finds transactions in the database given with disputedTransactionId and appends it to 
+     * dispute. If not, found dispute.transaction will be undefined/null
+     * @param [] disputes - array of disputes
+     */
+    findAndAddDisputeTransactions(disputes, filters) {
+        return new Promise((resolve, reject) => {
+            var promisesToWaitOn = [];
+            for (var i = 0; i < disputes.length; i++) {
+                let dispute = disputes[i];
+                //Fetch transaction data if exists
+                var prms = new Promise(function (resolve, reject) {
+                    transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
+                        if (transaction) {
+                            if (filters && filters.transactionRelatedFilter && JSON.parse(filters.transactionRelatedFilter)) {
+                                dispute = me.applyTransactionRelatedFilters(dispute, transaction, filters);
+                            } else {
+                                dispute.transaction = transaction; //Transaction is in the database.
+                            }
+                        }
+                        resolve(dispute);
+                    });
+                });
+                promisesToWaitOn.push(prms);
+            }
+            Promise.all(promisesToWaitOn).then(function (disputes) {
+                resolve(disputes);
+            });
+        });
+    }
+
+    processIncomingBcDisputes(blockChainDisputes) {
+        //Convert all bytes to strings and attach transactions to disputes if transaction exists.
+        //TODO Remove unnecessary conversations
+        for (let i = 0, len = blockChainDisputes.length; i < len; i++) {
+            blockChainDisputes[i].disputeId = this.convertByteToString(blockChainDisputes[i].disputeId);
+            blockChainDisputes[i].disputedTransactionId = this.convertByteToString(blockChainDisputes[i].disputedTransactionId);
+            blockChainDisputes[i].submittedDate = typeof blockChainDisputes[i].submittedDate == 'string' ? parseInt(blockChainDisputes[i].submittedDate) : blockChainDisputes[i].submittedDate;
+            blockChainDisputes[i].closedDate = typeof blockChainDisputes[i].closedDate == 'string' ? parseInt(blockChainDisputes[i].closedDate) : blockChainDisputes[i].closedDate;
+            if (blockChainDisputes[i].disputedBusinessTransactionIds) {
+                for (let j = 0, len = blockChainDisputes[i].disputedBusinessTransactionIds.length; j < len; j++) {
+                    blockChainDisputes[i].disputedBusinessTransactionIds[j] = this.convertByteToString(blockChainDisputes[i].disputedBusinessTransactionIds[j]);
+                }
+            }
+        }
+    }
+
+    convertByteToString(input) {
+        return input.indexOf('0x') == 0 ? input.slice(2) : input;
     }
 
     createFilterQuery(filters) {
@@ -148,14 +188,14 @@ class DisputeHelper {
         if (this.isValueNotNull(filters.tnxFromDate)) {
             if (transaction.date >= JSON.parse(filters.tnxFromDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.disputedTransactionId.slice(2) == transaction.id) {
+            } else if (dispute.disputedTransactionId == transaction.id) {
                 dispute = null;
             }
         }
         if (dispute != null && this.isValueNotNull(filters.tnxToDate)) {
             if (transaction.date <= JSON.parse(filters.tnxToDate)) {
                 dispute.transaction = transaction;
-            } else if (dispute.disputedTransactionId.slice(2) == transaction.id) {
+            } else if (dispute.disputedTransactionId == transaction.id) {
                 dispute = null;
             }
         }
@@ -175,9 +215,9 @@ class DisputeHelper {
                         contentBackchainContractAddress: settings.blockChain.contractAddress,
                         disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                     });
-                    //Need to call  disputeBcClient.disputeSummary call once the api is ready. This will return the count from the db.
+                    promisesToWaitOn.push(disputeBcClient.getDisputeCount({"disputedTransactionId": disputedTransactionId}));
                     Promise.all(promisesToWaitOn).then(function (counts) {
-                        resolve(counts[0]); //Make sure to change and aggregate counts returning from DraftDisputes and BlockChain
+                        resolve(counts[0] + counts[1]); //Aggregate counts returning from DraftDisputes and BlockChain
                     }).catch(err => {
                         reject(err);
                         console.error("Error occurred while fetching open dispute count." + err);
@@ -283,27 +323,6 @@ class DisputeHelper {
                     console.error("Error occurred while discarding dispute as draft: " + err);
                     reject(err);
                 });
-        });
-    }
-
-    submitDispute(dispute, disputeSubmissionWindowInMinutes) {
-        let me = this;
-        return new Promise((resolve, reject) => {
-            transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
-                if (transaction) {
-                    me.isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes).visible ?
-                        resolve({ success: true, submitDisputeMsg: 'Dispute Submitted Successfully.' })
-                        :
-                        resolve({ success: false, submitDisputeMsg: "Time window to raise a dispute on this transaction has already passed. You have " + disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction." });
-                }
-            });
-
-        });
-    }
-
-    closeDispute(disputeId) {
-        return new Promise((resolve, reject) => {
-            // write code to close dispute
         });
     }
 

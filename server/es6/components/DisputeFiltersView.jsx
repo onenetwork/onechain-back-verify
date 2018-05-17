@@ -71,14 +71,14 @@ const fieldProps = {
 
     componentWillMount = () => {
         this.selectedCheckboxes = new Set();
-        this.selectedCheckboxes.add('Draft');
-        this.selectedCheckboxes.add('Open');
+        this.selectedCheckboxes.add("DRAFT");
+        this.selectedCheckboxes.add("OPEN");
     }
 
     componentDidMount() {      
         let loggedInUser = this.props.store.entNameOfLoggedUser;
         this.disputeFilters = {
-        	status: ["Draft", "Open"],
+        	status: ["DRAFT", "OPEN"],
             transactionRelatedFilter: false,
             raisedBy: loggedInUser,
             entNameOfLoggedUser: this.props.store.entNameOfLoggedUser
@@ -96,20 +96,20 @@ const fieldProps = {
         let status = [];
 
         if (event.target.checked) {
-            if (value == "Draft") {
+            if (value == "DRAFT") {
                 this.setState({ draftChkBox: true });
-            } else if (value == "Open") {
+            } else if (value == "OPEN") {
                 this.setState({ openChkBox: true });
-            } else if (value == "Closed") {
+            } else if (value == "CLOSED") {
                 this.setState({ closedChkBox: true });
             }
             this.selectedCheckboxes.add(value);
         } else {
-            if (value == "Draft") {
+            if (value == "DRAFT") {
                 this.setState({ draftChkBox: false });
             } else if (value == "Open") {
                 this.setState({ openChkBox: false });
-            } else if (value == "Closed") {
+            } else if (value == "CLOSED") {
                 this.setState({ closedChkBox: false });
             }
 
@@ -224,11 +224,11 @@ const fieldProps = {
             }} className="checkBox-div">
                 Show :
                 &nbsp;&nbsp;
-                <FormControl type="checkbox" checked={this.state.draftChkBox} value="Draft" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Draft
+                <FormControl type="checkbox" checked={this.state.draftChkBox} value="DRAFT" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Draft
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <FormControl type="checkbox" checked={this.state.openChkBox} value="Open" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Open
+                <FormControl type="checkbox" checked={this.state.openChkBox} value="OPEN" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Open
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <FormControl type="checkbox" checked={this.state.closedChkBox} value="Closed" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Closed
+                <FormControl type="checkbox" checked={this.state.closedChkBox} value="CLOSED" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Closed
                
                 <Button style={fieldProps.resetButton} className="btn btn-primary resetButton" onClick={this.resetFilters.bind(this)}>Reset</Button>   
                 <Button style={fieldProps.applyButton} className="btn btn-primary" onClick={this.applyFilters.bind(this)}>Apply</Button> 
