@@ -10,11 +10,9 @@ class BackChainStore {
     @observable isInitialSetupDone = null;
     @observable authenticationToken = null;
     @observable lastSyncTimeInMillis = null;
-    @observable syncFailed = false;
-    @observable syncGoingOn = false;
     @observable blockChainUrl = null;
     @observable blockChainContractAddress = null;
-    @observable blockChainPrivateKey = null;
+    @observable disputeBlockChainContractAddress = null;
     @observable businessTransactionTextSearch = null;
     @observable entNameOfLoggedUser = null;
     @observable transactions = observable([]);
@@ -26,6 +24,8 @@ class BackChainStore {
     @observable events = observable([]);
     @observable myAndDiffViewModalActive = false;
     @observable displayMessageViewModalActive = false;
+    @observable displayMessageViewModalTitle = null;
+    @observable displayMessageViewModalContent = null;
     @observable payload = observable([]);
     @observable viewTransactions = observable.map({});
     @observable myAndDiffViewModalType = null;
@@ -38,8 +38,16 @@ class BackChainStore {
     @observable syncStatistics = null;
     @observable syncStatisticsReport = [];
     @observable dbSyncModalViewActive = false;
-    @observable startSyncViewModalActive = false;
-
+    @observable newDisputeModalActive = false;
+    @observable disputeTransaction = null;
+    @observable generatedDisputeId = null;
+    @observable disputeSubmissionWindowInMinutes = null;
+    @observable displayAlertPopup = false;
+    @observable alertPopupTitle = null;
+    @observable alertPopupContent = null;
+    @observable alertPopupLevel = 'INFO';
+    @observable backChainAccountOfLoggedUser = null;
+    @observable openDisputeCountOfLoggedUser = 0;
     sliceDataProvidedByAPI = false;
 
     @computed get viewsMap() {
@@ -103,13 +111,13 @@ class BackChainStore {
         return viewsMap;
     }
 
-    @computed get oneBcClient() {
-        if (this.blockChainUrl != null && this.blockChainContractAddress != null && this.blockChainPrivateKey != null) {
-            return oneBcClient({
+    @computed get oneContentBcClient() {
+        if (this.blockChainUrl != null && this.blockChainContractAddress != null) {
+            return oneBcClient.createContentBcClient({
                 blockchain: 'eth',
                 url: this.blockChainUrl,
                 contractAddress: this.blockChainContractAddress,
-                privateKey: this.blockChainPrivateKey
+                disputeContractAddress: this.disputeBlockChainContractAddress
             });
         } else {
             return null;

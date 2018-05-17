@@ -77,7 +77,7 @@ const DisplayMsg = (props) => {
 	return (
         <div>
 		<Row style={{paddingLeft:'50px'}}>
-			<Col style={{color:'#E85E5A',fontSize:'48px'}} md={1}><i class="fa fa-exclamation-circle"  ></i></Col>
+			<Col style={{color:'#E85E5A',fontSize:'48px'}} md={1}><i className="fa fa-exclamation-circle"  ></i></Col>
 			<Col style={{paddingLeft:'30px', fontSize:'20px', color:'#515151', paddingTop: '8px'}} md={10}>
                 To verify transactions, please sync with One Network's Chain Of Custody.
 			</Col>

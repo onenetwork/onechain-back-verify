@@ -10,7 +10,8 @@ export default class EventsPopoverContent extends React.Component {
     render() {
         const { store, transaction } = this.props;
         const { events, eventsTransactionId } = store;
-
+        let {selectedBtIds } = this.props; //only passed from Disputes View
+        selectedBtIds = selectedBtIds || [];
         let content = <div>Loading...</div>;
 
         if(transaction.id === eventsTransactionId) {
@@ -18,19 +19,21 @@ export default class EventsPopoverContent extends React.Component {
             for (let i = 0; i < events.length; i++) {
                 let event = events[i];
                 if(typeof event !== 'number') {
-                    eventList.push(
-                        <li key={i} style={{
-                            overflow: "hidden",
-                            whiteSpace: "nowrap",
-                            textOverflow: "ellipsis",
-                            maxWidth: 800,
-                            marginLeft: 10,
-                            marginRight: 10
-                        }}>
-                            <span style={{color:'#990000', marginRight: 8}}>{event.date}</span>{" "}
-                            <span>{event.actionName}</span>
-                        </li>
-                    );
+                    if(selectedBtIds.length == 0 || selectedBtIds.indexOf(event.btid) > -1) {
+                        eventList.push(
+                            <li key={i} style={{
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                textOverflow: "ellipsis",
+                                maxWidth: 800,
+                                marginLeft: 10,
+                                marginRight: 10
+                            }}>
+                                <span style={{color:'#990000', marginRight: 8}}>{event.date}</span>{" "}
+                                <span>{event.actionName}</span>
+                            </li>
+                        );
+                    }
                 }
                 else {
                     // The number of events displayed is limited, so the last
