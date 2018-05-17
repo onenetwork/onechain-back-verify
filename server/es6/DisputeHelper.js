@@ -20,28 +20,22 @@ class DisputeHelper {
                     settingsHelper.getApplicationSettings()
                         .then(settings => {
                             let promisesToWaitOn = [];
-                            if (query.searchInDraftDisputes) {
-                                //Search in DraftDisputesCollection as well
-                                promisesToWaitOn.push(me.queryDisputes({}, query));
-                            }
+                            promisesToWaitOn.push(me.queryDisputes(query.queryForMongo, filters));
                             let disputeBcClient = oneBcClient.createDisputeBcClient({
                                 blockchain: 'eth',
                                 url: settings.blockChain.url,
                                 contentBackchainContractAddress: settings.blockChain.contractAddress,
                                 disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                             });
-                            //TODO: Pass the actual filters once you fix the issues with it. Mongo filters and backchain filters should be different
-                            promisesToWaitOn.push(disputeBcClient.filterDisputes({}));
+                            promisesToWaitOn.push(disputeBcClient.filterDisputes(query.queryForBC));
                             Promise.all(promisesToWaitOn).then(function (disputes) {
                                 me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
                                 me.findAndAddDisputeTransactions(disputes[1], filters). //find and attach transaction data
                                 then(function(backChainDisputes) {
                                     resolve(disputes[0].concat(backChainDisputes));
                                 });
-                                
                             }).catch(err => {
                                 reject(err);
-                                console.error("Error occured while fetching disputes:" + err);
                             });
                         })
                         .catch(err => {
@@ -52,10 +46,10 @@ class DisputeHelper {
         });
     }
 
-    queryDisputes(query, filters) {
+    queryDisputes(queryForMongo, filters) {
         let me = this;
         return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('DraftDisputes').find(query)
+            dbconnectionManager.getConnection().collection('DraftDisputes').find(queryForMongo)
                 .sort({ creationDate: -1 })
                 .toArray(function (err, result) {
                     if (err) {
@@ -77,6 +71,7 @@ class DisputeHelper {
      * @param [] disputes - array of disputes
      */
     findAndAddDisputeTransactions(disputes, filters) {
+        let me= this;
         return new Promise((resolve, reject) => {
             var promisesToWaitOn = [];
             for (var i = 0; i < disputes.length; i++) {
@@ -127,53 +122,62 @@ class DisputeHelper {
         filters = filters || {};
         return new Promise((resolve, reject) => {
             let query = {};
-            query.searchInDraftDisputes = true;
+            let queryForMongo = {};
+            let queryForBC = {};
             if (this.isValueNotNull(filters.status)) {
-                query.state = { $in: JSON.parse(filters.status) };
+                queryForMongo.state = { $in: JSON.parse(filters.status) };
+                let bcStatus = [];
+                filters.status = JSON.parse(filters.status);
+                for(let i = 0; i < filters.status.length; i++) {
+                    if('DRAFT' !== filters.status[i]) {
+                        bcStatus.push(filters.status[i]);
+                    }
+                }
+                queryForBC.state = bcStatus;
             }
             if (this.isValueNotNull(filters.searchTnxId)) {
-                query.disputedTransactionId = filters.searchTnxId;
+                queryForMongo.disputedTransactionId = filters.searchTnxId;
+                queryForBC.disputedTransactionId = filters.searchTnxId;
             }
             if (this.isValueNotNull(filters.searchDisputeId)) {
-                query.disputeId = filters.searchDisputeId;
+                queryForMongo.disputeId = filters.searchDisputeId;
+                queryForBC.disputeId = filters.searchDisputeId;
             }
 
             if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
-                query.submittedDate = { $gte: JSON.parse(filters.disputeSubmitFromDate) };
+                queryForBC.submittedDateStart = filters.disputeSubmitFromDate;
             }
 
             if (this.isValueNotNull(filters.disputeSubmitToDate)) {
-                query.submittedDate = { $lte: JSON.parse(filters.disputeSubmitToDate) };
+                queryForBC.submittedDateEnd = filters.disputeSubmitToDate;
             }
 
             if (this.isValueNotNull(filters.disputeCloseFromDate)) {
-                query.closedDate = { $gte: JSON.parse(filters.disputeCloseFromDate) };
+                queryForBC.closedDateStart = filters.disputeCloseFromDate;
             }
 
             if (this.isValueNotNull(filters.disputeCloseToDate)) {
-                query.closedDate = { $lte: JSON.parse(filters.disputeCloseToDate) };
+                queryForBC.closedDateStart = filters.disputeCloseFromDate;
             }
 
             if (this.isValueNotNull(filters.reasonCodes)) {
-                query.reason = { $in: JSON.parse(filters.reasonCodes) };
+                queryForMongo.reason = { $in: JSON.parse(filters.reasonCodes) };
+                queryForBC.reason = JSON.parse(filters.reasonCodes);
             }
 
             if (this.isValueNotNull(filters.searchBtId)) {
-                query.disputedBusinessTransactionIds = filters.searchBtId;
+                queryForMongo.disputedBusinessTransactionIds = filters.searchBtId;
+                queryForBC.disputedBusinessTransactionIds = filters.searchBtId;
             }
 
             if (this.isValueNotNull(filters.raisedBy) && filters.entNameOfLoggedUser !== filters.raisedBy) {
-
-                query.searchInDraftDisputes = false;
-
                 me.getRaisedByAddress(filters.raisedBy)
-                    .then((result) => {
-                        query.disputingParty = result ? result.raisedByAddress : null;
-                        resolve(query);
-                    });
-            } else {
-                resolve(query);
-            }
+                .then((result) => {
+                    queryForBC.disputingParty = result && result.success ? result.raisedByAddress : null;
+                });
+            } 
+            query = {'queryForMongo' : queryForMongo, 'queryForBC' : queryForBC};
+            resolve(query);
         });
     }
 

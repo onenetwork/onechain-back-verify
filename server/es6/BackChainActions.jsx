@@ -847,7 +847,7 @@ export default class BackChainActions {
     }
 
     @action
-    static discardDisputeDraft(disputeId) {
+    static discardDisputeDraft(disputeId, removeFromStore) {
         return new Promise(resolve => {
             let uri = '/discardDraftDispute/' + disputeId;
             return fetch(uri, { method: 'POST' })
@@ -856,7 +856,7 @@ export default class BackChainActions {
                 }, function (error) {
                     console.error(error);
                 }).then(function (result) {
-                    if (result.success) { 
+                    if (result.success && removeFromStore) { 
                         let currentDisputes = store.disputes;
                         for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
                             if (disputeId == currentDisputes[i].disputeId) {
@@ -917,12 +917,12 @@ export default class BackChainActions {
             fetch(uri, { method: 'GET' }).then(function (response) {
                 return response.json();
             }, function (error) {
-                console.error('error getting dispute count');
+                console.error('error checking disputeExists');
             }).then(function (result) {
                 if (result.success) {
                     resolve(result.exists);
                 } else {
-                    console.error('error getting dispute count');
+                    console.error('error checking disputeExists');
                 }
             });
 
@@ -969,5 +969,16 @@ export default class BackChainActions {
             if(response.success)
                 store.backChainAccountOfLoggedUser = backChainAccountOfLoggedUser;
         })
+    }
+
+    @action
+    static updateDisputeState(disputeId, newState) {
+        let currentDisputes = store.disputes;
+        for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
+            if (disputeId == currentDisputes[i].disputeId) {
+                currentDisputes[i].state = newState;
+                break;
+            }
+        }
     }
 }

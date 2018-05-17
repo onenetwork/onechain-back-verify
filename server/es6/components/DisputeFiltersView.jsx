@@ -107,7 +107,7 @@ const fieldProps = {
         } else {
             if (value == "DRAFT") {
                 this.setState({ draftChkBox: false });
-            } else if (value == "Open") {
+            } else if (value == "OPEN") {
                 this.setState({ openChkBox: false });
             } else if (value == "CLOSED") {
                 this.setState({ closedChkBox: false });

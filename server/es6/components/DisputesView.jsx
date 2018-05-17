@@ -124,14 +124,7 @@ const reasonCodeMap = {
                 .then(function (receipt) {
                     if (receipt && receipt.status == 1) {
                         //TODO Make sure to update the list
-                        let currentDisputes = store.disputes;
-                        for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
-                            if (dispute.disputeId == currentDisputes[i].disputeId) {
-                                currentDisputes[i].status ='CLOSED';
-                                break;
-                            }
-                        }
-                        store.disputes = currentDisputes;
+                        BackChainActions.updateDisputeState(dispute.disputeId, 'CLOSED');
                         BackChainActions.displayAlertPopup('Dispute closed Successfully', "", "SUCCESS");
                     } else {
                         BackChainActions.displayAlertPopup("Close Dispute Failed",
@@ -163,7 +156,7 @@ const reasonCodeMap = {
     }
 
     discardDraftDispute(dispute) {
-        BackChainActions.discardDisputeDraft(dispute.disputeId);
+        BackChainActions.discardDisputeDraft(dispute.disputeId, true);
     }
 
     submitDispute(dispute) {
@@ -190,7 +183,8 @@ const reasonCodeMap = {
                     if(me.props.store.backChainAccountOfLoggedUser !== accountNumber) {
                         BackChainActions.registerAddress(accountNumber);
                     }
-
+                    BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
+                    BackChainActions.discardDisputeDraft(dispute.disputeId, false);
                     BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "SUCCESS");
                 } else {
                     BackChainActions.displayAlertPopup("Dispute Submission Failed", 
