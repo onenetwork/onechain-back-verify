@@ -24,6 +24,12 @@ export default class BackChainActions {
             store.sliceDataProvidedByAPI = true;
             BackChainActions.getSliceDataFromAPI = options.getTransactionSliceByHash;
         }
+        if(options.disputeExists && options.getOpenDisputeCount && options.getDisputes) {
+            store.disputeDataProvidedByAPI = true;
+            BackChainActions.getOpenDisputeCountFromAPI = options.getOpenDisputeCount;
+            BackChainActions.loadDisputesFromAPI = options.getDisputes;
+            BackChainActions.disputeExistsFromAPI = options.disputeExists;
+        }
     }
 
     @action
@@ -735,52 +741,54 @@ export default class BackChainActions {
     static loadDisputes(filters) {
         store.disputes.clear();
         //Handle filters properly while fetching either from mongoDb or blockChain(through onechainbackclient)
-        store.loadingData = true;
-        fetch('/getDisputes', {
-            method: 'post',
-            headers: new Headers({
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }),
-            body: requestHelper.jsonToUrlParams(filters)
-        }).then(function (response) {
-            return response.json();
-        }, function (error) {
-            store.loadingData = false;
-            store.error = "Couldn't load disputes. Please try again later";
-            console.error('error getting disputes');
-        }).then(function (result) {
+        const loadDisputesPromise = store.disputeDataProvidedByAPI
+            ? BackChainActions.loadDisputesFromAPI(filters)
+            : fetch('/getDisputes', {
+                method: 'post',
+                headers: new Headers({
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }),
+                body: requestHelper.jsonToUrlParams(filters)
+            }).then(response => response.json());
+
+        loadDisputesPromise.then(result => {
             store.loadingData = false;
             if (result && result.success) {
-                for (let i = 0, len = result.disputes.length; i < len; i++) {
-                    store.disputes.push(result.disputes[i]);
-                }
+                (result.disputes || []).forEach(dispute => {
+                    store.disputes.push(dispute);
+                });
             } else {
                 store.error = "Couldn't load disputes. Please try again later";
                 console.error('error getting disputes');
             }
+        }).catch(error => {
+            store.loadingData = false;
+            store.error = "Couldn't load disputes. Please try again later";
+            console.error('error getting disputes');
         });
     }
 
     @action
     static getOpenDisputeCount(transactionId) {
-        let uri = '/getOpenDisputeCount/' + transactionId;
+        const getOpenDisputeCountPromise = store.disputeDataProvidedByAPI
+            ? BackChainActions.getOpenDisputeCountFromAPI(transactionId)
+            : fetch('/getOpenDisputeCount/' + transactionId, { method: 'GET' }).then(response => response.json());
+
         return new Promise(resolve => {
-            fetch(uri, { method: 'GET' }).then(function (response) {
-                return response.json();
-            }, function (error) {
-                console.error('error getting dispute count');
-            }).then(function (result) {
-                if (result.success) {
+            getOpenDisputeCountPromise.then(result => {
+                if (result && result.success) {
                     store.openDisputeCountOfLoggedUser = result.disputeCount;
                     resolve(result.disputeCount);
                 } else {
                     console.error('error getting dispute count');
                 }
+            }).catch(error => {
+                console.error('error getting dispute count');
+                console.log(error);
             });
-
-        }) 
+        });
     }
 
     @action
@@ -912,21 +920,21 @@ export default class BackChainActions {
 
     @action
     static disputeExists(disputedTransactionId) {
-        let uri = '/disputeExists/' + disputedTransactionId;
+        const disputeExistsPromise = store.disputeDataProvidedByAPI
+          ? BackChainActions.disputeExistsFromAPI(disputedTransactionId)
+          : fetch('/disputeExists/' + disputedTransactionId, { method: 'GET' }).then(response => response.json());
+
         return new Promise(resolve => {
-            fetch(uri, { method: 'GET' }).then(function (response) {
-                return response.json();
-            }, function (error) {
-                console.error('error checking disputeExists');
-            }).then(function (result) {
+            disputeExistsPromise.then(result => {
                 if (result.success) {
                     resolve(result.exists);
                 } else {
                     console.error('error checking disputeExists');
                 }
+            }).catch(error => {
+                console.error('error getting dispute count');
             });
-
-        })
+        });
     }
 
     @action

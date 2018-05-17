@@ -236,7 +236,7 @@ const reasonCodeMap = {
                     <th style={fieldProps.columns}>Raised By</th>
                     <th style={fieldProps.columns}>Reason Code</th>
                     <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Participants</th>
-                    {this.props.showDisputeActions===false ? null : <th style={fieldProps.columns}>Actions</th>}
+                    {this.props.store.showDisputeActions === false ? null : <th style={fieldProps.columns}>Actions</th>}
                 </tr>
             </thead>
         );
@@ -290,7 +290,7 @@ const reasonCodeMap = {
                 {this.renderDisputeRaisedByCell(dispute)}
                 {this.renderDisputeReasonCell(dispute)}
                 {this.renderDisputeParticipantsCell(dispute, idx)}
-                {this.props.showDisputeActions===false ? null : this.renderDisputeActionsCell(dispute, idx)}
+                {this.props.store.showDisputeActions === false ? null : this.renderDisputeActionsCell(dispute, idx)}
             </tr>
         );
     }

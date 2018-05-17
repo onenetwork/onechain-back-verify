@@ -98,9 +98,9 @@ const fieldProps = {
         return (
             <div>
                 {progressBar}
-                <TransctionsTable store={this.props.store} showDisputeDetailsInPopup = {this.props.showDisputeDetailsInPopup} showDisputeActions = {this.props.showDisputeActions}/>
+                <TransctionsTable store={this.props.store} />
             </div>
-		);
+        );
     }
 }
 
@@ -188,7 +188,7 @@ const fieldProps = {
                     <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Disputes</th>
                     <th style={fieldProps.columns}>Executing User</th>
                     {this.renderEnterpriseHeaders(variableViewNames)}
-                    {this.props.showDisputeActions===false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>}
+                    {this.props.store.showDisputeActions === false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>}
                 </tr>
             </thead>
         );
@@ -200,7 +200,7 @@ const fieldProps = {
         );
 
         if (this.state.redirectToListDisputes) {
-            return <Redirect to= {{pathname:"/listDisputes", state:{showDisputeActions:this.props.showDisputeActions}}} />;
+            return <Redirect to={{ pathname:"/listDisputes" }} />;
         } else {
             return(
                 <div>
@@ -209,7 +209,7 @@ const fieldProps = {
                         {tableHead}
                         {tableBody}
                     </Table>
-                    <DisputesViewModal store = {this.props.store} hideDisputesModalViewActive= {this.hideDisputesModalViewActive.bind(this)} disputesModalViewActive={this.state.disputesModalViewActive} showDisputeActions = {this.props.showDisputeActions}/>
+                    <DisputesViewModal store={this.props.store} hideDisputesModalViewActive={this.hideDisputesModalViewActive.bind(this)} disputesModalViewActive={this.state.disputesModalViewActive} />
                 </div>
             );
         }
@@ -273,7 +273,7 @@ const fieldProps = {
                 {this.renderTransactionExecutingUsersCell(transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
-                {this.props.showDisputeActions === false ? null : this.renderTransactionActionsCell(transaction, idx)}
+                {this.props.store.showDisputeActions === false ? null : this.renderTransactionActionsCell(transaction, idx)}
             </tr>
         );
     }
@@ -349,10 +349,10 @@ const fieldProps = {
     }
 
     renderListDisputes() {
-        if(this.props.showDisputeDetailsInPopup && this.props.showDisputeDetailsInPopup === true) {
+        if(this.props.store.showDisputeDetailsInPopup === true) {
             BackChainActions.loadDisputes();
             this.setState({disputesModalViewActive : true});
-		} else {
+        } else {
             this.setState({redirectToListDisputes : true});
         }
     }
@@ -635,8 +635,8 @@ const ViewOrDownloadTxn = props => {
         this.props.hideDisputesModalViewActive();
     }
 
-	render() {
-	  return(
+    render() {
+      return(
           <div>
             <style>
                 {`
@@ -646,9 +646,9 @@ const ViewOrDownloadTxn = props => {
                 `}
             </style>
             <Modal dialogClassName = {"disputes-modal"} show={this.props.disputesModalViewActive} onHide={this.hideDisputesModalViewActive.bind(this)}>
-                <DisputesView store = {this.props.store} showDisputeActions = {this.props.showDisputeActions}/>
+                <DisputesView store={this.props.store} />
             </Modal>
         </div>
-         );
-	}
+      );
+    }
   }
