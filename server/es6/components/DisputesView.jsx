@@ -104,7 +104,62 @@ const reasonCodeMap = {
     }
 
     closeDispute(dispute) {
-        BackChainActions.closeDispute(dispute.disputeId);
+        const me = this;
+        metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber) => {
+            /**
+            * TODO
+            * - Send this accountNumber to PLT so it can be added to the mapping. Also put it in store. Find a better name for the variable.
+            * - Add proper warning messages like "Submission failed. Make sure you're connected to the right node"
+            *     "Please change the account in metamask to your own account"
+            */
+
+            let disputeBcClient = oneBcClient.createDisputeBcClient({
+                blockchain: 'eth',
+                web3Provider: web3.currentProvider,
+                fromAddress: accountNumber,
+                contentBackchainContractAddress: me.props.store.blockChainContractAddress,
+                disputeBackchainContractAddress: me.props.store.disputeBlockChainContractAddress
+            });
+            disputeBcClient.closeDispute(dispute.disputeId)
+                .then(function (receipt) {
+                    if (receipt && receipt.status == 1) {
+                        //TODO Make sure to update the list
+                        let currentDisputes = store.disputes;
+                        for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
+                            if (dispute.disputeId == currentDisputes[i].disputeId) {
+                                currentDisputes[i].status ='CLOSED';
+                                break;
+                            }
+                        }
+                        store.disputes = currentDisputes;
+                        BackChainActions.displayAlertPopup('Dispute closed Successfully', "", "SUCCESS");
+                    } else {
+                        BackChainActions.displayAlertPopup("Close Dispute Failed",
+                            "Close Dispute failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
+                    }
+                }).
+                catch(function (error) {
+                    if (error) {
+                        BackChainActions.displayAlertPopup("Close Dispute Failed",
+                            "Close Dispute failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
+                    }
+                });
+
+
+        }).catch((error) => {
+            if (error.code == 'error.metamask.missing') {
+                BackChainActions.displayAlertPopup("Missing MetaTask Extension",
+                    ["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>,
+                        " in order to use Submit or Close Disputes. Please install the extension first and try again."], 'ERROR');
+            } else if (error.code == 'error.metamask.locked') {
+                BackChainActions.displayAlertPopup("MetaMask is Locked",
+                    ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"], 'ERROR');
+            } else {
+                BackChainActions.displayAlertPopup("Problem Occured",
+                    ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."], 'ERROR');
+                console.error(error);
+            }
+        });
     }
 
     discardDraftDispute(dispute) {
