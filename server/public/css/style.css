@@ -121,7 +121,6 @@
 .popover {
     border-color: rgba(45, 162, 191, 1);
     display : inline-table !important;
-    font-family: inherit;
 }
 .popover .popover-title {
     color: rgba(45, 162, 191, 1);
@@ -145,7 +144,7 @@
 
 @media (min-width: 768px) {
     .transaction-preview-modal{	
-        width:70% !important;
+        width:50% !important;
     }
     .transaction-diff-preview-modal{	
         width:80% !important;
@@ -153,32 +152,4 @@
     .modal-content{
         border-radius: 10px !important
     }
-}
-
-.home-button {
-    height: 42px;
-    background-color: white !important;
-    border-color: rgb(0, 133, 200) !important;
-    box-sizing: border-box;
-    border-width: 1px;
-    border-style: solid;
-    border-color: rgba(0, 120, 215, 1) !important;
-    border-radius: 5px;
-    box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.74901960784313) !important;
-}
-
-.home-button:hover {
-    background-color: rgba(240, 241, 244, 1) !important;
-}
-
-.btn-primary:hover {
-    color: #fff;
-    background-color: #286090 !important;
-    border-color: #204d74;
-}
-
-.popover>.popover-content .largePopoverContent {
-    max-width: 244px;
-    word-wrap: break-word;
-    padding: 4px 15px;
 }

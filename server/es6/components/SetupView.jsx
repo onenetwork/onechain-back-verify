@@ -4,7 +4,8 @@ import { Row, Col, Button, Panel, FormControl,Modal } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from './HeaderView';
-import AlertPopupView from './AlertPopupView';
+import oneBcClient from '@onenetwork/one-backchain-client';
+import DisplayMessageView from "./DisplayMessageView";
 import DisplaySyncView from "./DisplaySyncView"
 
 @observer export default class SetupView extends React.Component {
@@ -17,20 +18,36 @@ import DisplaySyncView from "./DisplaySyncView"
 		BackChainActions.processApplicationSettings();
 	}
 
-	isEmpty(value) {
-		return value == null || typeof value == 'undefined' || value == "";
-	}
-
 	saveInitialConfig() {
-		if (this.isEmpty(this.props.store.blockChainUrl) || this.isEmpty(this.props.store.blockChainContractAddress) || this.isEmpty(this.props.store.disputeBlockChainContractAddress)) {
-			BackChainActions.displayAlertPopup("Missing Required Fields", "Please fill in all the required fields and try again.",'WARN');
+		let me = this;
+		if (this.props.store.blockChainUrl == null || this.props.store.blockChainContractAddress == null || this.props.store.blockChainPrivateKey == null) {
+			alert('Please input all the following values');
 			return;
 		}
 		if (!this.props.store.blockChainUrl.toLowerCase().startsWith("http://") && !this.props.store.blockChainUrl.toLowerCase().startsWith("https://")) {
-			BackChainActions.displayAlertPopup("Invalid BlockChain Url", "Please enter a valie block chain url and try again.",'WARN');
+			alert('Inivalid server url');
 			return;
 		}
-		BackChainActions.verifyBackChainSettings();
+		try {
+			//verify if all inputs are valid
+			let bcClient = oneBcClient({
+				blockchain: 'eth',
+				url: this.props.store.blockChainUrl,
+				contractAddress: this.props.store.blockChainContractAddress,
+				privateKey: this.props.store.blockChainPrivateKey
+			});
+			BackChainActions.verifyBackChainSettings(bcClient,function(error,result){
+				if(error) {
+					me.props.store.displayMessageViewModalActive = true;
+				} else if(result) {
+					BackChainActions.saveBlockChainSettings(me.props.store.blockChainUrl, me.props.store.blockChainContractAddress, me.props.store.blockChainPrivateKey);
+				}
+			});
+		} catch (e) {
+			alert(e);
+			return;
+		}
+
 	}
 
 	blockChainUrl(event){
@@ -40,11 +57,11 @@ import DisplaySyncView from "./DisplaySyncView"
 	blockChainContractAddress(event){
 		this.props.store.blockChainContractAddress = event.target.value.trim();
 	}
-	
-	disputeBlockChainContractAddress(event){
-		this.props.store.disputeBlockChainContractAddress = event.target.value.trim();
+
+	blockChainPrivateKey(event){
+		this.props.store.blockChainPrivateKey = event.target.value.trim();
 	}
-	
+
 	render() {
 		if (this.props.store.isInitialSetupDone === true) {
         	return <Redirect push to="/home" />;
@@ -53,8 +70,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			panelPadding: {
 				paddingLeft: '150px',
 				paddingBottom: '50px',
-				height: '40px',
-				paddingTop: '10px'
+				height: '40px'
 			},
 			panelBody: {
 				paddingTop: 60,
@@ -89,34 +105,31 @@ import DisplaySyncView from "./DisplaySyncView"
 				fontSize: '18px',
 				width: '96px',
 				height: '42px'
-			},
-			valueLabelCol: {
-				width:'20%'
 			}
 		};
 		let panelBody = (<div>
-			<AlertPopupView store={this.props.store} />
+			<DisplayMessageViewPopup store={this.props.store}/>
 			<p></p>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
+				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl == null ? '' : this.props.store.blockChainUrl}/>
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl}/>
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Content BackChain Contract Address: </div></Col>
+				<Col md={2}><div style={fieldProps.valueLabel}>Contract Address: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress == null ? '' : this.props.store.blockChainContractAddress} />
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Dispute BackChain Contract Address: </div></Col>
+				<Col md={2}><div style={fieldProps.valueLabel}>Private Key: </div></Col>
 				<Col md={8}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.disputeBlockChainContractAddress.bind(this)}  onChange={this.disputeBlockChainContractAddress.bind(this)} placeholder={this.props.store.disputeBlockChainContractAddress} value= {this.props.store.disputeBlockChainContractAddress == null ? '' : this.props.store.disputeBlockChainContractAddress} />
+					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainPrivateKey.bind(this)}  onChange={this.blockChainPrivateKey.bind(this)} placeholder={this.props.store.blockChainPrivateKey} value = {this.props.store.blockChainPrivateKey} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}></Col>
+				<Col md={2}></Col>
 				<Col md={8}>
 					<div>
 							<button onClick={this.saveInitialConfig.bind(this)} style={fieldProps.buttonStyle} className="btn btn-primary">
@@ -162,26 +175,6 @@ import DisplaySyncView from "./DisplaySyncView"
 		if(this.props.store.mode=="prod") {
 			return (
 				<div className={"panel panel-default"}>
-					<style>
-						{`
-							::-webkit-input-placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-							::-moz-placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-							:-ms-input-placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-							::placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-						`}
-					</style>
 					<HeaderView store={this.props.store} size="big" />
 					<div className={"panel-body"} style={fieldProps.panelBody}>{panelBodyProd}</div>
 				</div>
@@ -195,4 +188,12 @@ import DisplaySyncView from "./DisplaySyncView"
 			);
 		}
 	}
+}
+
+@observer class DisplayMessageViewPopup extends React.Component {
+    render() {
+        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
+                    <DisplayMessageView title = "Message" msg= {"Could not connect to the blockchain, please check your settings and try again."} store={this.props.store}/>
+               </Modal>);
+    }
 }

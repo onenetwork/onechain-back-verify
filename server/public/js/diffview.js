@@ -48,6 +48,8 @@ var diffview = {
 		var baseTextLines = params.baseTextLines;
 		var newTextLines = params.newTextLines;
 		var opcodes = params.opcodes;
+		var baseTextName = params.baseTextName ? params.baseTextName : "Base Text";
+		var newTextName = params.newTextName ? params.newTextName : "New Text";
 		var contextSize = params.contextSize;
 		var inline = (params.viewType == 0 || params.viewType == 1) ? params.viewType : 0;
 
@@ -82,7 +84,23 @@ var diffview = {
 		var tdata = document.createElement("thead");
 		var node = document.createElement("tr");
 		tdata.appendChild(node);
-		
+		if (inline) {
+			node.appendChild(document.createElement("th"));
+			node.appendChild(document.createElement("th"));
+			node.appendChild(ctelt("th", "texttitle", baseTextName + " vs. " + newTextName));
+		} else {
+			var element = ctelt("th", "texttitle", baseTextName);
+			element.setAttribute('colSpan', '2');
+			node.appendChild(element);
+
+			var element = document.createElement("th");
+			element.className = "texttitle";
+			element.setAttribute('colSpan', '2');
+			element.style.paddingLeft = "11px";
+			element.innerHTML = '<span class="fa-stack" style="color: rgb(0, 133, 200);padding-left: 5px">&nbsp;&nbsp;&nbsp;<i class="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i><i class="fa fa-circle-o fa-stack-1x" aria-hidden="true" style="padding-left: 10px;"></i>&nbsp;&nbsp;&nbsp;&nbsp;'+ 
+			'<span style="white-space: nowrap">My Common Elements with</span>&nbsp;' + newTextName + '</span>';
+			node.appendChild(element);
+		}
 		tdata = [tdata];
 		
 		var rows = [];

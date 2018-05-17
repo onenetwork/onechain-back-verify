@@ -10,9 +10,11 @@ class BackChainStore {
     @observable isInitialSetupDone = null;
     @observable authenticationToken = null;
     @observable lastSyncTimeInMillis = null;
+    @observable syncFailed = false;
+    @observable syncGoingOn = false;
     @observable blockChainUrl = null;
     @observable blockChainContractAddress = null;
-    @observable disputeBlockChainContractAddress = null;
+    @observable blockChainPrivateKey = null;
     @observable businessTransactionTextSearch = null;
     @observable entNameOfLoggedUser = null;
     @observable transactions = observable([]);
@@ -24,8 +26,6 @@ class BackChainStore {
     @observable events = observable([]);
     @observable myAndDiffViewModalActive = false;
     @observable displayMessageViewModalActive = false;
-    @observable displayMessageViewModalTitle = null;
-    @observable displayMessageViewModalContent = null;
     @observable payload = observable([]);
     @observable viewTransactions = observable.map({});
     @observable myAndDiffViewModalType = null;
@@ -38,25 +38,9 @@ class BackChainStore {
     @observable syncStatistics = null;
     @observable syncStatisticsReport = [];
     @observable dbSyncModalViewActive = false;
-    @observable newDisputeModalActive = false;
-    @observable disputeTransaction = null;
-    @observable generatedDisputeId = null;
-    @observable disputeSubmissionWindowInMinutes = null;
-    @observable displayAlertPopup = false;
-    @observable alertPopupTitle = null;
-    @observable alertPopupContent = null;
-    @observable alertPopupLevel = 'INFO';
-    @observable backChainAccountOfLoggedUser = null;
-    @observable openDisputeCountOfLoggedUser = 0;
-    @observable businessTransactionIds = [];
-    @observable enterpriseBusinessTransactions = [];
-    @observable intersectionBusinessTransactions = [];
-    
-    // props modificated by API
-    @observable showDisputeDetailsInPopup = false;
-    @observable showDisputeActions = true;
+    @observable startSyncViewModalActive = false;
+
     sliceDataProvidedByAPI = false;
-    disputeDataProvidedByAPI = false;
 
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;
@@ -119,13 +103,13 @@ class BackChainStore {
         return viewsMap;
     }
 
-    @computed get oneContentBcClient() {
-        if (this.blockChainUrl != null && this.blockChainContractAddress != null) {
-            return oneBcClient.createContentBcClient({
+    @computed get oneBcClient() {
+        if (this.blockChainUrl != null && this.blockChainContractAddress != null && this.blockChainPrivateKey != null) {
+            return oneBcClient({
                 blockchain: 'eth',
                 url: this.blockChainUrl,
                 contractAddress: this.blockChainContractAddress,
-                disputeContractAddress: this.disputeBlockChainContractAddress
+                privateKey: this.blockChainPrivateKey
             });
         } else {
             return null;
@@ -170,44 +154,6 @@ class BackChainStore {
             "totalCompleted": totalCompleted,
             "endResult": endResult
         };
-    }
-
-    /**
-     * Putting @computed listBusinessTransactionIds setter after listBusinessTransactionIds getter is recomended.
-     */
-    @computed get listBusinessTransactionIds() {
-        return this.businessTransactionIds;
-    }
-
-    set listBusinessTransactionIds(businessTransactionId) {
-        this.businessTransactionIds.splice(0, this.businessTransactionIds.length);
-        this.enterpriseBusinessTransactions = this.viewTransactions.enterprise.transactionSlice.businessTransactions;
-        if(this.viewTransactions.intersection) {
-            this.intersectionBusinessTransactions = this.viewTransactions.intersection.transactionSlice.businessTransactions;
-        }
-
-        for(let i = 0; i < this.enterpriseBusinessTransactions.length; i++) {
-            this.businessTransactionIds.push(this.enterpriseBusinessTransactions[i].btid);
-        }
-        
-        if(businessTransactionId) {
-            var businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
-            for (let i = this.businessTransactionIds.length-1; i >= 0; i--) {
-                if(!((this.businessTransactionIds[i].toString()).match(businessTransactionIdRegEx))) {
-                    this.businessTransactionIds.splice(i, 1);
-                    this.enterpriseBusinessTransactions.splice(i, 1);
-                    this.intersectionBusinessTransactions.splice(i, 1);
-                }
-            }
-        }
-    }
-
-    @computed get listEnterpriseBusinessTransactions() {
-        return this.enterpriseBusinessTransactions;
-    }
-
-    @computed get listIntersectionBusinessTransactions() {
-        return this.intersectionBusinessTransactions;
     }
 }
 export const backChainStore = new BackChainStore();

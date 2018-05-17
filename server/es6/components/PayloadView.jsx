@@ -23,9 +23,7 @@ import Images from '../Images';
 	handleSubmit(e) {
 		e.preventDefault();
 		const _this = this;
-		this.setState({
-			verifyDisabled: true
-		});
+
 		if(!this.state.actualFile){
 			alert('Please select the payload file');
 			return;
@@ -43,7 +41,6 @@ import Images from '../Images';
 							_this.setState({
 								redirect: true
 							});
-							// TODO redirect false not handled. Once we get redire:false we need to set verifyDisabled:false
 						});
 					})
 				}

@@ -26,7 +26,7 @@ class RequestHelper {
         }
 
         // Filter out all undefined values.
-        obj = this.filterObject(obj, (k, v) => v !== undefined && v !== null);
+        obj = this.filterObject(obj, (k, v) => v !== undefined);
 
         let paramsArr = this.mapObject(obj, (k, v) => {
             switch (Object.prototype.toString.call(v)) {

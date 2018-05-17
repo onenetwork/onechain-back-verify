@@ -4,7 +4,6 @@ import {Row,  Col, Button, Panel,Tooltip,OverlayTrigger,Modal} from 'react-boots
 import { Link, Redirect } from 'react-router-dom';
 import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
-import AlertPopupView from "./AlertPopupView";
 import '../../public/css/homePage.css';
 import DBSyncView from "./DBSyncView";
 import Images from '../Images';
@@ -18,14 +17,19 @@ import Images from '../Images';
     BackChainActions.isInitialSyncDone();
     BackChainActions.processApplicationSettings();
     BackChainActions.syncStatisticsInfo();
-    BackChainActions.getOpenDisputeCount();
   }
 
   divClick(callBack) {
+    // TODO@Ravi : somehow call back is coming in this function when close button of modal is clicked
+    // so given a name to button
+    if(callBack.target.name!="closeModal") {
       BackChainActions.toggleDBSyncModalViewActive();
+    }
   }
 
   render() {
+    let syncPop = '';
+    syncPop = <StartSyncViewModal store={this.props.store} />
 
     if(this.props.store.isInitialSetupDone === null) {
       return null;
@@ -45,7 +49,7 @@ import Images from '../Images';
         color: '#515151'
       },
       panelBody : {
-        padding: '40px 0px 20px 80px',
+        padding: '70px 0px 20px 80px',
         backgroundColor: 'white'
       },
       button : {
@@ -61,18 +65,6 @@ import Images from '../Images';
         height: '70px',
         borderRadius: '5px',
         cursor: 'pointer'
-      },
-      disputes: {
-        fontSize: '14px',
-        color: '#0085C8',
-        paddingRight: '40px',
-        paddingTop: '15px'
-      },
-      mouseOver: {
-        width: '128px',
-        height: '42px',
-        textAlign: 'center',
-        paddingTop: '6px'
       }
     };
 
@@ -152,12 +144,13 @@ import Images from '../Images';
     const tooltip = (
 
       <div id="tooltip" role="tooltip"  className="fade in tooltip top" style={{top: '229px', left: '1014.5px'}}>
-        <div className="tooltip-arrow" style={{ borderTopColor: '#208093'}}></div>
+        <div className="tooltip-arrow" style={{left: '50%'}}></div>
         <div className="tooltip-inner" style={{backgroundColor: '#208093',textAlign: 'left' }}>{toolTipText}</div>
       </div>
       );
 
     let dbIcon = (<div onClick={this.divClick}>
+                {dbSync}
                 <OverlayTrigger  placement="top" overlay={tooltip}>
                 <div className="dbNsyncIcon" style={Object.assign({}, {padding: '20px 10px'}, fieldProps.dbNsyncIcon)}>
                 <span>
@@ -177,7 +170,7 @@ import Images from '../Images';
             </div></Link>);
     /*Note: For now we are not removing text based search related code & SearchByTextView.jsx.*/
     let panelBody = (<div style={{height: '100%', width: '92%'}}>
-                <Row style={fieldProps.panelBodyTitle}>Verify my transaction with</Row><br/>
+                <Row style={fieldProps.panelBodyTitle}>Verify my transaction with:</Row><br/>
                 <Row style={fieldProps.panelPadding}>
                   <Col style={{float:'Left',paddingLeft:'20px',backgroundColor:'rgba(217, 216, 208, 1)',width:'310px',borderTopLeftRadius:'10px',borderBottomLeftRadius:'10px'}}>{payload}</Col>
                   <Col style={{float:'Left',paddingLeft:'20px'}}>{businessTxnId}</Col>
@@ -186,27 +179,13 @@ import Images from '../Images';
                   <Col style={{float:'Left',paddingLeft:'20px'}}>{syncIcon}</Col>
                 </Row>
             </div>);
-    let disputes = (<div style={{ float: 'right' }}>
-                      <Link to='/listDisputes'>  
-                        <div style={fieldProps.disputes}>
-                            <div className="mouseOver" style={fieldProps.mouseOver} >
-                              <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
-                              <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '132px', position: 'absolute', top: '210px' }} /> 
-                              <div className="disputes-counter">{this.props.store.openDisputeCountOfLoggedUser}</div>
-                              <div style={{display: 'inline'}}> &nbsp;&nbsp;&nbsp;Disputes</div>
-                            </div>
-                        </div>
-                      </Link>
-                    </div>);
         return (
       <div className={"panel panel-default"} style={fieldProps.panelDefault} onClick={this.props.action}>
-        <HeaderView store={this.props.store} size="big" />
-        {disputes}    
+        <HeaderView store={this.props.store} size="big"/>
         <div className={"panel-body"} style={fieldProps.panelBody}>
           {panelBody}
-          <AlertPopupView store={this.props.store} />
+          {syncPop}
         </div>
-        {dbSync}
         </div>
     );
   }
@@ -218,4 +197,114 @@ import Images from '../Images';
                 <DBSyncView store={this.props.store} syncType={this.props.syncType} />
        </Modal>);
   }
+}
+@observer class StartSyncViewModal extends React.Component {
+  render() {
+    return(<Modal dialogClassName = {"start-sync-modal"} show={this.props.store.startSyncViewModalActive} onHide={BackChainActions.toggleStartSyncModalView}>
+         <StartSyncPopup store={this.props.store} />
+      </Modal>);
+  }
+}
+
+@observer
+class StartSyncPopup extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+  let syncPopupBody = "";
+
+  if (this.props.store.syncGoingOn && this.props.store.startSync) {
+    syncPopupBody = <SyncRefresh msgs={["Attempting to start synchronization.", "This may take a few minutes."]} btnName="OK" closeModal={this.closeModal} />
+  } else if (this.props.store.syncGoingOn == false && this.props.store.syncFailed == false) {
+    syncPopupBody = <SyncDone msg={"Your database will begin synchronizing shortly."} btnName="OK" closeModal={this.closeModal}  />
+  } else if (this.props.store.syncFailed ) {
+    syncPopupBody = <SyncFailed msg={"Couldn't start synchronization. Please try again later!"} btnName="OK" closeModal={this.closeModal}  />
+  }
+  return syncPopupBody;
+  }
+}
+
+const SyncRefresh = (props) => {
+  let fieldProps = {
+    button : {
+      height: '35px',
+      boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+      fontStyle: 'normal',
+      fontSize: '16px'
+    }
+  }
+  return (
+    <div>
+      <Row style={{ paddingLeft: '90px',paddingTop:'53px'}}>
+        <Col style={{color:'#0085C8'}} md={1}><i className="fa fa-refresh fa-spin fa-4x fa-fw"></i></Col>
+        <Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
+          {props.msgs.map(i => {
+            return <div key={i}>{i}</div>;
+          })}
+        </Col>
+      </Row><br/>
+      <Row style={{ paddingBottom: '33px' }}>
+        <Col md={5}></Col>
+        <Col md={2}>
+          <Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, {width: '80px'})}> {props.btnName} </Button>
+        </Col>
+      </Row>
+    </div>
+  )
+}
+
+const SyncDone = (props) => {
+  let fieldProps = {
+    button: {
+      height: '35px',
+      boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+      fontStyle: 'normal',
+      fontSize: '16px'
+    }
+  }
+  return (
+    <div>
+      <Row style={{ paddingLeft: '90px', paddingTop: '53px'}}>
+      <Col style={{color:'#3c763d'}} md={1}><i className="fa fa-check-circle fa-4x fa-fw"></i></Col>
+      <Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151'}} md={10}>
+        {props.msg}
+      </Col>
+    </Row> <br />
+    <Row style={{ paddingBottom: '33px' }}>
+      <Col md={5}></Col>
+      <Col md={2}>
+          <Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
+      </Col>
+    </Row>
+    </div >
+  )
+}
+
+const SyncFailed = (props) => {
+  let fieldProps = {
+    button: {
+      height: '35px',
+      boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+      fontStyle: 'normal',
+      fontSize: '16px'
+    }
+  }
+  return (
+    <div>
+    <Row style={{ paddingLeft: '90px', paddingTop: '53px'}}>
+      <Col style={{color:'#bb0400'}} md={1}><i className="fa fa-times fa-4x fa-fw"></i></Col>
+      <Col style={{paddingLeft:'50px', fontSize:'20px', color:'#515151', paddingTop: '12px'}} md={10}>
+        {props.msg}
+      </Col>
+    </Row><br/>
+    <Row style={{ paddingBottom: '33px' }}>
+      <Col md={5}></Col>
+      <Col md={2}>
+          <Button bsStyle="primary" onClick={BackChainActions.toggleStartSyncModalView} style={Object.assign({}, fieldProps.button, { width: '80px' })}> {props.btnName} </Button>
+      </Col>
+      </Row>
+    </div>
+  )
 }

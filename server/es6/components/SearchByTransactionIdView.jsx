@@ -4,8 +4,8 @@ import BackChainActions from '../BackChainActions';
 import { Link,Redirect } from 'react-router-dom';
 import { observer } from 'mobx-react';
 import HeaderView from "./HeaderView";
+import DisplayMessageView from "./DisplayMessageView";
 import Images from '../Images';
-import AlertPopupView from './AlertPopupView';
 
 @observer export default class SearchByTransactionIdView extends React.Component {
     constructor(props) {
@@ -29,11 +29,9 @@ import AlertPopupView from './AlertPopupView';
 
 	loadTransactionIntoStore() {
 		let me = this;
-		me.setState({ verifyDisabled: true });
 		BackChainActions.loadTransactions(this.transactionIdInputVal, "tnxId", function(redirect) {
 			if(redirect == false) {
-				BackChainActions.displayAlertPopup('Message', 'Result not found! Try again with different ID.', 'ERROR');
-				me.setState({ verifyDisabled: false });
+				me.props.store.displayMessageViewModalActive = true;
 			} else {
 				me.setState({redirect: redirect});
 			}
@@ -110,27 +108,7 @@ import AlertPopupView from './AlertPopupView';
 
 			return (
 				<div>
-					<style>
-						{`
-							::-webkit-input-placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-							::-moz-placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-							:-ms-input-placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-							::placeholder {
-								font-size: 18px !important;
-								padding: 1px;
-							}
-						`}
-					</style>
-					<AlertPopupView store={this.props.store} />
+					<DisplayMessageViewPopup store={this.props.store}/>
 
 					<div className={"panel panel-default"} onClick={this.props.action}>
 						<HeaderView store={this.props.store}/>
@@ -170,5 +148,13 @@ import AlertPopupView from './AlertPopupView';
 			);
 
 		}
+    }
+}
+
+@observer class DisplayMessageViewPopup extends React.Component {
+    render() {
+        return(<Modal dialogClassName = {"display-msg-modal"} show={this.props.store.displayMessageViewModalActive} onHide={BackChainActions.toggleDisplayMessageView}>
+                    <DisplayMessageView title = "Message" msg= "Result not found! Try again with different ID." store={this.props.store}/>
+               </Modal>);
     }
 }

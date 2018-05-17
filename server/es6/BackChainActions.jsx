@@ -7,7 +7,6 @@ import moment from 'moment';
 import "isomorphic-fetch";
 import config from './config';
 import { observable } from 'mobx';
-import oneBcClient from '@onenetwork/one-backchain-client';
 import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 
@@ -20,15 +19,9 @@ export default class BackChainActions {
     static init(appStore, options) {
         store = appStore;
 
-        if (options.getTransactionSliceByHash) {
+        if(options.getTransactionSliceByHash) {
             store.sliceDataProvidedByAPI = true;
             BackChainActions.getSliceDataFromAPI = options.getTransactionSliceByHash;
-        }
-        if (options.disputeExists && options.getOpenDisputeCount && options.getDisputes) {
-            store.disputeDataProvidedByAPI = true;
-            BackChainActions.getOpenDisputeCountFromAPI = options.getOpenDisputeCount;
-            BackChainActions.loadDisputesFromAPI = options.getDisputes;
-            BackChainActions.disputeExistsFromAPI = options.disputeExists;
         }
     }
 
@@ -99,32 +92,11 @@ export default class BackChainActions {
 
     @action
     static loadTransactionsAux(transactions, callback) {
-        let count = 0;
-        transactions.forEach(element => {
-            BackChainActions.getOpenDisputeCount(element.id)
-                .then(function (result) {
-                    element.openDisputeCount = result;
-                    BackChainActions.disputeExists(element.id)
-                        .then(function (result) {
-                            element.disputeExists = result;
-                            store.transactions.push(element);
-                            if (++count == transactions.length) {
-                                transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                            }
-                        })
-                })
-                .catch(function (error) {
-                    element.openDisputeCount = 0;
-                    element.disputeExists = false
-                    store.transactions.push(element);
-                    if (++count == transactions.length) {
-                        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                    }
-                });
-        });
+        transactions.forEach(element => store.transactions.push(element));
+        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
 
-        if (callback) {
-            callback(transactions.length > 0);
+        if(callback) {
+            callback(store.transactions.length > 0);
         }
     }
 
@@ -171,8 +143,8 @@ export default class BackChainActions {
                     }
                 }
 
-                if(type == "Intersection" && transactionSlice.type == "Intersection"
-                    && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                if(type == "Intersection"
+                        && transactionSlice.type == "Intersection") {
                     if(transactionSlice.payloadId) {
                         return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                             let newJson = observable({});
@@ -257,8 +229,8 @@ export default class BackChainActions {
                             }
                         }
 
-                        if(type == "Intersection" && transactionSlice.type == "Intersection"
-                            && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                        if(type == "Intersection"
+                                && transactionSlice.type == "Intersection") {
                             if(transactionSlice.payloadId) {
                                 return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                                     let newJson = observable({});
@@ -296,8 +268,12 @@ export default class BackChainActions {
     }
 
     @action
-    static saveBlockChainSettings(url, contractAddress, disputeContractAddress, disputeSubmissionWindowInMinutes) {
-        const params = { url, contractAddress, disputeContractAddress, disputeSubmissionWindowInMinutes };
+    static saveBlockChainSettings(url, contractAddress, privatekey) {
+        let params = {
+            'url':url,
+            'contractAddress': contractAddress,
+            'privatekey': privatekey
+            };
         fetch('/saveBlockChainSettings', {
             method: 'post',
             headers: new Headers({
@@ -310,7 +286,7 @@ export default class BackChainActions {
             return response.json();
           }).then(function(result) {
             if(result.success === true){
-                store.isInitialSetupDone = true;
+                  store.isInitialSetupDone = true;
             }else{
                 store.isInitialSetupDone = false;
             }
@@ -320,8 +296,8 @@ export default class BackChainActions {
             store.isInitialSetupDone = false;
             store.blockChainUrl = null;
             store.blockChainContractAddress = null;
-            store.disputeBlockChainContractAddress = null;
-        });
+            store.blockChainPrivateKey = null;
+          });
     }
 
     @action
@@ -340,15 +316,10 @@ export default class BackChainActions {
     }
 
     @action
-    static toggleNewDisputeModalView() {
-        store.newDisputeModalActive = !store.newDisputeModalActive;
+    static toggleStartSyncModalView() {
+        store.startSyncViewModalActive = !store.startSyncViewModalActive;
     }
-    
-    @action
-    static closeAlertPopup() {
-        store.displayAlertPopup = false;
-    }
-    
+
     @action
     static processApplicationSettings() {
         /**
@@ -362,21 +333,18 @@ export default class BackChainActions {
                 return response.json();
             }).then(function(result) {
                 if (result.success && result.settings.blockChain &&
-                    result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
-                    result.settings.blockChain.disputeContractAddress && /*submissionWindow can return as 0 if PLT hasn't submitted a value 0 is considered as false*/
-                    typeof result.settings.blockChain.disputeSubmissionWindowInMinutes != 'undefined') {
+                    result.settings.blockChain.url && result.settings.blockChain.contractAddress
+                    && result.settings.blockChain.privateKey) {
                     store.isInitialSetupDone = true;
                     store.blockChainUrl = result.settings.blockChain.url;
                     store.blockChainContractAddress = result.settings.blockChain.contractAddress;
-                    store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
-                    store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
+                    store.blockChainPrivateKey = result.settings.blockChain.privateKey;
                 } else {
                     store.isInitialSetupDone = false;
                     store.mode = result.settings.mode;
-                    store.blockChainUrl = config.blockChainUrl;
-                    store.blockChainContractAddress = config.blockChainContractAddress;
-                    store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
-                    store.disputeSubmissionWindowInMinutes = 24 * 60; //Default value is one day in minutes.
+                    store.blockChainUrl=config.blockChainUrl;
+                    store.blockChainContractAddress=config.blockChainContractAddress;
+                    store.blockChainPrivateKey=config.blockChainpPrivateKey;
                 }
                 if(result.success && result.settings.chainOfCustidy &&
                     result.settings.chainOfCustidy.authenticationToken) {
@@ -392,7 +360,6 @@ export default class BackChainActions {
             }).catch(function(error) {
                 store.isInitialSetupDone = null;
                 store.authenticationToken = null;
-                store.disputeSubmissionWindowInMinutes = null;
             });
         }
     }
@@ -467,7 +434,8 @@ export default class BackChainActions {
     @action
     static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
         store.startSync = true;
-        BackChainActions.displayAlertPopup('Syncing', 'Refreshing your database.This may take a few minutes.');
+        store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
@@ -491,19 +459,26 @@ export default class BackChainActions {
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
+                store.syncFailed = false;
+                store.syncGoingOn = false;
                 store.startSync = false;
+                store.startSyncViewModalActive = true;
                 store.isInitialSyncDone = true;
-                BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
                 if(callback){
                     callback(null,true);
                 }
             } else {
-                BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+                store.syncFailed = true;
+                store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;
             }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT: ' + err);
-            BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+            store.syncFailed = true;
+            store.startSync = false;
+            store.startSyncViewModalActive = true;
         });
     }
 
@@ -515,7 +490,9 @@ export default class BackChainActions {
             }
             return;
         }
-        BackChainActions.displayAlertPopup('Syncing', 'Refreshing your database.This may take a few minutes.');
+        store.startSync = true;
+        store.syncGoingOn = true;
+        store.startSyncViewModalActive = true;
         let params = {
             'authenticationToken': authenticationToken,
             'gaps': gaps,
@@ -539,68 +516,42 @@ export default class BackChainActions {
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
+                store.syncFailed = false;
+                store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;
                 store.isInitialSyncDone = true;
-                BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
                 if(callback){
                     callback(null,true);
                 }
             } else {
-                BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+                store.syncFailed = true;
+                store.syncGoingOn = false;
+                store.startSync = false;
+                store.startSyncViewModalActive = true;
             }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT: ' + err);
-            BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+            store.syncFailed = true;
+            store.startSync = false;
+            store.startSyncViewModalActive = true;
         });
     }
 
 
     @action
-    static verifyBackChainSettings() {
-        //Verify orchestrator first and then getDisputeSubmissionWindows to make sure required things work.
-        try {
-            let contentBcClient = oneBcClient.createContentBcClient({
-                blockchain: 'eth',
-                url: store.blockChainUrl,
-                contentBackchainContractAddress: store.blockChainContractAddress,
-                disputeBackchainContractAddress: store.disputeBlockChainContractAddress
-            });
-            
-            contentBcClient.getOrchestrator()
-            .then(function (result) {
-                //Content BackChain credentials are correct and the connection is established. Try it for disputeContentBackChain
-                let disputeBcClient = oneBcClient.createDisputeBcClient({
-                    blockchain: 'eth',
-                    url: store.blockChainUrl,
-                    contentBackchainContractAddress: store.blockChainContractAddress,
-                    disputeBackchainContractAddress: store.disputeBlockChainContractAddress
-                });	
-
-                disputeBcClient.getDisputeSubmissionWindowInMinutes().
-                then(function(result){
-                    store.disputeSubmissionWindowInMinutes = parseInt(result);
-                    BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.disputeSubmissionWindowInMinutes);
-                }).
-                catch(function(error) {
-                    BackChainActions.displayAlertPopup("Dispute BackChain Communication Failed", "Could not connect to the dispute backchain, please check dispute backchain contract address and try again.",'ERROR');
-                });
-            })
-            .catch(function (error) {
-                BackChainActions.displayAlertPopup("Content BackChain Communication Failed", "Could not connect to the content backchain, please check your settings and try again.",'ERROR');
-            });
-        } catch(error) {
-            BackChainActions.displayAlertPopup("BackChain Communication Failed", "Could not connect to the backchain, please check your settings and try again.",'ERROR');
-            console.error(error);
-        }                
-    }
-
-    @action
-    static displayAlertPopup(title, message, level) {
-        BackChainActions.closeAlertPopup();
-        store.alertPopupLevel = level;
-        store.alertPopupTitle = title;
-        store.alertPopupContent = message;
-        store.displayAlertPopup = true;
+    static verifyBackChainSettings(oneBcClient,callback) {
+        oneBcClient.getOrchestrator()
+        .then(function (result) {
+            return result;
+        })
+        .then(function (result) {
+            callback(null,result);
+        })
+        .catch(function (error) {
+            callback(error,null);
+        });
     }
 
     @action
@@ -735,248 +686,27 @@ export default class BackChainActions {
     @action
     static loadDisputes(filters) {
         store.disputes.clear();
-        store.loadingData = true;
-        //Handle filters properly while fetching either from mongoDb or blockChain(through one-chain-back-client)
-        const loadDisputesPromise = store.disputeDataProvidedByAPI
-            ? BackChainActions.loadDisputesFromAPI(filters)
-            : fetch('/getDisputes', {
-                method: 'post',
-                headers: new Headers({
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }),
-                body: requestHelper.jsonToUrlParams(filters)
-            }).then(response => response.json());
 
-        loadDisputesPromise.then(result => {
-            store.loadingData = false;
-            if (result && result.success) {
-                result.disputes.forEach(dispute => {
-                    store.disputes.push(dispute);
-                });
-            } else {
-                store.error = "Couldn't load disputes. Please try again later";
-                console.error('error getting disputes');
-            }
-        }).catch(error => {
+        //Handle filters properly while fetching either from mongoDb or blockChain(through onechainbackclient)
+        let uri = '/getDisputes'; //filter values will be appended
+        store.loadingData = true;
+		fetch(uri, {method: 'POST'}).then(function(response) {
+			return response.json();
+		}, function(error) {
             store.loadingData = false;
             store.error = "Couldn't load disputes. Please try again later";
-            console.error('error getting disputes');
-        });
-    }
-
-    @action
-    static getOpenDisputeCount(transactionId) {
-        const getOpenDisputeCountPromise = store.disputeDataProvidedByAPI
-            ? BackChainActions.getOpenDisputeCountFromAPI(transactionId)
-            : fetch('/getOpenDisputeCount/' + transactionId, { method: 'GET' }).then(response => response.json());
-        
-        return new Promise(resolve => {
-            getOpenDisputeCountPromise.then(result => {
-                if (result && result.success) {
-                    store.openDisputeCountOfLoggedUser = result.disputeCount;
-                    resolve(result.disputeCount);
-                } else {
-                    console.error('error getting dispute count');
-                }
-            }).catch(error => {
-                console.error('error getting dispute count');
-                console.log(error);
-            });
-        });
-    }
-
-    @action
-    static populateDisputeTransaction(transactionId) {
-        this.clearDisputeTransaction();
-        return new Promise(function(resolve, reject) {
-            let disputeTnxExistsInStore = false;
-            for(let i = 0; i < store.transactions.length; i++) {
-                let transaction = store.transactions[i];
-                if(transaction.id === transactionId) {
-                    store.disputeTransaction = transaction;
-                    disputeTnxExistsInStore = true;
-                    break;
-                }
-            }
-            if(disputeTnxExistsInStore) {
-                resolve(true);
+  			console.error('error getting disputes');
+		}).then(function(result) {
+            store.loadingData = false;
+            if(result.success) {
+                for(let i = 0, len = result.disputes.length; i< len; i++) {
+                    store.disputes.push(result.disputes[i]);
+                }                
             } else {
-                let uri = '/getTransactionById/' + transactionId;
-                fetch(uri, {method: 'GET'}).then(function(response) {
-                    return response.json();
-                }, function(error) {
-                    console.error('error getting transaction by transaction id for populateDisputeTransaction');
-                    reject("Transaction ID: " + transactionId + " could not be found. Please enter a valid transaction ID.");
-                }).then(function(result) {
-                    if(result.result.length > 0) {
-                        store.disputeTransaction = result.result[0];
-                        resolve(true);
-                    } else {
-                        reject("Transaction ID: " + transactionId + " could not be found. Please enter a valid transaction ID.");
-                    }
-                });
+                store.error = "Couldn't load disputes. Please try again later";
+  			    console.error('error getting disputes');
             }
-        })
-    }
-    
-    @action
-    static clearDisputeTransaction() {
-        store.disputeTransaction = null; 
+  		});
     }
 
-    @action
-    static clearDisputeId() {
-        store.generatedDisputeId = null; 
-    }
-
-    @action
-    static saveDisputeAsDraft(dispute) {
-        return new Promise(resolve => {
-            let uri = '/saveDisputeAsDraft/' + JSON.stringify(dispute);
-            return fetch(uri, { method: 'POST' })
-            .then(function(response) {
-                return response.json();
-            }, function(error) {
-                console.error(error);
-            }).then(function(response) {
-                if(response.success && !response.exists) {
-                    dispute.transaction = store.disputeTransaction;
-                    store.disputes.unshift(dispute);
-                }
-                resolve(response);
-            })
-        })
-    }
-
-    @action
-    static discardDisputeDraft(disputeId) {
-        return new Promise(resolve => {
-            let uri = '/discardDraftDispute/' + disputeId;
-            return fetch(uri, { method: 'POST' })
-                .then(function (response) {
-                    return response.json();
-                }, function (error) {
-                    console.error(error);
-                }).then(function (result) {
-                    if (result.success) { 
-                        let currentDisputes = store.disputes;
-                        for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
-                            if (disputeId == currentDisputes[i].disputeId) {
-                                currentDisputes.splice(i, 1);
-                                break;
-                            }
-                        }
-                        store.disputes = currentDisputes;
-                    } else {
-                        console.error('error while discarding dispute draft.');
-                    }
-                })
-        })
-    }
-
-    @action
-    static closeDispute(disputeId) {
-        return new Promise(resolve => {
-            //Should send a close call to backchain for this specific dispute 
-            //Once the request returns, go ahead and update the list of disputes
-            resolve(true); //Decide what to return
-        })
-    }
-
-    @action
-    static submitDispute(dispute, disputeSubmissionWindowInMinutes) {
-        return new Promise(resolve => {
-            //First submits dispute to blockchain.
-            //If the call is successful, it removes the draft from database.
-            //Once both operations are complete, go ahead and update the list of disputes
-            let params = {
-                'dispute': dispute,
-                'disputeSubmissionWindowInMinutes': disputeSubmissionWindowInMinutes
-            };
-            fetch('/submitDispute', {
-                method: 'post',
-                headers: new Headers({
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }),
-                body: requestHelper.jsonToUrlParams(params)
-            })
-            .then(function(response) {
-                return response.json();
-            }, function(error) {
-                console.error(error);
-            }).then(function(response) {
-                resolve(response);
-            })
-        })
-    }
-
-    @action
-    static disputeExists(disputedTransactionId) {
-        const disputeExistsPromise = store.disputeDataProvidedByAPI
-          ? BackChainActions.disputeExistsFromAPI(disputedTransactionId)
-          : fetch('/disputeExists/' + disputedTransactionId, { method: 'GET' }).then(response => response.json());
-
-        return new Promise(resolve => {
-            disputeExistsPromise.then(result => {
-                if (result.success) {
-                    resolve(result.exists);
-                } else {
-                    console.error('error getting dispute count');
-                }
-            }).catch(error => {
-                console.error('error getting dispute count');
-            });
-        });
-    }
-
-    @action
-    static generateDisputeId(plainText) {
-        this.clearDisputeId();
-        let uri = '/generateDisputeId/' + plainText;
-        return fetch(uri, { method: 'GET' })
-        .then(function(response) {
-            return response.json();
-        }, function(error) {
-            console.error(error);
-        }).then(function(response){
-            if(response.success) {
-                store.generatedDisputeId = response.generatedDisputeId;
-            }
-        });
-    }
-
-    @action
-    static registerAddress(backChainAccountOfLoggedUser) {
-        let params = {
-            'authenticationToken': store.authenticationToken,
-            'chainOfCustodyUrl': store.chainOfCustodyUrl,
-            'backChainAccountOfLoggedUser':backChainAccountOfLoggedUser
-        };
-        fetch('/registerAddress', {
-            method: 'post',
-            headers: new Headers({
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }),
-            body: requestHelper.jsonToUrlParams(params)
-        })
-        .then(function(response) {
-            return response.json();
-        }, function(error) {
-            console.error(error);
-        }).then(function(response) {
-            if(response.success)
-                store.backChainAccountOfLoggedUser = backChainAccountOfLoggedUser;
-        })
-    }
-
-    @action
-    static populateBusinessTransactionIds(businessTransactionId) {
-        store.listBusinessTransactionIds = businessTransactionId;
-    }
 }

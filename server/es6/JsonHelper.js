@@ -1,4 +1,4 @@
-exports.diffUsingJS = function(copyBase, copyNew) {
+exports.diffUsingJS = function(copyBase, copyNew, partnerEntName) {
 
     // get the baseText and newText values from the two textboxes, and split them into lines
     var base = difflib.stringAsLines(JSON.stringify(copyBase, null, "\t"));
@@ -19,6 +19,9 @@ exports.diffUsingJS = function(copyBase, copyNew) {
         baseTextLines: base,
         newTextLines: newtxt,
         opcodes: opcodes,
+        // set the display titles for each resource
+        baseTextName: "My View",
+        newTextName: partnerEntName,
         viewType: 0
     }));
 }

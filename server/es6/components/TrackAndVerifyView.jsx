@@ -3,20 +3,17 @@ import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import { toJS } from 'mobx';
 import moment from 'moment';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import JSZip from 'jszip';
 import {Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, ProgressBar, Modal} from 'react-bootstrap';
 
 import MyView from './MyView';
-import EventsPopoverContent from './EventsPopoverContent';
 import DiffView from './DiffView';
-import DisputesView from "./DisputesView";
+import EventsPopoverContent from './EventsPopoverContent';
 import BackChainActions from '../BackChainActions';
 import filesaver from '../FileSaver';
 import Images from '../Images';
-
-import {disputeHelper} from '../DisputeHelper';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
 
@@ -110,12 +107,8 @@ const fieldProps = {
         super(...args);
 
         this.eventsPopoverRefsMap = {};
-        this.actionsPopoverRefsMap = {};
         this.state = {
-            eventsPopoverVisibilityMap: {},
-            redirectToListDisputes: false,
-            actionsPopoverVisibilityMap: {},
-            disputesModalViewActive: false
+            eventsPopoverVisibilityMap: {}
         };
     }
 
@@ -162,10 +155,6 @@ const fieldProps = {
                 });
             });
     }
-    
-    hideDisputesModalViewActive() {
-        this.setState({disputesModalViewActive : false});
-    }
 
     render() {
         const transactions = toJS(this.props.store.transactions);
@@ -184,11 +173,9 @@ const fieldProps = {
                 <tr>
                     <th style={Object.assign({maxWidth: '130px'}, fieldProps.columns)}><span style={{paddingLeft:'27px'}}>Transaction Id</span></th>
                     <th style={fieldProps.columns}>Date/Time</th>
-                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Events</th>
-                    <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Disputes</th>
+                    <th style={Object.assign({},fieldProps.columns,{width: '6%'})}>Events</th>
                     <th style={fieldProps.columns}>Executing User</th>
                     {this.renderEnterpriseHeaders(variableViewNames)}
-                    {this.props.store.showDisputeActions === false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>}
                 </tr>
             </thead>
         );
@@ -199,20 +186,15 @@ const fieldProps = {
             </tbody>
         );
 
-        if (this.state.redirectToListDisputes) {
-            return <Redirect to={{ pathname:"/listDisputes" }} />;
-        } else {
-            return(
-                <div>
-                    <TransactionPreview store={this.props.store}/>
-                    <Table responsive condensed hover style={fieldProps.table}>
-                        {tableHead}
-                        {tableBody}
-                    </Table>
-                    <DisputesViewModal store = {this.props.store} hideDisputesModalViewActive= {this.hideDisputesModalViewActive.bind(this)} disputesModalViewActive={this.state.disputesModalViewActive} />
-                </div>
-            );
-        }
+		return(
+            <div>
+                <TransactionPreview store={this.props.store}/>
+                <Table responsive condensed hover style={fieldProps.table}>
+                    {tableHead}
+                    {tableBody}
+                </Table>
+            </div>
+		);
     }
 
     renderEnterpriseHeaders(variableViewNames) {
@@ -269,11 +251,9 @@ const fieldProps = {
                 {this.renderTransactionIdCell(transaction, idx == this.props.store.transactions.length - 1)}
                 {this.renderTransactionDateCell(transaction)}
                 {this.renderTransactionEventsCell(transaction, idx)}
-                {this.renderTransactionDisputesCell(transaction, idx)}
                 {this.renderTransactionExecutingUsersCell(transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
-                {this.props.store.showDisputeActions === false ? null : this.renderTransactionActionsCell(transaction, idx)}
             </tr>
         );
     }
@@ -348,33 +328,6 @@ const fieldProps = {
         );
     }
 
-    renderListDisputes() {
-        if(this.props.store.showDisputeDetailsInPopup === true) {
-            BackChainActions.loadDisputes();
-            this.setState({disputesModalViewActive : true});
-    } else {
-            this.setState({redirectToListDisputes : true});
-        }
-    }
-
-    renderTransactionDisputesCell(transaction) {
-        const disputeCount = transaction.openDisputeCount;
-        return (
-            <td style={Object.assign({}, fieldProps.columns )}>
-                {disputeCount > 0  ?(
-                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden' }} onClick={this.renderListDisputes.bind(this)}>
-                        <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>
-                        <img
-                            src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
-                            style={{ height: '17px', width: '23px', position: 'relative', top: '5px', left: '-8px' }}
-                        />
-                        <span className="dispute-counter">{disputeCount}</span>
-                    </div>) :(<div></div>)
-                }
-            </td>
-        );
-    }
-
     renderTransactionExecutingUsersCell(transaction) {
         let displayExecutingUsers = transaction.executingUsers;
         if(transaction.executingUsers.length > 1) {
@@ -387,7 +340,7 @@ const fieldProps = {
                     trigger={['hover', 'focus']}
                     placement="top"
                     overlay={(
-                        <Popover id={transaction.executingUsers.join()}>
+                        <Popover id={transaction.executingUsers.join() + i}>
                             <ul style={{paddingLeft: '0px',listStyleType: 'none'}}>
                                 {usersList}
                             </ul>
@@ -479,40 +432,6 @@ const fieldProps = {
         return cells;
     }
 
-    renderTransactionActionsCell(transaction, idx) {
-        return (
-            <td style={Object.assign({}, fieldProps.columns)}>
-                {transaction.disputeExists || !(disputeHelper.isSubmitDisputeWindowStillOpen(transaction, this.props.store.disputeSubmissionWindowInMinutes).visible) ? (
-                        <div></div>
-                ): (
-                        <div style={{ cursor: 'pointer' }}>
-                            <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
-                                <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}
-                                ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
-                                <Overlay
-                                    show={this.state.actionsPopoverVisibilityMap[idx] || false}
-                                    onHide={() => this.showActionPopover(idx, false)}
-                                    rootClose={true}
-                                    placement="right"
-                                    container={document.getElementById("root")}
-                                    target={() => this.actionsPopoverRefsMap[idx]}>
-
-                                    <Popover id={"action-popover-" + idx} className="action-popover" >
-                                        <Link to='#' onClick={this.populateDisputeTransaction.bind(this, transaction.id)}>
-                                            <div className="dispute-transation-div">
-                                                <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Dispute Transaction
-                                                </div>
-                                        </Link>
-                                    </Popover>
-                                </Overlay>
-                            </div>
-                        </div>    
-                    )
-                }    
-            </td>
-        );
-    }
-    
     getEventCountCSS(eventCount) {
         switch(this.getEventCountString(eventCount).length) {
             case 1:
@@ -537,22 +456,6 @@ const fieldProps = {
         this.setState({ eventsPopoverVisibilityMap: newMap });
     }
 
-    showActionPopover(idx, show) {
-        let newMap = Object.assign({}, this.state.actionsPopoverVisibilityMap);
-        newMap[idx] = show;
-        this.setState({ actionsPopoverVisibilityMap: newMap });
-    }
-
-    populateDisputeTransaction(transactionId) {
-        let me = this;
-        BackChainActions.populateDisputeTransaction(transactionId)
-        .then(function(result) {
-            me.setState({redirectToListDisputes: result});
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
-    }
 }
 
 @observer class TransactionPreview extends React.Component {
@@ -628,27 +531,3 @@ const ViewOrDownloadTxn = props => {
         </div>
     );
 }
-
-@observer class DisputesViewModal extends React.Component {
-
-    hideDisputesModalViewActive() {
-        this.props.hideDisputesModalViewActive();
-    }
-
-	render() {
-	  return(
-          <div>
-            <style>
-                {`
-                    .disputes-modal {
-                        width:1135px !important
-                    }
-                `}
-            </style>
-            <Modal dialogClassName = {"disputes-modal"} show={this.props.disputesModalViewActive} onHide={this.hideDisputesModalViewActive.bind(this)}>
-                <DisputesView store = {this.props.store} />
-            </Modal>
-        </div>
-         );
-	}
-  }
