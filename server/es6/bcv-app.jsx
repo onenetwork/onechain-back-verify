@@ -56,7 +56,7 @@ window.BackchainVerifyAPI = {
         BackChainActions.init(backChainStore, options);
 
         const componentToRender = options.showOnlyVerifyView
-            ? <TrackAndVerifyView store={backChainStore} showDisputeDetailsInPopup = {options.showDisputeDetailsInPopup} showDisputeActions = {options.showDisputeActions !== false} hideProgressBar />
+            ? <TrackAndVerifyView store={backChainStore} hideProgressBar />
             : <RoutedApp/>;
 
         if (typeof renderTo == 'string') {
@@ -69,6 +69,14 @@ window.BackchainVerifyAPI = {
 
         if (options.baseImageURL) {
           Images.baseURL = options.baseImageURL;
+        }
+
+        if (options.showDisputeDetailsInPopup != undefined) {
+          backChainStore.showDisputeDetailsInPopup = options.showDisputeDetailsInPopup;
+        }
+
+        if (options.showDisputeActions != undefined) {
+          backChainStore.showDisputeActions = options.showDisputeActions;
         }
 
         ReactDOM.render(componentToRender, renderTo);
