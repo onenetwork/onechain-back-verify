@@ -133,12 +133,16 @@ const reasonCodeMap = {
                 }).
                 catch(function (error) {
                     if (error) {
-                        BackChainActions.displayAlertPopup("Close Dispute Failed",
-                            "Close Dispute failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
+                        if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
+                            BackChainActions.displayAlertPopup("MetaMask Transaction was Denied", 
+                            ["You have to approve the transaction in metamask in order to close the Dispute. Please close again and approve the transaction."],'ERROR');
+                        } else {
+                            BackChainActions.displayAlertPopup("Close Dispute Failed", 
+                            ["Closed Dispute failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
+                        }
+                        console.error(error);
                     }
                 });
-
-
         }).catch((error) => {
             if (error.code == 'error.metamask.missing') {
                 BackChainActions.displayAlertPopup("Missing MetaTask Extension",
@@ -150,8 +154,8 @@ const reasonCodeMap = {
             } else {
                 BackChainActions.displayAlertPopup("Problem Occured",
                     ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."], 'ERROR');
-                console.error(error);
             }
+            console.error(error);
         });
     }
 
@@ -200,10 +204,9 @@ const reasonCodeMap = {
                         BackChainActions.displayAlertPopup("Dispute Submission Failed", 
                         ["Dispute Submission failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
                     }
+                    console.error(error);
                 }
             });
-            
-            
         }).catch((error)=> {
             if(error.code == 'error.metamask.missing') {
                 BackChainActions.displayAlertPopup("Missing MetaTask Extension", 
@@ -215,8 +218,8 @@ const reasonCodeMap = {
             } else {
                 BackChainActions.displayAlertPopup("Problem Occured", 
                 ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."],'ERROR');
-                console.error(error);
             }
+            console.error(error);
         });
     }
 

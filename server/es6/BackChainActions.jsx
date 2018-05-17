@@ -984,6 +984,11 @@ export default class BackChainActions {
         let currentDisputes = store.disputes;
         for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
             if (disputeId == currentDisputes[i].disputeId) {
+                if("OPEN" == newState) {
+                    currentDisputes[i].submittedDate = new Date().getTime();
+                } else if("CLOSED" == newState) {
+                    currentDisputes[i].closedDate = new Date().getTime(); //It's okay to set the current time because that's what block chain will set
+                }
                 currentDisputes[i].state = newState;
                 break;
             }

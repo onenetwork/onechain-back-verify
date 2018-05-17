@@ -219,7 +219,10 @@ class DisputeHelper {
                         contentBackchainContractAddress: settings.blockChain.contractAddress,
                         disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                     });
-                    promisesToWaitOn.push(disputeBcClient.getDisputeCount({"disputedTransactionId": disputedTransactionId}));
+                    promisesToWaitOn.push(disputeBcClient.getDisputeCount({
+                        "disputedTransactionId": disputedTransactionId,
+                        "state" : ["OPEN"]
+                    }));
                     Promise.all(promisesToWaitOn).then(function (counts) {
                         resolve(counts[0] + counts[1]); //Aggregate counts returning from DraftDisputes and BlockChain
                     }).catch(err => {
