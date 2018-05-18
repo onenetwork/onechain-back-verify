@@ -48,6 +48,7 @@ class BackChainStore {
     @observable alertPopupLevel = 'INFO';
     @observable backChainAccountOfLoggedUser = null;
     @observable openDisputeCountOfLoggedUser = 0;
+    @observable backChainAddressMapping = {};
     
     // props modified by API
     @observable showDisputeDetailsInPopup = false;

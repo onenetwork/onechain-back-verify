@@ -171,11 +171,8 @@ class DisputeHelper {
                 queryForBC.disputedBusinessTransactionIds = filters.searchBtId;
             }
 
-            if (this.isValueNotNull(filters.raisedBy) && filters.entNameOfLoggedUser !== filters.raisedBy) {
-                me.getRaisedByAddress(filters.raisedBy)
-                .then((result) => {
-                    queryForBC.disputingParty = result && result.success ? result.raisedByAddress : null;
-                });
+            if (filters.raisedByAddress.length > 0) {
+                queryForBC.disputingParty = JSON.parse(filters.raisedByAddress);
             } 
             query = {'queryForMongo' : queryForMongo, 'queryForBC' : queryForBC};
             resolve(query);
@@ -334,53 +331,6 @@ class DisputeHelper {
         });
     }
 
-    getRaisedByEnterpriseName(backChainAccountOfLoggedUser) {
-        return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
-                .toArray(function (err, result) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        result = result[0];
-                        for (let key in result) {
-                            if (result.hasOwnProperty(key)) {
-                                if (key == backChainAccountOfLoggedUser) {
-                                    resolve({ success: true, entName: result[key] })
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                });
-        });
-    }
-
-    getRaisedByAddress(raisedByName) {
-        return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('BackChainAddressMapping').find()
-                .toArray(function (err, result) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        result = result[0];
-                        let mappingFound = false;
-                        for (let key in result) {
-                            if (result.hasOwnProperty(key)) {
-                                if (result[key] == raisedByName) {
-                                    mappingFound = true;
-                                    resolve({ success: true, raisedByAddress: key });
-                                    break;
-                                }
-                            }
-                        }
-                        if (!mappingFound) {
-                            resolve({ success: false })
-                        }
-                    }
-                });
-        });
-    }
-
     isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes) {
         let tnxDuration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
         let tnxDurationInMinutes = Math.ceil(tnxDuration.asMinutes());
@@ -404,6 +354,19 @@ class DisputeHelper {
                 resolve(result);
             }).catch((err) => {
                 console.error("Address registeration failed: " + err);
+                reject(err);
+            });
+        });
+    }
+
+    readBackChainAddressMapping() {
+        return new Promise((resolve, reject) => {
+            let result = dbconnectionManager.getConnection().collection('BackChainAddressMapping').findOne({})
+            .then((result) => {
+                resolve(result);
+            })
+            .catch((err) => {
+                console.error("Error occurred while reading BackChainAddressMapping");
                 reject(err);
             });
         });

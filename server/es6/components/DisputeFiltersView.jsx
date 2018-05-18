@@ -6,6 +6,7 @@ import Datetime from 'react-datetime';
 import moment from 'moment';
 import BackChainActions from '../BackChainActions';
 import { disputeHelper } from '../DisputeHelper';
+import { toJS } from 'mobx';
 
 const fieldProps = {
     filterDiv: {
@@ -63,9 +64,9 @@ const fieldProps = {
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
+            raisedByAddress: [],
             transactionRelatedFilter: false,
-            reasonCodes: null,
-            entNameOfLoggedUser: this.props.store.entNameOfLoggedUser
+            reasonCodes: null
         };
     }
 
@@ -76,14 +77,33 @@ const fieldProps = {
     }
 
     componentDidMount() {      
-        let loggedInUser = this.props.store.entNameOfLoggedUser;
-        this.disputeFilters = {
-        	status: ["DRAFT", "OPEN"],
-            transactionRelatedFilter: false,
-            raisedBy: loggedInUser,
-            entNameOfLoggedUser: this.props.store.entNameOfLoggedUser
+        BackChainActions.readBackChainAddressMapping()
+        .then(() => {
+            let disputingPartyAddress = this.getDisputingPartyAddress(this.props.store.entNameOfLoggedUser);
+            this.disputeFilters = {
+                status: ["DRAFT", "OPEN"],
+                transactionRelatedFilter: false,
+                raisedByAddress: disputingPartyAddress
+            }
+            BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
+        })
+        .catch((err) => {
+            console.error("Error occurred while fetching readBackChainAddressMapping");
+        });
+    }
+
+    getDisputingPartyAddress(entName) {
+        let backChainAddressMapping = toJS(this.props.store.backChainAddressMapping);
+        let backChainAddressesOfEnt = [];
+        for (let key in backChainAddressMapping) {
+            if (backChainAddressMapping.hasOwnProperty(key)) {
+                let entNameInMapping = backChainAddressMapping[key];
+                if(entNameInMapping == entName) {
+                    backChainAddressesOfEnt.push(key);
+                }
+            }
         }
-        BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
+        return backChainAddressesOfEnt;
     }
 
     showHideAdvancedFilters(value) {
@@ -137,6 +157,7 @@ const fieldProps = {
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
+            raisedByAddress: [],
             transactionRelatedFilter: false
         };
     }
@@ -159,6 +180,9 @@ const fieldProps = {
         }
         else {
             this.disputeFilters.transactionRelatedFilter = false;
+        }
+        if(this.disputeFilters.raisedBy) {
+            this.disputeFilters.raisedByAddress = this.getDisputingPartyAddress(this.disputeFilters.raisedBy);
         }
         BackChainActions.loadDisputes(this.disputeFilters);
         this.showHideAdvancedFilters(false);
@@ -554,6 +578,16 @@ const fieldProps = {
         this.displayTransactionDate = true;
         this.displaySubmittedDate = true;
         this.displayCloseDate = true;
+
+        this.reasonCodeNameValueMap = {
+            HASH_NOT_FOUND: "Hash Not Found",
+            INPUT_DISPUTED: "Incorrect Data Input" ,
+            TRANSACTION_DATE_DISPUTED: "Incorrect Transaction Date",
+            TRANSACTION_PARTIES_DISPUTED: "Incorrect Transaction Participants",
+            DISPUTE_BUSINESS_TRANSACTIONS: "Incorrect Transaction Events",
+            FINANCIAL_DISPUTED: "Financial Issue",
+        }
+
         this.map = {
             searchBtId: "Bus Trans",
             tnxFromDate: "Trans Date",
@@ -564,13 +598,7 @@ const fieldProps = {
             disputeSubmitToDate: "Submit Date",
             disputeCloseFromDate: "Close Date",
             disputeCloseToDate: "Close Date",
-            raisedBy: "Raised By",
-            hashNotFound: "Hash Not Found",
-            inputDisputed: "Incorrect Data Input" ,
-            tnxDateDisputed: "Incorrect Transaction Date",
-            tnxPartiesDisputed: "Incorrect Transaction Participants",
-            bisputeBt: "Incorrect Transaction Events",
-            financialDispute: "Financial Issue",
+            raisedBy: "Raised By"
         };
     }
 
@@ -671,7 +699,7 @@ const fieldProps = {
 
     reasonCodesDiv(name, value, filterName, count) {
         return (<div key={name + count} style={{ display: 'inline-block' } }>
-            <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.map[value]} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName, value)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+            <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.reasonCodeNameValueMap[value]} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName, value)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
                      &nbsp;&nbsp;
             </div>
         );

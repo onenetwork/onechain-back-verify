@@ -215,3 +215,13 @@ exports.registerAddress = function (req, res) {
         res.json({ success: false });
     });
 };
+
+exports.readBackChainAddressMapping = function(req, res) {
+    disputeHelper.readBackChainAddressMapping()
+    .then(function (result) {
+        res.json({success: true, backChainAddressMapping: result});
+    })
+    .catch(function (error) {
+        res.json({success: false});
+    });
+}
