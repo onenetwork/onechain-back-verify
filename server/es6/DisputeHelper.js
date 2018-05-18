@@ -2,6 +2,7 @@ import { dbconnectionManager } from './DBConnectionManager';
 import { transactionHelper } from './TransactionHelper';
 import { settingsHelper } from './SettingsHelper';
 import { blockChainVerifier } from './BlockChainVerifier';
+import { backChainUtil } from './BackChainUtil';
 import { observable } from 'mobx';
 import { Long } from 'mongodb';
 import crypto from 'crypto';

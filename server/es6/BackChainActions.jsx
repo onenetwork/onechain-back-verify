@@ -953,8 +953,16 @@ export default class BackChainActions {
         });
     }
 
+    /**
+     * Pass backChainAccountOfLoggedUser which we get from metamask. 
+     * And register it to to PLT instance.
+     * @param {*} backChainAccountOfLoggedUser 
+     */
     @action
     static registerAddress(backChainAccountOfLoggedUser) {
+        if(store.backChainAccountOfLoggedUser == backChainAccountOfLoggedUser) {
+            return;
+        }
         let params = {
             'authenticationToken': store.authenticationToken,
             'chainOfCustodyUrl': store.chainOfCustodyUrl,

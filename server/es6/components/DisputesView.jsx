@@ -183,10 +183,7 @@ const reasonCodeMap = {
             disputeBcClient.submitDispute(dispute)
             .then(function(receipt){
                 if(receipt && receipt.status == 1) {
-                    //TODO Make sure to update the list
-                    if(me.props.store.backChainAccountOfLoggedUser !== accountNumber) {
-                        BackChainActions.registerAddress(accountNumber);
-                    }
+                    BackChainActions.registerAddress(accountNumber);
                     BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
                     BackChainActions.discardDisputeDraft(dispute.disputeId, false);
                     BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "SUCCESS");
