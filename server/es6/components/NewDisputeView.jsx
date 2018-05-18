@@ -189,15 +189,17 @@ import {disputeHelper} from '../DisputeHelper';
         BackChainActions.submitDispute(dispute, this.props.store.disputeSubmissionWindowInMinutes)
         .then(function(result){
             if(result.success) {
+				BackChainActions.submitDisputeToBC(dispute);
 				setTimeout(function() {
 					BackChainActions.toggleNewDisputeModalView();
 					BackChainActions.clearDisputeTransaction();
 					BackChainActions.clearDisputeId();
 				}, 1000*5);
-				me.setDisputeMsg({'type':'disputeInfoMsg', 'msg':result.submitDisputeMsg});
-            } else if(result.success === false && result.submitDisputeMsg) {
+
+				// me.setDisputeMsg({'type':'disputeInfoMsg', 'msg':result.submitDisputeMsg});
+            } else if(result.success === false) {
 				me.setState({saveOrSubmitDisputeButtonsDisabled:false});
-				me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':result.submitDisputeMsg});
+				// me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':result.submitDisputeMsg});
             }
         })
         .catch(function (err) {

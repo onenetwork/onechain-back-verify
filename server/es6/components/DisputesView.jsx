@@ -164,59 +164,16 @@ const reasonCodeMap = {
     }
 
     submitDispute(dispute) {
-        const me = this;
-        metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber)=>{
-            /**
-            * TODO
-            * - Send this accountNumber to PLT so it can be added to the mapping. Also put it in store. Find a better name for the variable.
-            * - Add proper warning messages like "Submission failed. Make sure you're connected to the right node"
-            *     "Please change the account in metamask to your own account"
-            */
-
-            let disputeBcClient = oneBcClient.createDisputeBcClient({
-                blockchain: 'eth',
-                web3Provider : web3.currentProvider,
-                fromAddress: accountNumber,
-                contentBackchainContractAddress: me.props.store.blockChainContractAddress,
-                disputeBackchainContractAddress: me.props.store.disputeBlockChainContractAddress
-            });
-            disputeBcClient.submitDispute(dispute)
-            .then(function(receipt){
-                if(receipt && receipt.status == 1) {
-                    BackChainActions.registerAddress(accountNumber);
-                    BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
-                    BackChainActions.discardDisputeDraft(dispute.disputeId, false);
-                    BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "SUCCESS");
-                } else {
-                    BackChainActions.displayAlertPopup("Dispute Submission Failed", 
-                    "Dispute submission failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
-                }
-            }).
-            catch(function(error) {
-                if (error) {
-                    if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
-                        BackChainActions.displayAlertPopup("MetaMask Transaction was Denied", 
-                        ["You have to approve the transaction in metamask in order to submit the Dispute. Please submit again and approve the transaction."],'ERROR');
-                    } else {
-                        BackChainActions.displayAlertPopup("Dispute Submission Failed", 
-                        ["Dispute Submission failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
-                    }
-                    console.error(error);
-                }
-            });
-        }).catch((error)=> {
-            if(error.code == 'error.metamask.missing') {
-                BackChainActions.displayAlertPopup("Missing MetaTask Extension", 
-                ["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>, 
-                " in order to use Submit or Close Disputes. Please install the extension first and try again."],'ERROR');
-            } else if(error.code == 'error.metamask.locked') {
-                BackChainActions.displayAlertPopup("MetaMask is Locked", 
-                ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"],'ERROR');
-            } else {
-                BackChainActions.displayAlertPopup("Problem Occured", 
-                ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."],'ERROR');
+        BackChainActions.submitDispute(dispute, this.props.store.disputeSubmissionWindowInMinutes)
+        .then(function(result){
+            if(result.success) {
+				BackChainActions.submitDisputeToBC(dispute);
+            } else if(result.success === false) {
+				me.setState({saveOrSubmitDisputeButtonsDisabled:false});
             }
-            console.error(error);
+        })
+        .catch(function (err) {
+            console.error(err);
         });
     }
 

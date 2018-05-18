@@ -371,6 +371,21 @@ class DisputeHelper {
             });
         });
     }
+
+    submitDispute(dispute, disputeSubmissionWindowInMinutes) {
+        let me = this;
+        return new Promise((resolve, reject) => {
+            transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
+                if (transaction) {
+                    me.isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes).visible ?
+                        resolve({ success: true })
+                        :
+                        resolve({ success: false });
+                }
+            });
+
+        });
+    }
 }
 
 export const disputeHelper = new DisputeHelper();
