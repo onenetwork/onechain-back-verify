@@ -63,11 +63,7 @@ export default class DiffView extends React.Component {
       for (let i = 0; i < businessTransactions.length; i++) {
         if((businessTransactions[i].btid.toString()).match(businessTransactionIdRegEx)) {
           indexOfBusinessTranction = i;
-          this.state.btIdsListUI.push(<tr key={businessTransactions[i].btid} onClick={this.toggleActiveBtId.bind(this, i, businessTransactions[i].btid, i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
-                                        <td style={{lineHeight:'0.8'}}>
-                                          {businessTransactions[i].btid}
-                                        </td>
-                                      </tr>);
+          this.state.btIdsListUI.push(businessTransactions[i].btid);
         }
       }
       if(this.state.btIdsListUI.length == 1) {
@@ -75,11 +71,7 @@ export default class DiffView extends React.Component {
       }
     } else {
       for (let i = 0; i < businessTransactions.length; i++) {
-        this.state.btIdsListUI.push(<tr key={businessTransactions[i].btid} onClick={this.toggleActiveBtId.bind(this, i, businessTransactions[i].btid, i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut = {this.onHoverOutBtId.bind(this, i)} style={{cursor:'pointer', borderBottom:'1px solid gray', backgroundColor: this.setActiveBtIdColor(i)}}>
-                                      <td style={{lineHeight:'0.8'}}>
-                                        {businessTransactions[i].btid}
-                                      </td>
-                                    </tr>);
+        this.state.btIdsListUI.push(businessTransactions[i].btid);
       }
     }
   }
@@ -203,6 +195,15 @@ export default class DiffView extends React.Component {
       }
     };
 
+    let btIdRows = [];
+    for (var i = 0; i < this.state.btIdsListUI.length; i++) {
+      btIdRows.push(<tr key={this.state.btIdsListUI[i]} onClick={this.toggleActiveBtId.bind(this, i, this.state.btIdsListUI[i], i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut={this.onHoverOutBtId.bind(this, i)} style={{ cursor: 'pointer', borderBottom: '1px solid gray', backgroundColor: this.setActiveBtIdColor(i) }}>
+        <td style={{ lineHeight: '0.8' }}>
+          {this.state.btIdsListUI[i]}
+        </td>
+      </tr>);
+    }
+
     const tabContents = (<Row style={{marginLeft: '0px'}}>
                             <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[0], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[0], ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
                               <span style={{verticalAlign : 'sub'}}>Difference</span>
@@ -242,7 +243,7 @@ export default class DiffView extends React.Component {
           <div className={"table-responsive"} style={styles.btidTblDiv}>
             <table className={"table"}>
               <tbody>
-                {this.state.btIdsListUI}
+                {btIdRows}
               </tbody>
             </table>
           </div>
