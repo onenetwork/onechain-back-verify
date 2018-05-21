@@ -16,33 +16,30 @@ class DisputeHelper {
     getDisputes(filters) {
         let me = this;
         return new Promise((resolve, reject) => {
-            this.createFilterQuery(filters)
-                .then((query) => {
-                    settingsHelper.getApplicationSettings()
-                        .then(settings => {
-                            let promisesToWaitOn = [];
-                            promisesToWaitOn.push(me.queryDisputes(query.queryForMongo, filters));
-                            let disputeBcClient = oneBcClient.createDisputeBcClient({
-                                blockchain: 'eth',
-                                url: settings.blockChain.url,
-                                contentBackchainContractAddress: settings.blockChain.contractAddress,
-                                disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
-                            });
-                            promisesToWaitOn.push(disputeBcClient.filterDisputes(query.queryForBC));
-                            Promise.all(promisesToWaitOn).then(function (disputes) {
-                                me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
-                                me.findAndAddDisputeTransactions(disputes[1], filters). //find and attach transaction data
-                                then(function(backChainDisputes) {
-                                    resolve(disputes[0].concat(backChainDisputes));
-                                });
-                            }).catch(err => {
-                                reject(err);
-                            });
-                        })
-                        .catch(err => {
-                            reject("Database Connection has an issue. Check the database's health.");
+            let query = this.createFilterQuery(filters);
+            settingsHelper.getApplicationSettings()
+                .then(settings => {
+                    let promisesToWaitOn = [];
+                    promisesToWaitOn.push(me.queryDisputes(query.queryForMongo, filters));
+                    let disputeBcClient = oneBcClient.createDisputeBcClient({
+                        blockchain: 'eth',
+                        url: settings.blockChain.url,
+                        contentBackchainContractAddress: settings.blockChain.contractAddress,
+                        disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
+                    });
+                    promisesToWaitOn.push(disputeBcClient.filterDisputes(query.queryForBC));
+                    Promise.all(promisesToWaitOn).then(function (disputes) {
+                        me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
+                        me.findAndAddDisputeTransactions(disputes[1], filters). //find and attach transaction data
+                        then(function(backChainDisputes) {
+                            resolve(disputes[0].concat(backChainDisputes));
                         });
-
+                    }).catch(err => {
+                        reject(err);
+                    });
+                })
+                .catch(err => {
+                    reject("Database Connection has an issue. Check the database's health.");
                 });
         });
     }
@@ -121,62 +118,60 @@ class DisputeHelper {
     createFilterQuery(filters) {
         let me = this;
         filters = filters || {};
-        return new Promise((resolve, reject) => {
-            let query = {};
-            let queryForMongo = {};
-            let queryForBC = {};
-            if (this.isValueNotNull(filters.status)) {
-                queryForMongo.state = { $in: JSON.parse(filters.status) };
-                let bcStatus = [];
-                filters.status = JSON.parse(filters.status);
-                for(let i = 0; i < filters.status.length; i++) {
-                    if('DRAFT' !== filters.status[i]) {
-                        bcStatus.push(filters.status[i]);
-                    }
+        let query = {};
+        let queryForMongo = {};
+        let queryForBC = {};
+        if (this.isValueNotNull(filters.status)) {
+            queryForMongo.state = { $in: JSON.parse(filters.status) };
+            let bcStatus = [];
+            filters.status = JSON.parse(filters.status);
+            for(let i = 0; i < filters.status.length; i++) {
+                if('DRAFT' !== filters.status[i]) {
+                    bcStatus.push(filters.status[i]);
                 }
-                queryForBC.state = bcStatus;
             }
-            if (this.isValueNotNull(filters.searchTnxId)) {
-                queryForMongo.disputedTransactionId = filters.searchTnxId;
-                queryForBC.disputedTransactionId = filters.searchTnxId;
-            }
-            if (this.isValueNotNull(filters.searchDisputeId)) {
-                queryForMongo.disputeId = filters.searchDisputeId;
-                queryForBC.disputeId = filters.searchDisputeId;
-            }
+            queryForBC.state = bcStatus;
+        }
+        if (this.isValueNotNull(filters.searchTnxId)) {
+            queryForMongo.disputedTransactionId = filters.searchTnxId;
+            queryForBC.disputedTransactionId = filters.searchTnxId;
+        }
+        if (this.isValueNotNull(filters.searchDisputeId)) {
+            queryForMongo.disputeId = filters.searchDisputeId;
+            queryForBC.disputeId = filters.searchDisputeId;
+        }
 
-            if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
-                queryForBC.submittedDateStart = filters.disputeSubmitFromDate;
-            }
+        if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
+            queryForBC.submittedDateStart = filters.disputeSubmitFromDate;
+        }
 
-            if (this.isValueNotNull(filters.disputeSubmitToDate)) {
-                queryForBC.submittedDateEnd = filters.disputeSubmitToDate;
-            }
+        if (this.isValueNotNull(filters.disputeSubmitToDate)) {
+            queryForBC.submittedDateEnd = filters.disputeSubmitToDate;
+        }
 
-            if (this.isValueNotNull(filters.disputeCloseFromDate)) {
-                queryForBC.closedDateStart = filters.disputeCloseFromDate;
-            }
+        if (this.isValueNotNull(filters.disputeCloseFromDate)) {
+            queryForBC.closedDateStart = filters.disputeCloseFromDate;
+        }
 
-            if (this.isValueNotNull(filters.disputeCloseToDate)) {
-                queryForBC.closedDateStart = filters.disputeCloseFromDate;
-            }
+        if (this.isValueNotNull(filters.disputeCloseToDate)) {
+            queryForBC.closedDateStart = filters.disputeCloseFromDate;
+        }
 
-            if (this.isValueNotNull(filters.reasonCodes)) {
-                queryForMongo.reason = { $in: JSON.parse(filters.reasonCodes) };
-                queryForBC.reason = JSON.parse(filters.reasonCodes);
-            }
+        if (this.isValueNotNull(filters.reasonCodes)) {
+            queryForMongo.reason = { $in: JSON.parse(filters.reasonCodes) };
+            queryForBC.reason = JSON.parse(filters.reasonCodes);
+        }
 
-            if (this.isValueNotNull(filters.searchBtId)) {
-                queryForMongo.disputedBusinessTransactionIds = filters.searchBtId;
-                queryForBC.disputedBusinessTransactionIds = filters.searchBtId;
-            }
+        if (this.isValueNotNull(filters.searchBtId)) {
+            queryForMongo.disputedBusinessTransactionIds = filters.searchBtId;
+            queryForBC.disputedBusinessTransactionIds = filters.searchBtId;
+        }
 
-            if (filters.raisedByAddress.length > 0) {
-                queryForBC.disputingParty = JSON.parse(filters.raisedByAddress);
-            } 
-            query = {'queryForMongo' : queryForMongo, 'queryForBC' : queryForBC};
-            resolve(query);
-        });
+        if (filters.raisedByAddress.length > 0) {
+            queryForBC.disputingParty = JSON.parse(filters.raisedByAddress);
+        } 
+        query = {'queryForMongo' : queryForMongo, 'queryForBC' : queryForBC};
+        return(query);
     }
 
     isValueNotNull(value) {
