@@ -383,6 +383,18 @@ class DisputeHelper {
 
         });
     }
+
+    getRaisedByEnterpriseName(backChainAccountOfLoggedUser, backChainAddressMapping) {
+        let entName = backChainAccountOfLoggedUser;
+        for (let key in backChainAddressMapping) {
+            if (backChainAddressMapping.hasOwnProperty(key)) {
+                if (key == backChainAccountOfLoggedUser) {
+                    entName = backChainAddressMapping[key];
+                }
+            }
+        }
+        return entName;
+    }
 }
 
 export const disputeHelper = new DisputeHelper();

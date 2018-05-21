@@ -77,19 +77,13 @@ const fieldProps = {
     }
 
     componentDidMount() {      
-        BackChainActions.readBackChainAddressMapping()
-        .then(() => {
-            let disputingPartyAddress = this.getDisputingPartyAddress(this.props.store.entNameOfLoggedUser);
-            this.disputeFilters = {
-                status: ["DRAFT", "OPEN"],
-                transactionRelatedFilter: false,
-                raisedByAddress: disputingPartyAddress
-            }
-            BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
-        })
-        .catch((err) => {
-            console.error("Error occurred while fetching readBackChainAddressMapping");
-        });
+        let disputingPartyAddress = this.getDisputingPartyAddress(this.props.store.entNameOfLoggedUser);
+        this.disputeFilters = {
+            status: ["DRAFT", "OPEN"],
+            transactionRelatedFilter: false,
+            raisedByAddress: disputingPartyAddress
+        }
+        BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
     }
 
     getDisputingPartyAddress(entName) {

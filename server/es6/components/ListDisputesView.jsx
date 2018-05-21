@@ -10,6 +10,9 @@ import NewDisputeView from './NewDisputeView';
 
 @observer export default class ListDisputesView extends React.Component {
 
+	componentWillMount() {
+		BackChainActions.readBackChainAddressMapping();
+	}
 	componentDidMount() {
 
 		BackChainActions.processApplicationSettings(); 

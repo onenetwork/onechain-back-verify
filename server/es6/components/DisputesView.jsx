@@ -184,15 +184,15 @@ const reasonCodeMap = {
 
     renderDisputeRow(dispute, idx) {
         return (
-            <tr style={{ backgroundColor: idx % 2 ? 'rgba(250, 250, 250, 1)' : '' }} key={dispute.disputeId}>
+            <tr style={{ backgroundColor: idx % 2 ? 'rgba(250, 250, 250, 1)' : '' }} key={dispute.disputeId+idx}>
                 {this.renderDisputeStatusCell(dispute)}
-                {this.renderDisputeIdCell(dispute)}
+                {this.renderDisputeIdCell(dispute, idx)}
                 {this.renderDateCell(dispute.submittedDate)}
                 {this.renderDateCell(dispute.closedDate)}
-                {this.renderTransactionIdCell(dispute)}
+                {this.renderTransactionIdCell(dispute, idx)}
                 {this.renderDateCell(dispute.transaction ? dispute.transaction.date : null)}
                 {this.renderDisputeEventsCell(dispute, idx)}
-                {this.renderDisputeRaisedByCell(dispute)}
+                {this.renderDisputeRaisedByCell(dispute, idx)}
                 {this.renderDisputeReasonCell(dispute)}
                 {this.renderDisputeParticipantsCell(dispute, idx)}
                 {this.props.store.showDisputeActions === false ? null : this.renderDisputeActionsCell(dispute, idx)}
@@ -248,7 +248,7 @@ const reasonCodeMap = {
         return <td style={Object.assign({ width: '90px' }, fieldProps.columns)}>{disputeStatusIcon}</td>;
     }
 
-    renderDisputeIdCell(dispute) {
+    renderDisputeIdCell(dispute, idx) {
         const disputeId = dispute.disputeId;
         return (
             <td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
@@ -256,7 +256,7 @@ const reasonCodeMap = {
                     <OverlayTrigger
                         trigger={['hover', 'focus']}
                         placement="top"
-                        overlay={<Popover id={disputeId} className="dispute-id-popover">{disputeId}</Popover>}>
+                        overlay={<Popover id={disputeId + idx} className="dispute-id-popover">{disputeId}</Popover>}>
                         <span>{disputeId}</span>
                     </OverlayTrigger>
                 </div>
@@ -264,13 +264,13 @@ const reasonCodeMap = {
         );
     }
 
-    renderTransactionIdCell(dispute) {
+    renderTransactionIdCell(dispute, idx) {
         const disputedTransactionId = dispute.disputedTransactionId;
         const coreIdComp = <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             <OverlayTrigger
                 trigger={['hover', 'focus']}
                 placement="top"
-                overlay={<Popover id={disputedTransactionId} className="transaction-id-popover">{disputedTransactionId}</Popover>}>
+                overlay={<Popover id={disputedTransactionId + idx} className="transaction-id-popover">{disputedTransactionId}</Popover>}>
                 <span>{disputedTransactionId}</span>
             </OverlayTrigger>
         </div>;
@@ -353,20 +353,23 @@ const reasonCodeMap = {
     }
 
 
-    renderDisputeRaisedByCell(dispute) {
-        // const testMapping = {
-        //     "0x69bc764651de75758c489372c694a39aa890f911ba5379caadc08f44f8173051": "CustomerA"
-        // }
-        // return <td style={fieldProps.columns}>{testMapping[dispute.raisedBy]}</td>;
-        //Should get the actual enterprise name from BCAddressToEnterpriseMapping collection
-        //If mapping doesn't have the value, we should display a warning message
-        
-        //TODO In case while dispute comes from backchain (means dispute.state != "DRAFT") fetch entName from BackChainAddressMapping using disputingParty, 
-        //i.e. call disputeHelper.getRaisedByEnterpriseName(backChainAccountOfLoggedUser), If mapping found then display entName at below line other wise display the disputingParty got in dispute.
-        if(dispute.state == "DRAFT")
-            return <td style={fieldProps.columns}>{this.props.store.entNameOfLoggedUser}</td>;
+    renderDisputeRaisedByCell(dispute, idx) {
+        let raisedByName = "";
+        if (dispute.state == "DRAFT")
+            raisedByName = this.props.store.entNameOfLoggedUser;
         else
-            return <td style={fieldProps.columns}></td>;
+            raisedByName = disputeHelper.getRaisedByEnterpriseName(dispute.disputingParty, this.props.store.backChainAddressMapping);
+        
+        return (<td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
+            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <OverlayTrigger
+                    trigger={['hover', 'focus']}
+                    placement="top"
+                    overlay={<Popover id={dispute.disputeId + idx} className="dispute-id-popover">{raisedByName}</Popover>}>
+                    <span>{raisedByName}</span>
+                </OverlayTrigger>
+            </div>
+        </td>)
     }
 
 
@@ -410,7 +413,7 @@ const reasonCodeMap = {
                     container={document.getElementById("root")}
                     target={() => this.disputeParticipantsPopoverRefsMap[idx]}>
 
-                    <Popover id={dispute.disputeId + "_disputeParticipants"} title={(
+                    <Popover id={dispute.disputeId+ idx + "_disputeParticipants"} title={(
                             <span style={{fontWeight: '700',fontSize: '12px',color: '#0085C8'}}>
                                 <i className="fa fa-user" aria-hidden="true" style={{ fontSize: '18px'}}></i>
                                 &nbsp;&nbsp;&nbsp;&nbsp;Participants
@@ -435,7 +438,7 @@ const reasonCodeMap = {
             if(dispute.transaction) {
                 if(disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes).visible) {
                     submitDisputeUI =  (<Link to='#' onClick={this.submitDispute.bind(this, dispute)}>
-                                            <div id={dispute.disputeId + "_submit"} >    
+                                            <div id={dispute.disputeId + "_submit" + idx} >    
                                                 <div className="dispute-transation-div" style= {{width:'128px'}} >
                                                         <i className="fa fa-hand-paper-o" style={{ fontSize: '15px' }}></i>&nbsp; Submit Dispute
                                                 </div>
@@ -443,10 +446,10 @@ const reasonCodeMap = {
                                         </Link>);
                 }
             }
-            popOver = (<Popover id={dispute.disputeId} className="dispute-action-popover" >
+            popOver = (<Popover id={dispute.disputeId + idx} className="dispute-action-popover" >
                 {submitDisputeUI}
                 <Link to='#' onClick={this.discardDraftDispute.bind(this, dispute)}>
-                    <div id={dispute.disputeId + "_discard"} >
+                    <div id={dispute.disputeId + "_discard" + idx} >
                         <div style={{}} className="dispute-transation-div" style={{ width: '128px' }} >
                             <i className="fa fa-times" style={{ fontSize: '15px' }}></i>&nbsp; Discard Draft
                                     </div>
@@ -454,9 +457,9 @@ const reasonCodeMap = {
                 </Link>
             </Popover>);
         } else if (dispute.state == "OPEN") {
-            popOver = (<Popover id={dispute.disputeId} className="dispute-action-popover" >
+            popOver = (<Popover id={dispute.disputeId + idx} className="dispute-action-popover" >
                             <Link to='#' onClick={this.closeDispute.bind(this, dispute)}>
-                                <div id={dispute.disputeId + "_close"} >
+                                <div id={dispute.disputeId + "_close"+ idx} >
                                     <div className="dispute-transation-div" style={{ width: '128px' }}>
                                         <i className="fa fa-check-circle" style={{ fontSize: '15px' }}></i>&nbsp; Close Dispute
                                     </div>
