@@ -12,7 +12,6 @@ import moment from 'moment';
 import Images from '../Images';
 import AlertPopupView from './AlertPopupView';
 import {disputeHelper} from '../DisputeHelper';
-import {metaMaskHelper} from '../MetaMaskHelper';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
 
@@ -104,59 +103,7 @@ const reasonCodeMap = {
     }
 
     closeDispute(dispute) {
-        const me = this;
-        metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber) => {
-            /**
-            * TODO
-            * - Send this accountNumber to PLT so it can be added to the mapping. Also put it in store. Find a better name for the variable.
-            * - Add proper warning messages like "Submission failed. Make sure you're connected to the right node"
-            *     "Please change the account in metamask to your own account"
-            */
-
-            let disputeBcClient = oneBcClient.createDisputeBcClient({
-                blockchain: 'eth',
-                web3Provider: web3.currentProvider,
-                fromAddress: accountNumber,
-                contentBackchainContractAddress: me.props.store.blockChainContractAddress,
-                disputeBackchainContractAddress: me.props.store.disputeBlockChainContractAddress
-            });
-            disputeBcClient.closeDispute(dispute.disputeId)
-                .then(function (receipt) {
-                    if (receipt && receipt.status == 1) {
-                        //TODO Make sure to update the list
-                        BackChainActions.updateDisputeState(dispute.disputeId, 'CLOSED');
-                        BackChainActions.displayAlertPopup('Dispute closed Successfully', "", "SUCCESS");
-                    } else {
-                        BackChainActions.displayAlertPopup("Close Dispute Failed",
-                            "Close Dispute failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
-                    }
-                }).
-                catch(function (error) {
-                    if (error) {
-                        if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
-                            BackChainActions.displayAlertPopup("MetaMask Transaction was Denied", 
-                            ["You have to approve the transaction in metamask in order to close the Dispute. Please close again and approve the transaction."],'ERROR');
-                        } else {
-                            BackChainActions.displayAlertPopup("Close Dispute Failed", 
-                            ["Closed Dispute failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
-                        }
-                        console.error(error);
-                    }
-                });
-        }).catch((error) => {
-            if (error.code == 'error.metamask.missing') {
-                BackChainActions.displayAlertPopup("Missing MetaTask Extension",
-                    ["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>,
-                        " in order to use Submit or Close Disputes. Please install the extension first and try again."], 'ERROR');
-            } else if (error.code == 'error.metamask.locked') {
-                BackChainActions.displayAlertPopup("MetaMask is Locked",
-                    ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"], 'ERROR');
-            } else {
-                BackChainActions.displayAlertPopup("Problem Occured",
-                    ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."], 'ERROR');
-            }
-            console.error(error);
-        });
+        BackChainActions.closeDispute(dispute);
     }
 
     discardDraftDispute(dispute) {
@@ -164,12 +111,13 @@ const reasonCodeMap = {
     }
 
     submitDispute(dispute) {
-        BackChainActions.submitDispute(dispute, this.props.store.disputeSubmissionWindowInMinutes)
+        BackChainActions.submitDisputeAllowed(dispute, this.props.store.disputeSubmissionWindowInMinutes)
         .then(function(result){
-            if(result.success) {
-				BackChainActions.submitDisputeToBC(dispute);
-            } else if(result.success === false) {
-				me.setState({saveOrSubmitDisputeButtonsDisabled:false});
+            if(result.submitDisputeAllowed) {
+				BackChainActions.submitDispute(dispute);
+            } else {
+				BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                    "Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + this.props.store.disputeSubmissionWindowInMinutes + " Mins.", "ERROR");
             }
         })
         .catch(function (err) {

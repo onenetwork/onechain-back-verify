@@ -372,15 +372,17 @@ class DisputeHelper {
         });
     }
 
-    submitDispute(dispute, disputeSubmissionWindowInMinutes) {
+    submitDisputeAllowed(dispute, disputeSubmissionWindowInMinutes) {
         let me = this;
         return new Promise((resolve, reject) => {
             transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
                 if (transaction) {
                     me.isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes).visible ?
-                        resolve({ success: true })
+                        resolve({submitDisputeAllowed: true})
                         :
-                        resolve({ success: false });
+                        resolve({submitDisputeAllowed: false});
+                } else {
+                    reject({success: false});
                 }
             });
 

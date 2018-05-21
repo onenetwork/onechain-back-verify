@@ -140,7 +140,6 @@ import {disputeHelper} from '../DisputeHelper';
 	}
 
 	saveAsDraft() {
- 
 		let me = this;
 		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
 			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please enter transaction id"});
@@ -164,12 +163,13 @@ import {disputeHelper} from '../DisputeHelper';
 				BackChainActions.toggleNewDisputeModalView();
 				BackChainActions.clearDisputeTransaction();
 				BackChainActions.clearDisputeId();
+				BackChainActions.displayAlertPopup('Dispute Saved Successfully', "Your Dispute Saved as Draft Successfully", "SUCCESS");
 			}
 		}, function(error) {
 			console.error(error);
 		});
 	}
-
+	
 	submitDispute() {
 		let me = this;
 		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
@@ -182,24 +182,28 @@ import {disputeHelper} from '../DisputeHelper';
 		} else {
 			me.setDisputeMsg({'type':'reset'});
 		}
-
 		me.setState({saveOrSubmitDisputeButtonsDisabled:true});
 		me.setState({tnxIdInputDisabled:true});
 		let dispute = this.getNewDisputeData();
-        BackChainActions.submitDispute(dispute, this.props.store.disputeSubmissionWindowInMinutes)
-        .then(function(result){
-            if(result.success) {
-				BackChainActions.submitDisputeToBC(dispute);
-				setTimeout(function() {
-					BackChainActions.toggleNewDisputeModalView();
-					BackChainActions.clearDisputeTransaction();
-					BackChainActions.clearDisputeId();
-				}, 1000*5);
 
-				// me.setDisputeMsg({'type':'disputeInfoMsg', 'msg':result.submitDisputeMsg});
-            } else if(result.success === false) {
+        BackChainActions.submitDisputeAllowed(dispute, this.props.store.disputeSubmissionWindowInMinutes)
+        .then(function(result) {
+			BackChainActions.toggleNewDisputeModalView();
+            if(result.submitDisputeAllowed) {
+				BackChainActions.submitDispute(dispute)
+				.then(function(result) {
+					if(result.submitDisputeSuccess) {
+						dispute.transaction = me.props.store.disputeTransaction;
+						me.props.store.disputes.unshift(dispute);
+						BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
+						BackChainActions.clearDisputeTransaction();
+						BackChainActions.clearDisputeId();
+					}
+				})
+            } else {
 				me.setState({saveOrSubmitDisputeButtonsDisabled:false});
-				// me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':result.submitDisputeMsg});
+				BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                    ["Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + me.props.store.disputeSubmissionWindowInMinutes + " Mins."], "ERROR");
             }
         })
         .catch(function (err) {

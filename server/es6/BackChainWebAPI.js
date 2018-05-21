@@ -196,13 +196,13 @@ exports.discardDraftDispute = function (req, res) {
         });
 };
 
-exports.submitDispute = function (req, res) {
-    disputeHelper.submitDispute(JSON.parse(req.body.dispute), req.body.disputeSubmissionWindowInMinutes)
+exports.submitDisputeAllowed = function (req, res) {
+    disputeHelper.submitDisputeAllowed(JSON.parse(req.body.dispute), req.body.disputeSubmissionWindowInMinutes)
     .then(function (result) {
         res.json(result);
     })
     .catch(function (error) {
-        res.json({ success: false });
+        res.json(error);
     });
 };
 
