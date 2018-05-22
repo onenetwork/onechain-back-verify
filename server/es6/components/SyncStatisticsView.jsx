@@ -413,7 +413,7 @@ const SyncGapButtons = (props) => {
                     <Col>
                         <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>	&nbsp;&nbsp;
                         <Button disabled={props.parentState.selectedGapsForSync.length == 0} id="syncSelectedGap" style={fieldProps.button} onClick={fillSelectedGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.selectedGapsLbl}</Button>&nbsp;
-                        <Button style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onClick={fillAllGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
+                        <Button disabled={props.store.noOfGaps == 0} style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onClick={fillAllGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
                     </Col>
                 </Row>
             </div>
