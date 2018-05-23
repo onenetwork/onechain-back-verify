@@ -1100,21 +1100,18 @@ export default class BackChainActions {
      */
     @action
     static readBackChainAddressMapping() {
-        return new Promise(function(resolve, reject) {
-            let uri = '/readBackChainAddressMapping';
-            fetch(uri, {
-                method: 'GET'
-            }).then(function(response) {
-                return response.json();
-            }, function(error) {
-                console.error('error reading BackChainAddressMapping');
-                reject(error);
-            }).then(function(result) {
-                if(result.success) {
-                    store.backChainAddressMapping = result.backChainAddressMapping;
-                    resolve(result.backChainAddressMapping)
-                }
-            })
+        let uri = '/readBackChainAddressMapping';
+        fetch(uri, {
+            method: 'GET'
+        }).then(function(response) {
+            return response.json();
+        }, function(error) {
+            console.error('error reading BackChainAddressMapping');
+            reject(error);
+        }).then(function(result) {
+            if(result.success) {
+                store.backChainAddressMapping = result.backChainAddressMapping;
+            }
         })
     }
 }
