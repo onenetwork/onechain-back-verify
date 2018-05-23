@@ -167,7 +167,7 @@ class DisputeHelper {
             queryForBC.disputedBusinessTransactionIds = filters.searchBtId;
         }
 
-        if (filters.raisedByAddress.length > 0) {
+        if (filters.raisedByAddress && filters.raisedByAddress.length > 0) {
             queryForBC.disputingParty = JSON.parse(filters.raisedByAddress);
         } 
         query = {'queryForMongo' : queryForMongo, 'queryForBC' : queryForBC};
