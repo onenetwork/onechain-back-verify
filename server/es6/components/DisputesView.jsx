@@ -183,7 +183,7 @@ const reasonCodeMap = {
 
     renderNoDisputesFoundRow() {
         return (
-            <tr style={fieldProps.noDisputesFoundRow}>
+            <tr key={"no_disputes"} style={fieldProps.noDisputesFoundRow}>
                 <td colSpan ='11' style={{ textAlign: 'center', paddingTop: '16px' }}>
                     <i className="fa fa-exclamation-circle" style={{color: '#F19500',fontSize: '20px',verticalAlign: 'top'}}/>
                     &nbsp;There are no disputes matching the selected search criteria.
