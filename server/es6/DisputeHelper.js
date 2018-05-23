@@ -367,23 +367,6 @@ class DisputeHelper {
         });
     }
 
-    submitDisputeAllowed(dispute, disputeSubmissionWindowInMinutes) {
-        let me = this;
-        return new Promise((resolve, reject) => {
-            transactionHelper.getTransactionById(dispute.disputedTransactionId, (err, transaction) => {
-                if (transaction) {
-                    me.isSubmitDisputeWindowStillOpen(transaction, disputeSubmissionWindowInMinutes).visible ?
-                        resolve({submitDisputeAllowed: true})
-                        :
-                        resolve({submitDisputeAllowed: false});
-                } else {
-                    reject({success: false});
-                }
-            });
-
-        });
-    }
-
     getRaisedByEnterpriseName(backChainAccountOfLoggedUser, backChainAddressMapping) {
         let entName = backChainAccountOfLoggedUser;
         for (let key in backChainAddressMapping) {

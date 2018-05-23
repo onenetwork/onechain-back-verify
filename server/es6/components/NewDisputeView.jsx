@@ -184,31 +184,28 @@ import {disputeHelper} from '../DisputeHelper';
 		}
 		me.setState({saveOrSubmitDisputeButtonsDisabled:true});
 		me.setState({tnxIdInputDisabled:true});
-		let dispute = this.getNewDisputeData();
 
-        BackChainActions.submitDisputeAllowed(dispute, this.props.store.disputeSubmissionWindowInMinutes)
-        .then(function(result) {
-			BackChainActions.toggleNewDisputeModalView();
-            if(result.submitDisputeAllowed) {
-				BackChainActions.submitDispute(dispute)
-				.then(function(result) {
-					if(result.submitDisputeSuccess) {
-						dispute.transaction = me.props.store.disputeTransaction;
-						me.props.store.disputes.unshift(dispute);
-						BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
-						BackChainActions.clearDisputeTransaction();
-						BackChainActions.clearDisputeId();
-					}
-				})
-            } else {
-				me.setState({saveOrSubmitDisputeButtonsDisabled:false});
+		BackChainActions.toggleNewDisputeModalView();
+
+		let dispute = this.getNewDisputeData();
+		dispute.transaction = me.props.store.disputeTransaction;
+		
+		let isSubmitDisputeWindowStillOpen = disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes);
+		if(isSubmitDisputeWindowStillOpen.visible) {
+			BackChainActions.submitDispute(dispute)
+			.then(function(result) {
+				if(result.submitDisputeSuccess) {
+					me.props.store.disputes.unshift(dispute);
+					BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
+					BackChainActions.clearDisputeTransaction();
+					BackChainActions.clearDisputeId();
+				}
+			})
+		} else {
+			me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 				BackChainActions.displayAlertPopup("Dispute Submission Failed", 
                     ["Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + me.props.store.disputeSubmissionWindowInMinutes + " Mins."], "ERROR");
-            }
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
+		}
 	}
 
 	evntClickHandler(event) {

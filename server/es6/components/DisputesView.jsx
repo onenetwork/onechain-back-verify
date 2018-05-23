@@ -115,18 +115,11 @@ const reasonCodeMap = {
     }
 
     submitDispute(dispute) {
-        BackChainActions.submitDisputeAllowed(dispute, this.props.store.disputeSubmissionWindowInMinutes)
-        .then(function(result){
-            if(result.submitDisputeAllowed) {
-				BackChainActions.submitDispute(dispute);
-            } else {
-				BackChainActions.displayAlertPopup("Dispute Submission Failed", 
-                    "Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + this.props.store.disputeSubmissionWindowInMinutes + " Mins.", "ERROR");
-            }
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
+        disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes).visible ?
+            BackChainActions.submitDispute(dispute) 
+                : 
+            BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+            "Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + this.props.store.disputeSubmissionWindowInMinutes + " Mins.", "ERROR");
     }
 
     render() {

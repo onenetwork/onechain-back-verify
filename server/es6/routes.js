@@ -24,7 +24,6 @@ export function router(app) {
     app.get('/disputeExists/:disputedTransactionId', BackChainWebAPI.disputeExists);
     app.get('/generateDisputeId/:plainText', BackChainWebAPI.generateDisputeId);
     app.post('/discardDraftDispute/:disputeId', BackChainWebAPI.discardDraftDispute);
-    app.post('/submitDisputeAllowed', BackChainWebAPI.submitDisputeAllowed);
     app.post('/registerAddress', BackChainWebAPI.registerAddress);
     app.get('/readBackChainAddressMapping', BackChainWebAPI.readBackChainAddressMapping);
  }

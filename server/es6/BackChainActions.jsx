@@ -932,32 +932,6 @@ export default class BackChainActions {
     }
 
     @action
-    static submitDisputeAllowed(dispute, disputeSubmissionWindowInMinutes) {
-        return new Promise(resolve => {
-            let params = {
-                'dispute': dispute,
-                'disputeSubmissionWindowInMinutes': disputeSubmissionWindowInMinutes
-            };
-            fetch('/submitDisputeAllowed', {
-                method: 'post',
-                headers: new Headers({
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }),
-                body: requestHelper.jsonToUrlParams(params)
-            })
-            .then(function(response) {
-                return response.json();
-            }, function(error) {
-                console.error(error);
-            }).then(function(response) {
-                resolve(response);
-            })
-        })
-    }
-
-    @action
     static submitDispute(dispute) {
         const me = this;
         return new Promise(function(resolve, reject) {

@@ -196,16 +196,6 @@ exports.discardDraftDispute = function (req, res) {
         });
 };
 
-exports.submitDisputeAllowed = function (req, res) {
-    disputeHelper.submitDisputeAllowed(JSON.parse(req.body.dispute), req.body.disputeSubmissionWindowInMinutes)
-    .then(function (result) {
-        res.json(result);
-    })
-    .catch(function (error) {
-        res.json(error);
-    });
-};
-
 exports.registerAddress = function (req, res) {
     disputeHelper.registerAddress(req.body.authenticationToken, req.body.chainOfCustodyUrl, req.body.backChainAccountOfLoggedUser)
     .then(function (result) {
