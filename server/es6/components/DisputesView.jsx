@@ -62,7 +62,7 @@ const fieldProps = {
             marginLeft: '3px'
         }
     },
-    emptyRow : {
+    noDisputesFoundRow : {
         backgroundColor: 'rgba(248, 241, 201, 1)',
         height: '54px'
     }
@@ -175,7 +175,7 @@ const reasonCodeMap = {
     renderDisputeRows(disputes) {
         let disputesRowsToDisplay = [];
         if (disputes.length == 0) {
-            disputesRowsToDisplay.push(this.renderEmptyRow());
+            disputesRowsToDisplay.push(this.renderNoDisputesFoundRow());
         } else {
             for (let i = 0; i < disputes.length; i++) {
                 let dispute = disputes[i];
@@ -188,9 +188,9 @@ const reasonCodeMap = {
         return disputesRowsToDisplay;
     }
 
-    renderEmptyRow() {
+    renderNoDisputesFoundRow() {
         return (
-            <tr style={fieldProps.emptyRow}>
+            <tr style={fieldProps.noDisputesFoundRow}>
                 <td colSpan ='11' style={{ textAlign: 'center', paddingTop: '16px' }}>
                     <i className="fa fa-exclamation-circle" style={{color: '#F19500',fontSize: '20px',verticalAlign: 'top'}}/>
                     &nbsp;There are no disputes matching the selected search criteria.
