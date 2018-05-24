@@ -1081,7 +1081,6 @@ export default class BackChainActions {
             return response.json();
         }, function(error) {
             console.error('error reading BackChainAddressMapping');
-            reject(error);
         }).then(function(result) {
             if(result.success) {
                 store.backChainAddressMapping = result.backChainAddressMapping;
