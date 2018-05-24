@@ -64,7 +64,7 @@ const fieldProps = {
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
-            raisedByAddress: [],
+            disputingParty: [],
             transactionRelatedFilter: false,
             reasonCodes: null
         };
@@ -81,7 +81,7 @@ const fieldProps = {
         this.disputeFilters = {
             status: ["DRAFT", "OPEN"],
             transactionRelatedFilter: false,
-            raisedByAddress: disputingPartyAddress
+            disputingParty: disputingPartyAddress
         }
         BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
     }
@@ -151,7 +151,7 @@ const fieldProps = {
             disputeCloseFromDate: null,
             disputeCloseToDate: null,
             raisedBy: null,
-            raisedByAddress: [],
+            disputingParty: [],
             transactionRelatedFilter: false
         };
     }
@@ -176,7 +176,7 @@ const fieldProps = {
             this.disputeFilters.transactionRelatedFilter = false;
         }
         if(this.disputeFilters.raisedBy) {
-            this.disputeFilters.raisedByAddress = this.getDisputingPartyAddress(this.disputeFilters.raisedBy);
+            this.disputeFilters.disputingParty = this.getDisputingPartyAddress(this.disputeFilters.raisedBy);
         }
         BackChainActions.loadDisputes(this.disputeFilters);
         this.showHideAdvancedFilters(false);

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Row,  Col, Button, Panel, FormControl} from 'react-bootstrap';
+import { Row, Col, Button, Panel, FormControl, OverlayTrigger, Popover} from 'react-bootstrap';
 import JsonHelper from '../JsonHelper';
 import JSZip from 'jszip';
 import { toJS } from 'mobx';
@@ -199,7 +199,12 @@ export default class DiffView extends React.Component {
     for (var i = 0; i < this.state.btIdsListUI.length; i++) {
       btIdRows.push(<tr key={this.state.btIdsListUI[i]} onClick={this.toggleActiveBtId.bind(this, i, this.state.btIdsListUI[i], i)} onMouseOver={this.onHoverBtId.bind(this)} onMouseOut={this.onHoverOutBtId.bind(this, i)} style={{ cursor: 'pointer', borderBottom: '1px solid gray', backgroundColor: this.setActiveBtIdColor(i) }}>
         <td style={{ lineHeight: '0.8' }}>
-          {this.state.btIdsListUI[i]}
+          <OverlayTrigger
+            trigger={['hover', 'focus']}
+            placement="top"
+            overlay={<Popover className="bt-id-popover" id={this.state.btIdsListUI[i] + i} > {this.state.btIdsListUI[i]}</Popover>}>
+            <span>{this.state.btIdsListUI[i]}</span>
+          </OverlayTrigger>
         </td>
       </tr>);
     }
@@ -253,7 +258,19 @@ export default class DiffView extends React.Component {
       </div>
     </div>;
 
-    return (<div className={"panel panel-default"} style={styles.panel}>
+    return (<div>
+      <style>
+        {`
+                  .bt-id-popover .arrow{
+                    left: 50px !important;
+
+                  }
+                  .bt-id-popover {
+                    left:155.438px !important;
+                  }
+                `}
+      </style>
+      <div className={"panel panel-default"} style={styles.panel}>
       <div className={"panel-heading"} style={styles.panelHeading}>
         <div className="panel-title" style={styles.panelTitle}>Event Details:
           <span style= {{color:'rgb(0, 133, 200)'}} className="fa-stack">
@@ -265,7 +282,7 @@ export default class DiffView extends React.Component {
         <i onClick={() => BackChainActions.setMyAndDiffViewActive(false)} className="fa fa-times" aria-hidden="true" style={{float: 'right', cursor: 'pointer', color: '#646464', fontSize: '21px'}}/>
       </div>
       {panelBody}
-  </div>);
+  </div></div>);
   }
 
 }
