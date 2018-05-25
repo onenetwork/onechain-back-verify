@@ -496,6 +496,7 @@ export default class BackChainActions {
                 store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
+                store.entNameOfLoggedUser = result.enterpriseName;
                 store.startSync = false;
                 store.isInitialSyncDone = true;
                 BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
