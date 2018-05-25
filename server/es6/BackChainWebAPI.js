@@ -215,3 +215,8 @@ exports.readBackChainAddressMapping = function(req, res) {
         res.json({success: false});
     });
 }
+
+exports.downloadViewDocument = function(req, res) {
+    res.setHeader('Content-disposition', 'attachment; filename='+ req.params.documentName.trim());
+    res.status(200).download('../../attachments/' + req.params.documentName.trim(),req.params.documentName.trim());
+}

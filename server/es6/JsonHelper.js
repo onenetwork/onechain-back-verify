@@ -12,15 +12,17 @@ exports.diffUsingJS = function(copyBase, copyNew) {
     // in order to yield the new text
     var opcodes = sm.get_opcodes();
     var diffoutputdiv = document.getElementById("diffoutput");
-    while (diffoutputdiv.firstChild) diffoutputdiv.removeChild(diffoutputdiv.firstChild);
-
-    // build the diff view and add it to the current DOM
-    diffoutputdiv.appendChild(diffview.buildView({
-        baseTextLines: base,
-        newTextLines: newtxt,
-        opcodes: opcodes,
-        viewType: 0
-    }));
+    
+    if(diffoutputdiv) {
+        while (diffoutputdiv.firstChild) diffoutputdiv.removeChild(diffoutputdiv.firstChild);
+        // build the diff view and add it to the current DOM
+        diffoutputdiv.appendChild(diffview.buildView({
+            baseTextLines: base,
+            newTextLines: newtxt,
+            opcodes: opcodes,
+            viewType: 0
+        }));
+    }
 }
 
 exports.showCommon = function(json) {

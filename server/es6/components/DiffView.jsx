@@ -4,9 +4,9 @@ import { Row, Col, Button, Panel, FormControl, OverlayTrigger, Popover} from 're
 import JsonHelper from '../JsonHelper';
 import JSZip from 'jszip';
 import { toJS } from 'mobx';
-import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
 import { Scrollbars } from 'react-custom-scrollbars';
+import {ListDocuments} from './MyView';
 const intersect = require('object.intersect');
 
 export default class DiffView extends React.Component {
@@ -27,7 +27,6 @@ export default class DiffView extends React.Component {
   componentDidMount() {
     this.listBusinessTransactionIds();
     document.getElementById("defaultOpen").click();
-    this.openTab(this.state.currentTabContentId, this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction], this.state.resetTabsName, this.state.currentTabName);
   }
 
   toggleActiveBtId(position, businessTransactionId, indexOfBusinessTranction) {
@@ -35,7 +34,6 @@ export default class DiffView extends React.Component {
       return;
     }
     this.setState({activeBtIdIndex : position, indexOfBusinessTranction: indexOfBusinessTranction})
-    this.openTab(this.state.currentTabContentId, this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[indexOfBusinessTranction], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[indexOfBusinessTranction], this.state.resetTabsName, this.state.currentTabName);
   }
 
   setActiveBtIdColor(position) {
@@ -88,7 +86,7 @@ export default class DiffView extends React.Component {
     this.state.partnerEntName = indexOfMyEntName == 0 ? transactionSlice.enterprises[1]:transactionSlice.enterprises[0];
   }
 
-  openTab(currentTabContentId, myViewObj, partnerViewObj, resetTabsName, currentTabName) {
+  openTab(currentTabContentId, resetTabsName, currentTabName) {
     // Declare all variables
     let i, tabcontent, tablinks;
     this.state.currentTabContentId = currentTabContentId;
@@ -119,20 +117,6 @@ export default class DiffView extends React.Component {
       let element = currentTabElement.parentElement.getElementsByClassName(resetTabsName[i])[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-    }
-
-    /*TODO@Pankaj Below is temporary check once docs part is clear remove it */
-    if(myViewObj == null || partnerViewObj == null) {
-      return;
-    }
-    
-    if(currentTabContentId === 'Diff') {
-      JsonHelper.diffUsingJS(myViewObj, partnerViewObj);
-    } else if (currentTabContentId === 'Common') {
-      let common = intersect(myViewObj, partnerViewObj);
-      JsonHelper.showCommon(common);
-    } else if (currentTabContentId === 'Docs') {
-
     }
   }
 
@@ -209,18 +193,23 @@ export default class DiffView extends React.Component {
       </tr>);
     }
 
+    JsonHelper.diffUsingJS(this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction]);
+    let common = intersect(this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction]);
+    JsonHelper.showCommon(common);
+    
+    let displayBusinessTransaction = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction];
     const tabContents = (<Row style={{marginLeft: '0px'}}>
                             <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[0], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[0], ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
                               <span style={{verticalAlign : 'sub'}}>Difference</span>
                             </Col>
-                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[0], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[0], ['diffTab', 'docsTab'], 'commonTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', ['diffTab', 'docsTab'], 'commonTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                               <span className="fa-stack">
                                 <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
                                 <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
                               </span>
                               <span> Common Elements with {this.state.partnerEntName}</span>
                             </Col>
-                            <Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', null, null, ['diffTab', 'commonTab'], 'docsTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                            <Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', ['diffTab', 'commonTab'], 'docsTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                                 <span style={{verticalAlign : 'sub'}}>Documents</span>
                             </Col>
                             <div style={{maxWidth: '77.4%', marginLeft: '215px', marginTop: '27px'}}>
@@ -231,7 +220,9 @@ export default class DiffView extends React.Component {
                                   <pre id="json-renderer" style={styles.jsonPanel}></pre>
                               </div>
                               <div id='Docs' className="tabcontent">
-                                  <pre style={styles.jsonPanel}></pre>
+                                <pre style={Object.assign(styles.jsonPanel, {padding:'0em'})}>
+                                  <ListDocuments attachmentsData={displayBusinessTransaction.Attachments}/>
+                                </pre>
                               </div>
                             </div>
                         </Row>);
@@ -261,14 +252,13 @@ export default class DiffView extends React.Component {
     return (<div>
       <style>
         {`
-                  .bt-id-popover .arrow{
-                    left: 50px !important;
-
-                  }
-                  .bt-id-popover {
-                    left:155.438px !important;
-                  }
-                `}
+          .bt-id-popover .arrow{
+            left: 50px !important;
+          }
+          .bt-id-popover {
+            left:155.438px !important;
+          }
+      `}
       </style>
       <div className={"panel panel-default"} style={styles.panel}>
       <div className={"panel-heading"} style={styles.panelHeading}>
