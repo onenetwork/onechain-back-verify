@@ -82,16 +82,16 @@ class DisputeOrganizerTaskHelper {
 
     deleteOldDisputes(settings) {
         let me = this;
-        disputeHelper.getDisputes()
+        disputeHelper.getDisputes({status:JSON.stringify(['DRAFT'])})
             .then(function (result) {
                 let dispute = null;
                 for (let i = 0, len = result.length; i < len; i++) {
                     dispute = result[i];
                     if (dispute.transaction) {
                         if (me.isSubmissionWindowOver(dispute.transaction, settings)) {
-                            disputeHelper.discardDraftDispute(dispute.id)
+                            disputeHelper.discardDraftDispute(dispute.disputeId)
                                 .then(function (result) {
-                                    if (result.sucess) {
+                                    if (result.success) {
                                         console.log("Old disputes deleted successfully.");
                                     }
                                 })

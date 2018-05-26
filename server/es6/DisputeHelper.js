@@ -15,25 +15,36 @@ class DisputeHelper {
 
     getDisputes(filters) {
         let me = this;
+        
         return new Promise((resolve, reject) => {
             let query = this.createFilterQuery(filters);
+            let onlyDraft = false;
+            if(filters.status && filters.status.length == 1 && filters.status[0] == 'DRAFT') {
+                onlyDraft = true;
+            }
             settingsHelper.getApplicationSettings()
                 .then(settings => {
                     let promisesToWaitOn = [];
                     promisesToWaitOn.push(me.queryDisputes(query.queryForMongo, filters));
-                    let disputeBcClient = oneBcClient.createDisputeBcClient({
-                        blockchain: 'eth',
-                        url: settings.blockChain.url,
-                        contentBackchainContractAddress: settings.blockChain.contractAddress,
-                        disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
-                    });
-                    promisesToWaitOn.push(disputeBcClient.filterDisputes(query.queryForBC));
-                    Promise.all(promisesToWaitOn).then(function (disputes) {
-                        me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
-                        me.findAndAddDisputeTransactions(disputes[1], filters). //find and attach transaction data
-                        then(function(backChainDisputes) {
-                            resolve(disputes[0].concat(backChainDisputes));
+                    if(!onlyDraft) {
+                        let disputeBcClient = oneBcClient.createDisputeBcClient({
+                            blockchain: 'eth',
+                            url: settings.blockChain.url,
+                            contentBackchainContractAddress: settings.blockChain.contractAddress,
+                            disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                         });
+                        promisesToWaitOn.push(disputeBcClient.filterDisputes(query.queryForBC));
+                    }                    
+                    Promise.all(promisesToWaitOn).then(function (disputes) {
+                        if(onlyDraft) {
+                            resolve(disputes[0]);
+                        } else {
+                            me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
+                            me.findAndAddDisputeTransactions(disputes[1], filters). //find and attach transaction data
+                            then(function(backChainDisputes) {
+                                resolve(disputes[0].concat(backChainDisputes));
+                            });
+                        }                        
                     }).catch(err => {
                         reject(err);
                     });
