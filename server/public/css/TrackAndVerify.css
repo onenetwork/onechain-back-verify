@@ -62,13 +62,12 @@
 
 .dispute-counter {
     position: relative;
-    padding-left: 23px;
     font-weight: 700;
     font-style: normal;
     font-size: 11px;
     color: #FFFFFF;
-    top: 6px;
-    right: 45px;
+    top: 5px;
+    left: -22px;
 }
 
 .action-popover {

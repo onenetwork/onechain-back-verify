@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, Modal } from 'react-bootstrap';
 import { toJS } from 'mobx';
-import oneBcClient from '@onenetwork/one-backchain-client';
 import EventsPopoverContent from './EventsPopoverContent';
 import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';

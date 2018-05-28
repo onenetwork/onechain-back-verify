@@ -218,7 +218,7 @@ exports.readBackChainAddressMapping = function(req, res) {
 }
 
 exports.downloadViewDocument = function(req, res) {
-    var document = "../../attachments/" + req.params.documentName.trim();
+    var document = __dirname + "/../../attachments/" + req.params.documentName.trim();
     res.setHeader("Content-Disposition","attachment; filename=\"" + req.params.fileName.trim() + "\"");
     var filestream = fs.createReadStream(document);
     filestream.pipe(res);
