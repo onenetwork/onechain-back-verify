@@ -63,14 +63,6 @@ class SettingsHelper {
     }
 
     modifySyncStatsObject(syncStatistics, transMessage) { 
-        if(syncStatistics.earliestSyncDateInMillis == null || 
-            syncStatistics.earliestSyncDateInMillis > transMessage.date) {
-            syncStatistics.earliestSyncDateInMillis = transMessage.date; 
-        }
-        if(syncStatistics.latestSyncDateInMillis == null || 
-            syncStatistics.latestSyncDateInMillis < transMessage.date) {
-            syncStatistics.latestSyncDateInMillis = transMessage.date; 
-        }
         if(syncStatistics.earliestSyncSequenceNo == null) {
             syncStatistics.earliestSyncSequenceNo = transMessage.sequence;
         } else if(syncStatistics.earliestSyncSequenceNo > transMessage.sequence) {
@@ -94,6 +86,15 @@ class SettingsHelper {
             transMessage.sequence < syncStatistics.latestSyncSequenceNo) {
             this.modifyGap(syncStatistics, transMessage, "between");
         }
+
+        if (syncStatistics.earliestSyncDateInMillis == null ||
+             syncStatistics.earliestSyncDateInMillis > transMessage.date) {
+             syncStatistics.earliestSyncDateInMillis = transMessage.date;
+        }
+        if (syncStatistics.latestSyncDateInMillis == null ||
+             syncStatistics.latestSyncDateInMillis < transMessage.date) {
+             syncStatistics.latestSyncDateInMillis = transMessage.date;
+         }
     }
 
     /**
