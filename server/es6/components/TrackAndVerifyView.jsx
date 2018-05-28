@@ -461,7 +461,7 @@ const fieldProps = {
 
                     let transactionDetails = {
                         transactionId: transaction.id,
-                        partnerEntName: partnerEntName,
+                        partnerEntName: myEntIndex == 0 ?  transactionSlice.enterprises[1] : transactionSlice.enterprises[0],
                         transactionSliceType: transactionSlice.type
                     }
 
