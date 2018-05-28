@@ -6,6 +6,7 @@ import {disputeHelper} from './DisputeHelper';
 import {settingsHelper} from './SettingsHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import { dbconnectionManager } from './DBConnectionManager';
+import fs from 'fs';
 
 exports.getLastestSyncedDate = function(req, res) {
     syncTransactionTaskHelper.getLastestSyncedDate(function(error, result) {
@@ -217,6 +218,8 @@ exports.readBackChainAddressMapping = function(req, res) {
 }
 
 exports.downloadViewDocument = function(req, res) {
-    res.setHeader('Content-disposition', 'attachment; filename='+ req.params.documentName.trim());
-    res.status(200).download('../../attachments/' + req.params.documentName.trim(),req.params.documentName.trim());
+    var document = "../../attachments/" + req.params.documentName.trim();
+    res.setHeader("Content-Disposition","attachment; filename=\"" + req.params.fileName.trim() + "\"");
+    var filestream = fs.createReadStream(document);
+    filestream.pipe(res);
 }

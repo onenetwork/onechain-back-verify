@@ -241,8 +241,8 @@ export default class MyView extends React.Component {
 export const ListDocuments = (props) => {
   let attachmentsDataUI = [];
   let attachmentsData = props.attachmentsData;
-  function downloadFileByName(fileName, event) {
-    window.open('/downloadViewDocument/' + fileName);
+  function downloadFileByName(docName, fileName, event) {
+    window.open('/downloadViewDocument/'+ docName + '/' + fileName, "_self");
   }
 
   function onHoverFileRow(event) {
@@ -255,7 +255,6 @@ export const ListDocuments = (props) => {
 
   function matchIdWithFileName(id) {
     id = id.replace("/", "_");
-    id = id.replace("zip", "xlsx"); /*Todo @pankaj remove this temp change*/
     return id;
   }
 
@@ -265,7 +264,7 @@ export const ListDocuments = (props) => {
 
       for(let i = 0; i < attachmentsArray.length; i++) {
         attachmentsDataUI.push(
-          <tr key={attachmentsArray[i].id} onMouseOver={onHoverFileRow.bind(this)} onMouseOut={onHoverOutFileRow.bind(this)} onClick={downloadFileByName.bind(this, matchIdWithFileName(attachmentsArray[i].id))} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
+          <tr key={attachmentsArray[i].id} onMouseOver={onHoverFileRow.bind(this)} onMouseOut={onHoverOutFileRow.bind(this)} onClick={downloadFileByName.bind(this, matchIdWithFileName(attachmentsArray[i].id), attachmentsArray[i].name)} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
               <td style={{lineHeight:'1.3', fontSize: '14px', paddingLeft: '30px'}}>
                 <i style = {{color: '#999999', fontSize: '16px'}} className="fa fa-file-text"/>&nbsp;&nbsp;{attachmentsArray[i].name}
               </td>
