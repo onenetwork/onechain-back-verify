@@ -433,6 +433,15 @@ const fieldProps = {
         const myEntName = this.props.store.entNameOfLoggedUser;
         let cells = [];
 
+        if(!myEntName) {
+            for(let j = 0; j < transaction.transactionSlices.length; j++) {
+                let transactionSlice = transaction.transactionSlices[j];
+                if(transactionSlice.type == "Enterprise" && variableViewNames.indexOf(transactionSlice.enterprise) > -1) {
+                    variableViewNames.splice(variableViewNames.indexOf(transactionSlice.enterprise), 1);
+                }
+            }
+        }
+
         for(let i = 0; i < variableViewNames.length; i++) {
             let variableViewName = variableViewNames[i];
             let found = false;
@@ -472,7 +481,7 @@ const fieldProps = {
                 }
             }
             if(!found) {
-                cells.push(<td></td>);
+                cells.push(<td key={variableViewName}></td>);
             }
         }
 
