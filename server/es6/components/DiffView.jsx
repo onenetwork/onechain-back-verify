@@ -199,7 +199,7 @@ export default class DiffView extends React.Component {
     
     let displayBusinessTransaction = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction];
     const tabContents = (<Row style={{marginLeft: '0px'}}>
-                            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[0], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[0], ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
+                            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
                               <span style={{verticalAlign : 'sub'}}>Difference</span>
                             </Col>
                             <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', ['diffTab', 'docsTab'], 'commonTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
