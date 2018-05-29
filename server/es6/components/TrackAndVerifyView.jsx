@@ -348,9 +348,9 @@ const fieldProps = {
         );
     }
 
-    renderListDisputes() {
+    renderListDisputes(tnxId) {
         if(this.props.store.showDisputeDetailsInPopup === true) {
-            BackChainActions.loadDisputes();
+            BackChainActions.loadDisputes({searchTnxId: tnxId});
             this.setState({disputesModalViewActive : true});
         } else {
             this.setState({redirectToListDisputes : true});
@@ -362,7 +362,7 @@ const fieldProps = {
         return (
             <td style={Object.assign({}, fieldProps.columns )}>
                 {disputeCount > 0  ?(
-                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden' }} onClick={this.renderListDisputes.bind(this)}>
+                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden' }} onClick={this.renderListDisputes.bind(this, transaction.id)}>
                         <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     
                         <img
                             src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
