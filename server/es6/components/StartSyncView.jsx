@@ -89,6 +89,15 @@ class SyncForm extends React.Component {
 				boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
 				fontStyle: 'normal',
     			fontSize: '16px'
+			},
+			cancelButton: { 
+				height: '35px',
+				boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
+				fontStyle: 'normal',
+				fontSize: '16px',
+				paddingTop: '0px',
+				width: '53px',
+				fontSize: '24px'
 			}
 		};
 
@@ -131,7 +140,7 @@ class SyncForm extends React.Component {
 				<Row>
 					<Col md={5}>
 						<Button bsStyle="primary" style={fieldProps.button} onClick={this.startSync.bind(this)}>Start Sync</Button>
-						<Link to={"/home"}><Button style={Object.assign({}, {marginLeft:'10px',color:'#0078D7',borderColor:'#0078D7'}, fieldProps.button)}>Cancel</Button></Link>
+						<Link to={"/home"}><Button style={Object.assign({}, { marginLeft: '10px', color: '#0078D7', borderColor: '#0078D7' }, fieldProps.cancelButton)}><i className="fa fa-home" aria-hidden="true"></i></Button></Link>
 					</Col>
 				</Row>
 			</div>

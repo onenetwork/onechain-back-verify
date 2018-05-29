@@ -371,9 +371,12 @@ const SyncGapButtons = (props) => {
             padding: '7px 23px',
             color: 'rgb(0, 120, 215)',
             borderColor: 'rgb(0, 120, 215)',
-            fontSize: '16px',
             boxShadow: 'rgba(0, 0, 0, 0.75) 1px 2px 2px',
-            height: '35px'
+            height: '35px',
+            width: '53px',
+            fontSize: '22px',
+            paddingTop: '0px',
+            paddingLeft: '15px'
         }
     }
 
@@ -411,7 +414,7 @@ const SyncGapButtons = (props) => {
                 <Row>
                     <Col md={1} style={{width: '6%'}}></Col>
                     <Col>
-                        <Link  to="/home"><Button style = {fieldProps.cancelButton} >Cancel</Button></Link>	&nbsp;&nbsp;
+                        <Link to="/home"><Button style={fieldProps.cancelButton} ><i className="fa fa-home" aria-hidden="true"></i></Button></Link>	&nbsp;&nbsp;
                         <Button disabled={props.parentState.selectedGapsForSync.length == 0} id="syncSelectedGap" style={fieldProps.button} onClick={fillSelectedGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.selectedGapsLbl}</Button>&nbsp;
                         <Button disabled={props.store.noOfGaps == 0} style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onClick={fillAllGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
                     </Col>
