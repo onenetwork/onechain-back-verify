@@ -210,7 +210,7 @@ class DisputeHelper {
         return dispute;
     }
 
-    getOpenDisputeCount(disputedTransactionId) {
+    getOpenDisputeCount(disputedTransactionId, disputingPartyAddress) {
         let me = this;
         return new Promise((resolve, reject) => {
             settingsHelper.getApplicationSettings()
@@ -225,6 +225,7 @@ class DisputeHelper {
                     });
                     promisesToWaitOn.push(disputeBcClient.getDisputeCount({
                         "disputedTransactionId": disputedTransactionId,
+                        "disputingParty": disputingPartyAddress,
                         "state" : ["OPEN"]
                     }));
                     Promise.all(promisesToWaitOn).then(function (counts) {
@@ -388,6 +389,19 @@ class DisputeHelper {
             }
         }
         return entName;
+    }
+
+    getDisputingPartyAddress(entName, backChainAddressMapping) {
+        let backChainAddressesOfEnt = [];
+        for (let key in backChainAddressMapping) {
+            if (backChainAddressMapping.hasOwnProperty(key)) {
+                let entNameInMapping = backChainAddressMapping[key];
+                if(entNameInMapping == entName) {
+                    backChainAddressesOfEnt.push(key);
+                }
+            }
+        }
+        return backChainAddressesOfEnt;
     }
 }
 

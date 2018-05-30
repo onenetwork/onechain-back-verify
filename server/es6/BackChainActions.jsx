@@ -362,44 +362,50 @@ export default class BackChainActions {
          * User have to go to /setup page and enter credentials to set it to true(@saveBlockChainSettings),
          * otherwise it will stay as false.
          */
-        if(store.isInitialSetupDone == null) {
-            fetch('/getApplicationSettings', { method: 'GET'}).then(function(response) {
-                return response.json();
-            }).then(function(result) {
-                if (result.success && result.settings.blockChain &&
-                    result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
-                    result.settings.blockChain.disputeContractAddress && /*submissionWindow can return as 0 if PLT hasn't submitted a value 0 is considered as false*/
-                    typeof result.settings.blockChain.disputeSubmissionWindowInMinutes != 'undefined') {
-                    store.isInitialSetupDone = true;
-                    store.blockChainUrl = result.settings.blockChain.url;
-                    store.blockChainContractAddress = result.settings.blockChain.contractAddress;
-                    store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
-                    store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
-                } else {
-                    store.isInitialSetupDone = false;
-                    store.mode = result.settings.mode;
-                    store.blockChainUrl = config.blockChainUrl;
-                    store.blockChainContractAddress = config.blockChainContractAddress;
-                    store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
-                    store.disputeSubmissionWindowInMinutes = 24 * 60; //Default value is one day in minutes.
-                }
-                if(result.success && result.settings.chainOfCustidy &&
-                    result.settings.chainOfCustidy.authenticationToken) {
-                    store.lastestSyncedDate = moment(result.settings.chainOfCustidy.lastSyncTimeInMillis).fromNow();
-                    store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
-                    store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
-                    store.lastSyncTimeInMillis = result.settings.chainOfCustidy.lastSyncTimeInMillis;
-                    store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
-                  } else {
-                      store.authenticationToken = null;
-                      store.chainOfCustodyUrl=config.chainOfCustodyUrl;
-                }
-            }).catch(function(error) {
-                store.isInitialSetupDone = null;
-                store.authenticationToken = null;
-                store.disputeSubmissionWindowInMinutes = null;
-            });
-        }
+        return new Promise(function(resolve, reject) {
+            if(store.isInitialSetupDone == null) {
+                fetch('/getApplicationSettings', { method: 'GET'}).then(function(response) {
+                    return response.json();
+                }).then(function(result) {
+                    if (result.success && result.settings.blockChain &&
+                        result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
+                        result.settings.blockChain.disputeContractAddress && /*submissionWindow can return as 0 if PLT hasn't submitted a value 0 is considered as false*/
+                        typeof result.settings.blockChain.disputeSubmissionWindowInMinutes != 'undefined') {
+                        store.isInitialSetupDone = true;
+                        store.blockChainUrl = result.settings.blockChain.url;
+                        store.blockChainContractAddress = result.settings.blockChain.contractAddress;
+                        store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
+                        store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
+                    } else {
+                        store.isInitialSetupDone = false;
+                        store.mode = result.settings.mode;
+                        store.blockChainUrl = config.blockChainUrl;
+                        store.blockChainContractAddress = config.blockChainContractAddress;
+                        store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
+                        store.disputeSubmissionWindowInMinutes = 24 * 60; //Default value is one day in minutes.
+                    }
+                    if(result.success && result.settings.chainOfCustidy &&
+                        result.settings.chainOfCustidy.authenticationToken) {
+                        store.lastestSyncedDate = moment(result.settings.chainOfCustidy.lastSyncTimeInMillis).fromNow();
+                        store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
+                        store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
+                        store.lastSyncTimeInMillis = result.settings.chainOfCustidy.lastSyncTimeInMillis;
+                        store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
+                      } else {
+                          store.authenticationToken = null;
+                          store.chainOfCustodyUrl=config.chainOfCustodyUrl;
+                    }
+                    resolve(true);
+                }).catch(function(error) {
+                    store.isInitialSetupDone = null;
+                    store.authenticationToken = null;
+                    store.disputeSubmissionWindowInMinutes = null;
+                    reject(error);
+                });
+            } else {
+                resolve(true);
+            }
+        });
     }
 
     @action
@@ -755,7 +761,6 @@ export default class BackChainActions {
             }).then(response => response.json());
 
         loadDisputesPromise.then(result => {
-            store.loadingData = false;
             if (result && result.success) {
                 (result.disputes || []).forEach(dispute => {
                     store.disputes.push(dispute);
@@ -765,17 +770,16 @@ export default class BackChainActions {
                 console.error('error getting disputes');
             }
         }).catch(error => {
-            store.loadingData = false;
             store.error = "Couldn't load disputes. Please try again later";
             console.error('error getting disputes');
         });
     }
 
     @action
-    static getOpenDisputeCount(transactionId) {
+    static getOpenDisputeCount(transactionId, disputingPartyAddress) {
         const getOpenDisputeCountPromise = store.disputeDataProvidedByAPI
             ? BackChainActions.getOpenDisputeCountFromAPI(transactionId)
-            : fetch('/getOpenDisputeCount/' + transactionId, { method: 'GET' }).then(response => response.json());
+            : fetch('/getOpenDisputeCount/' + transactionId + '/' + disputingPartyAddress, { method: 'GET' }).then(response => response.json());
 
         return new Promise(resolve => {
             getOpenDisputeCountPromise.then(result => {
@@ -1075,17 +1079,22 @@ export default class BackChainActions {
      */
     @action
     static readBackChainAddressMapping() {
-        let uri = '/readBackChainAddressMapping';
-        fetch(uri, {
-            method: 'GET'
-        }).then(function(response) {
-            return response.json();
-        }, function(error) {
-            console.error('error reading BackChainAddressMapping');
-        }).then(function(result) {
-            if(result.success) {
-                store.backChainAddressMapping = result.backChainAddressMapping;
-            }
-        })
+        return new Promise(function(resolve, reject) {
+            let uri = '/readBackChainAddressMapping';
+            fetch(uri, {
+                method: 'GET'
+            }).then(function(response) {
+                return response.json();
+            }, function(error) {
+                reject(error);
+            }).then(function(result) {
+                if(result.success) {
+                    store.backChainAddressMapping = result.backChainAddressMapping;
+                    resolve(true);
+                } else {
+                    reject('error reading BackChainAddressMapping');
+                }
+            })
+        });
     }
 }

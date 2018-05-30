@@ -76,30 +76,6 @@ const fieldProps = {
         this.selectedCheckboxes.add("OPEN");
     }
 
-    componentDidMount() {      
-        let disputingPartyAddress = this.getDisputingPartyAddress(this.props.store.entNameOfLoggedUser);
-        this.disputeFilters = {
-            status: ["DRAFT", "OPEN"],
-            transactionRelatedFilter: false,
-            disputingParty: disputingPartyAddress
-        }
-        BackChainActions.loadDisputes(this.disputeFilters); //Make sure to pass default filters for the initial fetch. 
-    }
-
-    getDisputingPartyAddress(entName) {
-        let backChainAddressMapping = toJS(this.props.store.backChainAddressMapping);
-        let backChainAddressesOfEnt = [];
-        for (let key in backChainAddressMapping) {
-            if (backChainAddressMapping.hasOwnProperty(key)) {
-                let entNameInMapping = backChainAddressMapping[key];
-                if(entNameInMapping == entName) {
-                    backChainAddressesOfEnt.push(key);
-                }
-            }
-        }
-        return backChainAddressesOfEnt;
-    }
-
     showHideAdvancedFilters(value) {
         let me = this;
         me.setState({ showFilterTable: value });
@@ -176,7 +152,7 @@ const fieldProps = {
             this.disputeFilters.transactionRelatedFilter = false;
         }
         if(this.disputeFilters.raisedBy) {
-            this.disputeFilters.disputingParty = this.getDisputingPartyAddress(this.disputeFilters.raisedBy);
+            this.disputeFilters.disputingParty = disputeHelper.getDisputingPartyAddress(this.disputeFilters.raisedBy, this.props.store.backChainAddressMapping);
         }
         BackChainActions.loadDisputes(this.disputeFilters);
         this.showHideAdvancedFilters(false);

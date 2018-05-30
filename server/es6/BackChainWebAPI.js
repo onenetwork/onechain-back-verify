@@ -150,7 +150,8 @@ exports.getDisputes = function(req, res) {
 
 exports.getOpenDisputeCount = function (req, res) {
     let tnxId = req.params.transactionId == 'null' || req.params.transactionId == 'undefined' ? null : req.params.transactionId;
-    disputeHelper.getOpenDisputeCount(tnxId)
+    let disputingPartyAddress = req.params.disputingPartyAddress == 'null' || req.params.disputingPartyAddress == 'undefined' ? null : req.params.disputingPartyAddress.split(',');
+    disputeHelper.getOpenDisputeCount(tnxId, disputingPartyAddress)
     .then(function (result) {
         res.json({ success: true, disputeCount: result });
     })

@@ -349,8 +349,8 @@ const fieldProps = {
     }
 
     renderListDisputes(tnxId) {
+        BackChainActions.loadDisputes({searchTnxId: tnxId, status: ["DRAFT", "OPEN"]});
         if(this.props.store.showDisputeDetailsInPopup === true) {
-            BackChainActions.loadDisputes({searchTnxId: tnxId});
             this.setState({disputesModalViewActive : true});
         } else {
             this.setState({redirectToListDisputes : true});

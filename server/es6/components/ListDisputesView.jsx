@@ -10,11 +10,7 @@ import NewDisputeView from './NewDisputeView';
 
 @observer export default class ListDisputesView extends React.Component {
 
-	componentWillMount() {
-		BackChainActions.readBackChainAddressMapping();
-	}
 	componentDidMount() {
-
 		BackChainActions.processApplicationSettings(); 
 		
         /*If disputeTransaction, means we need to open dispute form pop up, with prepopulated values of the disputeTransaction*/

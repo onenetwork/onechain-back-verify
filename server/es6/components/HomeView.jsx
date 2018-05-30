@@ -8,17 +8,49 @@ import AlertPopupView from "./AlertPopupView";
 import '../../public/css/homePage.css';
 import DBSyncView from "./DBSyncView";
 import Images from '../Images';
+import { disputeHelper } from '../DisputeHelper';
 
 @observer export default class HomeView extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      redirect: false
+    };
+  }
+  
+  componentDidMount() {
+    let me = this;
+    BackChainActions.isInitialSyncDone();
+    BackChainActions.syncStatisticsInfo();
+
+    BackChainActions.readBackChainAddressMapping()
+    .then(function (result) {
+      if(result) {
+
+        BackChainActions.processApplicationSettings()
+        .then(function (result) {
+          if(result) {
+            BackChainActions.getOpenDisputeCount(null, disputeHelper.getDisputingPartyAddress(me.props.store.entNameOfLoggedUser, me.props.store.backChainAddressMapping));
+          }
+        }).catch(function (error) {
+            console.error("error: " + error);
+        });
+
+      }
+    })
+    .catch(function (error) {
+      console.error("error: " + error);
+    });
   }
 
-  componentDidMount() {
-    BackChainActions.isInitialSyncDone();
-    BackChainActions.processApplicationSettings();
-    BackChainActions.syncStatisticsInfo();
-    BackChainActions.getOpenDisputeCount();
+  loadDisputesAndRedirect() {
+    let disputingPartyAddress = disputeHelper.getDisputingPartyAddress(this.props.store.entNameOfLoggedUser, this.props.store.backChainAddressMapping);
+    this.disputeFilters = {
+      status: ["DRAFT", "OPEN"], /*Note: This is initial filter for getting disputes */
+      disputingParty: disputingPartyAddress
+    }
+    BackChainActions.loadDisputes(this.disputeFilters);
+    this.setState({ redirect: true });
   }
 
   divClick(callBack) {
@@ -187,7 +219,7 @@ import Images from '../Images';
                 </Row>
             </div>);
     let disputes = (<div style={{ float: 'right' }}>
-                      <Link to='/listDisputes'>  
+                      <Link to='#' onClick={this.loadDisputesAndRedirect.bind(this)}>  
                         <div style={fieldProps.disputes}>
                             <div className="mouseOver" style={fieldProps.mouseOver} >
                               <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
@@ -198,17 +230,22 @@ import Images from '../Images';
                         </div>
                       </Link>
                     </div>);
-        return (
-      <div className={"panel panel-default"} style={fieldProps.panelDefault} onClick={this.props.action}>
-        <HeaderView store={this.props.store} size="big" />
-        {disputes}    
-        <div className={"panel-body"} style={fieldProps.panelBody}>
-          {panelBody}
-          <AlertPopupView store={this.props.store} />
-        </div>
-        {dbSync}
-        </div>
-    );
+        
+        if (this.state.redirect) {
+          return <Redirect push to="/listDisputes" />;
+        } else {
+          return (
+                <div className={"panel panel-default"} style={fieldProps.panelDefault} onClick={this.props.action}>
+                  <HeaderView store={this.props.store} size="big" />
+                  {disputes}    
+                  <div className={"panel-body"} style={fieldProps.panelBody}>
+                    {panelBody}
+                    <AlertPopupView store={this.props.store} />
+                  </div>
+                  {dbSync}
+                </div>
+            );
+      }
   }
 }
 
