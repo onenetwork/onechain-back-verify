@@ -100,6 +100,14 @@ import {disputeHelper} from '../DisputeHelper';
 		return dispute;
 	}
 
+	getMinsInHrsAndMins(mins) {
+		let hours = Math.floor(mins / 60);
+		let minutes = mins % 60;
+		let hrsAndMins = hours == 0 ? "" : hours + "hrs ";
+		hrsAndMins += minutes + "mins";
+		return hrsAndMins;
+	}
+
 	onTnxIdChange(event) {
 		const me = this;
 		this.setDisputeMsg({'type':'reset'});
@@ -120,7 +128,7 @@ import {disputeHelper} from '../DisputeHelper';
 						if (disputeHelper.isSubmitDisputeWindowStillOpen(me.props.store.disputeTransaction, me.props.store.disputeSubmissionWindowInMinutes).visible) {
 							me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 						} else {
-							me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Time window to raise a dispute on this transaction has already passed. You have " + me.props.store.disputeSubmissionWindowInMinutes + " minutes to raise disputes on a transaction."});
+							me.setDisputeMsg({ 'type': 'disputeErrorMsg', 'msg': "Time window to raise a dispute on this transaction has already passed. You have " + me.getMinsInHrsAndMins(me.props.store.disputeSubmissionWindowInMinutes) + " to raise disputes on a transaction."});
 							return;
 						}
 					}
@@ -133,7 +141,7 @@ import {disputeHelper} from '../DisputeHelper';
 				})
 				.catch(function (err) {
 					me.setState({saveOrSubmitDisputeButtonsDisabled:true});
-					me.setDisputeMsg({'type':'disputeWarnMsg', 'msg': err});
+					me.setDisputeMsg({ 'type':'disputeErrorMsg', 'msg': err});
 				});
 			}, 3000)
 		});
@@ -142,11 +150,11 @@ import {disputeHelper} from '../DisputeHelper';
 	saveAsDraft() {
 		let me = this;
 		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
-			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please enter transaction id"});
+			me.setDisputeMsg({ 'type':'disputeErrorMsg', 'msg':"Please enter transaction id"});
 			return;
 		}
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
-			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select a reason code."});
+			me.setDisputeMsg({ 'type':'disputeErrorMsg', 'msg':"Please select a reason code."});
 			return;
 		} else {
 			me.setDisputeMsg({'type':'reset'});
@@ -157,7 +165,7 @@ import {disputeHelper} from '../DisputeHelper';
 		.then(function(response) {
 			if(response.success) {
 				if(response.exists) {
-					me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"You already have a dispute in " + response.status + " status for this transaction. Please close this window and see it in the list."});
+					me.setDisputeMsg({ 'type':'disputeErrorMsg', 'msg':"You already have a dispute in " + response.status + " status for this transaction. Please close this window and see it in the list."});
 					return;
 				}
 				BackChainActions.toggleNewDisputeModalView();
@@ -173,11 +181,11 @@ import {disputeHelper} from '../DisputeHelper';
 	submitDispute() {
 		let me = this;
 		if (!me.transactionId.value || me.transactionId.value.trim().length == 0) {
-			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please enter transaction id"});
+			me.setDisputeMsg({ 'type':'disputeErrorMsg', 'msg':"Please enter transaction id"});
 			return;
 		}
 		else if (ReactDOM.findDOMNode(this.select).value == "select") {
-			me.setDisputeMsg({'type':'disputeWarnMsg', 'msg':"Please select a reason code."});
+			me.setDisputeMsg({ 'type':'disputeErrorMsg', 'msg':"Please select a reason code."});
 			return;
 		} else {
 			me.setDisputeMsg({'type':'reset'});
@@ -204,7 +212,7 @@ import {disputeHelper} from '../DisputeHelper';
 		} else {
 			me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 				BackChainActions.displayAlertPopup("Dispute Submission Failed", 
-                    ["Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + me.props.store.disputeSubmissionWindowInMinutes + " Mins."], "ERROR");
+					["Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + me.getMinsInHrsAndMins(me.props.store.disputeSubmissionWindowInMinutes)], "ERROR");
 		}
 	}
 
@@ -298,7 +306,8 @@ import {disputeHelper} from '../DisputeHelper';
 			newDisputeLabel: {
 				fontWeight: 600, 
 				fontSize: '14px', 
-				color: '#515151'
+				color: '#515151',
+				fontFamily: 'Open Sans'
 			},
 			faTimes: {
 				fontSize: '20px', 
