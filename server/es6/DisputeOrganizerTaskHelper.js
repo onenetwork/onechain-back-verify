@@ -31,7 +31,7 @@ class DisputeOrganizerTaskHelper {
             let disputeSubmissionWindowInMinutes = settings.blockChain.disputeSubmissionWindowInMinutes;
             let duration = moment.duration(moment(new Date()).diff(moment(new Date(transaction.date))));
             let durationInMinutes = Math.ceil(duration.asMinutes());
-            return durationInMinutes > disputeSubmissionWindowInMinutes;
+            return durationInMinutes > (disputeSubmissionWindowInMinutes+1440);//1440 is no. of mins in One day. We have to keep expired disputes for one day.
         } else {
             return true;
         }
