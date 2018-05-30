@@ -433,17 +433,12 @@ const fieldProps = {
         const myEntName = this.props.store.entNameOfLoggedUser;
         let cells = [];
 
-        if(!myEntName) {
-            for(let j = 0; j < transaction.transactionSlices.length; j++) {
-                let transactionSlice = transaction.transactionSlices[j];
-                if(transactionSlice.type == "Enterprise" && variableViewNames.indexOf(transactionSlice.enterprise) > -1) {
-                    variableViewNames.splice(variableViewNames.indexOf(transactionSlice.enterprise), 1);
-                }
-            }
-        }
-
         for(let i = 0; i < variableViewNames.length; i++) {
             let variableViewName = variableViewNames[i];
+            if(!myEntName && variableViewName.indexOf('&') < 0) {
+                //BCV isn't connected to PLT Chain of Custody. And this variableName is for an enterprise slice so skip additional steps and move to intersection
+                continue;
+            } 
             let found = false;
             for(let j = 0; j < transaction.transactionSlices.length; j++) {
                 let transactionSlice = transaction.transactionSlices[j];
@@ -461,7 +456,7 @@ const fieldProps = {
 
                     let transactionDetails = {
                         transactionId: transaction.id,
-                        partnerEntName: myEntIndex == 0 ?  transactionSlice.enterprises[1] : transactionSlice.enterprises[0],
+                        partnerEntName: partnerEntName,
                         transactionSliceType: transactionSlice.type
                     }
 
@@ -481,7 +476,7 @@ const fieldProps = {
                 }
             }
             if(!found) {
-                cells.push(<td key={variableViewName}></td>);
+                cells.push(<td key={transaction.id + "_" + variableViewName}></td>);
             }
         }
 

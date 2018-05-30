@@ -435,6 +435,7 @@ export default class BackChainActions {
                     const sliceObject = JSON.parse(payload.transactionSlice);                    
                     transArr.push({
                         id: payload.id,
+                        date: payload.date,
                         transactionSlices: [sliceObject],
                         transactionSlicesSerialized: [payload.transactionSlice], //helper field to be used in download
                         eventCount: transactionHelper.getEventCount(sliceObject),
@@ -779,7 +780,18 @@ export default class BackChainActions {
     static getOpenDisputeCount(transactionId, disputingPartyAddress) {
         const getOpenDisputeCountPromise = store.disputeDataProvidedByAPI
             ? BackChainActions.getOpenDisputeCountFromAPI(transactionId)
-            : fetch('/getOpenDisputeCount/' + transactionId + '/' + disputingPartyAddress, { method: 'GET' }).then(response => response.json());
+            : fetch('/getOpenDisputeCount', {
+                method: 'post',
+                headers: new Headers({
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }),
+                body: requestHelper.jsonToUrlParams({
+                    "transactionId": transactionId,
+                    "disputingPartyAddress": disputingPartyAddress
+                })
+            }).then(response => response.json());
 
         return new Promise(resolve => {
             getOpenDisputeCountPromise.then(result => {
@@ -844,7 +856,7 @@ export default class BackChainActions {
     static saveDisputeAsDraft(dispute) {
         return new Promise(resolve => {
             let uri = '/saveDisputeAsDraft/' + JSON.stringify(dispute);
-            return fetch(uri, { method: 'POST' })
+-           fetch(uri, { method: 'GET' })
             .then(function(response) {
                 return response.json();
             }, function(error) {

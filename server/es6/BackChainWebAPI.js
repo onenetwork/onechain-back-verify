@@ -149,8 +149,8 @@ exports.getDisputes = function(req, res) {
 };
 
 exports.getOpenDisputeCount = function (req, res) {
-    let tnxId = req.params.transactionId == 'null' || req.params.transactionId == 'undefined' ? null : req.params.transactionId;
-    let disputingPartyAddress = req.params.disputingPartyAddress == 'null' || req.params.disputingPartyAddress == 'undefined' ? null : req.params.disputingPartyAddress.split(',');
+    let tnxId = req.body.transactionId == 'null' || typeof req.body.transactionId == 'undefined' ? null : req.body.transactionId;
+    let disputingPartyAddress = req.body.disputingPartyAddress == 'null' || typeof req.body.disputingPartyAddress == 'undefined' ? null : JSON.parse(req.body.disputingPartyAddress);
     disputeHelper.getOpenDisputeCount(tnxId, disputingPartyAddress)
     .then(function (result) {
         res.json({ success: true, disputeCount: result });

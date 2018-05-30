@@ -19,8 +19,8 @@ export function router(app) {
     app.get('/getTransactionsBySequenceNos/:sequenceNos', BackChainWebAPI.getTransactionsBySequenceNos);
     app.get('/getEventsForTransaction/:transId', BackChainWebAPI.getEventsForTransaction);
     app.get('/getTransactionSlice/:payloadId', BackChainWebAPI.getTransactionSlice);
-    app.get('/getOpenDisputeCount/:transactionId/:disputingPartyAddress', BackChainWebAPI.getOpenDisputeCount);
-    app.post('/saveDisputeAsDraft/:dispute', BackChainWebAPI.saveDisputeAsDraft);
+    app.post('/getOpenDisputeCount', BackChainWebAPI.getOpenDisputeCount);
+    app.get('/saveDisputeAsDraft/:dispute', BackChainWebAPI.saveDisputeAsDraft);
     app.get('/disputeExists/:disputedTransactionId', BackChainWebAPI.disputeExists);
     app.get('/generateDisputeId/:plainText', BackChainWebAPI.generateDisputeId);
     app.post('/discardDraftDispute/:disputeId', BackChainWebAPI.discardDraftDispute);
