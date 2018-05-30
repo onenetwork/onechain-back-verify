@@ -4,6 +4,7 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
 
+  config.vm.network "forwarded_port", guest: 8081, host: 8081
   config.vm.network "private_network", ip: "55.55.55.5"
 
   config.vm.synced_folder "C:/views/onechain-back-verify", "/vagrant", type: "virtualbox"
@@ -21,6 +22,7 @@ Vagrant.configure("2") do |config|
     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
     sudo apt-get -y install nodejs
     sudo apt-get -y install npm
+    sudo apt-get -y install build-essential
 
     # Install mongodb
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
