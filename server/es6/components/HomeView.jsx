@@ -14,7 +14,7 @@ import { disputeHelper } from '../DisputeHelper';
   constructor(props) {
     super(props);
     this.state = {
-      redirect: false
+      redirectToListDisputes: false
     };
   }
   
@@ -30,7 +30,16 @@ import { disputeHelper } from '../DisputeHelper';
         BackChainActions.processApplicationSettings()
         .then(function (result) {
           if(result) {
-            BackChainActions.getOpenDisputeCount(null, disputeHelper.getDisputingPartyAddress(me.props.store.entNameOfLoggedUser, me.props.store.backChainAddressMapping));
+            let disputingPartyAddress = disputeHelper.getDisputingPartyAddress(me.props.store.entNameOfLoggedUser, me.props.store.backChainAddressMapping);
+            BackChainActions.getOpenDisputeCount(null, disputingPartyAddress);
+            
+            let disputeFilters = {
+              status: ["DRAFT", "OPEN"], /*Note: This is initial filter for getting disputes */
+              raisedBy: me.props.store.entNameOfLoggedUser, /*Note: raisedBy is required to display it on Filter UI*/
+              disputingParty: disputingPartyAddress
+            }
+
+            me.props.store.preSetFilters = disputeFilters;
           }
         }).catch(function (error) {
             console.error("error: " + error);
@@ -43,14 +52,8 @@ import { disputeHelper } from '../DisputeHelper';
     });
   }
 
-  loadDisputesAndRedirect() {
-    let disputingPartyAddress = disputeHelper.getDisputingPartyAddress(this.props.store.entNameOfLoggedUser, this.props.store.backChainAddressMapping);
-    this.disputeFilters = {
-      status: ["DRAFT", "OPEN"], /*Note: This is initial filter for getting disputes */
-      disputingParty: disputingPartyAddress
-    }
-    BackChainActions.loadDisputes(this.disputeFilters);
-    this.setState({ redirect: true });
+  renderListDisputes() {
+    this.setState({ redirectToListDisputes: true });
   }
 
   divClick(callBack) {
@@ -219,7 +222,7 @@ import { disputeHelper } from '../DisputeHelper';
                 </Row>
             </div>);
     let disputes = (<div style={{ float: 'right' }}>
-                      <Link to='#' onClick={this.loadDisputesAndRedirect.bind(this)}>  
+                      <Link to='#' onClick={this.renderListDisputes.bind(this)}>  
                         <div style={fieldProps.disputes}>
                             <div className="mouseOver" style={fieldProps.mouseOver} >
                               <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
@@ -231,7 +234,7 @@ import { disputeHelper } from '../DisputeHelper';
                       </Link>
                     </div>);
         
-        if (this.state.redirect) {
+        if (this.state.redirectToListDisputes) {
           return <Redirect push to="/listDisputes" />;
         } else {
           return (

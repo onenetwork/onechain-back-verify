@@ -15,7 +15,6 @@ import DisputesView from "./DisputesView";
 import BackChainActions from '../BackChainActions';
 import filesaver from '../FileSaver';
 import Images from '../Images';
-
 import {disputeHelper} from '../DisputeHelper';
 
 import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
@@ -349,7 +348,7 @@ const fieldProps = {
     }
 
     renderListDisputes(tnxId) {
-        BackChainActions.loadDisputes({searchTnxId: tnxId, status: ["DRAFT", "OPEN"]});
+        this.props.store.preSetFilters = {searchTnxId: tnxId, status: ["DRAFT", "OPEN"]};
         if(this.props.store.showDisputeDetailsInPopup === true) {
             this.setState({disputesModalViewActive : true});
         } else {

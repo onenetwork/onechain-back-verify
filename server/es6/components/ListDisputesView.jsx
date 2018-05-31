@@ -12,7 +12,8 @@ import NewDisputeView from './NewDisputeView';
 
 	componentDidMount() {
 		BackChainActions.processApplicationSettings(); 
-		
+		BackChainActions.loadDisputes(this.props.store.preSetFilters);
+
         /*If disputeTransaction, means we need to open dispute form pop up, with prepopulated values of the disputeTransaction*/
 		if(this.props.store.disputeTransaction) {
 			BackChainActions.toggleNewDisputeModalView();
