@@ -43,7 +43,7 @@ const fieldProps = {
 
     constructor(props) {
         super(props);
-        this.filterApplied = false;
+
         this.state = {
             showFilterTable: false,
             displayFilters:false,
@@ -74,6 +74,7 @@ const fieldProps = {
         this.disputeFilters.status = this.props.store.preSetFilters.status;
         this.disputeFilters.disputingParty = this.props.store.preSetFilters.disputingParty;
         this.disputeFilters.raisedBy = this.props.store.preSetFilters.raisedBy;
+        this.disputeFilters.searchTnxId = this.props.store.preSetFilters.searchTnxId;
         
         this.selectedCheckboxes = new Set();
         this.selectedCheckboxes.add("DRAFT");
@@ -136,9 +137,8 @@ const fieldProps = {
         };
     }
 
-    applyFilters(filterApplied) {
+    applyFilters() {
         let me = this;
-        this.filterApplied = filterApplied;
         if (!this.disputeFilters.status) {
             let status = [];
             for (let checkBoxValue of this.selectedCheckboxes.values()) {
@@ -165,7 +165,7 @@ const fieldProps = {
     resetFilters() {
         this.clearDisputeFilters();
         this.showHideAdvancedFilters(false);
-        this.applyFilters(false);
+        this.applyFilters();
     }
 
     render() {
@@ -235,14 +235,14 @@ const fieldProps = {
 
         let searchBox = (
             <div style={{ display: 'inline' }}>
-                <input className="filter-input" type="text" ref="transactionId" placeholder="Search by Transaction ID"  />
+                <input className="filter-input" type="text" ref="transactionId" value={this.disputeFilters.searchTnxId || ''} placeholder="Search by Transaction ID"  />
                 <i className="fa fa-search" aria-hidden="true" style={{ position: 'relative', left: '-17px', color: '#A1A1A1' }}></i>
             </div>
         );
 
         return (
             <div>
-                <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} filterApplied={this.filterApplied}/>
+                <DisplayFilters disputeFilters={this.disputeFilters} applyFilters={this.applyFilters.bind(this)} />
                 <div className="filter-div">
                     {filterUI}
                     {this.state.showFilterTable ? <FilterTable disputeFilters={this.disputeFilters} store={this.props.store}/> : ''}
@@ -284,7 +284,6 @@ const fieldProps = {
     }
 
     componentDidMount = () => {
-        this.props.disputeFilters.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy : this.props.store.entNameOfLoggedUser;
         this.setAllStateValues()
     }
 
@@ -306,7 +305,7 @@ const fieldProps = {
         }
 
         // added to localState, if we want to set value depends on some condition
-        localState.raisedBy = this.props.disputeFilters.raisedBy ? this.props.disputeFilters.raisedBy:this.props.store.entNameOfLoggedUser;
+        localState.raisedBy = this.props.disputeFilters.raisedBy;
         localState.searchBtId = this.props.disputeFilters.searchBtId;
         localState.searchDisputeId = this.props.disputeFilters.searchDisputeId;
         localState.tnxFromDate = this.props.disputeFilters.tnxFromDate ? moment(new Date(this.props.disputeFilters.tnxFromDate)).format('MM/DD/YYYY'): '' ;
@@ -704,7 +703,7 @@ const fieldProps = {
     render() {
         return (
             <div style={{ paddingBottom: '5px', position: 'relative'}}>
-                {this.props.filterApplied ? this.renderFilterDivs(this.props.disputeFilters) : ''}
+                {this.renderFilterDivs(this.props.disputeFilters)}
             </div>
         );
     }
