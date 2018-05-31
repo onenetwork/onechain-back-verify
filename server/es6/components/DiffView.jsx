@@ -174,8 +174,7 @@ export default class DiffView extends React.Component {
         borderTopRightRadius:'8px',
         height : '27px',
         lineHeight : '27px',
-        textAlign : 'center',
-        cursor: 'pointer'
+        textAlign : 'center'
       }
     };
 
@@ -197,21 +196,28 @@ export default class DiffView extends React.Component {
     let common = intersect(this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction], this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction]);
     JsonHelper.showCommon(common);
     
-    let displayBusinessTransaction = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction];
+    let displayBusinessTransaction = this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction];
+    
+    let docsTab = (displayBusinessTransaction.Attachments && Object.getOwnPropertyNames(displayBusinessTransaction.Attachments).length > 0) ? 
+                      (<Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', ['diffTab', 'commonTab'], 'docsTab')} style={Object.assign({}, styles.tablinks, {cursor: 'pointer', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                        <span style={{verticalAlign : 'sub'}}>Documents</span>
+                      </Col>) : 
+                      (<Col xs={2} style={Object.assign({opacity: 0.5}, styles.tablinks, {cursor: 'not-allowed', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                        <span style={{verticalAlign : 'sub'}}>Documents</span>
+                      </Col>);
+
     const tabContents = (<Row style={{marginLeft: '0px'}}>
-                            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
+                            <Col xs={1} className="tablinks diffTab" onClick={(e) => this.openTab('Diff', ['commonTab', 'docsTab'], 'diffTab')} id="defaultOpen" style={Object.assign({}, styles.tablinks, {cursor: 'pointer', color:'white', backgroundColor:'rgba(0, 133, 200, 1)'})}>
                               <span style={{verticalAlign : 'sub'}}>Difference</span>
                             </Col>
-                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', ['diffTab', 'docsTab'], 'commonTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                            <Col xs={2} className="tablinks commonTab" onClick={(e) => this.openTab('Common', ['diffTab', 'docsTab'], 'commonTab')} style={Object.assign({}, styles.tablinks, {cursor: 'pointer', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                               <span className="fa-stack">
                                 <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true"></i>
                                 <i className="fa fa-circle-o fa-stack-1x" aria-hidden="true" style={{paddingLeft: '10px'}}></i>
                               </span>
                               <span> Common Elements with {this.state.partnerEntName}</span>
                             </Col>
-                            <Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', ['diffTab', 'commonTab'], 'docsTab')} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
-                                <span style={{verticalAlign : 'sub'}}>Documents</span>
-                            </Col>
+                            {docsTab}
                             <div style={{maxWidth: '77.4%', marginLeft: '215px', marginTop: '27px'}}>
                               <div id='Diff' style={{'borderTop': '2px solid rgb(0, 133, 200)'}} className="tabcontent">
                                   <Scrollbars id="diffoutput" style={{'overflow': 'scroll', height: contentHeight }}></Scrollbars>

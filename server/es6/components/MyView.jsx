@@ -154,8 +154,7 @@ export default class MyView extends React.Component {
         borderTopRightRadius:'8px',
         height : '27px',
         lineHeight : '27px',
-        textAlign : 'center',
-        cursor: 'pointer'
+        textAlign : 'center'
       }
     };
 
@@ -176,13 +175,19 @@ export default class MyView extends React.Component {
     let displayBusinessTransaction = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction];
     JsonHelper.showCommon(displayBusinessTransaction);
     
+    let docsTab = (displayBusinessTransaction.Attachments && Object.getOwnPropertyNames(displayBusinessTransaction.Attachments).length > 0) ? 
+                      (<Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', e)} style={Object.assign({}, styles.tablinks, {cursor: 'pointer', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                        <span style={{verticalAlign : 'sub'}}>Documents</span>
+                      </Col>) : 
+                      (<Col xs={2} style={Object.assign({opacity: 0.5}, styles.tablinks, {cursor: 'not-allowed', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                        <span style={{verticalAlign : 'sub'}}>Documents</span>
+                      </Col>);
+
     const tabContents = (<Row style={{marginLeft: '0px'}}>
-                              <Col xs={1} className="tablinks tnxMsgTab" onClick={(e) => this.openTab('TnxMsg', e)} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', backgroundColor:'rgba(0, 133, 200, 1)', width:'19%'})}>
+                              <Col xs={1} className="tablinks tnxMsgTab" onClick={(e) => this.openTab('TnxMsg', e)} id="defaultOpen" style={Object.assign({}, styles.tablinks, {color:'white', cursor: 'pointer', backgroundColor:'rgba(0, 133, 200, 1)', width:'19%'})}>
                                 <span style={{verticalAlign : 'sub'}}>Transaction Message</span>
                               </Col>
-                              <Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', e)} style={Object.assign({}, styles.tablinks, {marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
-                                <span style={{verticalAlign : 'sub'}}>Documents</span>
-                              </Col>
+                              {docsTab}
                               <div id='TnxMsg' className="tabcontent">
                                 <pre id="json-renderer" style={styles.jsonPanel}></pre>
                               </div>
