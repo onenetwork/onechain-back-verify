@@ -2,6 +2,7 @@ import config from './config';
 import {dbconnectionManager} from './DBConnectionManager';
 import moment from 'moment';
 import fs from 'fs';
+import path from 'path';
 import url from 'url';
 import http from 'http';
 import https from 'https';
@@ -192,7 +193,7 @@ class SyncTransactionTaskHelper {
                     return;
                 }
 
-                let attachmentsDir = "attachments";
+                let attachmentsDir = path.resolve(__dirname, "../public", "attachments");
                 if (!fs.existsSync(attachmentsDir)) {
                     fs.mkdirSync(attachmentsDir);
                 }
@@ -200,7 +201,7 @@ class SyncTransactionTaskHelper {
                 let pendingAttachment = pendingAttachments[pendingAttachmentIds[0]];
                 let fileName = pendingAttachment.id.replace(/[\/\\]/g, '_');
                 let filePath = attachmentsDir + "/" + fileName;
-                
+
                 // Check that the attachment isn't already downloaded.
                 if (fs.existsSync(filePath)) {
                     delete pendingAttachments[pendingAttachment.id];
