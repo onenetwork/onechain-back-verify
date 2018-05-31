@@ -232,7 +232,7 @@ const reasonCodeMap = {
 
         let disputeStatusTime = null;
 
-        if(dispute.transaction) {
+        if (dispute.transaction && dispute.state =='DRAFT') {
 			let result = disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes);
             if(result.visible) {
                 disputeStatusTime =  (<div style={{fontSize: '10px', color: '#999999', lineHeight: '10px'}}> 

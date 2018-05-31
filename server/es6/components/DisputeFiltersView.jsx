@@ -669,7 +669,7 @@ const fieldProps = {
 
     reasonCodesDiv(name, value, filterName, count) {
         return (<div key={name + count} style={{ display: 'inline-block' } }>
-            <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.reasonCodeNameValueMap[value]} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName, value)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+            <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.reasonCodeNameValueMap[value]} &nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName, value)}><i className="fa fa-times" style={{ fontSize: '14px', cursor: 'pointer' }}  aria-hidden="true"></i></div> </div>
                      &nbsp;&nbsp;
             </div>
         );
@@ -682,7 +682,7 @@ const fieldProps = {
     dateDiv(name, disputeFilters, fromDateFilterName, toDateFilterName, filterName) {
         return (
             <div key={name + filterName + disputeFilters} style={{ display: 'inline-block' }}>
-                <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.getDateDisplayValue(disputeFilters, fromDateFilterName)}&nbsp;-&nbsp;{this.getDateDisplayValue(disputeFilters, toDateFilterName)}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                <div style={fieldProps.filterDiv} >{name}:&nbsp;{this.getDateDisplayValue(disputeFilters, fromDateFilterName)}&nbsp;-&nbsp;{this.getDateDisplayValue(disputeFilters, toDateFilterName)}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" style={{ fontSize: '14px', cursor: 'pointer' }}  aria-hidden="true"></i></div> </div>
                     &nbsp;&nbsp;
                 </div>
             );
@@ -691,7 +691,7 @@ const fieldProps = {
     defaultDiv(name,disputeFilters,filterName ) {
         return (
             <div key={filterName + disputeFilters} style={{ display: 'inline-block'}}>
-                    <div style={fieldProps.filterDiv} >{name}:&nbsp; {disputeFilters[filterName]}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" aria-hidden="true"></i></div> </div>
+                <div style={fieldProps.filterDiv} >{name}:&nbsp; {disputeFilters[filterName]}&nbsp;&nbsp;&nbsp; <div style={fieldProps.closeDiv} onClick={this.closeFilter.bind(this, filterName)}><i className="fa fa-times" style={{ fontSize: '14px', cursor: 'pointer' }}  aria-hidden="true"></i></div> </div>
                     &nbsp;&nbsp;
                 </div>
             );
