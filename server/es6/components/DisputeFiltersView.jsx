@@ -49,7 +49,8 @@ const fieldProps = {
             displayFilters:false,
             draftChkBox: true,
             openChkBox: true,
-            closedChkBox: false
+            closedChkBox: false,
+            tnxId:""
         };
         
         this.disputeFilters = {
@@ -162,6 +163,12 @@ const fieldProps = {
         this.showHideAdvancedFilters(false);
     }
 
+    listenTnxKeyPress(event) {
+        let tnxIdValue = event.target.value.trim().length > 0 ? event.target.value.trim() : null;
+        this.setState({ tnxId: tnxIdValue });        
+        this.disputeFilters.searchTnxId = tnxIdValue;
+    }
+
     resetFilters() {
         this.clearDisputeFilters();
         this.showHideAdvancedFilters(false);
@@ -235,7 +242,7 @@ const fieldProps = {
 
         let searchBox = (
             <div style={{ display: 'inline' }}>
-                <input className="filter-input" type="text" ref="transactionId" value={this.disputeFilters.searchTnxId || ''} placeholder="Search by Transaction ID"  />
+                <input className="filter-input" type="text" ref="transactionId" value={this.disputeFilters.searchTnxId || ''} placeholder="Search by Transaction ID" onChange={this.listenTnxKeyPress.bind(this)} />
                 <i className="fa fa-search" aria-hidden="true" style={{ position: 'relative', left: '-17px', color: '#A1A1A1' }}></i>
             </div>
         );
@@ -395,26 +402,32 @@ const fieldProps = {
 
     listenTnxFromDate(date) {
         this.props.disputeFilters.tnxFromDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf();
+        this.setState({ tnxFromDate: this.props.disputeFilters.tnxFromDate }); 
     }
 
     listenTnxToDate(date) {
         this.props.disputeFilters.tnxToDate  = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf();
+        this.setState({ tnxToDate: this.props.disputeFilters.tnxToDate }); 
     }
 
     listenDisuputeSubmitFromDate(date) {
         this.props.disputeFilters.disputeSubmitFromDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
+        this.setState({ disputeSubmitFromDate: this.props.disputeFilters.disputeSubmitFromDate }); 
     }
 
     listenDisuputeSubmitToDate(date) {
         this.props.disputeFilters.disputeSubmitToDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
+        this.setState({ disputeSubmitToDate: this.props.disputeFilters.disputeSubmitToDate }); 
     }
 
     listenDisuputeCloseFromDate(date) {
         this.props.disputeFilters.disputeCloseFromDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
+        this.setState({ disputeCloseFromDate: this.props.disputeFilters.disputeCloseFromDate }); 
     }
 
     listenDisuputeCloseToDate(date) {
         this.props.disputeFilters.disputeCloseToDate = isNaN(moment(date).valueOf()) ? null : moment(date).valueOf() ;
+        this.setState({ disputeCloseToDate: this.props.disputeFilters.disputeCloseToDate }); 
     }
 
     listenRaisedByKeyPress(event) {

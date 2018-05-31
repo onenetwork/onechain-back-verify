@@ -153,19 +153,23 @@ class DisputeHelper {
         }
 
         if (this.isValueNotNull(filters.disputeSubmitFromDate)) {
+            queryForMongo.submittedDateStart = '';
             queryForBC.submittedDateStart = filters.disputeSubmitFromDate;
         }
 
         if (this.isValueNotNull(filters.disputeSubmitToDate)) {
+            queryForMongo.submittedDateEnd = '';
             queryForBC.submittedDateEnd = filters.disputeSubmitToDate;
         }
 
         if (this.isValueNotNull(filters.disputeCloseFromDate)) {
+            queryForMongo.closedDateStart = '';
             queryForBC.closedDateStart = filters.disputeCloseFromDate;
         }
 
         if (this.isValueNotNull(filters.disputeCloseToDate)) {
-            queryForBC.closedDateStart = filters.disputeCloseFromDate;
+            queryForMongo.disputeCloseToDate = '';
+            queryForBC.closedDateEnd = filters.disputeCloseToDate;
         }
 
         if (this.isValueNotNull(filters.reasonCodes)) {
