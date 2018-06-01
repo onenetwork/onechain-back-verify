@@ -22,7 +22,6 @@ Vagrant.configure("2") do |config|
     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
     sudo apt-get -y install nodejs
     sudo apt-get -y install npm
-    sudo apt-get -y install build-essential
 
     # Install mongodb
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
