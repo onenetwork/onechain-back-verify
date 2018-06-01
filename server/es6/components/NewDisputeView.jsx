@@ -164,10 +164,6 @@ import {disputeHelper} from '../DisputeHelper';
 		BackChainActions.saveDisputeAsDraft(this.getNewDisputeData())
 		.then(function(response) {
 			if(response.success) {
-				if(response.exists) {
-					me.setDisputeMsg({ 'type':'disputeErrorMsg', 'msg':"You already have a dispute in " + response.status + " status for this transaction. Please close this window and see it in the list."});
-					return;
-				}
 				BackChainActions.toggleNewDisputeModalView();
 				BackChainActions.clearDisputeTransaction();
 				BackChainActions.clearDisputeId();

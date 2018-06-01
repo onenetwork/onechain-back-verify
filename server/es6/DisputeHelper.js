@@ -269,41 +269,12 @@ class DisputeHelper {
         });
     }
 
-    disputeExists(disputedTransactionId) {
-        // TODO check if dispute exists in blockchain
-        return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('DraftDisputes').findOne({ "disputedTransactionId": disputedTransactionId })
-                .then((result) => {
-                    if (result) {
-                        resolve({ success: true, exists: true, status: result.state });
-                    } else {
-                        resolve({ success: true, exists: false });
-                    }
-                })
-                .catch((err) => {
-                    console.error("Error occurred while fetching DraftDisputes" + err);
-                    reject(err);
-                });
-        });
-    }
-
     saveAsDraft(dispute) {
-        var me = this;
         return new Promise((resolve, reject) => {
-            this.disputeExists(dispute.disputedTransactionId)
+            this.insertDraft(dispute)
                 .then(function (response) {
-                    if (response.exists) {
+                    if (response.success) {
                         resolve(response);
-                    } else {
-                        me.insertDraft(dispute)
-                            .then(function (response) {
-                                if (response.success) {
-                                    resolve(response);
-                                }
-                            }, function (error) {
-                                console.error(error);
-                                reject(error);
-                            });
                     }
                 }, function (error) {
                     console.error(error);

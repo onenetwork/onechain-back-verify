@@ -21,7 +21,6 @@ export function router(app) {
     app.get('/getTransactionSlice/:payloadId', BackChainWebAPI.getTransactionSlice);
     app.post('/getOpenDisputeCount', BackChainWebAPI.getOpenDisputeCount);
     app.get('/saveDisputeAsDraft/:dispute', BackChainWebAPI.saveDisputeAsDraft);
-    app.get('/disputeExists/:disputedTransactionId', BackChainWebAPI.disputeExists);
     app.get('/generateDisputeId/:plainText', BackChainWebAPI.generateDisputeId);
     app.post('/discardDraftDispute/:disputeId', BackChainWebAPI.discardDraftDispute);
     app.post('/registerAddress', BackChainWebAPI.registerAddress);

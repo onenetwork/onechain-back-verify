@@ -485,7 +485,7 @@ const fieldProps = {
     renderTransactionActionsCell(transaction, idx) {
         return (
             <td style={Object.assign({}, fieldProps.columns, {textAlign:'center',paddingLeft:'15px' })}>
-                {transaction.disputeExists || !(disputeHelper.isSubmitDisputeWindowStillOpen(transaction, this.props.store.disputeSubmissionWindowInMinutes).visible) ? (
+                {!(disputeHelper.isSubmitDisputeWindowStillOpen(transaction, this.props.store.disputeSubmissionWindowInMinutes).visible) ? (
                         <div></div>
                 ): (
                         <div style={{ cursor: 'pointer' }}>

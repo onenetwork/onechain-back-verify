@@ -25,11 +25,10 @@ export default class BackChainActions {
             store.sliceDataProvidedByAPI = true;
             BackChainActions.getSliceDataFromAPI = options.getTransactionSliceByHash;
         }
-        if(options.disputeExists && options.getOpenDisputeCount && options.getDisputes) {
+        if(options.getOpenDisputeCount && options.getDisputes) {
             store.disputeDataProvidedByAPI = true;
             BackChainActions.getOpenDisputeCountFromAPI = options.getOpenDisputeCount;
             BackChainActions.loadDisputesFromAPI = options.getDisputes;
-            BackChainActions.disputeExistsFromAPI = options.disputeExists;
         }
     }
 
@@ -105,18 +104,13 @@ export default class BackChainActions {
             BackChainActions.getOpenDisputeCount(element.id)
                 .then(function (result) {
                     element.openDisputeCount = result;
-                    BackChainActions.disputeExists(element.id)
-                        .then(function (result) {
-                            element.disputeExists = result;
-                            store.transactions.push(element);
-                            if (++count == transactions.length) {
-                                transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                            }
-                        })
+                    store.transactions.push(element);
+                    if (++count == transactions.length) {
+                        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                    }
                 })
                 .catch(function (error) {
                     element.openDisputeCount = 0;
-                    element.disputeExists = false
                     store.transactions.push(element);
                     if (++count == transactions.length) {
                         transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
@@ -864,7 +858,7 @@ export default class BackChainActions {
             }, function(error) {
                 console.error(error);
             }).then(function(response) {
-                if(response.success && !response.exists) {
+                if(response.success) {
                     dispute.transaction = store.disputeTransaction;
                     store.disputes.unshift(dispute);
                     disputeHelper.sortDisputesByAscOrderBasedOnTnxDate(store.disputes);
@@ -1002,24 +996,6 @@ export default class BackChainActions {
                     ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."],'ERROR');
                 }
                 console.error(error);
-            });
-        });
-    }
-    @action
-    static disputeExists(disputedTransactionId) {
-        const disputeExistsPromise = store.disputeDataProvidedByAPI
-          ? BackChainActions.disputeExistsFromAPI(disputedTransactionId)
-          : fetch('/disputeExists/' + disputedTransactionId, { method: 'GET' }).then(response => response.json());
-
-        return new Promise(resolve => {
-            disputeExistsPromise.then(result => {
-                if (result.success) {
-                    resolve(result.exists);
-                } else {
-                    console.error('error checking disputeExists');
-                }
-            }).catch(error => {
-                console.error('error getting dispute count');
             });
         });
     }
