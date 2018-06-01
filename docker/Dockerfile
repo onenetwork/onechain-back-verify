@@ -52,8 +52,7 @@ RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 RUN apt-get update && apt-get -y install g++ \
 && apt-get -y install golang \
 && apt-get -y install git \
-&& apt-get -y install curl \
-&& apt-get -y install build-essential
+&& apt-get -y install curl
 
 # Install node.js
 RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -- \
