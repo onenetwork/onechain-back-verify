@@ -287,7 +287,7 @@ const reasonCodeMap = {
 
         let linkStart = '';
         let linkEnd = '';
-        if (dispute.transaction) {
+        if (dispute.transaction && !this.props.store.showOnlyVerifyView) {
             return (
                 <td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
                     <Link to='#' onClick={this.loadTransactionIntoStoreAndRedirect.bind(this, dispute.disputedTransactionId)}>
