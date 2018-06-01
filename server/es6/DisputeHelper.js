@@ -59,7 +59,6 @@ class DisputeHelper {
         let me = this;
         return new Promise((resolve, reject) => {
             dbconnectionManager.getConnection().collection('DraftDisputes').find(queryForMongo)
-                .sort({ creationDate: -1 })
                 .toArray(function (err, result) {
                     if (err) {
                         console.error("Error occurred while fetching transations by sequencenos." + err);
@@ -67,6 +66,7 @@ class DisputeHelper {
                     } else {
                         me.findAndAddDisputeTransactions(result, filters).
                         then(function(disputes) {
+                            me.sortDisputesByAscOrderBasedOnTnxDate(disputes);
                             resolve(disputes);
                         });
                     }
@@ -406,6 +406,58 @@ class DisputeHelper {
             }
         }
         return backChainAddressesOfEnt;
+    }
+
+    sortDisputesByAscOrderBasedOnTnxDate(disputes) {
+        let disputesCopy = JSON.parse(JSON.stringify(disputes));
+
+        /*sort never updates the current array object so doing sorting with copy*/
+        disputesCopy.sort(function(firstDispute, secondDispute) {
+            return  (firstDispute.transaction.date)-(secondDispute.transaction.date);
+        });
+
+        disputes.length=0;
+        
+        for(let i = 0; i < disputesCopy.length; i++) {
+                disputes.push(disputesCopy[i]);
+        }
+    }
+
+    orderDisputes(disputes) {
+        let disputesCopy = JSON.parse(JSON.stringify(disputes));
+
+        /*sort never updates the current array object so doing sorting with copy*/
+        disputesCopy.sort(function(firstDispute, secondDispute) {
+            let first, second;
+            switch(firstDispute.state) {
+                case 'DRAFT':
+                    first = 0;
+                break;
+                case 'OPEN':
+                    first = 1;
+                break;
+                case 'CLOSED':
+                    first = 2;
+            }
+            switch(secondDispute.state) {
+                case 'DRAFT':
+                    second = 0;
+                break;
+                case 'OPEN':
+                    second = 1;
+                break;
+                case 'CLOSED':
+                    second = 2;
+            }
+            return first - second;
+        });
+
+
+        disputes.length=0;
+
+        for(let i = 0; i < disputesCopy.length; i++) {
+                disputes.push(disputesCopy[i]);
+        }
     }
 }
 

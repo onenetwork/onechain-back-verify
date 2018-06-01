@@ -11,6 +11,7 @@ import oneBcClient from '@onenetwork/one-backchain-client';
 import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 import {metaMaskHelper} from './MetaMaskHelper';
+import { disputeHelper } from './DisputeHelper';
 
 const MAX_EVENTS_TO_LOAD = 30;
 
@@ -766,6 +767,7 @@ export default class BackChainActions {
                 (result.disputes || []).forEach(dispute => {
                     store.disputes.push(dispute);
                 });
+                disputeHelper.orderDisputes(store.disputes);
             } else {
                 store.error = "Couldn't load disputes. Please try again later";
                 console.error('error getting disputes');
@@ -865,6 +867,8 @@ export default class BackChainActions {
                 if(response.success && !response.exists) {
                     dispute.transaction = store.disputeTransaction;
                     store.disputes.unshift(dispute);
+                    disputeHelper.sortDisputesByAscOrderBasedOnTnxDate(store.disputes);
+                    disputeHelper.orderDisputes(store.disputes);
                 }
                 resolve(response);
             })
@@ -901,7 +905,6 @@ export default class BackChainActions {
 
     @action
     static closeDispute(dispute) {
-        const me = this;
         metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber) => {
             let disputeBcClient = oneBcClient.createDisputeBcClient({
                 blockchain: 'eth',
@@ -914,6 +917,7 @@ export default class BackChainActions {
                 .then(function (receipt) {
                     if (receipt && receipt.status == 1) {
                         BackChainActions.updateDisputeState(dispute.disputeId, 'CLOSED');
+                        disputeHelper.orderDisputes(store.disputes);
                         BackChainActions.displayAlertPopup('Dispute closed Successfully', "Dispute closed Successfully", "SUCCESS");
                     } else {
                         BackChainActions.displayAlertPopup("Close Dispute Failed",
@@ -950,7 +954,6 @@ export default class BackChainActions {
 
     @action
     static submitDispute(dispute) {
-        const me = this;
         return new Promise(function(resolve, reject) {
             metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber)=>{
                 let disputeBcClient = oneBcClient.createDisputeBcClient({
@@ -966,6 +969,7 @@ export default class BackChainActions {
                         BackChainActions.registerAddress(accountNumber);
                         BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
                         BackChainActions.discardDisputeDraft(dispute.disputeId, false);
+                        disputeHelper.orderDisputes(store.disputes);
                         BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "SUCCESS");
                         resolve({submitDisputeSuccess: true});
                     } else {
