@@ -348,7 +348,7 @@ const fieldProps = {
     }
 
     renderListDisputes(tnxId) {
-        this.props.store.preSetFilters = {searchTnxId: tnxId, status: ["DRAFT", "OPEN"]};
+        this.props.store.preSetDisputeFilters = {searchTnxId: tnxId, status: ["DRAFT", "OPEN"]};
         if(this.props.store.showDisputeDetailsInPopup === true) {
             this.setState({disputesModalViewActive : true});
         } else {

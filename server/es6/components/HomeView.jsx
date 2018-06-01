@@ -39,7 +39,7 @@ import { disputeHelper } from '../DisputeHelper';
               disputingParty: disputingPartyAddress
             }
 
-            me.props.store.preSetFilters = disputeFilters;
+            me.props.store.preSetDisputeFilters = disputeFilters;
           }
         }).catch(function (error) {
             console.error("error: " + error);

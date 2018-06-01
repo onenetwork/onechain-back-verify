@@ -49,7 +49,7 @@ class BackChainStore {
     @observable backChainAccountOfLoggedUser = null;
     @observable openDisputeCountOfLoggedUser = 0;
     @observable backChainAddressMapping = {};
-    @observable preSetFilters = {};
+    @observable preSetDisputeFilters = {};
 
     // props modified by API
     @observable showDisputeDetailsInPopup = false;
