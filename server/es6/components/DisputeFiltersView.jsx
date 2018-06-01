@@ -184,7 +184,7 @@ const fieldProps = {
                 height: '15px'
             },
             applyButton: {
-                width: '80px',
+                width: '65px',
                 height: '26px',
                 backgroundColor: '#1d85c6',
                 boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
@@ -193,7 +193,7 @@ const fieldProps = {
                 float:'right'
             },
             resetButton: {
-                width: '80px',
+                width: '65px',
                 height: '26px',
                 boxShadow: '1px 2px 2px rgba(0, 0, 0, 0.749019607843137)',
                 textAlign: 'center',
@@ -203,7 +203,8 @@ const fieldProps = {
                 color: 'rgb(0, 120, 215)',
                 backgroundColor: 'rgba(255, 255, 255, 1)',
                 position: 'absolute',
-                right: '143px'
+                right: '100px',
+                paddingLeft: '14px'
             }
         };
 
@@ -225,7 +226,7 @@ const fieldProps = {
 
         let checkBox = (
             <div style={{
-                display: 'inline', fontWeight: '400', fontStyle: 'normal', fontSize: '12px', width: '70%', float: 'right', paddingRight: '15px'
+                display: 'inline', fontWeight: '400', fontStyle: 'normal', fontSize: '12px', width: '60%', float: 'right', paddingRight: '20px'
             }} className="checkBox-div">
                 Show :
                 &nbsp;&nbsp;
@@ -236,6 +237,7 @@ const fieldProps = {
                 <FormControl type="checkbox" checked={this.state.closedChkBox} value="CLOSED" style={fieldProps.checkbox} onChange={this.toggleCheckboxChange.bind(this)} />&nbsp; Closed
                
                 <Button style={fieldProps.resetButton} className="btn btn-primary resetButton" onClick={this.resetFilters.bind(this)}>Reset</Button>   
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <Button style={fieldProps.applyButton} className="btn btn-primary" onClick={this.applyFilters.bind(this)}>Apply</Button> 
             </div>
         );
@@ -243,7 +245,6 @@ const fieldProps = {
         let searchBox = (
             <div style={{ display: 'inline' }}>
                 <input className="filter-input" type="text" ref="transactionId" value={this.disputeFilters.searchTnxId || ''} placeholder="Search by Transaction ID" onChange={this.listenTnxKeyPress.bind(this)} />
-                <i className="fa fa-search" aria-hidden="true" style={{ position: 'relative', left: '-17px', color: '#A1A1A1' }}></i>
             </div>
         );
 
@@ -253,7 +254,7 @@ const fieldProps = {
                 <div className="filter-div">
                     {filterUI}
                     {this.state.showFilterTable ? <FilterTable disputeFilters={this.disputeFilters} store={this.props.store}/> : ''}
-                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     {searchBox}
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     {checkBox}

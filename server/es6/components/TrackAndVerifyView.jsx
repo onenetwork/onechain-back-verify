@@ -314,7 +314,7 @@ const fieldProps = {
 
     renderTransactionEventsCell(transaction, idx) {
         return (
-            <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
+            <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer',paddingLeft:'15px'})}>
                 <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
                     <img
                         className="counter-img"
@@ -359,9 +359,9 @@ const fieldProps = {
     renderTransactionDisputesCell(transaction) {
         const disputeCount = transaction.openDisputeCount;
         return (
-            <td style={Object.assign({}, fieldProps.columns )}>
+            <td style={Object.assign({}, fieldProps.columns)}>
                 {disputeCount > 0  ?(
-                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden' }} onClick={this.renderListDisputes.bind(this, transaction.id)}>
+                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden',paddingLeft:'5px' }} onClick={this.renderListDisputes.bind(this, transaction.id)}>
                         <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     
                         <img
                             src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
@@ -484,7 +484,7 @@ const fieldProps = {
 
     renderTransactionActionsCell(transaction, idx) {
         return (
-            <td style={Object.assign({}, fieldProps.columns)}>
+            <td style={Object.assign({}, fieldProps.columns, {textAlign:'center',paddingLeft:'15px' })}>
                 {transaction.disputeExists || !(disputeHelper.isSubmitDisputeWindowStillOpen(transaction, this.props.store.disputeSubmissionWindowInMinutes).visible) ? (
                         <div></div>
                 ): (

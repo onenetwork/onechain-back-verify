@@ -224,6 +224,22 @@ import {disputeHelper} from '../DisputeHelper';
 			let index = this.state.eventBtids.indexOf(checkBox.value);
 			this.state.eventBtids.splice(index,1);
 		}
+		this.setState({ eventBtids: this.state.eventBtids });
+	}
+
+	selectAllChkBox() {
+		let me = this;
+		let event = null;
+		let btIds = [];
+		for (let i = 0; i < me.props.store.events.length; i++) { 
+			event = me.props.store.events[i];
+			btIds.push(event.btid);
+		}
+		this.setState({ eventBtids: btIds });
+	}
+
+	unSelectAllChkBox() {
+		this.setState({ eventBtids: [] });
 	}
 
     render() {
@@ -258,14 +274,18 @@ import {disputeHelper} from '../DisputeHelper';
         
         let evntsUI = [];
         for(let i = 0; i < store.events.length; i++) {
-            let event = store.events[i];
-            evntsUI.push(<Checkbox value={event.btid} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+			let event = store.events[i];
+			if (this.state.eventBtids.indexOf(event.btid) > -1) {
+				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+			} else {
+				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+			}
 		}
 
 		if(!this.props.store.disputeTransaction) {
 			evntsUI = [];
 		}
-        
+		
         let fieldProps = {
 			cancelButton: {
 				padding: '7px 23px',
@@ -297,7 +317,7 @@ import {disputeHelper} from '../DisputeHelper';
 				border: '1px solid white',
 				borderBottomColor: '#8ec2e3',
 				width: '98%',
-				marginLeft: '8px', marginBottom: '18px'
+				marginLeft: '8px'
 			},
 			faHandPaperO: {
 				fontSize: '18px', 
@@ -317,7 +337,8 @@ import {disputeHelper} from '../DisputeHelper';
 				cursor: 'pointer'
 			},
 			disputeIdParentDiv: {
-				paddingLeft: '21px'
+				paddingLeft: '21px',
+				paddingTop: '10px'
 			},
 			disputeIdChildDiv: {
 				height: '36px', 
@@ -328,7 +349,8 @@ import {disputeHelper} from '../DisputeHelper';
 				borderWidth: '1px',
 				borderStyle: 'solid',
 				paddingLeft: '20px',
-				display: 'table'
+				display: 'table',
+				marginBottom: '15px'
 			},
 			disputeIdLabel: {
 				color: 'rgb(0, 133, 200)'
@@ -351,7 +373,7 @@ import {disputeHelper} from '../DisputeHelper';
     			overflowY: 'scroll'
 			},
 			colLeft: {
-				width:'57%'
+				width:'59%'
 			},
 			msgTimes: {
 				fontSize: '15px', 
@@ -416,7 +438,6 @@ import {disputeHelper} from '../DisputeHelper';
 										{disputeErrorMsgInfo}
 										{disputeWarningInfo}
 										{disputeSuccessInfoMsg}
-										<br />
 										<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: 'rgb(250, 250, 250)', borderColor: 'rgba(242, 242, 242, 1)' })}>
 											<span style={fieldProps.disputeIdLabel}>Dispute ID:&nbsp;</span><span> {this.props.store.generatedDisputeId} </span>
 										</Row>
@@ -434,11 +455,11 @@ import {disputeHelper} from '../DisputeHelper';
 												</Col>
 											</Col>
 
-											<Col md={5}>
-												<Col md={5}>
+											<Col style={{ width: '41%' }} md={5}>
+												<Col style={{ marginLeft: '-21px' }} md={5}>
 													Transaction Date:
 												</Col>
-												<Col style={{marginLeft: '-28px'}} md={7}>
+												<Col style={{marginLeft: '-15px'}} md={7}>
                                                     {disputeTransactionDate}
 												</Col>
 											</Col>
@@ -453,14 +474,19 @@ import {disputeHelper} from '../DisputeHelper';
 													<div className="eventsVal" contentEditable="true" suppressContentEditableWarning={true} style={fieldProps.eventsParticipantsValDiv}>
                                                         {evntsUI}
 													</div>
+													<div style={{ float: 'right'}}>
+														<div style={{ fontStyle: 'italic', fontSize: '13px', color: '#0085C8', display: 'inline', cursor:'pointer'}} onClick={this.selectAllChkBox.bind(this)}>Select All</div>
+														&nbsp;&nbsp;&nbsp;
+														<div style={{ fontStyle: 'italic', fontSize: '13px', color: '#0085C8', display: 'inline', cursor: 'pointer'}} onClick={this.unSelectAllChkBox.bind(this)}>Unselect All</div>
+													</div>
 												</Col>
 											</Col>
 
-											<Col md={5}>
-												<Col md={5}>
+											<Col style={{ width: '41%' }}  md={5}>
+												<Col style={{ marginLeft: '-21px' }} md={5}>
 													Participants:
 												</Col>
-												<Col style={{marginLeft: '-28px'}} md={7}>
+												<Col style={{marginLeft: '-15px'}} md={7}>
 													<div style={Object.assign({},fieldProps.eventsParticipantsValDiv,{color: 'gray'})} >
 														{participantsDom}
 													</div>
@@ -486,11 +512,11 @@ import {disputeHelper} from '../DisputeHelper';
 												</Col>
 											</Col>
 
-											<Col md={5}>
-												<Col md={5}>
+											<Col style={{ width: '41%' }} md={5}>
+												<Col style={{ marginLeft: '-21px' }} md={5}>
 													Raised By:
 												</Col>
-												<Col style={{marginLeft: '-28px'}} md={7}>
+												<Col style={{marginLeft: '-15px'}} md={7}>
 													{this.props.store.disputeTransaction ? this.props.store.entNameOfLoggedUser : null}
 												</Col>
 											</Col>
