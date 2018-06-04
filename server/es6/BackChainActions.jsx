@@ -932,7 +932,6 @@ export default class BackChainActions {
                 .then(function (receipt) {
                     if (receipt && receipt.status == 1) {
                         BackChainActions.updateDisputeState(dispute.disputeId, 'CLOSED');
-                        disputeHelper.orderDisputes(store.disputes);
                         BackChainActions.displayAlertPopup('Dispute closed Successfully', "Dispute closed Successfully", "SUCCESS");
                     } else {
                         BackChainActions.displayAlertPopup("Close Dispute Failed",
@@ -984,7 +983,6 @@ export default class BackChainActions {
                         BackChainActions.registerAddress(accountNumber);
                         BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
                         BackChainActions.discardDisputeDraft(dispute.disputeId, false);
-                        disputeHelper.orderDisputes(store.disputes);
                         BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "SUCCESS");
                         resolve({submitDisputeSuccess: true});
                     } else {
@@ -1074,6 +1072,7 @@ export default class BackChainActions {
     @action
     static updateDisputeState(disputeId, newState) {
         let currentDisputes = store.disputes;
+        disputeHelper.orderDisputes(currentDisputes);
         for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
             if (disputeId == currentDisputes[i].disputeId) {
                 if("OPEN" == newState) {

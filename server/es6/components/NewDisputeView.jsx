@@ -201,7 +201,6 @@ import {disputeHelper} from '../DisputeHelper';
 				if(result.submitDisputeSuccess) {
 					me.props.store.disputes.unshift(dispute);
 					BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
-					disputeHelper.orderDisputes(store.disputes);
 					BackChainActions.clearDisputeTransaction();
 					BackChainActions.clearDisputeId();
 				}

@@ -72,11 +72,7 @@ const fieldProps = {
     }
 
     componentWillMount = () => {
-        this.disputeFilters.status = this.props.store.preSetDisputeFilters.status;
-        this.disputeFilters.disputingParty = this.props.store.preSetDisputeFilters.disputingParty;
-        this.disputeFilters.raisedBy = this.props.store.preSetDisputeFilters.raisedBy;
-        this.disputeFilters.searchTnxId = this.props.store.preSetDisputeFilters.searchTnxId;
-        
+        this.disputeFilters = this.props.store.preSetDisputeFilters;
         this.selectedCheckboxes = new Set();
         this.selectedCheckboxes.add("DRAFT");
         this.selectedCheckboxes.add("OPEN");
