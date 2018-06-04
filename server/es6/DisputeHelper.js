@@ -380,25 +380,16 @@ class DisputeHelper {
     }
 
     sortDisputesByAscOrderBasedOnTnxDate(disputes) {
-        let disputesCopy = JSON.parse(JSON.stringify(disputes));
-
-        /*sort never updates the current array object so doing sorting with copy*/
-        disputesCopy.sort(function(firstDispute, secondDispute) {
+        /*sort function for Observable array returns sorted copy of array*/
+        let sortedDisputes = disputes.sort(function(firstDispute, secondDispute) {
             return  (firstDispute.transaction.date)-(secondDispute.transaction.date);
         });
-
-        disputes.length=0;
-        
-        for(let i = 0; i < disputesCopy.length; i++) {
-                disputes.push(disputesCopy[i]);
-        }
+        disputes.replace(sortedDisputes);
     }
 
     orderDisputes(disputes) {
-        let disputesCopy = JSON.parse(JSON.stringify(disputes));
-
-        /*sort never updates the current array object so doing sorting with copy*/
-        disputesCopy.sort(function(firstDispute, secondDispute) {
+        /*sort function for Observable array returns sorted copy of array*/
+        let orderedDisputes = disputes.sort(function(firstDispute, secondDispute) {
             let first, second;
             switch(firstDispute.state) {
                 case 'DRAFT':
@@ -423,12 +414,7 @@ class DisputeHelper {
             return first - second;
         });
 
-
-        disputes.length=0;
-
-        for(let i = 0; i < disputesCopy.length; i++) {
-                disputes.push(disputesCopy[i]);
-        }
+        disputes.replace(orderedDisputes);
     }
 }
 
