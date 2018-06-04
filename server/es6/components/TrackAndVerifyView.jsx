@@ -112,7 +112,7 @@ const fieldProps = {
         this.actionsPopoverRefsMap = {};
         this.state = {
             eventsPopoverVisibilityMap: {},
-            redirectToListDisputes: false,
+            shouldRedirectToListDisputes: false,
             actionsPopoverVisibilityMap: {},
             disputesModalViewActive: false
         };
@@ -198,7 +198,7 @@ const fieldProps = {
             </tbody>
         );
 
-        if (this.state.redirectToListDisputes) {
+        if (this.state.shouldRedirectToListDisputes) {
             return <Redirect to={{ pathname:"/listDisputes" }} />;
         } else {
             return(
@@ -347,12 +347,12 @@ const fieldProps = {
         );
     }
 
-    renderListDisputes(tnxId) {
-        this.props.store.preSetDisputeFilters = {searchTnxId: tnxId, status: ["DRAFT", "OPEN"]};
+    redirectToListDisputes(tnxId) {
+        BackChainActions.setPreSetDisputeFilters({searchTnxId: tnxId, status: ["DRAFT", "OPEN"]});
         if(this.props.store.showDisputeDetailsInPopup === true) {
             this.setState({disputesModalViewActive : true});
         } else {
-            this.setState({redirectToListDisputes : true});
+            this.setState({shouldRedirectToListDisputes : true});
         }
     }
 
@@ -361,7 +361,7 @@ const fieldProps = {
         return (
             <td style={Object.assign({}, fieldProps.columns)}>
                 {disputeCount > 0  ?(
-                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden',paddingLeft:'5px' }} onClick={this.renderListDisputes.bind(this, transaction.id)}>
+                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden',paddingLeft:'5px' }} onClick={this.redirectToListDisputes.bind(this, transaction.id)}>
                         <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     
                         <img
                             src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
@@ -550,7 +550,7 @@ const fieldProps = {
         let me = this;
         BackChainActions.populateDisputeTransaction(transactionId)
         .then(function(result) {
-            me.setState({redirectToListDisputes: result});
+            me.setState({shouldRedirectToListDisputes: result});
         })
         .catch(function (err) {
             console.error(err);

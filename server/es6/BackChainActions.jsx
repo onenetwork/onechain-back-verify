@@ -1089,4 +1089,9 @@ export default class BackChainActions {
             })
         });
     }
+
+    @action
+    static setPreSetDisputeFilters(preSetDisputeFilters) {
+        store.preSetDisputeFilters = preSetDisputeFilters;
+    }
 }

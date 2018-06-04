@@ -14,7 +14,7 @@ import { disputeHelper } from '../DisputeHelper';
   constructor(props) {
     super(props);
     this.state = {
-      redirectToListDisputes: false
+      shouldRedirectToListDisputes: false
     };
   }
   
@@ -38,8 +38,7 @@ import { disputeHelper } from '../DisputeHelper';
               raisedBy: me.props.store.entNameOfLoggedUser, /*Note: raisedBy is required to display it on Filter UI*/
               disputingParty: disputingPartyAddress
             }
-
-            me.props.store.preSetDisputeFilters = disputeFilters;
+            BackChainActions.setPreSetDisputeFilters(disputeFilters);
           }
         }).catch(function (error) {
             console.error("error: " + error);
@@ -52,8 +51,8 @@ import { disputeHelper } from '../DisputeHelper';
     });
   }
 
-  renderListDisputes() {
-    this.setState({ redirectToListDisputes: true });
+  redirectToListDisputes() {
+    this.setState({ shouldRedirectToListDisputes: true });
   }
 
   divClick(callBack) {
@@ -222,7 +221,7 @@ import { disputeHelper } from '../DisputeHelper';
                 </Row>
             </div>);
     let disputes = (<div style={{ float: 'right' }}>
-                      <Link to='#' onClick={this.renderListDisputes.bind(this)}>  
+                      <Link to='#' onClick={this.redirectToListDisputes.bind(this)}>  
                         <div style={fieldProps.disputes}>
                             <div className="mouseOver" style={fieldProps.mouseOver} >
                               <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
@@ -234,7 +233,7 @@ import { disputeHelper } from '../DisputeHelper';
                       </Link>
                     </div>);
         
-        if (this.state.redirectToListDisputes) {
+        if (this.state.shouldRedirectToListDisputes) {
           return <Redirect push to="/listDisputes" />;
         } else {
           return (
