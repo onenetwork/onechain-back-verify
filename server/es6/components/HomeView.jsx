@@ -220,18 +220,19 @@ import { disputeHelper } from '../DisputeHelper';
                   <Col style={{float:'Left',paddingLeft:'20px'}}>{syncIcon}</Col>
                 </Row>
             </div>);
-    let disputes = (<div style={{ float: 'right' }}>
-                      <Link to='#' onClick={this.redirectToListDisputes.bind(this)}>  
-                        <div style={fieldProps.disputes}>
-                            <div className="mouseOver" style={fieldProps.mouseOver} >
-                              <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i> 
-                              <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '132px', position: 'absolute', top: '210px' }} /> 
-                              <div className="disputes-counter">{this.props.store.openDisputeCountOfLoggedUser}</div>
-                              <div style={{display: 'inline'}}> &nbsp;&nbsp;&nbsp;Disputes</div>
-                            </div>
-                        </div>
-                      </Link>
-                    </div>);
+    let disputes =
+      this.props.store.isInitialSyncDone ? (<div style={{ float: 'right' }}>
+        <Link to='#' onClick={this.redirectToListDisputes.bind(this)}>
+          <div style={fieldProps.disputes}>
+            <div className="mouseOver" style={fieldProps.mouseOver} >
+              <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i>
+              <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '132px', position: 'absolute', top: '210px' }} />
+              <div className="disputes-counter">{this.props.store.openDisputeCountOfLoggedUser}</div>
+              <div style={{ display: 'inline' }}> &nbsp;&nbsp;&nbsp;Disputes</div>
+            </div>
+          </div>
+        </Link>
+      </div>) : (<div></div>);
         
         if (this.state.shouldRedirectToListDisputes) {
           return <Redirect push to="/listDisputes" />;

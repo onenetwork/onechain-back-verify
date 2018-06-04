@@ -465,26 +465,37 @@ const reasonCodeMap = {
                     </div>
                 </Link>
             </Popover>);
+            let actionsCell = (
+                <OverlayTrigger trigger="focus" placement="right" overlay={popOver}>
+                    <div className="counter-ct" style={{ paddingLeft: '10px' }} >
+                        <a href="#"> <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i></a>
+                    </div>
+                </OverlayTrigger>
+            );
+            return <td style={fieldProps.columns}>{actionsCell}</td>;
         } else if (dispute.state == "OPEN") {
-            popOver = (<Popover id={dispute.disputeId + idx} className="dispute-action-popover" >
-                            <Link to='#' onClick={this.closeDispute.bind(this, dispute)}>
-                                <div id={dispute.disputeId + "_close"+ idx} >
-                                    <div className="dispute-transation-div" style={{ width: '128px' }}>
-                                        <i className="fa fa-check-circle" style={{ fontSize: '15px' }}></i>&nbsp; Close Dispute
-                                    </div>
-                                </div>
-                            </Link>
-                        </Popover>
-                      );    
+            let actionsCell = "";
+            if (disputeHelper.getRaisedByEnterpriseName(dispute.disputingParty, this.props.store.backChainAddressMapping) == this.props.store.entNameOfLoggedUser) {
+                popOver = (<Popover id={dispute.disputeId + idx} className="dispute-action-popover" >
+                    <Link to='#' onClick={this.closeDispute.bind(this, dispute)}>
+                        <div id={dispute.disputeId + "_close" + idx} >
+                            <div className="dispute-transation-div" style={{ width: '128px' }}>
+                                <i className="fa fa-check-circle" style={{ fontSize: '15px' }}></i>&nbsp; Close Dispute
+                            </div>
+                        </div>
+                    </Link>
+                </Popover>
+                );
+                actionsCell = (
+                    <OverlayTrigger trigger="focus" placement="right" overlay={popOver}>
+                        <div className="counter-ct" style={{ paddingLeft: '10px' }} >
+                            <a href="#"> <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i></a>
+                        </div>
+                    </OverlayTrigger>
+                );
+            }
+            return <td style={fieldProps.columns}>{actionsCell}</td>;
         }
-        let actionsCell = (
-            <OverlayTrigger trigger="focus" placement="right" overlay={popOver}>
-                <div className="counter-ct" style={{paddingLeft:'10px'}} >
-                    <a href="#"> <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i></a>
-                </div>
-            </OverlayTrigger>
-        );
-        return <td style={fieldProps.columns}>{actionsCell}</td>;
     }
 
     getEventCountCSS(eventCount) {

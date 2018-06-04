@@ -54,6 +54,9 @@ export default class BackChainActions {
         }).then(function(result) {
             if(result) {
                 store.isInitialSyncDone = result.isInitialSyncDone;
+                if (store.isInitialSyncDone === false) {
+                    store.showDisputeActions = false;
+                }
             }
         })
     }
@@ -442,10 +445,24 @@ export default class BackChainActions {
 
                 if (i == payloadLength && transArr.length > 0) {
                     store.transactions.clear();
+                    let count = 0;
                     transArr.forEach(element => {
-                        store.transactions.push(element);
+                        BackChainActions.getOpenDisputeCount(element.id)
+                            .then(function (result) { 
+                                element.openDisputeCount = result;
+                                store.transactions.push(element);
+                                if (++count == transArr.length) {
+                                    transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                                }
+                            })
+                            .catch(function (error) {
+                                element.openDisputeCount = 0;
+                                store.transactions.push(element);
+                                if (++count == transactions.length) {
+                                    transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                                }
+                            });
                     });
-                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
                     callback();
                 }
                 i++;
@@ -506,10 +523,12 @@ export default class BackChainActions {
                     callback(null,true);
                 }
             } else {
+                store.showDisputeActions = false;
                 BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
             }
         })
         .catch(function (err) {
+            store.showDisputeActions = false;
             console.error('Error communicating with PLT: ' + err);
             BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
         });
@@ -553,10 +572,12 @@ export default class BackChainActions {
                     callback(null,true);
                 }
             } else {
+                store.showDisputeActions = false;
                 BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
             }
         })
         .catch(function (err) {
+            store.showDisputeActions = false;
             console.error('Error communicating with PLT: ' + err);
             BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
         });
