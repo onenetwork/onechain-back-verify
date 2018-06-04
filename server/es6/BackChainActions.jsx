@@ -188,12 +188,12 @@ export default class BackChainActions {
                               store.viewTransactions.intersection = newJson;
                           }).then(() => ++idx);
                     }
-                    else {  // Comes from a payload and won't have two slices to compare so always go with enterprise 
+                    else {  // Comes from a payload and won't have two slices to compare so always go with enterprise
                         store.myAndDiffViewModalType = "Enterprise";
                         let newJson = observable({});
                         newJson.id = id;
                         newJson.transactionSlice = transactionSlice;
-                        store.viewTransactions.enterprise = newJson;                        
+                        store.viewTransactions.enterprise = newJson;
                     }
                 }
 
@@ -346,12 +346,12 @@ export default class BackChainActions {
     static toggleNewDisputeModalView() {
         store.newDisputeModalActive = !store.newDisputeModalActive;
     }
-    
+
     @action
     static closeAlertPopup() {
         store.displayAlertPopup = false;
     }
-    
+
     @action
     static processApplicationSettings() {
         /**
@@ -430,7 +430,7 @@ export default class BackChainActions {
                     }
                     transArr.push(transaction);
                 } else {
-                    const sliceObject = JSON.parse(payload.transactionSlice);                    
+                    const sliceObject = JSON.parse(payload.transactionSlice);
                     transArr.push({
                         id: payload.id,
                         date: payload.date,
@@ -448,7 +448,7 @@ export default class BackChainActions {
                     let count = 0;
                     transArr.forEach(element => {
                         BackChainActions.getOpenDisputeCount(element.id)
-                            .then(function (result) { 
+                            .then(function (result) {
                                 element.openDisputeCount = result;
                                 store.transactions.push(element);
                                 if (++count == transArr.length) {
@@ -594,7 +594,7 @@ export default class BackChainActions {
                 contentBackchainContractAddress: store.blockChainContractAddress,
                 disputeBackchainContractAddress: store.disputeBlockChainContractAddress
             });
-            
+
             contentBcClient.getOrchestrator()
             .then(function (result) {
                 //Content BackChain credentials are correct and the connection is established. Try it for disputeContentBackChain
@@ -603,7 +603,7 @@ export default class BackChainActions {
                     url: store.blockChainUrl,
                     contentBackchainContractAddress: store.blockChainContractAddress,
                     disputeBackchainContractAddress: store.disputeBlockChainContractAddress
-                });	
+                });
 
                 disputeBcClient.getDisputeSubmissionWindowInMinutes().
                 then(function(result){
@@ -620,7 +620,7 @@ export default class BackChainActions {
         } catch(error) {
             BackChainActions.displayAlertPopup("BackChain Communication Failed", "Could not connect to the backchain, please check your settings and try again.",'ERROR');
             console.error(error);
-        }                
+        }
     }
 
     @action
@@ -745,9 +745,9 @@ export default class BackChainActions {
             if(json.result.length == 0) {
                 //Transaction doesn't exist in db, so find events within the payload.
                 store.events = transactionHelper.extractEventsFromSlice(transaction.transactionSlices[0])
-            } else {                
+            } else {
                 store.events = json.result;
-            }            
+            }
         }));
     }
 
@@ -821,6 +821,7 @@ export default class BackChainActions {
                     resolve(result.disputeCount);
                 } else {
                     console.error('error getting dispute count');
+                    resolve(0);
                 }
             }).catch(error => {
                 console.error('error getting dispute count');
@@ -862,15 +863,15 @@ export default class BackChainActions {
             }
         })
     }
-    
+
     @action
     static clearDisputeTransaction() {
-        store.disputeTransaction = null; 
+        store.disputeTransaction = null;
     }
 
     @action
     static clearDisputeId() {
-        store.generatedDisputeId = null; 
+        store.generatedDisputeId = null;
     }
 
     @action
@@ -945,10 +946,10 @@ export default class BackChainActions {
                 catch(function (error) {
                     if (error) {
                         if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
-                            BackChainActions.displayAlertPopup("MetaMask Transaction was Denied", 
+                            BackChainActions.displayAlertPopup("MetaMask Transaction was Denied",
                             ["You have to approve the transaction in metamask in order to close the Dispute. Please close again and approve the transaction."],'ERROR');
                         } else {
-                            BackChainActions.displayAlertPopup("Close Dispute Failed", 
+                            BackChainActions.displayAlertPopup("Close Dispute Failed",
                             ["Closed Dispute failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
                         }
                         console.error(error);
@@ -990,17 +991,17 @@ export default class BackChainActions {
                         BackChainActions.displayAlertPopup('Dispute Submitted Successfully', "Your Dispute Submission is Successful", "SUCCESS");
                         resolve({submitDisputeSuccess: true});
                     } else {
-                        BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                        BackChainActions.displayAlertPopup("Dispute Submission Failed",
                         "Dispute submission failed at the BlockChain. Please contact One Network if the problem persists.", "ERROR");
                     }
                 }).
                 catch(function(error) {
                     if (error) {
                         if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
-                            BackChainActions.displayAlertPopup("MetaMask Transaction was Denied", 
+                            BackChainActions.displayAlertPopup("MetaMask Transaction was Denied",
                             ["You have to approve the transaction in metamask in order to submit the Dispute. Please submit again and approve the transaction."],'ERROR');
                         } else {
-                            BackChainActions.displayAlertPopup("Dispute Submission Failed", 
+                            BackChainActions.displayAlertPopup("Dispute Submission Failed",
                             ["Dispute Submission failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
                         }
                         console.error(error);
@@ -1008,14 +1009,14 @@ export default class BackChainActions {
                 });
             }).catch((error)=> {
                 if(error.code == 'error.metamask.missing') {
-                    BackChainActions.displayAlertPopup("Missing MetaTask Extension", 
-                    ["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>, 
+                    BackChainActions.displayAlertPopup("Missing MetaTask Extension",
+                    ["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>,
                     " in order to use Submit or Close Disputes. Please install the extension first and try again."],'ERROR');
                 } else if(error.code == 'error.metamask.locked') {
-                    BackChainActions.displayAlertPopup("MetaMask is Locked", 
+                    BackChainActions.displayAlertPopup("MetaMask is Locked",
                     ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"],'ERROR');
                 } else {
-                    BackChainActions.displayAlertPopup("Problem Occured", 
+                    BackChainActions.displayAlertPopup("Problem Occured",
                     ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."],'ERROR');
                 }
                 console.error(error);
@@ -1040,9 +1041,9 @@ export default class BackChainActions {
     }
 
     /**
-     * Pass backChainAccountOfLoggedUser which we get from metamask. 
+     * Pass backChainAccountOfLoggedUser which we get from metamask.
      * And register it to to PLT instance.
-     * @param {*} backChainAccountOfLoggedUser 
+     * @param {*} backChainAccountOfLoggedUser
      */
     @action
     static registerAddress(backChainAccountOfLoggedUser) {
