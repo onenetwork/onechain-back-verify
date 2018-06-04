@@ -764,6 +764,7 @@ export default class BackChainActions {
     @action
     static loadDisputes(filters) {
         store.disputes.clear();
+        store.loadingData = true;
         //Handle filters properly while fetching either from mongoDb or blockChain(through onechainbackclient)
         const loadDisputesPromise = store.disputeDataProvidedByAPI
             ? BackChainActions.loadDisputesFromAPI(filters)
@@ -778,6 +779,7 @@ export default class BackChainActions {
             }).then(response => response.json());
 
         loadDisputesPromise.then(result => {
+            store.loadingData = false;
             if (result && result.success) {
                 (result.disputes || []).forEach(dispute => {
                     store.disputes.push(dispute);
@@ -789,6 +791,7 @@ export default class BackChainActions {
                 console.error('error getting disputes');
             }
         }).catch(error => {
+            store.loadingData = false;
             store.error = "Couldn't load disputes. Please try again later";
             console.error('error getting disputes');
         });

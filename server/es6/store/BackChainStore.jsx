@@ -50,6 +50,7 @@ class BackChainStore {
     @observable openDisputeCountOfLoggedUser = 0;
     @observable backChainAddressMapping = {};
     @observable preSetDisputeFilters = {};
+    @observable loadingData = false;
 
     // props modified by API
     @observable showDisputeDetailsInPopup = false;

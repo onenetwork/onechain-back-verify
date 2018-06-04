@@ -166,8 +166,11 @@ const reasonCodeMap = {
 
     renderDisputeRows(disputes) {
         let disputesRowsToDisplay = [];
-        if (disputes.length == 0) {
-            disputesRowsToDisplay.push(this.renderNoDisputesFoundRow());
+        if (this.props.store.loadingData) {
+            image = (<i className="fa fa-refresh fa-spin" aria-hidden="true"></i>);
+            disputesRowsToDisplay.push(this.renderLoadingRow());
+        } else if (disputes.length == 0) {            
+            disputesRowsToDisplay.push(this.renderNoDisputesFoundRow());   
         } else {
             for (let i = 0; i < disputes.length; i++) {
                 let dispute = disputes[i];
@@ -178,6 +181,16 @@ const reasonCodeMap = {
             }
         }
         return disputesRowsToDisplay;
+    }
+
+    renderLoadingRow() {
+        return (
+            <tr key={"no_disputes"} style={fieldProps.noDisputesFoundRow}>
+                <td colSpan='11' style={{ textAlign: 'center', paddingTop: '16px' }}>
+                    <i className="fa fa-refresh fa-spin" aria-hidden="true"></i>
+                </td>
+            </tr>
+        );
     }
 
     renderNoDisputesFoundRow() {
