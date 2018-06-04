@@ -782,6 +782,7 @@ export default class BackChainActions {
                 (result.disputes || []).forEach(dispute => {
                     store.disputes.push(dispute);
                 });
+                disputeHelper.sortDisputesByAscOrderBasedOnTnxDate(store.disputes);
                 disputeHelper.orderDisputes(store.disputes);
             } else {
                 store.error = "Couldn't load disputes. Please try again later";

@@ -66,7 +66,6 @@ class DisputeHelper {
                     } else {
                         me.findAndAddDisputeTransactions(result, filters).
                         then(function(disputes) {
-                            me.sortDisputesByAscOrderBasedOnTnxDate(disputes);
                             resolve(disputes);
                         });
                     }
