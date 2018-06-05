@@ -493,9 +493,15 @@ const fieldProps = {
                     <div style={fieldProps.text}>Transaction Date: </div>
                     &nbsp;&nbsp;
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '73px', fontSize: '12px' }}>
-                        From &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxFromDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxFromDate.bind(this)} className="date-control"  />&nbsp;&nbsp;
+                            From 
+                            &nbsp;
+                            <Datetime closeOnSelect={true} value={this.state.tnxFromDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxFromDate.bind(this)} className="date-control" />
                             &nbsp;&nbsp;
-                            To &nbsp; <Datetime closeOnSelect={true} value={this.state.tnxToDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxToDate.bind(this)} className="date-control"  />
+                            <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true"></i>
+                            &emsp;&emsp;&emsp; To &nbsp;
+                            <Datetime closeOnSelect={true} value={this.state.tnxToDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxToDate.bind(this)} className="date-control" />
+                            &nbsp;&nbsp;
+                            <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true"></i>
                         </div>
                 </div>
                 <div>
@@ -523,19 +529,31 @@ const fieldProps = {
                 <div>
                     <div style={fieldProps.text}>Dispute Submitted Date: </div>
                     &nbsp;&nbsp;
-                        <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '50px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control"  />
+                    <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '50px', fontSize: '12px' }}>
+                        From
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeSubmitToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
+                        <Datetime closeOnSelect={true} value={this.state.disputeSubmitFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control" />
+                        &nbsp;&nbsp;
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true"></i>
+                        &emsp;&emsp;&ensp; To &nbsp;
+                        <Datetime closeOnSelect={true} value={this.state.disputeSubmitToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
+                        &nbsp;&nbsp;
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true"></i>
                     </div>
                 </div>
                 <div>
                     <div style={fieldProps.text}>Dispute Closed Date: </div>
                     &nbsp;&nbsp;
-                        <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '100px', fontSize: '12px' }}>
-                        From &nbsp;&nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control"  />
+                    <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '100px', fontSize: '12px' }}>
+                        From
                         &nbsp;&nbsp;
-                            To &nbsp;<Datetime closeOnSelect={true} value={this.state.disputeCloseToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
+                        <Datetime closeOnSelect={true} value={this.state.disputeCloseFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control" />
+                        &nbsp;&nbsp;
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true"></i>
+                        &emsp;&emsp;&ensp; To &nbsp;
+                        <Datetime closeOnSelect={true} value={this.state.disputeCloseToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
+                        &nbsp;&nbsp;
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true"></i>
                     </div>
                 </div>
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Raised By: </div>

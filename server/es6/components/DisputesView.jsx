@@ -167,7 +167,6 @@ const reasonCodeMap = {
     renderDisputeRows(disputes) {
         let disputesRowsToDisplay = [];
         if (this.props.store.loadingData) {
-            image = (<i className="fa fa-refresh fa-spin" aria-hidden="true"></i>);
             disputesRowsToDisplay.push(this.renderLoadingRow());
         } else if (disputes.length == 0) {            
             disputesRowsToDisplay.push(this.renderNoDisputesFoundRow());   
