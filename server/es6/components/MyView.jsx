@@ -247,7 +247,7 @@ export const ListDocuments = (props) => {
   let attachmentsDataUI = [];
   let attachmentsData = props.attachmentsData;
   function downloadFileByName(docName, fileName, event) {
-    window.open('/downloadViewDocument/'+ docName + '/' + fileName, "_self");
+    window.open('/downloadViewDocument/'+ docName + '/' + fileName, "_blank");
   }
 
   function onHoverFileRow(event) {
