@@ -292,7 +292,7 @@ class TransactionHelper {
             events.push({
                 btid: bt.btid,
                 date: bt.LastModifiedDate.date,
-                actionName: bt.ActionName.split('.')[1]
+                btref: bt.btref
             });
         }
         return events;
