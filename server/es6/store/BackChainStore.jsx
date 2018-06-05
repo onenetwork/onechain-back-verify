@@ -54,7 +54,7 @@ class BackChainStore {
 
     // props modified by API
     @observable showDisputeDetailsInPopup = false;
-    @observable showDisputeActions = true;
+    @observable showDisputeActions = false;
     sliceDataProvidedByAPI = false;
     disputeDataProvidedByAPI = false;
 

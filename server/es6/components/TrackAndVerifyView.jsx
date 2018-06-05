@@ -187,7 +187,7 @@ const fieldProps = {
                     {this.props.store.isInitialSyncDone === false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Disputes</th>}
                     <th style={fieldProps.columns}>Executing User</th>
                     {this.renderEnterpriseHeaders(variableViewNames)}
-                    {(this.props.store.showDisputeActions || this.props.store.isInitialSyncDone) === false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>}
+                    {this.props.store.showDisputeActions === false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>}
                 </tr>
             </thead>
         );
@@ -272,7 +272,7 @@ const fieldProps = {
                 {this.renderTransactionExecutingUsersCell(transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
-                {(this.props.store.showDisputeActions || this.props.store.isInitialSyncDone) === false  ? null : this.renderTransactionActionsCell(transaction, idx)}
+                {this.props.store.showDisputeActions === false  ? null : this.renderTransactionActionsCell(transaction, idx)}
             </tr>
         );
     }

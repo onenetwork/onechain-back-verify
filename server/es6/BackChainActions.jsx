@@ -54,9 +54,7 @@ export default class BackChainActions {
         }).then(function(result) {
             if(result) {
                 store.isInitialSyncDone = result.isInitialSyncDone;
-                if (store.isInitialSyncDone === false) {
-                    store.showDisputeActions = false;
-                }
+                store.showDisputeActions = result.isInitialSyncDone;
             }
         })
     }
@@ -518,17 +516,16 @@ export default class BackChainActions {
                 store.entNameOfLoggedUser = result.enterpriseName;
                 store.startSync = false;
                 store.isInitialSyncDone = true;
+                store.showDisputeActions = true;
                 BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
                 if(callback){
                     callback(null,true);
                 }
             } else {
-                store.showDisputeActions = false;
                 BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
             }
         })
         .catch(function (err) {
-            store.showDisputeActions = false;
             console.error('Error communicating with PLT: ' + err);
             BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
         });
@@ -567,17 +564,16 @@ export default class BackChainActions {
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
                 store.isInitialSyncDone = true;
+                store.showDisputeActions = true;
                 BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
                 if(callback){
                     callback(null,true);
                 }
             } else {
-                store.showDisputeActions = false;
                 BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
             }
         })
         .catch(function (err) {
-            store.showDisputeActions = false;
             console.error('Error communicating with PLT: ' + err);
             BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
         });
