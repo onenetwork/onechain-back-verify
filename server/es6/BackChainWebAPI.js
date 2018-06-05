@@ -7,6 +7,7 @@ import {settingsHelper} from './SettingsHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import { dbconnectionManager } from './DBConnectionManager';
 import fs from 'fs';
+import zlib from 'zlib';
 
 exports.getLastestSyncedDate = function(req, res) {
     syncTransactionTaskHelper.getLastestSyncedDate(function(error, result) {
@@ -209,8 +210,18 @@ exports.readBackChainAddressMapping = function(req, res) {
 }
 
 exports.downloadViewDocument = function(req, res) {
-    var document = __dirname + "/../../attachments/" + req.params.documentName.trim();
+    //TODO@PANKAJ: Sean is looking why there is not .zip extension in file,once fixed remove this temp change
+    const fileName =  req.params.documentName.trim().slice(0,-4);
+
+    const document = __dirname + "/../public/attachments/" + fileName;
     res.setHeader("Content-Disposition","attachment; filename=\"" + req.params.fileName.trim() + "\"");
-    var filestream = fs.createReadStream(document);
-    filestream.pipe(res);
+    fs.stat(document, function(err, stat) {
+        if(!err) {
+            const unzip = zlib.createUnzip();  
+            const filestream = fs.createReadStream(document);
+            filestream.pipe(unzip).pipe(res);
+        } else {
+            res.status(404).end();
+        }
+    });
 }
