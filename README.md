@@ -35,11 +35,30 @@ Commands are provided to help testing. You must run the server before executing 
   * **bcSettings**    It will delete blockChain settings only
   * **ccSettings**    It will delete chainOfCustody(plt/kafa) settings
 
- ## Developing
- 
- After you are set up and have ssh-ed into vagrant, you're ready to start developing.
- 
+## Developing
+
+After you are set up and have ssh-ed into vagrant, you're ready to start developing.
+
  * Run `gulp transpile && gulp build`, then run `node server/es5/server.js`.
  * After the server initializes, you can access it at: http://55.55.55.5:8081/
- 
- **Note:** When you sync BCV with PLT, it will display a Sync My Database page asking for a URL, OAuth Token and Date. You should replace http://localhost with http://10.0.2.2 for the URL when running the server inside vagrant.
+
+#### Command-line arguments
+
+There are a couple supported command-line arguments for the server:
+
+```
+  Arg name          Default    Description
+ ------------------------------------------------------
+  mode              'dev'      Either 'dev' or 'prod'.
+  create-sync-gaps  false      Test mode that causes the server to discard
+                               a percentage of messages received to quickly
+                               create sync gaps.
+```
+
+Example usage:
+
+```
+node server/es5/server.js -mode=dev -create-sync-gaps=false
+```
+
+**Note:** When you sync BCV with PLT, it will display a Sync My Database page asking for a URL, OAuth Token and Date. You should replace http://localhost with http://10.0.2.2 for the URL when running the server inside vagrant.
