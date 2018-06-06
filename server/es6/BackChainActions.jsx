@@ -959,6 +959,9 @@ export default class BackChainActions {
             } else if (error.code == 'error.metamask.locked') {
                 BackChainActions.displayAlertPopup("MetaMask is Locked",
                     ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"], 'ERROR');
+            } else if (error.code == 'error.metamask.nosupport') { 
+                BackChainActions.displayAlertPopup("Metamask Not Supported",
+                    ["The browser you use doesn't support MetaMask extension. Metamask is required in order to submit and close disputes. Please use Chrome or Firefox and install metamask plugin in order to enable this functioanlity "], 'ERROR');
             } else {
                 BackChainActions.displayAlertPopup("Problem Occured",
                     ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."], 'ERROR');
@@ -1011,6 +1014,9 @@ export default class BackChainActions {
                 } else if(error.code == 'error.metamask.locked') {
                     BackChainActions.displayAlertPopup("MetaMask is Locked",
                     ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"],'ERROR');
+                } else if (error.code == 'error.metamask.nosupport') {
+                    BackChainActions.displayAlertPopup("Metamask Not Supported",
+                        ["The browser you use doesn't support MetaMask extension. Metamask is required in order to submit and close disputes. Please use Chrome or Firefox and install metamask plugin in order to enable this functioanlity "], 'ERROR');
                 } else {
                     BackChainActions.displayAlertPopup("Problem Occured",
                     ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."],'ERROR');

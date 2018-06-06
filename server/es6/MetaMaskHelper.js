@@ -22,6 +22,11 @@ class MetaMaskHelper {
                 reject({
                     code: "error.metamask.missing"
                 });
+            } else if ((navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1)
+                || navigator.userAgent.indexOf("MSIE") != -1) {
+                reject({
+                    code: "error.metamask.nosupport"
+                });
             } else {
                 let web3js = new Web3(web3.currentProvider);
                 const me = this;
