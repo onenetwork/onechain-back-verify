@@ -144,7 +144,7 @@ const FullSynPopUp = (props) => {
 			<div className={"panel-body"} style={fieldProps.panelBody}>
                 <span style={{display:'inline',paddingLeft: '20px',paddingRight: '15px'}}><i style ={{color: '#229978', fontSize: '2.2em'}} className="fa fa-check-circle" aria-hidden="true"></i> </span>
                 <span style={{ display: 'inline', color: '#229978', fontSize: '20px', fontWeight: '700',verticalAlign: 'top'}}>Your DB is fully synced. You are good to go!</span>
-                <span style={{display:'block',paddingLeft: '68px',paddingRight: '10px'}}>If you would like to sync to a past date, click Sync My Data.</span>
+                <span style={{display:'block',paddingLeft: '68px',paddingRight: '10px'}}>If you would like to sync to a past date, click Sync My DB.</span>
                 <div style={{paddingTop:'30px',paddingLeft:'150px'}}>
                     <Button style = {fieldProps.cancelButton} onClick={closeModal} >Close</Button> 
                     &nbsp; &nbsp;<Link to="/startSync"> <Button  className="btn btn-primary" style={fieldProps.button}>Sync My DB</Button></Link>
