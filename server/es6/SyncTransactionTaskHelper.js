@@ -34,7 +34,9 @@ class SyncTransactionTaskHelper {
 
         constructor() {}
 
-        startSyncing() {
+        startSyncing(opts) {
+            this.opts = opts;
+
             settingsHelper.getApplicationSettings()
                 .then(result => {
                     if(result && result.chainOfCustidy
@@ -72,8 +74,25 @@ class SyncTransactionTaskHelper {
                     syncing = false;
 
                     if(result.transactionMessages.length) {
-                        this.processMessagesForAttachments(result.transactionMessages);
-                        receiveTransactionsTask.insertMessages(result.transactionMessages);
+                        let transactionMessages;
+                        if(this.opts.createSyncGaps) {
+                            // This is a test mode where sync gaps are created by discarding a percentage
+                            // of received transaction messages; once several gaps are created, the
+                            // server can be re-run without this mode to sync them.
+                            transactionMessages = [];
+                            for(let transactionMessage of result.transactionMessages) {
+                                if(Math.random() >= 0.5) {
+                                    transactionMessages.push(transactionMessage);
+                                }
+                            }
+                            console.log("Discarded " + (result.transactionMessages.length - transactionMessages.length) + " messages to create sync gaps");
+                        }
+                        else {
+                            transactionMessages = result.transactionMessages;
+                        }
+
+                        this.processMessagesForAttachments(transactionMessages);
+                        receiveTransactionsTask.insertMessages(transactionMessages);
                     }
 
                     let lastSyncTimeInMillis = receiveTransactionsTask.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
