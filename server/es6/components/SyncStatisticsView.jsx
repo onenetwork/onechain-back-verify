@@ -194,7 +194,6 @@ import {Link} from 'react-router-dom';
         );
 
         let panelBody = "";
-        //TODO:Yusuf Revisit one more time to fix it properly
         if(this.props.store.syncStatisticsReport.length==1 && this.props.store.syncStatisticsReport[0].type == 'fullSync') {            
             panelBody = (<div style={{height: '100%', width: '92%'}}>
                             <Row style={fieldProps.panelBodyTitle}>

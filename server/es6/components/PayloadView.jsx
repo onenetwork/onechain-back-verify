@@ -6,7 +6,7 @@ import HeaderView from "./HeaderView";
 import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';
 import { Redirect,Link } from 'react-router-dom';
-import '../../public/css/payload.css'; // TODO: extract to index.html and copy to PLT CoC
+import '../../public/css/payload.css';
 import Images from '../Images';
 
 @observer export default class PayloadView extends React.Component {

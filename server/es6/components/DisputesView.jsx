@@ -12,7 +12,7 @@ import Images from '../Images';
 import AlertPopupView from './AlertPopupView';
 import {disputeHelper} from '../DisputeHelper';
 
-import '../../public/css/TrackAndVerify.css'; // TODO: move to index.html and copy to PLT CoC
+import '../../public/css/TrackAndVerify.css';
 
 const rowLineHeight = '26px';
 const fieldProps = {

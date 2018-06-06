@@ -107,7 +107,6 @@ class DisputeHelper {
 
     processIncomingBcDisputes(blockChainDisputes) {
         //Convert all bytes to strings and attach transactions to disputes if transaction exists.
-        //TODO Remove unnecessary conversations
         for (let i = 0, len = blockChainDisputes.length; i < len; i++) {
             blockChainDisputes[i].disputeId = this.convertByteToString(blockChainDisputes[i].disputeId);
             blockChainDisputes[i].disputedTransactionId = this.convertByteToString(blockChainDisputes[i].disputedTransactionId);
@@ -381,7 +380,10 @@ class DisputeHelper {
     sortDisputesByAscOrderBasedOnTnxDate(disputes) {
         /*sort function for Observable array returns sorted copy of array*/
         let sortedDisputes = disputes.sort(function(firstDispute, secondDispute) {
-            return  (firstDispute.transaction.date)-(secondDispute.transaction.date);
+            /* It's possible that the transaction doesn't exist in our database.*/
+            let firstDisputeDate = firstDispute.transaction && firstDispute.transaction.date ? firstDispute.transaction.date : 0; 
+            let secondDisputeDate = secondDispute.transaction && secondDispute.transaction.date ? secondDispute.transaction.date : 0; 
+            return  firstDisputeDate - secondDisputeDate;
         });
         disputes.replace(sortedDisputes);
     }
