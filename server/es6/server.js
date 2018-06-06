@@ -8,6 +8,19 @@ import { syncTransactionTaskHelper } from './SyncTransactionTaskHelper';
 import { commandLineUtils } from './CommandLineUtils';
 import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
 
+
+let ARG_CONFIGS = {
+    'mode': {
+        type: 'string',
+        defaultValue: 'dev'
+    },
+    'create-sync-gaps': {
+        varName: 'createSyncGaps',
+        type: 'boolean',
+        defaultValue: false
+    }
+};
+
 (() => {
     const url = "mongodb://localhost:27017";
     const dbName = "onechainverifier";
@@ -17,13 +30,8 @@ import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
       }));
     router(app);
 
-    let myArgs = process.argv.slice(2);
-    let mode = "dev";
-    if(myArgs.toString().indexOf('=') !== -1) {
-        mode = myArgs.toString().split("=")[1];
-    }
-
-    dbconnectionManager.connect(url, dbName,mode, function(err) {
+    let args = processArgs();
+    dbconnectionManager.connect(url, dbName, args.mode, function(err) {
         if (err) {
             throw err;
         }
@@ -38,8 +46,54 @@ import { disputeOrganizerTaskHelper } from './DisputeOrganizerTaskHelper';
         app.get('*', function(req, res) {
             res.sendFile(path.join(__dirname + "/../" + "index.html"));
         });
-        syncTransactionTaskHelper.startSyncing();
+        syncTransactionTaskHelper.startSyncing(args);
         disputeOrganizerTaskHelper.executeTask();
         commandLineUtils.readCommands();
     });
 })();
+
+// Process command-line arguments.
+function processArgs() {
+    let args = {};
+
+    let commandLineArgs = process.argv.slice(2);
+    for(let commandLineArg of commandLineArgs) {
+        let idx = commandLineArg.indexOf('=');
+        let argName, argValue;
+        if(idx > 0) {
+            argName = commandLineArg.substring(0, idx);
+            argValue = commandLineArg.substring(idx + 1);
+        }
+        else {
+            argName = commandLineArg;
+            argValue = true;
+        }
+
+        // Trim the prefix from the argument.
+        argName = argName.trim().replace(/^-*/, "");
+
+        if(!(argName in ARG_CONFIGS)) {
+            continue;
+        }
+
+        setArgValue(args, argName, argValue);
+        delete ARG_CONFIGS[argName];
+    }
+
+    // Set default values for missing args.
+    for(let argName in ARG_CONFIGS) {
+        setArgValue(args, argName);
+    }
+
+    return args;
+}
+
+function setArgValue(args, argName, argValue) {
+    let argConfig = ARG_CONFIGS[argName];
+    if(argConfig.type === 'boolean') {
+        argValue = argValue === true || argValue === 'true' || argValue === '1';
+    }
+
+    let varName = argConfig.varName || argName;
+    args[varName] = argValue || argConfig.defaultValue;
+}
