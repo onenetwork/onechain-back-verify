@@ -145,7 +145,7 @@ class BackChainStore {
         let endResult = 'verifying';
         if(this.canStartVerifying) {
             let i = 0;
-            const totalCnt = this.verifications.keys().length;
+            const totalCnt = this.verifications.size;
             let completedCnt = 0;
             let failed = false;
             let completed = false;

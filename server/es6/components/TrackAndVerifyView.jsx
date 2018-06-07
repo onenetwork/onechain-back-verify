@@ -72,7 +72,7 @@ const fieldProps = {
     }
 
     getProgressBarImg() {
-        let barImg = Images.VERIFY_IMAGE_PROCESSING;
+        let barImg = Images.VERIFY_PROCESSING;
         if(this.props.store.verificationStatus.endResult == 'verified') {
             barImg = Images.VERIFY_SUCCEDED;
         } else if(this.props.store.verificationStatus.endResult == 'failed') {
