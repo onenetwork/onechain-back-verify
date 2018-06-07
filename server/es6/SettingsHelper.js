@@ -1,5 +1,6 @@
 import { dbconnectionManager } from './DBConnectionManager';
 import {BigNumber} from 'bignumber.js';
+import moment from 'moment';
 
 class SettingsHelper {
 
@@ -19,6 +20,7 @@ class SettingsHelper {
     }
 
     getSyncStatisticsInfo() {
+        const me = this;
         return new Promise((resolve, reject) => {
             const connection = dbconnectionManager.getConnection();
             connection.listCollections({
@@ -29,9 +31,14 @@ class SettingsHelper {
                     connection.collection('SyncStatistics').findOne({})
                     .then(function (result) {
                         if (result) {
-                            resolve({syncStatisticsExists:true, noOfGaps: result.gaps.length, gapExists: result.gaps.length > 0 ? true : false });
+                            let sortedGaps = (result.gaps).sort(me.sortGapsByFromSequenceNo);
+                            result.gaps = sortedGaps;
+                            resolve({
+                                syncStatistics : result,
+                                syncStatisticsExists:true
+                            });
                         } else {
-                            reject("Couldn't fetch SyncStatistics value");
+                            resolve({syncStatisticsExists:false});
                         }
                     });
                 } else {
@@ -41,25 +48,90 @@ class SettingsHelper {
         });
     }
 
-    getSyncStatistics() {
-        let me = this;
-        return new Promise((resolve, reject) => {
-            dbconnectionManager.getConnection().collection('SyncStatistics').findOne({})
-            .then(function (result) {
-                if(result) {
-                    let sortedGaps = (result.gaps).sort(me.SortByFromSequenceNo);
-                    result.gaps = sortedGaps;
-                }
-                resolve(result); //result can be null. There's no need to fail call because db communication is successful
-            })
-            .catch((err) => {
-                reject("Couldn't fetch SyncStatistics");
-            });
-        });
+    sortGapsByFromSequenceNo(firstGapObj, secondGapObj) {
+        return new BigNumber(firstGapObj.fromSequenceNo).minus(new BigNumber(secondGapObj.fromSequenceNo));
     }
 
-    SortByFromSequenceNo(firstGapObj, secondGapObj) {
-        return new BigNumber(firstGapObj.fromSequenceNo).minus(new BigNumber(secondGapObj.fromSequenceNo));
+    prepareStatisticsReportDataForUI(store) {
+        let earliestSyncSequenceNo = store.syncStatistics.earliestSyncSequenceNo;
+        let latestSyncSequenceNo = store.syncStatistics.latestSyncSequenceNo;
+        let earliestSyncDateInMillis = store.syncStatistics.earliestSyncDateInMillis;
+        let latestSyncDateInMillis = store.syncStatistics.latestSyncDateInMillis;
+        
+        store.syncStatisticsReport.clear();
+
+        if(store.syncStatistics.gaps.length >0) {
+            for(let i = 0; i < store.syncStatistics.gaps.length; i++) {
+                let gap = store.syncStatistics.gaps[i];
+                let gapFromSequenceNo = gap.fromSequenceNo;
+                let gapToSequenceNo = gap.toSequenceNo;
+                let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
+                if(sequenceNoDiff.isGreaterThan(new BigNumber(0))) {
+                    store.syncStatisticsReport.push({
+                        type : "fullSync", 
+                        syncMsg : 'Full Sync', 
+                        fromSeqNo : earliestSyncSequenceNo,
+                        toSeqNo : gapFromSequenceNo,
+                        fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
+                        toDate : moment(new Date(gap.fromDateInMillis)).format('MMM DD,YYYY HH:mm A')
+                    });
+                } 
+                
+                let numberOfMissingRecordsInTheGap = ((new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).minus(new BigNumber(1))).valueOf();
+                let fromGapDate = gap.fromDateInMillis;
+                let toGapDate = gap.toDateInMillis;
+                let hrs = this.returnDiffInHrsMins(fromGapDate, toGapDate).hours + 'hrs';
+                let mins = this.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
+
+                store.syncStatisticsReport.push({
+                    type : "gap", 
+                    syncMsg : 'Sequence Gap', 
+                    fromSeqNo : (new BigNumber(gap.fromSequenceNo).plus(new BigNumber(1))), 
+                    toSeqNo : (new BigNumber(gap.toSequenceNo).minus(new BigNumber(1))), 
+                    noOfMissingRecords : numberOfMissingRecordsInTheGap,
+                    time: hrs + ' ' + mins, 
+                    fromDate : moment(new Date(fromGapDate)).format('MMM DD,YYYY HH:mm A'), 
+                    toDate : moment(new Date(toGapDate)).format('MMM DD,YYYY HH:mm A')
+                });
+
+                earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
+                earliestSyncDateInMillis = gap.toDateInMillis;
+
+                if(i+1 == store.syncStatistics.gaps.length) {
+                    if(new BigNumber(latestSyncSequenceNo).isGreaterThanOrEqualTo(new BigNumber(gapToSequenceNo))) {
+                        store.syncStatisticsReport.push({
+                            type : "fullSync", 
+                            syncMsg : 'Full Sync', 
+                            fromSeqNo : earliestSyncSequenceNo, 
+                            toSeqNo : latestSyncSequenceNo, 
+                            fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
+                            toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A')
+                        });
+                    }
+                }
+            }
+        } else {
+            let syncReport = {
+                type : 'fullSync', 
+                syncMsg : 'Full Sync', 
+                fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                fromSeqNo : earliestSyncSequenceNo, 
+                toSeqNo : latestSyncSequenceNo, 
+                noOfMissingRecords : 0
+            };
+            store.syncStatisticsReport.push(syncReport);
+        }
+    }
+
+    returnDiffInHrsMins(toMillis, fromMillis) {
+        let minDiff = (toMillis - fromMillis)/60000;
+        if (minDiff < 0) {
+            minDiff *= -1;
+        }
+        const hours = Math.floor(minDiff/60);
+        const mins =  Math.floor(minDiff%60);
+        return {hours: hours, mins: mins};
     }
 
     modifySyncStatsObject(syncStatistics, transMessage) { 

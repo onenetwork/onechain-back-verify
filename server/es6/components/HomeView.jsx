@@ -21,7 +21,7 @@ import { disputeHelper } from '../DisputeHelper';
   componentDidMount() {
     let me = this;
     BackChainActions.isInitialSyncDone();
-    BackChainActions.syncStatisticsInfo();
+    BackChainActions.getSyncStatisticsInfo();
 
     BackChainActions.readBackChainAddressMapping()
     .then(function (result) {
@@ -171,7 +171,7 @@ import { disputeHelper } from '../DisputeHelper';
       toolTipText = "You’re not connected to OneNetwork’s Chain Of Custody to get transaction data. You can click on the icon and establish a connection.";
       dbSync = <DBSyncViewModal store={this.props.store} syncType={syncType} />
     } else if(this.props.store.syncStatisticsExists) {
-      if(this.props.store.gapExists) {
+      if(this.props.store.syncStatistics.gaps.length > 0) {
         syncType="gap";
         iconAssociatedWithDB = <i style ={{color: '#ef941b', fontSize: '1.2em'}} className="fa fa-exclamation-circle" aria-hidden="true"></i>;
         toolTipText = "Your database has gaps of missing data. You can fill those gaps by visiting Sync Statistics page.";

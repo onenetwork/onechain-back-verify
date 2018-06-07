@@ -71,22 +71,24 @@ class ReceiveTransactionsTask {
     }
 
     insertMessages(transMessages) {
-        settingsHelper.getSyncStatistics()
-            .then((syncStatistics) => {
-                syncStatistics = syncStatistics || {
-                    "earliestSyncDateInMillis": null,
-                    "earliestSyncSequenceNo": null,
-                    "latestSyncDateInMillis": null,
-                    "latestSyncSequenceNo": null,
-                    "gaps": []
-                };
+        settingsHelper.getSyncStatisticsInfo()
+            .then((syncStatisticsInfo) => {
+                if(syncStatisticsInfo.syncStatisticsExists === false) {
+                    syncStatisticsInfo.syncStatistics = {
+                        "earliestSyncDateInMillis": null,
+                        "earliestSyncSequenceNo": null,
+                        "latestSyncDateInMillis": null,
+                        "latestSyncSequenceNo": null,
+                        "gaps": []
+                    };
+                }           
 
                 let initialIdx = 0;
                 let condition = idx => {
                     return idx < transMessages.length;
                 };
                 let action = idx => {
-                    return this.insertMessage(transMessages[idx], syncStatistics)
+                    return this.insertMessage(transMessages[idx], syncStatisticsInfo.syncStatistics)
                         .then(() => ++idx);
                 }
 

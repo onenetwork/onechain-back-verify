@@ -31,8 +31,6 @@ class BackChainStore {
     @observable myAndDiffViewModalType = null;
     @observable chainOfCustodyUrl = null;
     @observable mode = null;
-    @observable gapExists = false;
-    @observable noOfGaps = 0;
     @observable startSync = false;
     @observable syncStatisticsExists = false;
     @observable syncStatistics = null;

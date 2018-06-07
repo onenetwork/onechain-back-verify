@@ -111,7 +111,7 @@ class SyncForm extends React.Component {
 				<Row style={{paddingLeft: '15px'}}>
 					<Col style={{backgroundColor : 'rgba(253, 244, 181, 1)', borderRadius: '5px', lineHeight: '40px', width: '64.66%',paddingLeft: '0px'}} md={8}>
 						<Col md={1} style={{paddingTop: '2px', width: '7%'}}><i className="fa fa-exclamation-circle" aria-hidden="true" style={{fontSize: '1.5em', color : "#F19500"}}/></Col>
-						<Col>Your database has {this.props.store.noOfGaps} sequence gaps of missing data. <b><Link to={"/syncStatistics"}>Show Sequence Gaps</Link></b></Col>
+						<Col>Your database has {this.props.store.syncStatistics ? this.props.store.syncStatistics.gaps.length : 0} sequence gaps of missing data. <b><Link to={"/syncStatistics"}>Show Sequence Gaps</Link></b></Col>
 					</Col>
 				</Row><br/>
 				<Row>

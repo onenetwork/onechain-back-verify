@@ -13,7 +13,6 @@ export function router(app) {
     app.get('/getApplicationSettings', BackChainWebAPI.getApplicationSettings);
     app.post('/startSyncFromCertainDate', BackChainWebAPI.startSyncFromCertainDate);
     app.get('/getSyncStatisticsInfo', BackChainWebAPI.getSyncStatisticsInfo);
-    app.get('/getSyncStatistics', BackChainWebAPI.getSyncStatistics);
     app.post('/startGapSync', BackChainWebAPI.startGapSync);
     app.post('/getDisputes', BackChainWebAPI.getDisputes);
     app.get('/getTransactionsBySequenceNos/:sequenceNos', BackChainWebAPI.getTransactionsBySequenceNos);

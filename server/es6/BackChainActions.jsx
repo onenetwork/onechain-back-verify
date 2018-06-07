@@ -12,6 +12,7 @@ import { dbconnectionManager } from './DBConnectionManager';
 import { backChainUtil } from './BackChainUtil';
 import {metaMaskHelper} from './MetaMaskHelper';
 import { disputeHelper } from './DisputeHelper';
+import { settingsHelper } from './SettingsHelper';
 
 const MAX_EVENTS_TO_LOAD = 30;
 
@@ -629,40 +630,23 @@ export default class BackChainActions {
     }
 
     @action
-    static syncStatisticsInfo() {
+    static getSyncStatisticsInfo(generateReportForUI) {
         fetch('/getSyncStatisticsInfo', {method: 'GET'})
         .then(function(response) {
             return response.json();
         })
         .then(function(result) {
             if(result.success) {
-                let statisticsInfo = result.statisticsInfo;
-                store.gapExists = statisticsInfo.gapExists;
-                store.syncStatisticsExists = statisticsInfo.syncStatisticsExists;
-                store.noOfGaps = statisticsInfo.noOfGaps;
+                store.syncStatistics = result.syncStatisticsInfo.syncStatistics;
+                store.syncStatisticsExists = result.syncStatisticsInfo.syncStatisticsExists;                  
+            }
+            if(generateReportForUI) {
+                settingsHelper.prepareStatisticsReportDataForUI(store);
             }
         })
         .catch(function (err) {
-            console.log('getSyncStatisticsInfo error');
-        });
-    }
-
-    @action
-    static getSyncStatistics(callback) {
-        fetch('/getSyncStatistics', {method: 'GET'})
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(result) {
-            if(result.success) {
-                store.syncStatistics = result.statistics;
-                callback(null, result.statistics);
-            }
-        })
-        .catch(function (err) {
-            callback(err, null);
-            console.log('getSyncStatistics error');
-        });
+            console.log('Couldnt fetch SyncStatistics Info. error: ' + err);
+        });     
     }
 
     @action
@@ -697,7 +681,7 @@ export default class BackChainActions {
         })
         .catch(function (err) {
             callback(err, null);
-            console.log('getSyncStatistics error');
+            console.log('Gap Sync Initiation failed.');
         });
     }
 

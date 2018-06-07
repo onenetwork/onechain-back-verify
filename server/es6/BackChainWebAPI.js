@@ -96,21 +96,7 @@ exports.startGapSync = function(req, res) {
 exports.getSyncStatisticsInfo = function(req, res) {
     settingsHelper.getSyncStatisticsInfo()
     .then(function (result) {
-        res.json({success: true, statisticsInfo: result});
-    })
-    .catch(function (error) {
-        res.json({success: false});
-    });
-}
-
-exports.getSyncStatistics = function(req, res) {
-    settingsHelper.getSyncStatistics()
-    .then(function (result) {
-        if(result) {
-            res.json({success: true, statistics: result});
-        } else {
-            res.json({success: false});
-        }
+        res.json({success: true, syncStatisticsInfo: result});
     })
     .catch(function (error) {
         res.json({success: false});

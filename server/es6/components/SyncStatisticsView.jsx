@@ -19,83 +19,7 @@ import {Link} from 'react-router-dom';
     componentDidMount() {
         let me = this;
         BackChainActions.populateStoreWithApplicationSettings();
-        BackChainActions.getSyncStatistics(function(error, result) {
-            if(!error) {
-                me.prepareStatisticsReportData();
-            }
-        });
-    }
-
-    prepareStatisticsReportData() {
-        let me = this;
-        let earliestSyncSequenceNo = me.props.store.syncStatistics.earliestSyncSequenceNo;
-        let latestSyncSequenceNo = me.props.store.syncStatistics.latestSyncSequenceNo;
-        let earliestSyncDateInMillis = me.props.store.syncStatistics.earliestSyncDateInMillis;
-        let latestSyncDateInMillis = me.props.store.syncStatistics.latestSyncDateInMillis;
-        
-        me.props.store.syncStatisticsReport.clear();
-
-        if(me.props.store.syncStatistics.gaps.length >0) {
-            for(let i = 0; i < me.props.store.syncStatistics.gaps.length; i++) {
-                let gap = me.props.store.syncStatistics.gaps[i];
-                let gapFromSequenceNo = gap.fromSequenceNo;
-                let gapToSequenceNo = gap.toSequenceNo;
-                let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
-                if(sequenceNoDiff.isGreaterThan(new BigNumber(0))) {
-                    me.props.store.syncStatisticsReport.push({
-                        type : "fullSync", 
-                        syncMsg : 'Full Sync', 
-                        fromSeqNo : earliestSyncSequenceNo,
-                        toSeqNo : gapFromSequenceNo,
-                        fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
-                        toDate : moment(new Date(gap.fromDateInMillis)).format('MMM DD,YYYY HH:mm A')
-                    });
-                } 
-                
-                let noOfGapRecords = ((new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).minus(new BigNumber(1))).valueOf();
-                let fromGapDate = gap.fromDateInMillis;
-                let toGapDate = gap.toDateInMillis;
-                let hrs = me.returnDiffInHrsMins(fromGapDate, toGapDate).hours + 'hrs';
-                let mins = me.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
-
-                me.props.store.syncStatisticsReport.push({
-                    type : "gap", 
-                    syncMsg : 'Sequence Gap', 
-                    fromSeqNo : (new BigNumber(gap.fromSequenceNo).plus(new BigNumber(1))), 
-                    toSeqNo : (new BigNumber(gap.toSequenceNo).minus(new BigNumber(1))), 
-                    noOfGaps : noOfGapRecords, time: hrs + ' ' + mins, 
-                    fromDate : moment(new Date(fromGapDate)).format('MMM DD,YYYY HH:mm A'), 
-                    toDate : moment(new Date(toGapDate)).format('MMM DD,YYYY HH:mm A')
-                });
-
-                earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
-                earliestSyncDateInMillis = gap.toDateInMillis;
-
-                if(i+1 == me.props.store.syncStatistics.gaps.length) {
-                    if(new BigNumber(latestSyncSequenceNo).isGreaterThanOrEqualTo(new BigNumber(gapToSequenceNo))) {
-                        me.props.store.syncStatisticsReport.push({
-                            type : "fullSync", 
-                            syncMsg : 'Full Sync', 
-                            fromSeqNo : earliestSyncSequenceNo, 
-                            toSeqNo : latestSyncSequenceNo, 
-                            fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
-                            toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A')
-                        });
-                    }
-                }
-            }
-        } else {
-            let syncReport = {
-                type : 'fullSync', 
-                syncMsg : 'Full Sync', 
-                fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
-                toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
-                fromSeqNo : earliestSyncSequenceNo, 
-                toSeqNo : latestSyncSequenceNo, 
-                noOfGaps : ''
-            };
-            me.props.store.syncStatisticsReport.push(syncReport);
-        }
+        BackChainActions.getSyncStatisticsInfo(true); //We need to process and get the UI report ready
     }
 
     findGapIndex(gapToFind, alreadySelectedGaps) {
@@ -139,16 +63,6 @@ import {Link} from 'react-router-dom';
         this.setState({
             selectedGapsForSync : selectedGapsForSync
         });
-    }
-
-    returnDiffInHrsMins(toMillis, fromMillis) {
-        let minDiff = (toMillis - fromMillis)/60000;
-        if (minDiff < 0) {
-            minDiff *= -1;
-        }
-        const hours = Math.floor(minDiff/60);
-        const mins =  Math.floor(minDiff%60);
-        return {hours: hours, mins: mins};
     }
 
     render() {
@@ -332,7 +246,7 @@ const Gap = (props) => {
                 </Col>
                 <Col md={3} onClick={props.selectGap} fromsequenceno = {props.syncStatisticsReport.fromSeqNo} tosequenceno = {props.syncStatisticsReport.toSeqNo} style={Object.assign({}, fieldProps.syncDate, {width: '150px'})}>
                 <span style={{paddingTop:'10px',display: 'block'}}><i className="fa fa-clock-o" aria-hidden="true"></i>&nbsp;&nbsp;{props.syncStatisticsReport.time}</span>
-                <span><i className="fa fa-files-o" aria-hidden="true"></i>&nbsp;&nbsp;{props.syncStatisticsReport.noOfGaps}&nbsp;records</span>
+                <span><i className="fa fa-files-o" aria-hidden="true"></i>&nbsp;&nbsp;{props.syncStatisticsReport.noOfMissingRecords}&nbsp;records</span>
                 </Col>
             </Row>
             <br/>
@@ -415,7 +329,7 @@ const SyncGapButtons = (props) => {
                     <Col>
                         <Link to="/home"><Button style={fieldProps.cancelButton} ><i className="fa fa-home" aria-hidden="true"></i></Button></Link>	&nbsp;&nbsp;
                         <Button disabled={props.parentState.selectedGapsForSync.length == 0} id="syncSelectedGap" style={fieldProps.button} onClick={fillSelectedGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.selectedGapsLbl}</Button>&nbsp;
-                        <Button disabled={props.store.noOfGaps == 0 || props.store.noOfGaps == undefined} style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onClick={fillAllGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
+                        <Button disabled={props.store.syncStatistics == null || props.store.syncStatistics.gaps.length == 0} style={Object.assign({}, fieldProps.button, {marginLeft : '10px'})} onClick={fillAllGaps.bind(this)} onMouseOver = {onHover.bind(this)} onMouseOut = {onHoverOut.bind(this)}>{props.allGapsLbl}</Button>
                     </Col>
                 </Row>
             </div>
