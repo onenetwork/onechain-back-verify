@@ -6,6 +6,7 @@ import { toJS } from 'mobx';
 import JsonHelper from '../JsonHelper';
 import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
+import {requestHelper} from '../RequestHelper';
 
 export default class MyView extends React.Component {
   constructor(props) {
@@ -13,8 +14,15 @@ export default class MyView extends React.Component {
     this.state = {
       btIdsListUI:[],
       activeBtIdIndex: 0,
-      indexOfBusinessTranction: 0
+      indexOfBusinessTranction: 0,
+      attachmentVerificationMap:{},
+      documentsNames:[]
     };
+    this.getDocumentsNames = this.getDocumentsNames.bind(this);
+  }
+
+  getDocumentsNames(documentsNames) {
+    this.state.documentsNames = documentsNames;
   }
 
   componentDidMount() {
@@ -72,6 +80,31 @@ export default class MyView extends React.Component {
     this.listBusinessTransactionIds(event.target.value.trim());
   }
 
+  getDocumentsHashes() {
+    let me = this;
+    let params = {
+      'documentsNames': this.state.documentsNames
+    };
+
+    fetch('/getDocumentsHashes', {
+        method: 'post',
+        headers: new Headers({
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }),
+        body: requestHelper.jsonToUrlParams(params)
+      }).then(function(response) {
+        return response.json();
+      }).then(function(result) {
+        if(result.success) {
+          me.setState({attachmentVerificationMap : result.attachmentVerificationMap});
+        }
+    }).catch(function (err) {
+      console.error('error verifying attachements!');
+    });
+  }
+
   openTab(tabName, evt) {
     let i, tabcontent, tablinks;
     
@@ -93,6 +126,7 @@ export default class MyView extends React.Component {
       let element = evt.currentTarget.parentElement.getElementsByClassName('tnxMsgTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
+      this.getDocumentsHashes();
     }
   }
 
@@ -179,7 +213,7 @@ export default class MyView extends React.Component {
                       (<Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', e)} style={Object.assign({}, styles.tablinks, {cursor: 'pointer', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                         <span style={{verticalAlign : 'sub'}}>Documents</span>
                       </Col>) : 
-                      (<Col xs={2} style={Object.assign({opacity: 0.5}, styles.tablinks, {cursor: 'not-allowed', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                      (<Col xs={2} className="docsTab"  style={Object.assign({opacity: 0.5}, styles.tablinks, {cursor: 'not-allowed', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                         <span style={{verticalAlign : 'sub'}}>Documents</span>
                       </Col>);
 
@@ -193,7 +227,7 @@ export default class MyView extends React.Component {
                               </div>
                               <div id='Docs' className="tabcontent">
                                 <pre style={Object.assign(styles.jsonPanel, {padding:'0em'})}>
-                                  <ListDocuments attachmentsData={displayBusinessTransaction.Attachments}/>
+                                  <ListDocuments getDocumentsNames={this.getDocumentsNames} attachmentVerificationMap={this.state.attachmentVerificationMap} attachmentsData={displayBusinessTransaction.Attachments}/>
                                 </pre>
                               </div>
                           </Row>);
@@ -245,7 +279,10 @@ export default class MyView extends React.Component {
 
 export const ListDocuments = (props) => {
   let attachmentsDataUI = [];
+  let verifyAttachments = shouldVerifyAttachments(props.attachmentVerificationMap);
   let attachmentsData = props.attachmentsData;
+  let documentsNames = [];
+
   function downloadFileByName(docName, fileName, event) {
     window.open('/downloadViewDocument/'+ docName + '/' + fileName, "_blank");
   }
@@ -263,23 +300,49 @@ export const ListDocuments = (props) => {
     return id;
   }
 
+  function shouldVerifyAttachments(attachmentVerificationMap) {
+    /*If attachmentVerificationMap is empty no need of verifying attachments*/
+    for(var key in attachmentVerificationMap) {
+      if(attachmentVerificationMap.hasOwnProperty(key))
+        return true;
+    }
+    return false;
+  }
+
+  function getDocumentsNames(documentsNames) {
+    props.getDocumentsNames(documentsNames);
+  }
+
   for (let key in attachmentsData) {
     if (attachmentsData.hasOwnProperty(key)) {
       let attachmentsArray = attachmentsData[key];
-
       for(let i = 0; i < attachmentsArray.length; i++) {
+        let verificationIcon = null;
+
+        if(verifyAttachments) {
+          if(props.attachmentVerificationMap[matchIdWithFileName(attachmentsArray[i].id)] == attachmentsArray[i].hash) {
+            verificationIcon = <i style = {{color: '#229978', fontSize: '16px'}} className="fa fa-check-circle"/>;
+          } else {
+            verificationIcon = <i style = {{color: '#E85E5A', fontSize: '16px'}} className="fa fa-exclamation-circle"/>;
+          }
+        } else {
+          documentsNames.push(matchIdWithFileName(attachmentsArray[i].id));
+        }
+
         attachmentsDataUI.push(
           <tr key={attachmentsArray[i].id} onMouseOver={onHoverFileRow.bind(this)} onMouseOut={onHoverOutFileRow.bind(this)} onClick={downloadFileByName.bind(this, matchIdWithFileName(attachmentsArray[i].id), attachmentsArray[i].name)} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
               <td style={{lineHeight:'1.3', fontSize: '14px', paddingLeft: '30px'}}>
                 <i style = {{color: '#999999', fontSize: '16px'}} className="fa fa-file-text"/>&nbsp;&nbsp;{attachmentsArray[i].name}
               </td>
               <td style={{lineHeight:'1.3', paddingRight: '30px'}}>
-                <i style = {{color: '#229978', fontSize: '16px'}} className="fa fa-check-circle"/>
+                {verificationIcon}
               </td>
-          </tr> );
+          </tr>);
+        
       }
     }
   }
+  getDocumentsNames(documentsNames);
 
 	return (
           <div className={"table-responsive"}>

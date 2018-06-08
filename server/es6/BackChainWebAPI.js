@@ -6,6 +6,7 @@ import {disputeHelper} from './DisputeHelper';
 import {settingsHelper} from './SettingsHelper';
 import {receiveTransactionsTask} from './ReceiveTransactionsTask';
 import { dbconnectionManager } from './DBConnectionManager';
+import {backChainUtil} from './BackChainUtil';
 import fs from 'fs';
 import zlib from 'zlib';
 
@@ -208,6 +209,26 @@ exports.downloadViewDocument = function(req, res) {
             filestream.pipe(unzip).pipe(res);
         } else {
             res.status(404).end();
+        }
+    });
+}
+
+exports.getDocumentsHashes = function(req, res) {
+    return new Promise((resolve, reject) => {
+        let attachmentVerificationMap = {};
+        let documentNames = JSON.parse(req.body.documentsNames);
+        for(let i = 0; i < documentNames.length; i++) {
+            let fileName =  documentNames[i].trim().slice(0,-4);
+            let key =  documentNames[i].trim();
+            backChainUtil.fileHash(__dirname + "/../public/attachments/", fileName)
+            .then(function (result) {
+                attachmentVerificationMap[key] = result;
+                if(i === documentNames.length - 1) {
+                    res.json({success: true, attachmentVerificationMap: attachmentVerificationMap});
+                }
+            }).catch(function (error) {
+                console.error('error verifying file: ' + key);
+            });
         }
     });
 }

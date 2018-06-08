@@ -25,4 +25,5 @@ export function router(app) {
     app.post('/registerAddress', BackChainWebAPI.registerAddress);
     app.get('/readBackChainAddressMapping', BackChainWebAPI.readBackChainAddressMapping);
     app.get('/downloadViewDocument/:documentName/:fileName', BackChainWebAPI.downloadViewDocument);
+    app.post('/getDocumentsHashes', BackChainWebAPI.getDocumentsHashes);
  }

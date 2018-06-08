@@ -1,6 +1,9 @@
 /*
  Helper class contains utilities
 */
+import fs from 'fs';
+import crypto from 'crypto';
+
 class BackChainUtil {
     constructor() {}
 
@@ -36,5 +39,35 @@ class BackChainUtil {
         });
     };
 
+    /**
+     * returns hash value of file
+     * @param {*} filePath 
+     * @param {*} fileName 
+     */
+    fileHash(filePath, fileName) {
+        return new Promise((resolve, reject) => {
+            const document = filePath + fileName;
+            const sha256 = crypto.createHash('sha256');
+            fs.stat(document, function(err, stat) {
+                if(!err) {
+                    try {
+                        const filestream = fs.createReadStream(document);
+                        //TODO@PANKAJ or const filestream = fs.ReadStream(filename)
+                        filestream.on('data', function (data) {
+                            sha256.update(data)
+                        })
+                        filestream.on('end', function () {
+                            const hash = sha256.digest('hex')
+                            return resolve(hash);
+                        })
+                    } catch (error) {
+                        return resolve(null);
+                    }
+                } else {
+                    return resolve(null);
+                }
+            });
+        });
+    }
 }
 export const backChainUtil = new BackChainUtil();
