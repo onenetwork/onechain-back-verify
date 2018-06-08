@@ -488,9 +488,8 @@ export default class BackChainActions {
     }
 
     @action
-    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl, callback) {
+    static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl) {
         store.startSync = true;
-        BackChainActions.displayAlertPopup('Syncing', 'Refreshing your database.This may take a few minutes.');
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
@@ -518,29 +517,25 @@ export default class BackChainActions {
                 store.startSync = false;
                 store.isInitialSyncDone = true;
                 store.showDisputeActions = true;
-                BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
-                if(callback){
-                    callback(null,true);
-                }
+                BackChainActions.displayAlertPopup('Started Synchronization', "Synchronization with One Network's Audit Repository App has succesfully been started."
+                + " This operation may take a while to complete. Please refresh Sync Statisctics page to monitor the process.", 'SUCCESS');
             } else {
-                BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+                BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
+                + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
             }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT: ' + err);
-            BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+            BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
+                + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
         });
     }
 
     @action
-    static startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
+    static startGapSync(authenticationToken, chainOfCustodyUrl, gaps) {
         if(gaps == null || gaps.length == 0) {
-            if(callback){
-                callback(null,true);
-            }
             return;
         }
-        BackChainActions.displayAlertPopup('Syncing', 'Refreshing your database.This may take a few minutes.');
         let params = {
             'authenticationToken': authenticationToken,
             'gaps': gaps,
@@ -566,17 +561,17 @@ export default class BackChainActions {
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
                 store.isInitialSyncDone = true;
                 store.showDisputeActions = true;
-                BackChainActions.displayAlertPopup('Update Successful', 'Your database has been successfully synced to the backchain.', 'SUCCESS');
-                if(callback){
-                    callback(null,true);
-                }
+                BackChainActions.displayAlertPopup('Started Synchronization', "Synchronization with One Network's Audit Repository App has succesfully been started."
+                + " Selected gaps will be filled once the operation has been completed. This operation may take a while. Please refresh Sync Statisctics page to monitor the process.", 'SUCCESS');
             } else {
-                BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+                BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
+                + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
             }
         })
         .catch(function (err) {
             console.error('Error communicating with PLT: ' + err);
-            BackChainActions.displayAlertPopup('Update Failed', "Couldn't start synchronization.Please try again later!", 'ERROR');
+            BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
+                + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
         });
     }
 
