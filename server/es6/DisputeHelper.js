@@ -225,11 +225,22 @@ class DisputeHelper {
                         contentBackchainContractAddress: settings.blockChain.contractAddress,
                         disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                     });
-                    promisesToWaitOn.push(disputeBcClient.getDisputeCount({
-                        "disputedTransactionId": disputedTransactionId,
-                        "disputingParty": disputingPartyAddress,
-                        "state" : ["OPEN"]
+                    
+                    promisesToWaitOn.push(new Promise((resolve) => {
+                        disputeBcClient.getDisputeCount({
+                            "disputedTransactionId": disputedTransactionId,
+                            "disputingParty": disputingPartyAddress,
+                            "state" : ["OPEN"]
+                        })
+                        .then(function (count) {
+                            resolve(count);
+                        })
+                        .catch(err => {
+                            console.error("Error occurred while fetching open dispute count from disputeBcClient: " + err);
+                            resolve(0);
+                        });
                     }));
+
                     Promise.all(promisesToWaitOn).then(function (counts) {
                         resolve(counts[0] + counts[1]); //Aggregate counts returning from DraftDisputes and BlockChain
                     }).catch(err => {
