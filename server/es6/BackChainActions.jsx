@@ -375,7 +375,6 @@ export default class BackChainActions {
                         store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
                     } else {
                         store.isInitialSetupDone = false;
-                        store.mode = result.settings.mode;
                         store.blockChainUrl = config.blockChainUrl;
                         store.blockChainContractAddress = config.blockChainContractAddress;
                         store.disputeBlockChainContractAddress = config.disputeBlockChainContractAddress;
@@ -451,14 +450,14 @@ export default class BackChainActions {
                                 element.openDisputeCount = result;
                                 store.transactions.push(element);
                                 if (++count == transArr.length) {
-                                    transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
                                 }
                             })
                             .catch(function (error) {
                                 element.openDisputeCount = 0;
                                 store.transactions.push(element);
                                 if (++count == transactions.length) {
-                                    transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
+                                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
                                 }
                             });
                     });
