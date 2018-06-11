@@ -7,6 +7,7 @@ import { toJS } from 'mobx';
 import BackChainActions from '../BackChainActions';
 import { Scrollbars } from 'react-custom-scrollbars';
 import {ListDocuments} from './MyView';
+import {requestHelper} from '../RequestHelper';
 const intersect = require('object.intersect');
 
 export default class DiffView extends React.Component {
@@ -20,13 +21,20 @@ export default class DiffView extends React.Component {
       currentTabName: 'diffTab',
       indexOfBusinessTranction: 0,
       currentTabContentId : 'Diff',
-      resetTabsName: ['commonTab', 'docsTab']
+      resetTabsName: ['commonTab', 'docsTab'],
+      attachmentVerificationMap:{},
+      documentsNames:[]
     };
+    this.getDocumentsNames = this.getDocumentsNames.bind(this);
   }
 
   componentDidMount() {
     this.listBusinessTransactionIds();
     document.getElementById("defaultOpen").click();
+  }
+
+  getDocumentsNames(documentsNames) {
+    this.state.documentsNames = documentsNames;
   }
 
   toggleActiveBtId(position, businessTransactionId, indexOfBusinessTranction) {
@@ -86,6 +94,31 @@ export default class DiffView extends React.Component {
     this.state.partnerEntName = indexOfMyEntName == 0 ? transactionSlice.enterprises[1]:transactionSlice.enterprises[0];
   }
 
+  getDocumentsHashes() {
+    let me = this;
+    let params = {
+      'documentsNames': this.state.documentsNames
+    };
+
+    fetch('/getDocumentsHashes', {
+        method: 'post',
+        headers: new Headers({
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }),
+        body: requestHelper.jsonToUrlParams(params)
+      }).then(function(response) {
+        return response.json();
+      }).then(function(result) {
+        if(result.success) {
+          me.setState({attachmentVerificationMap : result.attachmentVerificationMap});
+        }
+    }).catch(function (err) {
+      console.error('error verifying attachements!');
+    });
+  }
+
   openTab(currentTabContentId, resetTabsName, currentTabName) {
     // Declare all variables
     let i, tabcontent, tablinks;
@@ -117,6 +150,10 @@ export default class DiffView extends React.Component {
       let element = currentTabElement.parentElement.getElementsByClassName(resetTabsName[i])[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
+    }
+
+    if (currentTabName === 'docsTab') {
+      this.getDocumentsHashes();
     }
   }
 
@@ -227,7 +264,7 @@ export default class DiffView extends React.Component {
                               </div>
                               <div id='Docs' className="tabcontent">
                                 <pre style={Object.assign(styles.jsonPanel, {padding:'0em'})}>
-                                  <ListDocuments attachmentsData={displayBusinessTransaction.Attachments}/>
+                                  <ListDocuments getDocumentsNames={this.getDocumentsNames} attachmentVerificationMap={this.state.attachmentVerificationMap} attachmentsData={displayBusinessTransaction.Attachments}/>
                                 </pre>
                               </div>
                             </div>

@@ -33,10 +33,19 @@ class DisputeHelper {
                             contentBackchainContractAddress: settings.blockChain.contractAddress,
                             disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
                         });
-                        promisesToWaitOn.push(disputeBcClient.filterDisputes(query.queryForBC));
+                        promisesToWaitOn.push(new Promise((resolve) => {
+                            disputeBcClient.filterDisputes(query.queryForBC)
+                            .then(function (disputes) {
+                                resolve(disputes);
+                            })
+                            .catch(err => {
+                                console.error("Error occurred while getting disputes from disputeBcClient: " + err);
+                                resolve(null);
+                            });
+                        }));
                     }                    
                     Promise.all(promisesToWaitOn).then(function (disputes) {
-                        if(onlyDraft) {
+                        if(onlyDraft || (!disputes[1])) {
                             resolve(disputes[0]);
                         } else {
                             me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
