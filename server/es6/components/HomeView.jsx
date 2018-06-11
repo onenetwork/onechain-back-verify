@@ -31,7 +31,8 @@ import { disputeHelper } from '../DisputeHelper';
         .then(function (result) {
           if(result) {
             let disputingPartyAddress = disputeHelper.getDisputingPartyAddress(me.props.store.entNameOfLoggedUser, me.props.store.backChainAddressMapping);
-            BackChainActions.getOpenDisputeCount(null, disputingPartyAddress);
+            if(me.props.store.isInitialSyncDone)
+              BackChainActions.getOpenDisputeCount(null, disputingPartyAddress);
             
             let disputeFilters = {
               status: ["DRAFT", "OPEN"], /*Note: This is initial filter for getting disputes */
