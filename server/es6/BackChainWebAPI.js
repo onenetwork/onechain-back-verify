@@ -200,7 +200,7 @@ exports.downloadViewDocument = function(req, res) {
     //TODO@PANKAJ: Sean is looking why there is not .zip extension in file,once fixed remove this temp change
     const fileName =  req.params.documentName.trim().slice(0,-4);
 
-    const document = __dirname + "/../public/attachments/" + fileName;
+    const document = __dirname + "/../attachments/" + fileName;
     res.setHeader("Content-Disposition","attachment; filename=\"" + req.params.fileName.trim() + "\"");
     fs.stat(document, function(err, stat) {
         if(!err) {
@@ -220,7 +220,7 @@ exports.getDocumentsHashes = function(req, res) {
         for(let i = 0; i < documentNames.length; i++) {
             let fileName =  documentNames[i].trim().slice(0,-4);
             let key =  documentNames[i].trim();
-            backChainUtil.fileHash(__dirname + "/../public/attachments/", fileName)
+            backChainUtil.fileHash(__dirname + "/../attachments/", fileName)
             .then(function (result) {
                 attachmentVerificationMap[key] = result;
                 if(i === documentNames.length - 1) {

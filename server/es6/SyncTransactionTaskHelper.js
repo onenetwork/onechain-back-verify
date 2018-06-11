@@ -212,7 +212,7 @@ class SyncTransactionTaskHelper {
                     return;
                 }
 
-                let attachmentsDir = path.resolve(__dirname, "../public", "attachments");
+                let attachmentsDir = path.resolve(__dirname, "../", "attachments");
                 if (!fs.existsSync(attachmentsDir)) {
                     fs.mkdirSync(attachmentsDir);
                 }
