@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { observer } from 'mobx-react';
 import { Row, Col, Button, Panel, FormControl, OverlayTrigger, Popover} from 'react-bootstrap';
 import JsonHelper from '../JsonHelper';
 import JSZip from 'jszip';
@@ -10,7 +11,7 @@ import {ListDocuments} from './MyView';
 import {requestHelper} from '../RequestHelper';
 const intersect = require('object.intersect');
 
-export default class DiffView extends React.Component {
+@observer export default class DiffView extends React.Component {
   constructor(props) {
     super(props);
     this.findPartnerEntName = this.findPartnerEntName.bind(this);
@@ -21,20 +22,13 @@ export default class DiffView extends React.Component {
       currentTabName: 'diffTab',
       indexOfBusinessTranction: 0,
       currentTabContentId : 'Diff',
-      resetTabsName: ['commonTab', 'docsTab'],
-      attachmentVerificationMap:{},
-      documentsNames:[]
+      resetTabsName: ['commonTab', 'docsTab']
     };
-    this.getDocumentsNames = this.getDocumentsNames.bind(this);
   }
 
   componentDidMount() {
     this.listBusinessTransactionIds();
     document.getElementById("defaultOpen").click();
-  }
-
-  getDocumentsNames(documentsNames) {
-    this.state.documentsNames = documentsNames;
   }
 
   toggleActiveBtId(position, businessTransactionId, indexOfBusinessTranction) {
@@ -60,6 +54,7 @@ export default class DiffView extends React.Component {
   }
 
   listBusinessTransactionIds(businessTransactionId) {
+    let btIdsArr=[];
     this.state.btIdsListUI.splice(0, this.state.btIdsListUI.length);
     let businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
     let businessTransactions = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions;
@@ -69,7 +64,7 @@ export default class DiffView extends React.Component {
       for (let i = 0; i < businessTransactions.length; i++) {
         if((businessTransactions[i].btid.toString()).match(businessTransactionIdRegEx)) {
           indexOfBusinessTranction = i;
-          this.state.btIdsListUI.push(businessTransactions[i].btid);
+          btIdsArr.push(businessTransactions[i].btid);
         }
       }
       if(this.state.btIdsListUI.length == 1) {
@@ -77,9 +72,10 @@ export default class DiffView extends React.Component {
       }
     } else {
       for (let i = 0; i < businessTransactions.length; i++) {
-        this.state.btIdsListUI.push(businessTransactions[i].btid);
+        btIdsArr.push(businessTransactions[i].btid);
       }
     }
+    this.setState({btIdsListUI: btIdsArr});
   }
 
   onBtIdChange(event) {
@@ -92,31 +88,6 @@ export default class DiffView extends React.Component {
     let entNameOfLoggedUser = this.props.store.entNameOfLoggedUser;
     let indexOfMyEntName = transactionSlice.enterprises.indexOf(entNameOfLoggedUser);
     this.state.partnerEntName = indexOfMyEntName == 0 ? transactionSlice.enterprises[1]:transactionSlice.enterprises[0];
-  }
-
-  getDocumentsHashes() {
-    let me = this;
-    let params = {
-      'documentsNames': this.state.documentsNames
-    };
-
-    fetch('/getDocumentsHashes', {
-        method: 'post',
-        headers: new Headers({
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }),
-        body: requestHelper.jsonToUrlParams(params)
-      }).then(function(response) {
-        return response.json();
-      }).then(function(result) {
-        if(result.success) {
-          me.setState({attachmentVerificationMap : result.attachmentVerificationMap});
-        }
-    }).catch(function (err) {
-      console.error('error verifying attachements!');
-    });
   }
 
   openTab(currentTabContentId, resetTabsName, currentTabName) {
@@ -153,7 +124,7 @@ export default class DiffView extends React.Component {
     }
 
     if (currentTabName === 'docsTab') {
-      this.getDocumentsHashes();
+      BackChainActions.verifyDocumentHashes(this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction].Attachments);
     }
   }
 
@@ -264,7 +235,7 @@ export default class DiffView extends React.Component {
                               </div>
                               <div id='Docs' className="tabcontent">
                                 <pre style={Object.assign(styles.jsonPanel, {padding:'0em'})}>
-                                  <ListDocuments getDocumentsNames={this.getDocumentsNames} attachmentVerificationMap={this.state.attachmentVerificationMap} attachmentsData={displayBusinessTransaction.Attachments}/>
+                                  <ListDocuments store={this.props.store} attachmentsData={displayBusinessTransaction.Attachments}/>
                                 </pre>
                               </div>
                             </div>
@@ -317,5 +288,4 @@ export default class DiffView extends React.Component {
       {panelBody}
   </div></div>);
   }
-
 }

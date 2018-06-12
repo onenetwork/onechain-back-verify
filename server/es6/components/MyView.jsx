@@ -57,7 +57,7 @@ import {requestHelper} from '../RequestHelper';
       for (let i = 0; i < businessTransactions.length; i++) {
         if((businessTransactions[i].btid.toString()).match(businessTransactionIdRegEx)) {
           indexOfBusinessTranction = i;
-          btIdsArr.push( businessTransactions[i].btid );
+          btIdsArr.push(businessTransactions[i].btid);
         }
       }
       if(this.state.btIdsListUI.length == 1) {
@@ -65,7 +65,7 @@ import {requestHelper} from '../RequestHelper';
       }
     } else {
       for (let i = 0; i < businessTransactions.length; i++) {
-        btIdsArr.push( businessTransactions[i].btid );
+        btIdsArr.push(businessTransactions[i].btid);
       }
     }
     this.setState({btIdsListUI: btIdsArr});
@@ -248,7 +248,7 @@ import {requestHelper} from '../RequestHelper';
   }
 }
 
-@observer class ListDocuments extends React.Component {
+@observer export class ListDocuments extends React.Component {
   downloadFileByName(docName, fileName, event) {
     window.open('/downloadViewDocument/'+ docName + '/' + fileName, "_blank");
   }
