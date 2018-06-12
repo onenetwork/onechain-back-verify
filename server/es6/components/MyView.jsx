@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { observer } from 'mobx-react';
 import { Row, Col, Button, Panel, FormControl, OverlayTrigger, Popover} from 'react-bootstrap';
 import JSZip from 'jszip';
 import { toJS } from 'mobx';
@@ -8,21 +9,14 @@ import filesaver from '../FileSaver';
 import BackChainActions from '../BackChainActions';
 import {requestHelper} from '../RequestHelper';
 
-export default class MyView extends React.Component {
+@observer export default class MyView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       btIdsListUI:[],
       activeBtIdIndex: 0,
-      indexOfBusinessTranction: 0,
-      attachmentVerificationMap:{},
-      documentsNames:[]
+      indexOfBusinessTranction: 0
     };
-    this.getDocumentsNames = this.getDocumentsNames.bind(this);
-  }
-
-  getDocumentsNames(documentsNames) {
-    this.state.documentsNames = documentsNames;
   }
 
   componentDidMount() {
@@ -53,6 +47,7 @@ export default class MyView extends React.Component {
   }
 
   listBusinessTransactionIds(businessTransactionId) {
+    let btIdsArr=[];
     this.state.btIdsListUI.splice(0, this.state.btIdsListUI.length);
     let businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
     let businessTransactions = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions;
@@ -62,7 +57,7 @@ export default class MyView extends React.Component {
       for (let i = 0; i < businessTransactions.length; i++) {
         if((businessTransactions[i].btid.toString()).match(businessTransactionIdRegEx)) {
           indexOfBusinessTranction = i;
-          this.state.btIdsListUI.push( businessTransactions[i].btid );
+          btIdsArr.push( businessTransactions[i].btid );
         }
       }
       if(this.state.btIdsListUI.length == 1) {
@@ -70,39 +65,15 @@ export default class MyView extends React.Component {
       }
     } else {
       for (let i = 0; i < businessTransactions.length; i++) {
-        this.state.btIdsListUI.push(businessTransactions[i].btid);
+        btIdsArr.push( businessTransactions[i].btid );
       }
     }
+    this.setState({btIdsListUI: btIdsArr});
   }
 
   onBtIdChange(event) {
     this.setState({activeBtIdIndex : 0});
     this.listBusinessTransactionIds(event.target.value.trim());
-  }
-
-  getDocumentsHashes() {
-    let me = this;
-    let params = {
-      'documentsNames': this.state.documentsNames
-    };
-
-    fetch('/getDocumentsHashes', {
-        method: 'post',
-        headers: new Headers({
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }),
-        body: requestHelper.jsonToUrlParams(params)
-      }).then(function(response) {
-        return response.json();
-      }).then(function(result) {
-        if(result.success) {
-          me.setState({attachmentVerificationMap : result.attachmentVerificationMap});
-        }
-    }).catch(function (err) {
-      console.error('error verifying attachements!');
-    });
   }
 
   openTab(tabName, evt) {
@@ -126,7 +97,7 @@ export default class MyView extends React.Component {
       let element = evt.currentTarget.parentElement.getElementsByClassName('tnxMsgTab')[0];
       element.style.backgroundColor = 'rgba(228, 228, 228, 1)';
       element.style.color = '#646464';
-      this.getDocumentsHashes();
+      BackChainActions.verifyDocumentHashes(this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions[this.state.indexOfBusinessTranction].Attachments);
     }
   }
 
@@ -227,7 +198,7 @@ export default class MyView extends React.Component {
                               </div>
                               <div id='Docs' className="tabcontent">
                                 <pre style={Object.assign(styles.jsonPanel, {padding:'0em'})}>
-                                  <ListDocuments getDocumentsNames={this.getDocumentsNames} attachmentVerificationMap={this.state.attachmentVerificationMap} attachmentsData={displayBusinessTransaction.Attachments}/>
+                                  <ListDocuments store={this.props.store} attachmentsData={displayBusinessTransaction.Attachments}/>
                                 </pre>
                               </div>
                           </Row>);
@@ -277,80 +248,59 @@ export default class MyView extends React.Component {
   }
 }
 
-export const ListDocuments = (props) => {
-  let attachmentsDataUI = [];
-  let verifyAttachments = shouldVerifyAttachments(props.attachmentVerificationMap);
-  let attachmentsData = props.attachmentsData;
-  let documentsNames = [];
-
-  function downloadFileByName(docName, fileName, event) {
+@observer class ListDocuments extends React.Component {
+  downloadFileByName(docName, fileName, event) {
     window.open('/downloadViewDocument/'+ docName + '/' + fileName, "_blank");
   }
 
-  function onHoverFileRow(event) {
+  onHoverFileRow(event) {
     event.currentTarget.style.backgroundColor = 'lightgray';
   }
 
-  function onHoverOutFileRow(event) {
+  onHoverOutFileRow(event) {
     event.currentTarget.style.backgroundColor = 'white';
   }
 
-  function matchIdWithFileName(id) {
+  matchIdWithFileName(id) {
     id = id.replace("/", "_");
     return id;
   }
 
-  function shouldVerifyAttachments(attachmentVerificationMap) {
-    /*If attachmentVerificationMap is empty no need of verifying attachments*/
-    for(var key in attachmentVerificationMap) {
-      if(attachmentVerificationMap.hasOwnProperty(key))
-        return true;
-    }
-    return false;
-  }
-
-  function getDocumentsNames(documentsNames) {
-    props.getDocumentsNames(documentsNames);
-  }
-
-  for (let key in attachmentsData) {
-    if (attachmentsData.hasOwnProperty(key)) {
-      let attachmentsArray = attachmentsData[key];
-      for(let i = 0; i < attachmentsArray.length; i++) {
-        let verificationIcon = null;
-
-        if(verifyAttachments) {
-          if(props.attachmentVerificationMap[matchIdWithFileName(attachmentsArray[i].id)] == attachmentsArray[i].hash) {
+  render() {
+    let attachmentsDataUI = [];
+    let attachmentsData = this.props.attachmentsData;
+    for (let key in attachmentsData) {
+      if (attachmentsData.hasOwnProperty(key)) {
+        let attachmentsArray = attachmentsData[key];
+        for(let i = 0; i < attachmentsArray.length; i++) {
+          let verificationIcon = null;
+          if(this.props.store.attachmentVerificationMap[this.matchIdWithFileName(attachmentsArray[i].id)] === true) {
             verificationIcon = <i style = {{color: '#229978', fontSize: '16px'}} className="fa fa-check-circle"/>;
-          } else {
+          } else if(this.props.store.attachmentVerificationMap[this.matchIdWithFileName(attachmentsArray[i].id)] === false) {
             verificationIcon = <i style = {{color: '#E85E5A', fontSize: '16px'}} className="fa fa-exclamation-circle"/>;
+          } else {
+            verificationIcon = <i style = {{color: '#0486CC', fontSize: '16px'}} className="fa fa-circle-o-notch fa-spin"/>;
           }
-        } else {
-          documentsNames.push(matchIdWithFileName(attachmentsArray[i].id));
+          
+          attachmentsDataUI.push(
+            <tr key={attachmentsArray[i].id} onMouseOver={this.onHoverFileRow.bind(this)} onMouseOut={this.onHoverOutFileRow.bind(this)} onClick={this.downloadFileByName.bind(this, this.matchIdWithFileName(attachmentsArray[i].id), attachmentsArray[i].name)} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
+                <td style={{lineHeight:'1.3', fontSize: '14px', paddingLeft: '30px'}}>
+                  <i style = {{color: '#999999', fontSize: '16px'}} className="fa fa-file-text"/>&nbsp;&nbsp;{attachmentsArray[i].name}
+                </td>
+                <td style={{lineHeight:'1.3', paddingRight: '30px'}}>
+                  {verificationIcon}
+                </td>
+            </tr>);
         }
-
-        attachmentsDataUI.push(
-          <tr key={attachmentsArray[i].id} onMouseOver={onHoverFileRow.bind(this)} onMouseOut={onHoverOutFileRow.bind(this)} onClick={downloadFileByName.bind(this, matchIdWithFileName(attachmentsArray[i].id), attachmentsArray[i].name)} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
-              <td style={{lineHeight:'1.3', fontSize: '14px', paddingLeft: '30px'}}>
-                <i style = {{color: '#999999', fontSize: '16px'}} className="fa fa-file-text"/>&nbsp;&nbsp;{attachmentsArray[i].name}
-              </td>
-              <td style={{lineHeight:'1.3', paddingRight: '30px'}}>
-                {verificationIcon}
-              </td>
-          </tr>);
-        
       }
     }
+    
+    return (<div className={"table-responsive"}>
+              <table className={"table"}>
+                  <tbody>
+                    {attachmentsDataUI}
+                  </tbody>
+              </table>
+            </div>);
   }
-  getDocumentsNames(documentsNames);
-
-	return (
-          <div className={"table-responsive"}>
-            <table className={"table"}>
-                <tbody>
-                  {attachmentsDataUI}
-                </tbody>
-            </table>
-          </div>
-	)
 }

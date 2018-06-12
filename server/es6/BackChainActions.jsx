@@ -1099,4 +1099,28 @@ export default class BackChainActions {
     static setPreSetDisputeFilters(preSetDisputeFilters) {
         store.preSetDisputeFilters = preSetDisputeFilters;
     }
+
+    @action
+    static verifyDocumentHashes(attachments) {
+        let params = {
+            'attachments': attachments
+        };
+        fetch('/verifyDocumentHashes', {
+            method: 'post',
+            headers: new Headers({
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }),
+            body: requestHelper.jsonToUrlParams(params)
+        }).then(function(response) {
+            return response.json();
+        }).then(function(result) {
+            if(result.success) {
+                store.attachmentVerificationMap = result.attachmentVerificationMap;
+            }
+        }).catch(function (err) {
+        console.error('error verifying attachements!');
+        });
+    }
 }

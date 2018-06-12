@@ -49,6 +49,7 @@ class BackChainStore {
     @observable backChainAddressMapping = {};
     @observable preSetDisputeFilters = {};
     @observable loadingData = false;
+    @observable attachmentVerificationMap = observable.map({});
 
     // props modified by API
     @observable showDisputeDetailsInPopup = false;

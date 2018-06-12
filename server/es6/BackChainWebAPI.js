@@ -213,22 +213,33 @@ exports.downloadViewDocument = function(req, res) {
     });
 }
 
-exports.getDocumentsHashes = function(req, res) {
-    return new Promise((resolve, reject) => {
-        let attachmentVerificationMap = {};
-        let documentNames = JSON.parse(req.body.documentsNames);
-        for(let i = 0; i < documentNames.length; i++) {
-            let fileName =  documentNames[i].trim().slice(0,-4);
-            let key =  documentNames[i].trim();
-            backChainUtil.fileHash(__dirname + "/../attachments/", fileName)
-            .then(function (result) {
-                attachmentVerificationMap[key] = result;
-                if(i === documentNames.length - 1) {
-                    res.json({success: true, attachmentVerificationMap: attachmentVerificationMap});
-                }
-            }).catch(function (error) {
-                console.error('error verifying file: ' + key);
-            });
+exports.verifyDocumentHashes = function(req, res) {
+    let promisesToWaitOn = [];
+    let attachmentVerificationMap = {};
+    let attachments = JSON.parse(req.body.attachments);
+    let idArr = [];
+    for (let key in attachments) {
+        if (attachments.hasOwnProperty(key)) {
+            let attachmentsArray = attachments[key];
+            for(let i = 0; i < attachmentsArray.length; i++) {
+                let id = (attachmentsArray[i].id).replace("/", "_");
+                let hash = attachmentsArray[i].hash;
+                let fileName =  id.trim().slice(0,-4);
+                idArr.push(id);
+                promisesToWaitOn.push(backChainUtil.fileHash(__dirname + "/../attachments/", fileName));
+            }
         }
+    }
+
+    Promise.all(promisesToWaitOn).then(function (results) {
+        for(let i = 0; i < results.length; i++) {
+            if(results[i])
+                attachmentVerificationMap[idArr[i]] = (results[i]===idArr[i]);
+            else
+                attachmentVerificationMap[idArr[i]] = results[i];
+        }
+        res.json({success: true, attachmentVerificationMap: attachmentVerificationMap});           
+    }).catch(error => {
+        console.error('error verifying file: ' + error);
     });
 }
