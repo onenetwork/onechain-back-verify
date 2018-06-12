@@ -40,12 +40,12 @@ class DisputeHelper {
                             })
                             .catch(err => {
                                 console.error("Error occurred while getting disputes from disputeBcClient: " + err);
-                                resolve(null);
+                                resolve({});
                             });
                         }));
                     }                    
                     Promise.all(promisesToWaitOn).then(function (disputes) {
-                        if(onlyDraft || (!disputes[1])) {
+                        if(onlyDraft) {
                             resolve(disputes[0]);
                         } else {
                             me.processIncomingBcDisputes(disputes[1]); //first strip away '0x'
