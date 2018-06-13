@@ -4,7 +4,7 @@ import { backChainUtil } from './BackChainUtil';
 import { dbconnectionManager } from './DBConnectionManager';
 import moment from 'moment';
 import config from './config';
-
+import oneBcClient from '@onenetwork/one-backchain-client';
 
 class DisputeOrganizerTaskHelper {
 
@@ -14,6 +14,7 @@ class DisputeOrganizerTaskHelper {
             .then(result => {
                 this.deleteOldDisputes(result);
                 this.getEnterpriseAccountMapping(result);
+                this.updateDisputeSubmissionTime(result);
                 setTimeout(() => {
                     this.executeTask();
                 }, config.disputeOrganizerIntervalInMillis);
@@ -102,6 +103,32 @@ class DisputeOrganizerTaskHelper {
             .catch(function (error) {
                 console.log("Some error occured while deleting old disputes " + error);
             });
+    }
+
+    updateDisputeSubmissionTime(settings) {
+        let disputeBcClient = oneBcClient.createDisputeBcClient({
+            blockchain: 'eth',
+            url: settings.blockChain.url,
+            contentBackchainContractAddress: settings.blockChain.contractAddress,
+            disputeBackchainContractAddress: settings.blockChain.disputeContractAddress
+        });
+
+        disputeBcClient.getDisputeSubmissionWindowInMinutes()
+        .then(function(result){
+            settings.blockChain.disputeSubmissionWindowInMinutes = parseInt(result);
+            dbconnectionManager.getConnection().collection('Settings')
+            .update({}, {$set: settings}, { upsert: true })
+            .then(function (result) {
+                if (result.result.nModified > 0) {
+                    console.log("Settings disputeSubmissionTime updated successfully");
+                }
+            }).catch(function (err) {
+                console.error("Error while updating disputeSubmissionTime in Settings collection" + err);
+            });
+        }).
+        catch(function(error) {
+            console.error("Error while updating disputeSubmissionTime in Settings collection" + err);
+        });
     }
 }
 
