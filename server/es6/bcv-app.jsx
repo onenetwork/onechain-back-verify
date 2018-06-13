@@ -14,6 +14,7 @@ import { BrowserRouter, Route, Switch, Redirect} from 'react-router-dom';
 import {backChainStore} from './store/BackChainStore';
 import Images from './Images';
 import BackChainActions from './BackChainActions';
+import { utils } from './Utils';
 
 const RoutedApp = () => (
   <BrowserRouter>
@@ -77,6 +78,10 @@ window.BackchainVerifyAPI = {
 
         if (options.showDisputeActions != undefined) {
           backChainStore.showDisputeActions = options.showDisputeActions;
+        }
+      
+        if (options.dateFormatter) {
+          utils.setDateFormatter(options.dateFormatter)
         }
 
         ReactDOM.render(componentToRender, renderTo);

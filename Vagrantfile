@@ -94,6 +94,7 @@ Vagrant.configure("2") do |config|
 
     #Install moment
     sudo npm install moment --save
+	sudo npm install moment-timezone --save
 
     #Install datepicker it has dependancy on moment
     sudo npm install react-datetime --save
