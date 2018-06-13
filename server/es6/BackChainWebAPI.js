@@ -197,10 +197,7 @@ exports.readBackChainAddressMapping = function(req, res) {
 }
 
 exports.downloadViewDocument = function(req, res) {
-    //TODO@PANKAJ: Sean is looking why there is not .zip extension in file,once fixed remove this temp change
-    const fileName =  req.params.documentName.trim().slice(0,-4);
-
-    const document = __dirname + "/../attachments/" + fileName;
+    const document = __dirname + "/../attachments/" + req.params.documentName.trim();
     res.setHeader("Content-Disposition","attachment; filename=\"" + req.params.fileName.trim() + "\"");
     fs.stat(document, function(err, stat) {
         if(!err) {
@@ -218,15 +215,16 @@ exports.verifyDocumentHashes = function(req, res) {
     let attachmentVerificationMap = {};
     let attachments = JSON.parse(req.body.attachments);
     let idArr = [];
+    let hashArr = [];
     for (let key in attachments) {
         if (attachments.hasOwnProperty(key)) {
             let attachmentsArray = attachments[key];
             for(let i = 0; i < attachmentsArray.length; i++) {
                 let id = (attachmentsArray[i].id).replace("/", "_");
                 let hash = attachmentsArray[i].hash;
-                let fileName =  id.trim().slice(0,-4);
                 idArr.push(id);
-                promisesToWaitOn.push(backChainUtil.fileHash(__dirname + "/../attachments/", fileName));
+                hashArr.push(hash);
+                promisesToWaitOn.push(backChainUtil.fileHash(__dirname + "/../attachments/", id.trim()));
             }
         }
     }
@@ -234,7 +232,7 @@ exports.verifyDocumentHashes = function(req, res) {
     Promise.all(promisesToWaitOn).then(function (results) {
         for(let i = 0; i < results.length; i++) {
             if(results[i])
-                attachmentVerificationMap[idArr[i]] = (results[i]===idArr[i]);
+                attachmentVerificationMap[idArr[i]] = (results[i]===hashArr[i]);
             else
                 attachmentVerificationMap[idArr[i]] = results[i];
         }
