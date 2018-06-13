@@ -127,7 +127,7 @@ class DisputeOrganizerTaskHelper {
             });
         }).
         catch(function(error) {
-            console.error("Error while updating disputeSubmissionTime in Settings collection" + err);
+            console.error("Error while updating disputeSubmissionTime in Settings collection" + error);
         });
     }
 }
