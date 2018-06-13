@@ -1102,6 +1102,7 @@ export default class BackChainActions {
 
     @action
     static verifyDocumentHashes(attachments) {
+        store.verifyingAttachments = true;
         let params = {
             'attachments': attachments
         };
@@ -1119,8 +1120,10 @@ export default class BackChainActions {
             if(result.success) {
                 store.attachmentVerificationMap = result.attachmentVerificationMap;
             }
+            store.verifyingAttachments = false;
         }).catch(function (err) {
-        console.error('error verifying attachements!');
+            store.verifyingAttachments = false;
+            console.error('error verifying attachements!');
         });
     }
 }
