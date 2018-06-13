@@ -54,7 +54,7 @@ import {disputeHelper} from '../DisputeHelper';
 
 	componentDidMount() {
 		if(this.props.store.disputeTransaction) {
-			BackChainActions.generateDisputeId(this.props.store.entNameOfLoggedUser+"~"+this.props.store.disputeTransaction.id);
+			BackChainActions.generateDisputeId(this.props.store.entNameOfLoggedUser+"~"+this.props.store.disputeTransaction.id+"~"+Date.now());
 			this.setState({saveOrSubmitDisputeButtonsDisabled:false});
 		}
 	}
@@ -132,7 +132,7 @@ import {disputeHelper} from '../DisputeHelper';
 							return;
 						}
 					}
-					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value);
+					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value+"~"+Date.now());
 					if(me.props.store.disputeTransaction) {
 						me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 					} else {
