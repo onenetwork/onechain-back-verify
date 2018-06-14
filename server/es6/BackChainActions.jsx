@@ -168,8 +168,20 @@ export default class BackChainActions {
                     }
                 }
 
-                if(type == "Intersection" && transactionSlice.type == "Intersection"
-                    && transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                let foundTheRightIntersection = false;
+                if(type == "Intersection" && transactionSlice.type == "Intersection") {
+                    if(partnerEntName.indexOf('&') > -1) {
+                        let partners = partnerEntName.split('&');
+                        if(transactionSlice.enterprises.indexOf(partners[0].trim()) > -1 &&
+                            transactionSlice.enterprises.indexOf(partners[1].trim()) > -1) {
+                            foundTheRightIntersection = true;
+                        }
+                    } else if(transactionSlice.enterprises.indexOf(partnerEntName) > -1) {
+                        foundTheRightIntersection = true;
+                    }
+                }
+
+                if(foundTheRightIntersection) {
                     if(transactionSlice.payloadId) {
                         return BackChainActions.getTransactionSlice(transactionSlice.payloadId).then(result => {
                             let newJson = observable({});
