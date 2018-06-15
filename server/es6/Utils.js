@@ -2,7 +2,13 @@ import momentTimeZone from'moment-timezone';
 import moment from 'moment';
 
 class Utils {
-    dateFormatter = dateInMillis => moment(new Date(dateInMillis)).format('MMM DD, YYYY HH:mm A');
+
+    constructor() {
+        this.dateFormatter = function(dateInMillis) {
+            return moment(new Date(dateInMillis)).format('MMM DD, YYYY HH:mm A');
+        }
+    }
+    
     
     /**
      * Overrides default date formatting function
@@ -18,7 +24,7 @@ class Utils {
      * @returns formatted date string to display. i.e. "Jun 11, 2018 14:12 PM"
      */
     formatDate(dateInMillis) {
-        this.dateFormatter(dateInMillis);
+        return this.dateFormatter(dateInMillis);
     }
     
     /**
@@ -35,7 +41,7 @@ class Utils {
      * @returns time in milliseconds
      */
     convertPlatformDateToMillis(pltDateObject) {
-        return momentTimeZone.tz(pltDateObject.date, pltDateObject.tzId);
+        return momentTimeZone.tz(pltDateObject.date, pltDateObject.tzId).toDate().getTime();
     }
     
 }

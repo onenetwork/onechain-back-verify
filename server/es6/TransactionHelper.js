@@ -291,7 +291,7 @@ class TransactionHelper {
             let bt = slice.businessTransactions[j];
             events.push({
                 btid: bt.btid,
-                date: bt.LastModifiedDate.date,
+                date: bt.LastModifiedDate,
                 btref: bt.btref
             });
         }

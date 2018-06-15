@@ -2,6 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { dbconnectionManager } from '../DBConnectionManager';
 import BackChainActions from '../BackChainActions';
+import {utils} from '../Utils';
 
 
 @observer
@@ -27,7 +28,8 @@ export default class EventsPopoverContent extends React.Component {
                         for(let i = 3; i < btrefContents.length; i++) {
                             naturalKeys += '/' + btrefContents[i];
                         }
-
+                        let timeInMillis = utils.convertPlatformDateToMillis(event.date);
+                        let formattedDate = utils.formatDate(timeInMillis);
                         eventList.push(
                             <li key={i} style={{
                                 overflow: "hidden",
@@ -37,7 +39,7 @@ export default class EventsPopoverContent extends React.Component {
                                 marginLeft: 10,
                                 marginRight: 10
                             }}>
-                                <span style={{color:'#990000', marginRight: 8}}>{event.date}</span>{" "}
+                                <span style={{color:'#990000', marginRight: 8}}>{formattedDate}</span>{" "}
                                 <span>{naturalKeys}&nbsp;&ndash;&nbsp;{modelLevel}&nbsp;{'from'}&nbsp;<a href={pltUrl} target="_blank">{pltUrl}</a></span>
                             </li>
                         )
