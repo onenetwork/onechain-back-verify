@@ -4,6 +4,8 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
 
+  #Required for local environment and Internet Explorer
+  config.vm.network "forwarded_port", guest: 8081, host: 8081
   config.vm.network "private_network", ip: "55.55.55.5"
 
   config.vm.synced_folder "C:/views/onechain-back-verify", "/vagrant", type: "virtualbox"
@@ -64,12 +66,16 @@ Vagrant.configure("2") do |config|
     #Install babelify
     sudo npm install --no-bin-links babelify --save-dev
    
+
+    #Required for browserify
+    sudo npm install --no-bin-links eslint-plugin-import --save-dev
+
     #Install browserify packages
     sudo npm install --no-bin-links browserify --save-dev
     sudo npm install --no-bin-links browserify-shim --save-dev
     sudo npm install --no-bin-links browserify-transform-tools --save-dev
     sudo npm install --no-bin-links browserify-css --save-dev
-   
+    
     #Install gulp and required vinyl
     sudo npm install -g gulp
     sudo npm install --no-bin-links gulp --save-dev
@@ -94,7 +100,7 @@ Vagrant.configure("2") do |config|
 
     #Install moment
     sudo npm install moment --save
-	sudo npm install moment-timezone --save
+	  sudo npm install moment-timezone --save
 
     #Install datepicker it has dependancy on moment
     sudo npm install react-datetime --save
