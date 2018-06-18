@@ -7,10 +7,10 @@ import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';
 import { Redirect, Link } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
-import moment from 'moment';
 import Images from '../Images';
 import AlertPopupView from './AlertPopupView';
 import {disputeHelper} from '../DisputeHelper';
+import { utils } from '../Utils';
 
 import '../../public/css/TrackAndVerify.css';
 
@@ -317,7 +317,7 @@ const reasonCodeMap = {
     }
 
     renderDateCell(dateInMillis) {
-        const formattedDate = dateInMillis ? moment(new Date(dateInMillis)).format('MMM DD, YYYY HH:mm A') : '';
+        const formattedDate = dateInMillis ? utils.formatDate(dateInMillis) : '';
         return <td style={fieldProps.columns}>{formattedDate}</td>;
     }
 

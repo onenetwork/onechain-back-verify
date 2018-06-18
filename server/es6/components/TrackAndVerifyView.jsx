@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import { toJS } from 'mobx';
-import moment from 'moment';
 import { Link, Redirect } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import JSZip from 'jszip';
@@ -16,6 +15,7 @@ import BackChainActions from '../BackChainActions';
 import filesaver from '../FileSaver';
 import Images from '../Images';
 import {disputeHelper} from '../DisputeHelper';
+import { utils } from '../Utils';
 
 import '../../public/css/TrackAndVerify.css';
 
@@ -308,7 +308,7 @@ const fieldProps = {
     }
 
     renderTransactionDateCell(transaction) {
-        const formattedDate = transaction.date ? moment(new Date(transaction.date)).format('MMM DD, YYYY HH:mm A') : 'N/A';
+        const formattedDate = transaction.date ? utils.formatDate(transaction.date) : 'N/A';
         return <td style={fieldProps.columns}>{formattedDate}</td>;
     }
 

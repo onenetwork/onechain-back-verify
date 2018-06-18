@@ -1,6 +1,6 @@
 import { dbconnectionManager } from './DBConnectionManager';
 import {BigNumber} from 'bignumber.js';
-import moment from 'moment';
+import { utils } from './Utils';
 
 class SettingsHelper {
 
@@ -72,8 +72,8 @@ class SettingsHelper {
                         syncMsg : 'Full Sync', 
                         fromSeqNo : earliestSyncSequenceNo,
                         toSeqNo : gapFromSequenceNo,
-                        fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
-                        toDate : moment(new Date(gap.fromDateInMillis)).format('MMM DD,YYYY HH:mm A')
+                        fromDate: utils.formatDate(earliestSyncDateInMillis),
+                        toDate: utils.formatDate(gap.fromDateInMillis)
                     });
                 } 
                 
@@ -90,8 +90,8 @@ class SettingsHelper {
                     toSeqNo : (new BigNumber(gap.toSequenceNo).minus(new BigNumber(1))), 
                     noOfMissingRecords : numberOfMissingRecordsInTheGap,
                     time: hrs + ' ' + mins, 
-                    fromDate : moment(new Date(fromGapDate)).format('MMM DD,YYYY HH:mm A'), 
-                    toDate : moment(new Date(toGapDate)).format('MMM DD,YYYY HH:mm A')
+                    fromDate: utils.formatDate(fromGapDate),
+                    toDate: utils.formatDate(toGapDate)
                 });
 
                 earliestSyncSequenceNo = (new BigNumber(gapToSequenceNo)).valueOf();
@@ -104,8 +104,8 @@ class SettingsHelper {
                             syncMsg : 'Full Sync', 
                             fromSeqNo : earliestSyncSequenceNo, 
                             toSeqNo : latestSyncSequenceNo, 
-                            fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'),
-                            toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A')
+                            fromDate: utils.formatDate(earliestSyncDateInMillis),
+                            toDate: utils.formatDate(latestSyncDateInMillis)
                         });
                     }
                 }
@@ -114,8 +114,8 @@ class SettingsHelper {
             let syncReport = {
                 type : 'fullSync', 
                 syncMsg : 'Full Sync', 
-                fromDate : moment(new Date(earliestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
-                toDate : moment(new Date(latestSyncDateInMillis)).format('MMM DD,YYYY HH:mm A'), 
+                fromDate: utils.formatDate(earliestSyncDateInMillis) ,
+                toDate: utils.formatDate(latestSyncDateInMillis),
                 fromSeqNo : earliestSyncSequenceNo, 
                 toSeqNo : latestSyncSequenceNo, 
                 noOfMissingRecords : 0

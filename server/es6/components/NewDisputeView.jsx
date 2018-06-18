@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
 import moment from 'moment';
-
+import { utils } from '../Utils';
 import {disputeHelper} from '../DisputeHelper';
 
 @observer export default class NewDisputeView extends React.Component {
@@ -248,7 +248,7 @@ import {disputeHelper} from '../DisputeHelper';
         if(disputeTransaction) {
             transactionSlices = disputeTransaction.transactionSlices;
 			BackChainActions.loadEventsForTransaction(disputeTransaction);
-            disputeTransactionDate = moment(new Date(disputeTransaction.date)).format('MMM DD, YYYY HH:mm A')
+			disputeTransactionDate = utils.formatDate(disputeTransaction.date)
 		}
 		let listOfPartners = [];
 		for (let i = 0; i < transactionSlices.length; i++) {
@@ -272,9 +272,9 @@ import {disputeHelper} from '../DisputeHelper';
         for(let i = 0; i < store.events.length; i++) {
 			let event = store.events[i];
 			if (this.state.eventBtids.indexOf(event.btid) > -1) {
-				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {event.actionName}</Checkbox>);
 			} else {
-				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {moment(new Date(event.date)).format('MMM DD, YYYY HH:mm A')} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {event.actionName}</Checkbox>);
 			}
 		}
 
