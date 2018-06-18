@@ -40,7 +40,7 @@ class DisputeHelper {
                             })
                             .catch(err => {
                                 console.error("Error occurred while getting disputes from disputeBcClient: " + err);
-                                resolve({});
+                                resolve([]);
                             });
                         }));
                     }                    
