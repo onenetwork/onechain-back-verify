@@ -115,7 +115,10 @@ class DisputeOrganizerTaskHelper {
 
         disputeBcClient.getDisputeSubmissionWindowInMinutes()
         .then(function(result){
-            settings.blockChain.disputeSubmissionWindowInMinutes = parseInt(result);
+            let disputeSubmissionTimeInBcClient = parseInt(result);
+            if(disputeSubmissionTimeInBcClient === settings.blockChain.disputeSubmissionWindowInMinutes)
+                return;
+            settings.blockChain.disputeSubmissionWindowInMinutes = disputeSubmissionTimeInBcClient;
             dbconnectionManager.getConnection().collection('Settings')
             .update({}, {$set: settings}, { upsert: true })
             .then(function (result) {
