@@ -50,7 +50,6 @@ class BackChainStore {
     @observable preSetDisputeFilters = {};
     @observable loadingData = false;
     @observable attachmentVerificationMap = observable.map({});
-    @observable verifyingAttachments = false;
 
     // props modified by API
     @observable showDisputeDetailsInPopup = false;

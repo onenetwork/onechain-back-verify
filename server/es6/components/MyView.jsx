@@ -279,10 +279,6 @@ import {requestHelper} from '../RequestHelper';
           } else if(this.props.store.attachmentVerificationMap[this.matchIdWithFileName(attachmentsArray[i].id)] === false) {
             verificationIcon = <i style = {{color: '#E85E5A', fontSize: '16px'}} className="fa fa-exclamation-circle"/>;
           }
-
-          if(this.props.store.verifyingAttachments) {
-            verificationIcon = <i style = {{color: '#0486CC', fontSize: '16px'}} className="fa fa-circle-o-notch fa-spin"/>;
-          }
           
           attachmentsDataUI.push(
             <tr key={attachmentsArray[i].id} onMouseOver={this.onHoverFileRow.bind(this)} onMouseOut={this.onHoverOutFileRow.bind(this)} onClick={this.downloadFileByName.bind(this, this.matchIdWithFileName(attachmentsArray[i].id), attachmentsArray[i].name)} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
