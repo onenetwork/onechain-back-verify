@@ -18,14 +18,14 @@ class MetaMaskHelper {
     detectAndReadMetaMaskAccount() {
         return new Promise((resolve, reject) => {
             //Ask for metamask installation
-            if (typeof web3 === 'undefined' || typeof web3.currentProvider === 'undefined' || web3.currentProvider.isMetaMask !== true) {
+             if ((navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) ||
+                 navigator.userAgent.indexOf("MSIE") != -1 || navigator.userAgent.indexOf("Edge") != -1) {
+                 reject({
+                     code: "error.metamask.nosupport"
+                 });
+            } else if (typeof web3 === 'undefined' || typeof web3.currentProvider === 'undefined' || web3.currentProvider.isMetaMask !== true) {
                 reject({
                     code: "error.metamask.missing"
-                });
-            } else if ((navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1)
-                || navigator.userAgent.indexOf("MSIE") != -1) {
-                reject({
-                    code: "error.metamask.nosupport"
                 });
             } else {
                 let web3js = new Web3(web3.currentProvider);
