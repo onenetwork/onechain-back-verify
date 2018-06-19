@@ -284,9 +284,9 @@ import { transactionHelper } from '../TransactionHelper';
 			let processedBtRef = transactionHelper.processBtRef(event.btref);
 			let processedBtRefUI = <span>{processedBtRef.naturalKeys}&nbsp;&ndash;&nbsp;{processedBtRef.modelLevel}&nbsp;{'from'}&nbsp;<a href={processedBtRef.pltUrl} target="_blank">{processedBtRef.pltUrl}</a></span>;
 			if (this.state.eventBtids.indexOf(event.btid) > -1) {
-				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
+				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(utils.convertPlatformDateToMillis(event.date))} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
 			} else {
-				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
+				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(utils.convertPlatformDateToMillis(event.date))} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
 			}
 		}
 
