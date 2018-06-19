@@ -103,8 +103,8 @@ import {disputeHelper} from '../DisputeHelper';
 	getMinsInHrsAndMins(mins) {
 		let hours = Math.floor(mins / 60);
 		let minutes = mins % 60;
-		let hrsAndMins = hours == 0 ? "" : hours + "hrs ";
-		hrsAndMins += minutes + "mins";
+		let hrsAndMins = hours == 0 ? "" : hours + " hrs ";
+		hrsAndMins += minutes == 0 ? "" : minutes + " mins ";
 		return hrsAndMins;
 	}
 
