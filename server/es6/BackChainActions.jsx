@@ -13,6 +13,7 @@ import { backChainUtil } from './BackChainUtil';
 import {metaMaskHelper} from './MetaMaskHelper';
 import { disputeHelper } from './DisputeHelper';
 import { settingsHelper } from './SettingsHelper';
+import React from 'react';
 
 const MAX_EVENTS_TO_LOAD = 30;
 
@@ -944,7 +945,7 @@ export default class BackChainActions {
         }).catch((error) => {
             if (error.code == 'error.metamask.missing') {
                 BackChainActions.displayAlertPopup("Missing MetaTask Extension",
-                    ["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>,
+                    ["You need to install ", <a key="error.metamask.missing" href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>,
                         " in order to use Submit or Close Disputes. Please install the extension first and try again."], 'ERROR');
             } else if (error.code == 'error.metamask.locked') {
                 BackChainActions.displayAlertPopup("MetaMask is Locked",
@@ -999,7 +1000,7 @@ export default class BackChainActions {
             }).catch((error)=> {
                 if(error.code == 'error.metamask.missing') {
                     BackChainActions.displayAlertPopup("Missing MetaTask Extension",
-                    ["You need to install ", <a href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>,
+                    ["You need to install ", <a key="error.metamask.missing" href='https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn' target='_blank'>MetaMask</a>,
                     " in order to use Submit or Close Disputes. Please install the extension first and try again."],'ERROR');
                 } else if(error.code == 'error.metamask.locked') {
                     BackChainActions.displayAlertPopup("MetaMask is Locked",
