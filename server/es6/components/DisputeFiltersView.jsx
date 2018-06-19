@@ -118,7 +118,6 @@ const fieldProps = {
     clearDisputeFilters() {
         this.refs.transactionId.value = '';
         this.disputeFilters = {
-            status: null,
             searchTnxId: null,
             searchBtId: null,
             searchDisputeId: null,
@@ -132,6 +131,19 @@ const fieldProps = {
             disputingParty: [],
             transactionRelatedFilter: false
         };
+        this.resetStatusCheckboxes();
+    }
+
+    resetStatusCheckboxes() {
+        let status = [];
+        this.selectedCheckboxes.clear();
+        this.selectedCheckboxes.add("DRAFT");
+        this.selectedCheckboxes.add("OPEN");
+        for (let checkBoxValue of this.selectedCheckboxes.values()) {
+            status.push(checkBoxValue);
+        }
+        this.setState({ draftChkBox: true, openChkBox: true, closedChkBox: false});
+        this.disputeFilters.status = status;
     }
 
     applyFilters() {
