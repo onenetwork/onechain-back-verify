@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { dbconnectionManager } from '../DBConnectionManager';
+import { transactionHelper } from '../TransactionHelper';
 import BackChainActions from '../BackChainActions';
 import {utils} from '../Utils';
 
@@ -21,13 +22,7 @@ export default class EventsPopoverContent extends React.Component {
                 let event = events[i];
                 if(typeof event !== 'number') {
                     if(selectedBtIds.length == 0 || selectedBtIds.indexOf(event.btid) > -1) {
-                        let btrefContents = event.btref.split('~');
-                        let pltUrl = btrefContents[0];
-                        let modelLevel = btrefContents[1];
-                        let naturalKeys = btrefContents[2];
-                        for(let i = 3; i < btrefContents.length; i++) {
-                            naturalKeys += '/' + btrefContents[i];
-                        }
+                        let processedBtRef = transactionHelper.processBtRef(event.btref);
                         let timeInMillis = utils.convertPlatformDateToMillis(event.date);
                         let formattedDate = utils.formatDate(timeInMillis);
                         eventList.push(
@@ -40,7 +35,7 @@ export default class EventsPopoverContent extends React.Component {
                                 marginRight: 10
                             }}>
                                 <span style={{color:'#990000', marginRight: 8}}>{formattedDate}</span>{" "}
-                                <span>{naturalKeys}&nbsp;&ndash;&nbsp;{modelLevel}&nbsp;{'from'}&nbsp;<a href={pltUrl} target="_blank">{pltUrl}</a></span>
+                                <span>{processedBtRef.naturalKeys}&nbsp;&ndash;&nbsp;{processedBtRef.modelLevel}&nbsp;{'from'}&nbsp;<a href={processedBtRef.pltUrl} target="_blank">{processedBtRef.pltUrl}</a></span>
                             </li>
                         )
                     }

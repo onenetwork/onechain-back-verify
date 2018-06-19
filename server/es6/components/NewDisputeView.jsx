@@ -6,6 +6,7 @@ import BackChainActions from '../BackChainActions';
 import moment from 'moment';
 import { utils } from '../Utils';
 import {disputeHelper} from '../DisputeHelper';
+import { transactionHelper } from '../TransactionHelper';
 
 @observer export default class NewDisputeView extends React.Component {
 
@@ -271,10 +272,12 @@ import {disputeHelper} from '../DisputeHelper';
         let evntsUI = [];
         for(let i = 0; i < store.events.length; i++) {
 			let event = store.events[i];
+			let processedBtRef = transactionHelper.processBtRef(event.btref);
+			let processedBtRefUI = <span>{processedBtRef.naturalKeys}&nbsp;&ndash;&nbsp;{processedBtRef.modelLevel}&nbsp;{'from'}&nbsp;<a href={processedBtRef.pltUrl} target="_blank">{processedBtRef.pltUrl}</a></span>;
 			if (this.state.eventBtids.indexOf(event.btid) > -1) {
-				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
 			} else {
-				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {event.actionName}</Checkbox>);
+				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(event.date)} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
 			}
 		}
 

@@ -297,6 +297,25 @@ class TransactionHelper {
         }
         return events;
     }
+
+    /**
+     * This function processes btref, and returns naturalKeys,modelLevel and pltUrl details.
+     * @param {*} btref 
+     */
+    processBtRef(btref) {
+        let btrefContents = btref.split('~');
+        let pltUrl = btrefContents[0];
+        let modelLevel = btrefContents[1];
+        let naturalKeys = btrefContents[2];
+        for(let i = 3; i < btrefContents.length; i++) {
+            naturalKeys += '/' + btrefContents[i];
+        }
+        return ({
+            naturalKeys: naturalKeys,
+            modelLevel: modelLevel,
+            pltUrl: pltUrl
+        });
+    }
 }
 
 export const transactionHelper = new TransactionHelper();
