@@ -239,6 +239,14 @@ import { transactionHelper } from '../TransactionHelper';
 		this.setState({ eventBtids: [] });
 	}
 
+	onHoverChkUnchkEvents(event) {
+		event.currentTarget.style.color = '#00B5FF';
+    }
+
+    onHoverOutChkUnchkEvents(event) {
+		event.currentTarget.style.color = '#0085C8';
+	}
+
     render() {
 		const {store} = this.props;
 		let participantsDom = [];
@@ -474,9 +482,9 @@ import { transactionHelper } from '../TransactionHelper';
                                                         {evntsUI}
 													</div>
 													<div style={{ float: 'right'}}>
-														<div style={{ fontStyle: 'italic', fontSize: '13px', color: '#0085C8', display: 'inline', cursor:'pointer'}} onClick={this.selectAllChkBox.bind(this)}>Select All</div>
+														<div style={{ fontStyle: 'italic', fontSize: '13px', color: '#0085C8', display: 'inline', cursor:'pointer'}} onMouseOver={this.onHoverChkUnchkEvents.bind(this)} onMouseOut = {this.onHoverOutChkUnchkEvents.bind(this)} onClick={this.selectAllChkBox.bind(this)}>Select All</div>
 														&nbsp;&nbsp;&nbsp;
-														<div style={{ fontStyle: 'italic', fontSize: '13px', color: '#0085C8', display: 'inline', cursor: 'pointer'}} onClick={this.unSelectAllChkBox.bind(this)}>Unselect All</div>
+														<div style={{ fontStyle: 'italic', fontSize: '13px', color: '#0085C8', display: 'inline', cursor: 'pointer'}} onMouseOver={this.onHoverChkUnchkEvents.bind(this)} onMouseOut = {this.onHoverOutChkUnchkEvents.bind(this)} onClick={this.unSelectAllChkBox.bind(this)}>Unselect All</div>
 													</div>
 												</Col>
 											</Col>
