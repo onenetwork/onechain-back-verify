@@ -123,7 +123,8 @@ import { transactionHelper } from '../TransactionHelper';
 		}
 		me.setState({
 			searchTnxIdTimeOut: setTimeout(function() {
-				BackChainActions.populateDisputeTransaction(event.target.value)
+				let tnxId = event.target.value.trim();
+				BackChainActions.populateDisputeTransaction(tnxId)
 				.then(function(result){
 					if(result === true){
 						if (disputeHelper.isSubmitDisputeWindowStillOpen(me.props.store.disputeTransaction, me.props.store.disputeSubmissionWindowInMinutes).visible) {
@@ -133,7 +134,7 @@ import { transactionHelper } from '../TransactionHelper';
 							return;
 						}
 					}
-					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+event.target.value+"~"+Date.now());
+					BackChainActions.generateDisputeId(me.props.store.entNameOfLoggedUser+"~"+tnxId+"~"+Date.now());
 					if(me.props.store.disputeTransaction) {
 						me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 					} else {
