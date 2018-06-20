@@ -1,5 +1,5 @@
 import React from 'react';
-import {Row, Col, Button, FormControl, FormGroup, Checkbox} from 'react-bootstrap';
+import {Row, Col, Button, FormControl, FormGroup} from 'react-bootstrap';
 import ReactDOM from 'react-dom';
 import { observer } from 'mobx-react';
 import BackChainActions from '../BackChainActions';
@@ -277,22 +277,6 @@ import { transactionHelper } from '../TransactionHelper';
 		for(let i=0, len = listOfPartners.length; i < len; i++) {
 			participantsDom.push(<div key={"pt_" + listOfPartners[i]}>{listOfPartners[i]}</div>);
 		}
-        
-        let evntsUI = [];
-        for(let i = 0; i < store.events.length; i++) {
-			let event = store.events[i];
-			let processedBtRef = transactionHelper.processBtRef(event.btref);
-			let processedBtRefUI = <span>{processedBtRef.naturalKeys}&nbsp;&ndash;&nbsp;{processedBtRef.modelLevel}&nbsp;{'from'}&nbsp;<a href={processedBtRef.pltUrl} target="_blank">{processedBtRef.pltUrl}</a></span>;
-			if (this.state.eventBtids.indexOf(event.btid) > -1) {
-				evntsUI.push(<Checkbox value={event.btid} checked={true} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(utils.convertPlatformDateToMillis(event.date))} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
-			} else {
-				evntsUI.push(<Checkbox value={event.btid} checked={false} onClick={this.evntClickHandler.bind(this)} key={event.btid}> {utils.formatDate(utils.convertPlatformDateToMillis(event.date))} &nbsp;&nbsp; {processedBtRefUI}</Checkbox>);
-			}
-		}
-
-		if(!this.props.store.disputeTransaction) {
-			evntsUI = [];
-		}
 		
         let fieldProps = {
 			cancelButton: {
@@ -378,7 +362,7 @@ import { transactionHelper } from '../TransactionHelper';
 				borderRadius: '4px',
 				padding: '0px 5px 0px 5px',
 				height: '90px',
-    			overflowY: 'scroll'
+				overflow: 'scroll',
 			},
 			colLeft: {
 				width:'59%'
@@ -387,9 +371,35 @@ import { transactionHelper } from '../TransactionHelper';
 				fontSize: '15px', 
 				float: 'right',
 				cursor: 'pointer'
+			},
+			evntsChkBox: {
+				display: 'inline',
+    			width: '16px',
+				height: '15px'
+			},
+			evntsList: {
+				whiteSpace: 'nowrap',
+				lineHeight: '0px',
+				padding: '2px'
+			},
+			processedBtRefUI: {
+				verticalAlign:'2px', 
+				marginLeft:'5px'
 			}
 		};
 
+		let evntsUI = [];
+        for(let i = 0; i < store.events.length; i++) {
+			let event = store.events[i];
+			let processedBtRef = transactionHelper.processBtRef(event.btref);
+			let processedBtRefUI = <span style={fieldProps.processedBtRefUI}>{utils.formatDate(event.date)} &nbsp;{processedBtRef.naturalKeys}&nbsp;&ndash;&nbsp;{processedBtRef.modelLevel}&nbsp;{'from'}&nbsp;<a href={processedBtRef.pltUrl} target="_blank">{processedBtRef.pltUrl}</a></span>;
+			evntsUI.push(<p style={fieldProps.evntsList} key={event.btid}><FormControl style={fieldProps.evntsChkBox} type="checkbox" value={event.btid} checked={this.state.eventBtids.indexOf(event.btid) > -1} onChange={this.evntClickHandler.bind(this)} />{processedBtRefUI}</p>);
+		}
+
+		if(!this.props.store.disputeTransaction) {
+			evntsUI = [];
+		}
+		
 		let disputeWarningInfo = null;
 		if(this.state.disputeWarnMsg) {
 			disputeWarningInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: '#f7f1cb', borderColor: '#f4deb0'})}>
@@ -479,7 +489,7 @@ import { transactionHelper } from '../TransactionHelper';
 													Events:
 												</Col>
 												<Col style={{paddingLeft:'0px'}} md={9}>
-													<div className="eventsVal" contentEditable="true" suppressContentEditableWarning={true} style={fieldProps.eventsParticipantsValDiv}>
+													<div className="eventsVal" style={fieldProps.eventsParticipantsValDiv}>
                                                         {evntsUI}
 													</div>
 													<div style={{ float: 'right'}}>
