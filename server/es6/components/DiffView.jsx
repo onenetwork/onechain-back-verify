@@ -210,7 +210,7 @@ const intersect = require('object.intersect');
                       (<Col xs={2} className="tablinks docsTab" onClick={(e) => this.openTab('Docs', ['diffTab', 'commonTab'], 'docsTab')} style={Object.assign({}, styles.tablinks, {cursor: 'pointer', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                         <span style={{verticalAlign : 'sub'}}>Documents</span>
                       </Col>) : 
-                      (<Col xs={2} style={Object.assign({opacity: 0.5}, styles.tablinks, {cursor: 'not-allowed', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
+                      (<Col xs={2} className="tablinks docsTab" style={Object.assign({opacity: 0.5}, styles.tablinks, {cursor: 'not-allowed', marginLeft:'2px', width:'auto',color:'#646464', backgroundColor : 'rgba(228, 228, 228, 1)'})}>
                         <span style={{verticalAlign : 'sub'}}>Documents</span>
                       </Col>);
 
