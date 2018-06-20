@@ -902,9 +902,11 @@ export default class BackChainActions {
 								}
 							}
 							store.disputes = currentDisputes;
-						}
+                        }
+                        BackChainActions.displayAlertPopup('Dispute Discarded Successfully', "Your Dispute Discarded Successfully", "SUCCESS");
                     } else {
                         console.error('error while discarding dispute draft.');
+                        BackChainActions.displayAlertPopup('Discard Dispute Failed', "Discard Dispute Failed", "ERROR");
                     }
                 })
         })
