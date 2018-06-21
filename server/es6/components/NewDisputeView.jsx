@@ -333,7 +333,7 @@ import { transactionHelper } from '../TransactionHelper';
 				paddingTop: '10px'
 			},
 			disputeIdChildDiv: {
-				height: '36px', 
+				minheight: '36px', 
 				width: '885px',
 				padding: '6px',
 				borderRadius: '3px',
@@ -341,7 +341,7 @@ import { transactionHelper } from '../TransactionHelper';
 				borderWidth: '1px',
 				borderStyle: 'solid',
 				paddingLeft: '20px',
-				display: 'table',
+				display: 'inline-block',
 				marginBottom: '15px'
 			},
 			disputeIdLabel: {
@@ -413,7 +413,7 @@ import { transactionHelper } from '../TransactionHelper';
 			disputeErrorMsgInfo = (<Row style={Object.assign({}, fieldProps.disputeIdChildDiv, { backgroundColor: '#f2dede', borderColor: '#ebcbd1' })}>
 								<i className="fa fa-times resetMsgs" style={Object.assign({}, fieldProps.msgTimes, { color: '#d83f3f'})} onClick={this.resetMsgs.bind(this)}/>
 								<span><i className="fa fa-times-circle" style={{ fontSize: '22px', color: '#d83f3f' }} /></span>&nbsp;&nbsp;
-								<span style={{ fontSize: '14px', paddingRight: '48px', position:'relative',top:'-2px' }}>&nbsp;<span style={{ color: '#d83f3f', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#d83f3f',fontWeight: '400' }}>{this.state.disputeErrorMsg}</span></span>
+								<span style={{ fontSize: '14px', paddingRight: '48px', position:'relative',top:'-2px' }}>&nbsp;<span style={{ color: '#d83f3f', fontWeight: 700 }}>Error!</span>&nbsp;<span style={{ color: '#d83f3f',fontWeight: '400', wordWrap: 'break-word' }}>{this.state.disputeErrorMsg}</span></span>
 							</Row>);
 		}
 		let disputeSuccessInfoMsg = null;
