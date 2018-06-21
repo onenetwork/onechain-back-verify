@@ -51,7 +51,7 @@ import AlertPopupView from './AlertPopupView';
 			return <Redirect push to="/setup" />;
 		}
 		if (this.state.redirect) {
-            return <Redirect push to="/listTransactions" />;
+            return <Redirect push to={{pathname:'/listTransactions', state:{referrer:'/businessId'}}} />;
 		} else {
 			let fieldProps = {
 				panelPadding : {

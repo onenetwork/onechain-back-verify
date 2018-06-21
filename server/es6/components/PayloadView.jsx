@@ -74,7 +74,7 @@ import Images from '../Images';
 		}
 		
 		if (this.state.redirect) {
-            return <Redirect push to="/listTransactions" />;
+            return <Redirect push to={{pathname:'/listTransactions', state:{referrer:'/payload'}}} />;
 		} 
 		else {
 				let fieldProps = {
