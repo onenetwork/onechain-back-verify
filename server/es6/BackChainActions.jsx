@@ -884,13 +884,14 @@ export default class BackChainActions {
 
     @action
     static discardDisputeDraft(disputeId, removeFromStore) {
-        return new Promise(resolve => {
+        return new Promise(function(resolve, reject) {
             let uri = '/discardDraftDispute/' + disputeId;
             return fetch(uri, { method: 'POST' })
                 .then(function (response) {
                     return response.json();
                 }, function (error) {
                     console.error(error);
+                    reject();
                 }).then(function (result) {
                     if (result.success) {
 						if(removeFromStore) {
@@ -903,10 +904,10 @@ export default class BackChainActions {
 							}
 							store.disputes = currentDisputes;
                         }
-                        BackChainActions.displayAlertPopup('Dispute Discarded Successfully', "Your Dispute Discarded Successfully", "SUCCESS");
+                        resolve(true)
                     } else {
                         console.error('error while discarding dispute draft.');
-                        BackChainActions.displayAlertPopup('Discard Dispute Failed', "Discard Dispute Failed", "ERROR");
+                        reject();
                     }
                 })
         })

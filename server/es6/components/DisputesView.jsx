@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Row, Button, Panel, Checkbox, Table, Col, OverlayTrigger, Overlay, Popover, Modal } from 'react-bootstrap';
-import { toJS } from 'mobx';
+import { toJS, reaction } from 'mobx';
 import EventsPopoverContent from './EventsPopoverContent';
 import BackChainActions from '../BackChainActions';
 import { observer } from 'mobx-react';
@@ -94,6 +94,13 @@ const reasonCodeMap = {
 
     componentDidMount() {
         BackChainActions.processApplicationSettings();
+        reaction(
+            () => this.props.store.displayAlertPopup,
+            () => {
+              if (this.props.store.displayAlertPopup)
+                    this.hideActionPopovers()
+            }
+        );
     }
 
     loadTransactionIntoStoreAndRedirect(disputedTransactionId) {
@@ -110,7 +117,15 @@ const reasonCodeMap = {
     }
 
     discardDraftDispute(dispute) {
-        BackChainActions.discardDisputeDraft(dispute.disputeId, true);
+        BackChainActions.discardDisputeDraft(dispute.disputeId, true)
+        .then(function(result) {
+            if(result)
+                BackChainActions.displayAlertPopup('Dispute Discarded Successfully', "Your Dispute Discarded Successfully", "SUCCESS");
+        })
+        .catch(function (err) {
+            console.error(err);
+            BackChainActions.displayAlertPopup('Discard Dispute Failed', "Discard Dispute Failed", "ERROR");
+        });
     }
 
     submitDispute(dispute) {
@@ -478,11 +493,17 @@ const reasonCodeMap = {
                 </Link>
             </Popover>);
             let actionsCell = (
-                <OverlayTrigger trigger="focus" placement="right" overlay={popOver}>
-                    <div className="counter-ct" style={{ paddingLeft: '10px' }} >
-                        <a href="#"> <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i></a>
-                    </div>
-                </OverlayTrigger>
+                <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
+                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }} ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                    <Overlay show={this.state.actionsPopoverVisibilityMap[idx] || false}
+                            onHide={() => this.showActionPopover(idx, false)}
+                            rootClose={true}
+                            placement="right"
+                            container={document.getElementById("root")}
+                            target={() => this.actionsPopoverRefsMap[idx]}>
+                        {popOver}
+                    </Overlay>
+                </div>
             );
             return <td style={fieldProps.columns}>{actionsCell}</td>;
         } else if (dispute.state == "OPEN") {
@@ -499,11 +520,17 @@ const reasonCodeMap = {
                 </Popover>
                 );
                 actionsCell = (
-                    <OverlayTrigger trigger="focus" placement="right" overlay={popOver}>
-                        <div className="counter-ct" style={{ paddingLeft: '10px' }} >
-                            <a href="#"> <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer' }}></i></a>
-                        </div>
-                    </OverlayTrigger>
+                    <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
+                        <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }} ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                        <Overlay show={this.state.actionsPopoverVisibilityMap[idx] || false}
+                                onHide={() => this.showActionPopover(idx, false)}
+                                rootClose={true}
+                                placement="right"
+                                container={document.getElementById("root")}
+                                target={() => this.actionsPopoverRefsMap[idx]}>
+                                {popOver}
+                        </Overlay>
+                    </div>
                 );
             }
             return <td style={fieldProps.columns}>{actionsCell}</td>;
@@ -537,6 +564,16 @@ const reasonCodeMap = {
     showActionPopover(idx, show) {
         let newMap = Object.assign({}, this.state.actionsPopoverVisibilityMap);
         newMap[idx] = show;
+        this.setState({ actionsPopoverVisibilityMap: newMap });
+    }
+
+    hideActionPopovers() {
+        let newMap = Object.assign({}, this.state.actionsPopoverVisibilityMap);
+        for (let key in newMap) {
+            if (newMap.hasOwnProperty(key)) {
+                newMap[key]=false;
+            }
+        }
         this.setState({ actionsPopoverVisibilityMap: newMap });
     }
 
