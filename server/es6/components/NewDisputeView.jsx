@@ -392,7 +392,7 @@ import { transactionHelper } from '../TransactionHelper';
         for(let i = 0; i < store.events.length; i++) {
 			let event = store.events[i];
 			let processedBtRef = transactionHelper.processBtRef(event.btref);
-			let processedBtRefUI = <span style={fieldProps.processedBtRefUI}>{utils.formatDate(event.date)} &nbsp;{processedBtRef.naturalKeys}&nbsp;&ndash;&nbsp;{processedBtRef.modelLevel}&nbsp;{'from'}&nbsp;<a href={processedBtRef.pltUrl} target="_blank">{processedBtRef.pltUrl}</a></span>;
+			let processedBtRefUI = <span style={fieldProps.processedBtRefUI}>{utils.formatDate(utils.convertPlatformDateToMillis(event.date))} &nbsp;{processedBtRef.naturalKeys}&nbsp;&ndash;&nbsp;{processedBtRef.modelLevel}&nbsp;{'from'}&nbsp;<a href={processedBtRef.pltUrl} target="_blank">{processedBtRef.pltUrl}</a></span>;
 			evntsUI.push(<p style={fieldProps.evntsList} key={event.btid}><FormControl style={fieldProps.evntsChkBox} type="checkbox" value={event.btid} checked={this.state.eventBtids.indexOf(event.btid) > -1} onChange={this.evntClickHandler.bind(this)} />{processedBtRefUI}</p>);
 		}
 
