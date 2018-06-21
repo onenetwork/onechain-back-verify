@@ -2,6 +2,7 @@
  Helper class contains utilities
 */
 import fs from 'fs';
+import zlib from 'zlib';
 import crypto from 'crypto';
 
 class BackChainUtil {
@@ -53,7 +54,9 @@ class BackChainUtil {
                     try {
                         const filestream = fs.createReadStream(document);
                         //TODO@PANKAJ or const filestream = fs.ReadStream(filename)
-                        filestream.on('data', function (data) {
+                        const unzip = zlib.createUnzip(); 
+
+                        filestream.pipe(unzip).on('data', function (data) {
                             sha256.update(data)
                         })
                         filestream.on('end', function () {
