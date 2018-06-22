@@ -7,12 +7,42 @@ import BackChainActions from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import DisputeFiltersView from './DisputeFiltersView';
 import NewDisputeView from './NewDisputeView';
+import { disputeHelper } from '../DisputeHelper';
+import { toJS } from 'mobx';
 
 @observer export default class ListDisputesView extends React.Component {
 
 	componentDidMount() {
-		BackChainActions.processApplicationSettings(); 
-		BackChainActions.loadDisputes(this.props.store.preSetDisputeFilters);
+		BackChainActions.isInitialSyncDone();
+		
+		if(Object.keys(toJS(this.props.store.preSetDisputeFilters)).length == 0) {
+            let me = this;
+            BackChainActions.readBackChainAddressMapping()
+            .then(function (result) {
+              if(result) {
+                BackChainActions.processApplicationSettings()
+                .then(function (result) {
+                  if(result) {
+                        let disputeFilters = {
+                            status: ["DRAFT", "OPEN"], /*Note: This is initial filter for getting disputes */
+                            raisedBy: me.props.store.entNameOfLoggedUser, /*Note: raisedBy is required to display it on Filter UI*/
+                            disputingParty: disputeHelper.getDisputingPartyAddress(me.props.store.entNameOfLoggedUser, me.props.store.backChainAddressMapping)
+						}
+						BackChainActions.loadDisputes(disputeFilters);
+                  }
+                }).catch(function (error) {
+                    console.error("error: " + error);
+                });
+              }
+            })
+            .catch(function (error) {
+              console.error("error: " + error);
+            });
+		} else {
+			BackChainActions.loadDisputes(this.props.store.preSetDisputeFilters);
+		}
+
+		
 
         /*If disputeTransaction, means we need to open dispute form pop up, with prepopulated values of the disputeTransaction*/
 		if(this.props.store.disputeTransaction) {

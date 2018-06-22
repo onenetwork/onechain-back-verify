@@ -978,6 +978,7 @@ export default class BackChainActions {
                 disputeBcClient.submitDispute(dispute)
                 .then(function(receipt){
                     if(receipt && receipt.status == 1) {
+                        BackChainActions.addLoggedInUserAsDisputingParty(dispute.disputeId);
                         BackChainActions.registerAddress(accountNumber);
                         BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
                         BackChainActions.discardDisputeDraft(dispute.disputeId, false);
@@ -1082,6 +1083,17 @@ export default class BackChainActions {
                     currentDisputes[i].closedDate = new Date().getTime(); //It's okay to set the current time because that's what block chain will set
                 }
                 currentDisputes[i].state = newState;
+                break;
+            }
+        }
+    }
+
+    @action
+    static addLoggedInUserAsDisputingParty(disputeId) {
+        let currentDisputes = store.disputes;
+        for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
+            if (disputeId == currentDisputes[i].disputeId) {
+                currentDisputes[i].disputingParty = disputeHelper.getDisputingPartyAddress(store.entNameOfLoggedUser, store.backChainAddressMapping);
                 break;
             }
         }
