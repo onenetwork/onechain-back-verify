@@ -53,7 +53,6 @@ class BackChainUtil {
                 if(!err) {
                     try {
                         const filestream = fs.createReadStream(document);
-                        //TODO@PANKAJ or const filestream = fs.ReadStream(filename)
                         const unzip = zlib.createUnzip(); 
 
                         filestream.pipe(unzip).on('data', function (data) {
