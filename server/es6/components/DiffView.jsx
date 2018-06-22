@@ -57,7 +57,7 @@ const intersect = require('object.intersect');
     let btIdsArr=[];
     this.state.btIdsListUI.splice(0, this.state.btIdsListUI.length);
     let businessTransactionIdRegEx = new RegExp("^" + businessTransactionId + ".*$");
-    let businessTransactions = this.props.store.viewTransactions.enterprise.transactionSlice.businessTransactions;
+    let businessTransactions = this.props.store.viewTransactions.intersection.transactionSlice.businessTransactions;
     
     if(businessTransactionId) {
       let indexOfBusinessTranction = 0;
