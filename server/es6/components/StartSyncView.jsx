@@ -60,11 +60,11 @@ class SyncForm extends React.Component {
 
 	startSync() {
 		if (this.isEmpty(this.props.store.authenticationToken) || this.isEmpty(this.props.store.lastSyncTimeInMillis) || this.isEmpty(this.props.store.chainOfCustodyUrl)) {
-			BackChainActions.displayAlertPopup("Missing Required Fields", "Please fill in all the required fields and try again.",'WARN');
+			BackChainActions.displayAlertPopup("Missing Required Fields", "All of the fields are required. Please fill all the fields and try again.",'ERROR');
 			return;
 		}
 		if (!this.props.store.chainOfCustodyUrl.toLowerCase().startsWith("http://") && !this.props.store.chainOfCustodyUrl.toLowerCase().startsWith("https://")) {
-			BackChainActions.displayAlertPopup("Invalid One Network's Audit Repository Url", "Please enter a valie One Network's Audit Repository url and try again.",'WARN');
+			BackChainActions.displayAlertPopup("Invalid One Network's Audit Repository Url", "Please enter a valie One Network's Audit Repository url and try again.",'ERROR');
 			return;
 		}
 		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
@@ -101,6 +101,11 @@ class SyncForm extends React.Component {
 			}
 		};
 
+		let now = Datetime.moment();
+		let valid = function (current) {
+			return current.isBefore(now);
+		};
+
 		if(!this.props.store.authenticationToken) {
 			this.props.store.lastSyncTimeInMillis = moment().startOf('year').valueOf();
 		}
@@ -134,7 +139,7 @@ class SyncForm extends React.Component {
 				</Row><br/>
 				<Row>
 					<Col md={5}>
-						<Datetime defaultValue={this.props.store.lastSyncTimeInMillis} inputProps={{placeholder: "mm/dd/yyyy"}} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false}/>
+						<Datetime defaultValue={this.props.store.lastSyncTimeInMillis} inputProps={{ placeholder: "mm/dd/yyyy" }} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false} isValidDate={valid}/>
 					</Col>
 				</Row><br/>
 				<Row>
