@@ -80,8 +80,8 @@ class SettingsHelper {
                 let numberOfMissingRecordsInTheGap = ((new BigNumber(gapToSequenceNo).minus(new BigNumber(gapFromSequenceNo))).minus(new BigNumber(1))).valueOf();
                 let fromGapDate = gap.fromDateInMillis;
                 let toGapDate = gap.toDateInMillis;
-                let hrs = this.returnDiffInHrsMins(fromGapDate, toGapDate).hours + 'hrs';
-                let mins = this.returnDiffInHrsMins(fromGapDate, toGapDate).mins + 'mins';
+                let hrs = this.returnDiffInHrsMins(fromGapDate, toGapDate).hours + ' hrs';
+                let mins = this.returnDiffInHrsMins(fromGapDate, toGapDate).mins + ' mins';
 
                 store.syncStatisticsReport.push({
                     type : "gap", 
