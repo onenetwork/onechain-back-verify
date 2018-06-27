@@ -26,10 +26,6 @@ import Images from '../Images';
 		this.setState({
 			verifyDisabled: true
 		});
-		if(!this.state.actualFile){
-			alert('Please select the payload file');
-			return;
-		}
 	
 		JSZip.loadAsync(this.state.actualFile)
 			.then(function(zip) {
@@ -43,7 +39,6 @@ import Images from '../Images';
 							_this.setState({
 								redirect: true
 							});
-							// TODO redirect false not handled. Once we get redire:false we need to set verifyDisabled:false
 						});
 					})
 				}

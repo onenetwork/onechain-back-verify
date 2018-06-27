@@ -404,11 +404,13 @@ export default class BackChainActions {
                           store.authenticationToken = null;
                           store.chainOfCustodyUrl=config.chainOfCustodyUrl;
                     }
+                    store.mode = result.success ? result.settings.mode : 'dev';
                     resolve(true);
                 }).catch(function(error) {
                     store.isInitialSetupDone = null;
                     store.authenticationToken = null;
                     store.disputeSubmissionWindowInMinutes = null;
+                    store.mode = 'dev';
                     reject(error);
                 });
             } else {

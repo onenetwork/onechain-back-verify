@@ -296,7 +296,6 @@ class SyncTransactionTaskHelper {
         }
 
         startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, callback) {
-            // TODO: don't add duplicates
             pendingResets.unshift({
                 authenticationToken: authenticationToken,
                 chainOfCustodyUrl: chainOfCustodyUrl,
@@ -307,7 +306,6 @@ class SyncTransactionTaskHelper {
         }
 
         startGapSync(authenticationToken, chainOfCustodyUrl, gaps, callback) {
-            // TODO: don't add duplicates
             for(let i = 0; i < gaps.length; i++) {
                 pendingResets.unshift({
                     authenticationToken: authenticationToken,

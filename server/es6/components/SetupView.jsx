@@ -27,7 +27,7 @@ import DisplaySyncView from "./DisplaySyncView"
 			return;
 		}
 		if (!this.props.store.blockChainUrl.toLowerCase().startsWith("http://") && !this.props.store.blockChainUrl.toLowerCase().startsWith("https://")) {
-			BackChainActions.displayAlertPopup("Invalid BlockChain Url", "Please enter a valie block chain url and try again.",'WARN');
+			BackChainActions.displayAlertPopup("Invalid BlockChain Url", "Please enter a valid block chain url and try again.",'WARN');
 			return;
 		}
 		BackChainActions.verifyBackChainSettings();
@@ -51,7 +51,7 @@ import DisplaySyncView from "./DisplaySyncView"
 		}
 		let fieldProps = {
 			panelPadding: {
-				paddingLeft: '150px',
+				paddingLeft: '30px',
 				paddingBottom: '50px',
 				height: '40px',
 				paddingTop: '10px'
@@ -65,7 +65,9 @@ import DisplaySyncView from "./DisplaySyncView"
 				fontFamily: 'Open Sans',
 				fontWeight: 400,
 				fontStyle: 'normal',
-				fontSize: '18px'
+				fontSize: '18px',
+				textAlign: 'right',
+				paddingTop: '5px'
 			},
 			valueInput: {
 				fontFamily: 'Open Sans',
@@ -89,35 +91,32 @@ import DisplaySyncView from "./DisplaySyncView"
 				fontSize: '18px',
 				width: '96px',
 				height: '42px'
-			},
-			valueLabelCol: {
-				width:'20%'
 			}
 		};
 		let panelBody = (<div>
 			<AlertPopupView store={this.props.store} />
 			<p></p>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
-				<Col md={8}>
+				<Col md={4}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
+				<Col md={7}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl == null ? '' : this.props.store.blockChainUrl}/>
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Content BackChain Contract Address: </div></Col>
-				<Col md={8}>
+				<Col md={4}><div style={fieldProps.valueLabel}>Content BackChain Contract Address: </div></Col>
+				<Col md={7}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress == null ? '' : this.props.store.blockChainContractAddress} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}><div style={fieldProps.valueLabel}>Dispute BackChain Contract Address: </div></Col>
-				<Col md={8}>
+				<Col md={4}><div style={fieldProps.valueLabel}>Dispute BackChain Contract Address: </div></Col>
+				<Col md={7}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.disputeBlockChainContractAddress.bind(this)}  onChange={this.disputeBlockChainContractAddress.bind(this)} placeholder={this.props.store.disputeBlockChainContractAddress} value= {this.props.store.disputeBlockChainContractAddress == null ? '' : this.props.store.disputeBlockChainContractAddress} />
 				</Col>
 			</Row>
 			<Row style={fieldProps.panelPadding}>
-				<Col md={3} style={fieldProps.valueLabelCol}></Col>
-				<Col md={8}>
+				<Col md={4}></Col>
+				<Col md={7}>
 					<div>
 							<button onClick={this.saveInitialConfig.bind(this)} style={fieldProps.buttonStyle} className="btn btn-primary">
 							<span>Enter</span>
@@ -129,27 +128,32 @@ import DisplaySyncView from "./DisplaySyncView"
 
 		let panelBodyProd = (<div>
 			<p></p>
-			<Row style={{paddingTop:'50px', paddingLeft: '150px', height: '40px',paddingBottom:'60px'}}>
-				<Col md={2}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
-				<Col md={8}>
+			<Row style={fieldProps.panelPadding}>
+				<Col md={3}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
+				<Col md={7}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder="e.g. http://localhost:8545" />
 				</Col>
 			</Row>
 
 			<Row style={fieldProps.panelPadding} >
-				<Col md={2} style={{width: '177px'}}><div>  </div></Col>
-				<div  className="col-md-7" style={{backgroundColor: 'rgba(221, 236, 255, 1)',borderRadius: '6px',width: '64%',height: '54px'}}>
-				<div style={{display: 'inline'}}><span style={{color:'#0085C8',fontSize:'20px',paddingTop:'6px'}} className="fa fa-info-circle fa-2x"></span></div>
-				<div style={{display: 'inline',paddingLeft:'10px'}}>
-						<span>The default Blockchain URL will connect you to One Network's Blockchain.</span>
-						<span style={{display: 'block',paddingLeft:'30px'}} > However, you can specify another Blockchain URL if you wish.</span>
-				</div>
-				</div>
+				<Col md={3}><div></div></Col>
+				<Col md={7}>
+					<div style={{backgroundColor: 'rgba(221, 236, 255, 1)',borderRadius: '6px', height: '54px', paddingLeft: '12px', paddingTop: '6px'}}>
+						<div style={{float: 'left', marginRight: '5px'}}>
+							<i style={{color:'#0085C8',fontSize:'20px'}} className="fa fa-info-circle fa-2x"></i>
+						</div>
+						<div style={{float: 'left'}}>
+							The default Blockchain URL will connect you to One Network's Blockchain.<br/>
+							However, you can specify another Blockchain URL if you wish.
+						</div>
+						<div style={{clear: 'both'}}></div>
+					</div>
+				</Col>
 			</Row>
-
-			<Row  style={{paddingTop:'60px', paddingLeft: '135px', height: '40px'}}>
-				<Col md={2} style={{width: '177px'}}> </Col>
-				<Col md={8}>
+			<p></p>
+			<Row style={fieldProps.panelPadding}>
+				<Col md={3}> </Col>
+				<Col md={7}>
 					<div>
 							<button onClick={this.saveInitialConfig.bind(this)} className="btn btn-primary" style={fieldProps.buttonStyle}>
 							<span>Enter</span>

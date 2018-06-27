@@ -64,7 +64,7 @@ class SyncForm extends React.Component {
 			return;
 		}
 		if (!this.props.store.chainOfCustodyUrl.toLowerCase().startsWith("http://") && !this.props.store.chainOfCustodyUrl.toLowerCase().startsWith("https://")) {
-			BackChainActions.displayAlertPopup("Invalid One Network's Audit Repository Url", "Please enter a valie One Network's Audit Repository url and try again.",'ERROR');
+			BackChainActions.displayAlertPopup("Invalid One Network's Audit Repository Url", "Please enter a valid One Network's Audit Repository url and try again.",'ERROR');
 			return;
 		}
 		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.props.store.lastSyncTimeInMillis, this.props.store.chainOfCustodyUrl);
