@@ -1151,4 +1151,10 @@ export default class BackChainActions {
             console.error('error verifying attachements!');
         });
     }
+
+    @action
+    static resetTotalCompletedCount() {
+        store.verificationStatus.totalCompleted = 0;
+        store.verificationStatus.endResult = 'verifying';
+    }
 }
