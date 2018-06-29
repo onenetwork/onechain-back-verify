@@ -57,10 +57,16 @@ class BackChainUtil {
 
                         filestream.pipe(unzip).on('data', function (data) {
                             sha256.update(data)
+                        }).on('error', function (err) {
+                            console.log("error while unzipping file.");
+                            return resolve(null);
                         })
                         filestream.on('end', function () {
                             const hash = sha256.digest('hex')
                             return resolve(hash);
+                        }).on('error', function (err) {
+                            console.log("error end not found");
+                            return resolve(null);
                         })
                     } catch (error) {
                         return resolve(null);

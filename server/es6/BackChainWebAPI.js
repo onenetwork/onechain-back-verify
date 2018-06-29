@@ -203,7 +203,10 @@ exports.downloadViewDocument = function(req, res) {
         if(!err) {
             const unzip = zlib.createUnzip();  
             const filestream = fs.createReadStream(document);
-            filestream.pipe(unzip).pipe(res);
+            filestream.pipe(unzip).on('error', function (err) {
+                    console.log("error while unzipping file.");
+                    res.status(404).end();
+                }).pipe(res);
         } else {
             res.status(404).end();
         }
