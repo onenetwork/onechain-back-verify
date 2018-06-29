@@ -140,12 +140,10 @@ class TransactionHelper {
         return sliceIndex;
     }
 
-    generateVerificationDataAndStartVerifying(transactions, store) {
-        store.verifications.clear();
+    generateVerificationDataAndStartVerifying(transactions, store) {   
         if(transactions.length == 0) {
             return;
         }
-        store.canStartVerifying = false;
         const myEntName = store.entNameOfLoggedUser;
         const oneContentBcClient = store.oneContentBcClient;
 

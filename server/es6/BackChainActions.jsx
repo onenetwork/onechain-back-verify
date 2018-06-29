@@ -71,6 +71,8 @@ export default class BackChainActions {
     @action
     static loadTransactions(id, searchCriteria, callback) {
         store.transactions.clear();
+        store.verifications.clear();
+        store.canStartVerifying = false;
 
         if(arguments.length == 1 && Array.isArray(arguments[0])) {
             BackChainActions.loadTransactionsAux(arguments[0]);
@@ -458,6 +460,8 @@ export default class BackChainActions {
 
                 if (i == payloadLength && transArr.length > 0) {
                     store.transactions.clear();
+                    store.verifications.clear();
+                    store.canStartVerifying = false;
                     let count = 0;
                     transArr.forEach(element => {
                         BackChainActions.getOpenDisputeCount(element.id)
@@ -1152,11 +1156,5 @@ export default class BackChainActions {
         }).catch(function (err) {
             console.error('error verifying attachements!');
         });
-    }
-
-    @action
-    static resetTotalCompletedCount() {
-        store.verificationStatus.totalCompleted = 0;
-        store.verificationStatus.endResult = 'verifying';
     }
 }

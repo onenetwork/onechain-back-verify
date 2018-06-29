@@ -63,10 +63,6 @@ const fieldProps = {
 
 @observer export default class TrackAndVerifyView extends React.Component {
 
-    componentWillMount() {
-        BackChainActions.resetTotalCompletedCount();
-    }
-
     calculateVerifyImgLeftPosition() {
         if(this.props.store.verificationStatus.totalCompleted <= 97) {
             return this.props.store.verificationStatus.totalCompleted - 1;
