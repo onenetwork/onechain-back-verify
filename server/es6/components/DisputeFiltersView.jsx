@@ -275,6 +275,8 @@ const fieldProps = {
 
     constructor(props) {
         super(props);
+        this.setFilterTableDivRef = this.setFilterTableDivRef.bind(this);
+        this.handleClick = this.handleClick.bind(this);
         this.state = {
             hashNotFound: false,
             inputDisputed: false,
@@ -290,12 +292,32 @@ const fieldProps = {
             disputeSubmitFromDate: null,
             disputeSubmitToDate: null,
             disputeCloseFromDate: null,
-            disputeCloseToDate: null
+            disputeCloseToDate: null,
+            activeCalenderMap: { tnxFromDateCal: false, tnxToDateCal: false, disputeSubmitFromDateCal: false, disputeSubmitToDateCal: false, disputeCloseFromDateCal: false, disputeCloseToDateCal: false }
         };
     }
 
-    componentWillMount = () => { 
+    setFilterTableDivRef(node) {
+        this.filterTableDivRef = node;
+    }
+
+    handleClick(event) {
+        if (event.target.classList.contains("fa-calendar")) {
+            return;
+        } else if (this.state.activeCalenderMap.hasOwnProperty(event.target.id) ) {
+            return;
+        } else {
+            this.setState({ activeCalenderMap: { tnxFromDateCal: false, tnxToDateCal: false, disputeSubmitFromDateCal: false, disputeSubmitToDateCal: false, disputeCloseFromDateCal: false, disputeCloseToDateCal: false } });
+        }
+    }
+
+    componentWillMount = () => {
         this.reasonCodeCheckboxes = new Set();
+        document.addEventListener('click', this.handleClick, false);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('click', this.handleClick, false);
     }
 
     componentDidMount = () => {
@@ -444,9 +466,16 @@ const fieldProps = {
         this.props.disputeFilters.raisedBy = raisedByValue;
     }
 
-    focusOnCalender(calendarId) {
-        document.getElementById(calendarId).focus();
+    openOrCloseCalender(calendarId) {
+        if (this.state.activeCalenderMap[calendarId]) {
+            this.setState({ activeCalenderMap: { calendarId : false} });
+        } else {
+            let newMap = {};
+            newMap[calendarId] = true;
+            this.setState({ activeCalenderMap: newMap });
+        }
     }
+
 
     render() {
 
@@ -510,13 +539,13 @@ const fieldProps = {
                         <div style={{ display: 'inline', position: 'absolute', left: '193px', top: '73px', fontSize: '12px' }}>
                             From 
                             &nbsp;
-                            <Datetime inputProps={{ id: 'tnxFromDate'}}  closeOnSelect={true} value={this.state.tnxFromDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxFromDate.bind(this)} className="date-control"  />
+                            <Datetime open={this.state.activeCalenderMap['tnxFromDateCal']} inputProps={{ id: 'tnxFromDateCal'}}  closeOnSelect={true} value={this.state.tnxFromDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxFromDate.bind(this)} className="date-control"  />
                             &nbsp;&nbsp;
-                            <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.focusOnCalender.bind(this, "tnxFromDate")}  > </i>
+                            <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.openOrCloseCalender.bind(this, "tnxFromDateCal")}  > </i>
                             &emsp;&emsp;&emsp; To &nbsp;
-                            <Datetime inputProps={{ id: 'tnxToDate' }} closeOnSelect={true} value={this.state.tnxToDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxToDate.bind(this)} className="date-control" />
+                            <Datetime open={this.state.activeCalenderMap['tnxToDateCal']} inputProps={{ id: 'tnxToDateCal' }} closeOnSelect={true} value={this.state.tnxToDate || ''} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenTnxToDate.bind(this)} className="date-control" />
                             &nbsp;&nbsp;
-                            <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.focusOnCalender.bind(this, "tnxToDate")}></i>
+                            <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.openOrCloseCalender.bind(this, "tnxToDateCal")}></i>
                         </div>
                 </div>
                 <div>
@@ -547,13 +576,13 @@ const fieldProps = {
                     <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '50px', fontSize: '12px' }}>
                         From
                         &nbsp;&nbsp;
-                        <Datetime inputProps={{ id: 'disputeSubmitFromDate' }} closeOnSelect={true} value={this.state.disputeSubmitFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control" />
+                        <Datetime open={this.state.activeCalenderMap['disputeSubmitFromDateCal']} inputProps={{ id: 'disputeSubmitFromDateCal' }} closeOnSelect={true} value={this.state.disputeSubmitFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitFromDate.bind(this)} className="date-control" />
                         &nbsp;&nbsp;
-                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.focusOnCalender.bind(this, "disputeSubmitFromDate")}></i>
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.openOrCloseCalender.bind(this, "disputeSubmitFromDateCal")}></i>
                         &emsp;&emsp;&ensp; To &nbsp;
-                        <Datetime inputProps={{ id: 'disputeSubmitToDate' }} closeOnSelect={true} value={this.state.disputeSubmitToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
+                        <Datetime open={this.state.activeCalenderMap['disputeSubmitToDateCal']} inputProps={{ id: 'disputeSubmitToDateCal' }} closeOnSelect={true} value={this.state.disputeSubmitToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeSubmitToDate.bind(this)} className="date-control" />
                         &nbsp;&nbsp;
-                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.focusOnCalender.bind(this, "disputeSubmitToDate")}></i>
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.openOrCloseCalender.bind(this, "disputeSubmitToDateCal")}></i>
                     </div>
                 </div>
                 <div>
@@ -562,13 +591,13 @@ const fieldProps = {
                     <div style={{ display: 'inline', position: 'absolute', left: '149px', top: '100px', fontSize: '12px' }}>
                         From
                         &nbsp;&nbsp;
-                        <Datetime inputProps={{ id: 'disputeCloseFromDate' }} closeOnSelect={true} value={this.state.disputeCloseFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control" />
+                        <Datetime open={this.state.activeCalenderMap['disputeCloseFromDateCal']} inputProps={{ id: 'disputeCloseFromDateCal' }} closeOnSelect={true} value={this.state.disputeCloseFromDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseFromDate.bind(this)} className="date-control" />
                         &nbsp;&nbsp;
-                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.focusOnCalender.bind(this, "disputeCloseFromDate")}></i>
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.openOrCloseCalender.bind(this, "disputeCloseFromDateCal")}></i>
                         &emsp;&emsp;&ensp; To &nbsp;
-                        <Datetime inputProps={{ id: 'disputeCloseToDate' }} closeOnSelect={true} value={this.state.disputeCloseToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
+                        <Datetime open={this.state.activeCalenderMap['disputeCloseToDateCal']} inputProps={{ id: 'disputeCloseToDateCal' }} closeOnSelect={true} value={this.state.disputeCloseToDate || false} dateFormat="MM/DD/YYYY" timeFormat={true} onChange={this.listenDisuputeCloseToDate.bind(this)} className="date-control" />
                         &nbsp;&nbsp;
-                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.focusOnCalender.bind(this, "disputeCloseToDate")}></i>
+                        <i className="fa fa-calendar" style={{ color: '#0085C8', fontSize: '16px' }} aria-hidden="true" onClick={this.openOrCloseCalender.bind(this, "disputeCloseToDateCal")}></i>
                     </div>
                 </div>
                 <div style={{ display: 'inline' }} style={fieldProps.text}>Raised By: </div>
@@ -580,10 +609,19 @@ const fieldProps = {
         );
 
         return (
-            <div className="filter-table-div">
-                {filterLeftMenus}
-                {filterRightMenus}
+               
+            <div className="filter-table-div" ref={this.setFilterTableDivRef}>
+                <style>
+                    {`
+                        .rdtPicker{
+                            left: 0px !important;
+                        }
+                    `}
+                </style>
+                    {filterLeftMenus}
+                    {filterRightMenus}
             </div>
+            
         );
     }
 }
