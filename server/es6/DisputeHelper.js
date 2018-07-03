@@ -399,7 +399,7 @@ class DisputeHelper {
 
     sortDisputesByAscOrderBasedOnTnxDate(disputes) {
         /*sort function for Observable array returns sorted copy of array*/
-        let sortedDisputes = disputes.sort(function(firstDispute, secondDispute) {
+        let sortedDisputes = disputes.slice().sort(function(firstDispute, secondDispute) {
             /* It's possible that the transaction doesn't exist in our database.*/
             let firstDisputeDate = firstDispute.transaction && firstDispute.transaction.date ? firstDispute.transaction.date : 0; 
             let secondDisputeDate = secondDispute.transaction && secondDispute.transaction.date ? secondDispute.transaction.date : 0; 
@@ -410,7 +410,7 @@ class DisputeHelper {
 
     orderDisputes(disputes) {
         /*sort function for Observable array returns sorted copy of array*/
-        let orderedDisputes = disputes.sort(function(firstDispute, secondDispute) {
+        let orderedDisputes = disputes.slice().sort(function(firstDispute, secondDispute) {
             let first, second;
             switch(firstDispute.state) {
                 case 'DRAFT':

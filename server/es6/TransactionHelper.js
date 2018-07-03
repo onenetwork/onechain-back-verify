@@ -314,6 +314,21 @@ class TransactionHelper {
             pltUrl: pltUrl
         });
     }
+
+    /**
+     * Finds the transaction in the store and sets it's openDisputeCount value.
+     * @param {*} store 
+     * @param {*} tnxId 
+     * @param {*} openDisputeCount 
+     */
+    assignOpenDisputCountInStore(store, tnxId, openDisputeCount) {
+        for(var i = 0, len = store.transactions.length; i < len ; i++) {
+            if(store.transactions[i].id == tnxId) {
+                store.transactions[i].openDisputeCount = openDisputeCount;
+                break;
+            }
+        }
+    }
 }
 
 export const transactionHelper = new TransactionHelper();

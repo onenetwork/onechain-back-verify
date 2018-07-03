@@ -104,25 +104,18 @@ export default class BackChainActions {
 
     @action
     static loadTransactionsAux(transactions, callback) {
-        let count = 0;
         transactions.forEach(element => {
+            element.openDisputeCount = 0; //Start with 0 and fill them up.
+            store.transactions.push(element);
             BackChainActions.getOpenDisputeCount(element.id)
-                .then(function (result) {
-                    element.openDisputeCount = result;
-                    store.transactions.push(element);
-                    if (++count == transactions.length) {
-                        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                    }
-                })
-                .catch(function (error) {
-                    element.openDisputeCount = 0;
-                    store.transactions.push(element);
-                    if (++count == transactions.length) {
-                        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
-                    }
-                });
+            .then(function (result) {
+                transactionHelper.assignOpenDisputCountInStore(store, element.id, result);
+            })
+            .catch(function (error) {
+                console.error("Couldnt fetch open dispute count for transaction: " + element.id, error);
+            });
         });
-
+        transactionHelper.generateVerificationDataAndStartVerifying(transactions, store);
         if (callback) {
             callback(transactions.length > 0);
         }
@@ -462,24 +455,18 @@ export default class BackChainActions {
                     store.transactions.clear();
                     store.verifications.clear();
                     store.canStartVerifying = false;
-                    let count = 0;
                     transArr.forEach(element => {
+                        element.openDisputeCount = 0; //Start with 0 and fill them up.
+                        store.transactions.push(element);
                         BackChainActions.getOpenDisputeCount(element.id)
-                            .then(function (result) {
-                                element.openDisputeCount = result;
-                                store.transactions.push(element);
-                                if (++count == transArr.length) {
-                                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
-                                }
-                            })
-                            .catch(function (error) {
-                                element.openDisputeCount = 0;
-                                store.transactions.push(element);
-                                if (++count == transactions.length) {
-                                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
-                                }
-                            });
+                        .then(function (result) {
+                            transactionHelper.assignOpenDisputCountInStore(store, element.id, result);
+                        })
+                        .catch(function (error) {
+                            console.error("Couldnt fetch open dispute count for transaction: " + element.id, error);
+                        });
                     });
+                    transactionHelper.generateVerificationDataAndStartVerifying(transArr, store);
                     callback();
                 }
                 i++;
