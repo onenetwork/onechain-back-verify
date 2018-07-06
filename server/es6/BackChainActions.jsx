@@ -525,11 +525,13 @@ export default class BackChainActions {
                 BackChainActions.displayAlertPopup('Started Synchronization', "Synchronization with One Network's Audit Repository App has succesfully been started."
                 + " This operation may take a while to complete. Please refresh Sync Statisctics page to monitor the process.", 'SUCCESS');
             } else {
+                store.startSync = false;
                 BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
                 + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
             }
         })
         .catch(function (err) {
+            store.startSync = false;
             console.error('Error communicating with PLT: ' + err);
             BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
                 + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
@@ -569,11 +571,13 @@ export default class BackChainActions {
                 BackChainActions.displayAlertPopup('Started Synchronization', "Synchronization with One Network's Audit Repository App has succesfully been started."
                 + " Selected gaps will be filled once the operation has been completed. This operation may take a while. Please refresh Sync Statisctics page to monitor the process.", 'SUCCESS');
             } else {
+                store.startSync = false;
                 BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
                 + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
             }
         })
         .catch(function (err) {
+            store.startSync = false;
             console.error('Error communicating with PLT: ' + err);
             BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
                 + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
