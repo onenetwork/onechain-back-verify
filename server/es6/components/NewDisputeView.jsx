@@ -198,13 +198,15 @@ import { transactionHelper } from '../TransactionHelper';
 		
 		let isSubmitDisputeWindowStillOpen = disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes);
 		if(isSubmitDisputeWindowStillOpen.visible) {
+			me.props.store.disputes.unshift(dispute); /*Adding dispute in store because in BackChainActions.submitDispute we need it*/
 			BackChainActions.submitDispute(dispute)
 			.then(function(result) {
 				if(result.submitDisputeSuccess) {
-					me.props.store.disputes.unshift(dispute);
 					BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
 					BackChainActions.clearDisputeTransaction();
 					BackChainActions.clearDisputeId();
+				} else {
+					BackChainActions.removeDisputeFromStoreById(dispute.disputeId);
 				}
 			})
 		} else {

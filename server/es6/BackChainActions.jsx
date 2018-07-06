@@ -1009,7 +1009,6 @@ export default class BackChainActions {
                     BackChainActions.displayAlertPopup("Problem Occured",
                     ["Please make sure that MetaMask plugin is installed and properly configured with the right url and account."],'ERROR');
                 }
-                console.error(error);
             });
         });
     }
@@ -1143,5 +1142,17 @@ export default class BackChainActions {
         }).catch(function (err) {
             console.error('error verifying attachements!');
         });
+    }
+
+    @action
+    static removeDisputeFromStoreById(disputeId) {
+        let currentDisputes = store.disputes;
+		for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
+			if (disputeId == currentDisputes[i].disputeId) {
+					currentDisputes.splice(i, 1);
+					break;
+				}
+			}
+		store.disputes = currentDisputes;
     }
 }
