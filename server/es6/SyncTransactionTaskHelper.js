@@ -144,13 +144,14 @@ class SyncTransactionTaskHelper {
 
         makeResetRequest() {
             const request = pendingResets.pop();
-
+            let updateSyncStatistics = false;
             let baseUrl = request.chainOfCustodyUrl + '/oms/rest/backchain/v1/reset';
             let url;
             if(request.fromDate) {
                 let dateAsString = moment(new Date(parseInt(request.fromDate, 10))).format('YYYYMMDD');
                 url = backChainUtil.returnValidURL(baseUrl, { fromDate: dateAsString });
                 console.log('Sync from date: ' + dateAsString);
+                updateSyncStatistics = true;
             }
             else if(request.fromSequence) {
                 url = backChainUtil.returnValidURL(baseUrl, {
@@ -179,6 +180,38 @@ class SyncTransactionTaskHelper {
                 }
                 if(!result.success) {
                     throw new Error("Request was not successful: " + JSON.stringify(result));
+                }
+
+                // update SyncStatistics
+                if (updateSyncStatistics) {
+                    updateSyncStatistics = false;
+                    settingsHelper.getSyncStatisticsInfo()
+                         .then((syncStatisticsInfo) => {
+                             if (syncStatisticsInfo.syncStatisticsExists === false) {
+                                 updateSyncStatistics = true;
+                                 syncStatisticsInfo.syncStatistics = {
+                                     "earliestSyncDateInMillis": null,
+                                     "earliestSyncSequenceNo": null,
+                                     "latestSyncDateInMillis": null,
+                                     "latestSyncSequenceNo": null,
+                                     "gaps": [],
+                                     "earliestResetDateInMillis": parseInt(request.fromDate, 10)
+                                 };
+                             } else {
+                                 if (parseInt(request.fromDate, 10) < syncStatisticsInfo.syncStatistics.earliestResetDateInMillis) {
+                                     syncStatisticsInfo.syncStatistics.earliestResetDateInMillis = parseInt(request.fromDate, 10);
+                                     updateSyncStatistics = true;
+                                 }
+                             }
+                             if (updateSyncStatistics) {
+                                settingsHelper.updateSyncStatistics(syncStatisticsInfo.syncStatistics);
+                             }
+                             
+                         })
+                         .catch((err) => {
+                             console.error("Error occurred while updating SyncStatistics: " + err);
+                             callback(err, null);
+                        });
                 }
 
                 return this.updateChainOfCustody(request.authenticationToken, request.chainOfCustodyUrl, result.entName, result => {

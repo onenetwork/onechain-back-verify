@@ -57,6 +57,7 @@ class SettingsHelper {
         let latestSyncSequenceNo = store.syncStatistics.latestSyncSequenceNo;
         let earliestSyncDateInMillis = store.syncStatistics.earliestSyncDateInMillis;
         let latestSyncDateInMillis = store.syncStatistics.latestSyncDateInMillis;
+        let earliestResetDateInMillis = store.syncStatistics.earliestResetDateInMillis;
         
         store.syncStatisticsReport.clear();
 
@@ -72,7 +73,7 @@ class SettingsHelper {
                         syncMsg : 'Full Sync', 
                         fromSeqNo : earliestSyncSequenceNo,
                         toSeqNo : gapFromSequenceNo,
-                        fromDate: utils.formatDate(earliestSyncDateInMillis),
+                        fromDate: utils.formatDate(i == 0 ? earliestResetDateInMillis : earliestSyncDateInMillis),
                         toDate: utils.formatDate(gap.fromDateInMillis)
                     });
                 } 
@@ -114,7 +115,7 @@ class SettingsHelper {
             let syncReport = {
                 type : 'fullSync', 
                 syncMsg : 'Full Sync', 
-                fromDate: utils.formatDate(earliestSyncDateInMillis) ,
+                fromDate: utils.formatDate(earliestResetDateInMillis),
                 toDate: utils.formatDate(latestSyncDateInMillis),
                 fromSeqNo : earliestSyncSequenceNo, 
                 toSeqNo : latestSyncSequenceNo, 
@@ -234,7 +235,7 @@ class SettingsHelper {
         dbconnectionManager.getConnection().collection('SyncStatistics')
         .update({}, {$set: syncStatistics}, { upsert: true })
         .then((resultSet) => {
-            if (resultSet.result.mModifiedCount > 0) {
+            if (resultSet.result.n > 0) {
                 console.log("Sync Statistics have been updated successfully.");
             }
         })
