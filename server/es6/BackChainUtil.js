@@ -48,20 +48,18 @@ class BackChainUtil {
     fileHash(filePath, fileName) {
         return new Promise((resolve, reject) => {
             const document = filePath + fileName;
-            const sha256 = crypto.createHash('sha256');
             fs.stat(document, function(err, stat) {
                 if(!err) {
                     try {
                         const filestream = fs.createReadStream(document);
                         const unzip = zlib.createUnzip(); 
-
+                        const sha256 = crypto.createHash('sha256');
                         filestream.pipe(unzip).on('data', function (data) {
                             sha256.update(data)
                         }).on('error', function (err) {
                             console.log("error while unzipping file.");
                             return resolve(null);
-                        })
-                        filestream.on('end', function () {
+                        }).on('end', function () {
                             const hash = sha256.digest('hex')
                             return resolve(hash);
                         }).on('error', function (err) {
