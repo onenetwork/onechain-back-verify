@@ -89,7 +89,7 @@
 }
 
 .popover.right>.arrow {
-    left: -11px !important;
+    left: -10px !important;
     margin-top: -13px;
 }
 
@@ -97,6 +97,7 @@
     border-color: #bcbcbc !important;
     border-radius: 0px;
     height: 48px;
+    box-shadow: 0 -3px 6px -4px #333;
 }
 
 .dispute-action-popover .arrow {
@@ -115,4 +116,40 @@
     width: 63px;
     position: relative;
     text-align: center;
+}
+
+.dispute-transation-popover {
+    height: 100px;
+    width: 400px;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 12px;
+    text-align: left;
+    line-height: 20px;
+    word-wrap: break-word;
+    padding-top: 14px;
+    padding-right: 10px;
+}
+
+.dispute-transation-popover:hover {
+    background-color: #dff3f8;
+}
+
+.dispute-transaction-popover {
+    border-color: #bcbcbc !important;
+    border-radius: 0px;
+    height: 48px;
+    box-shadow: 0 -3px 6px -4px #333;
+}
+
+.dispute-transaction-popover .arrow {
+    top: 50% !important;
+}
+
+.dispute-transaction-popover.right>.arrow:after {
+    border-right-color: white;
+}
+
+.dispute-transaction-popover.popover.right {
+    margin-left: 16px;
 }

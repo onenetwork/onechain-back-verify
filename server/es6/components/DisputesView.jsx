@@ -64,6 +64,12 @@ const fieldProps = {
     noDisputesFoundRow : {
         backgroundColor: 'rgba(248, 241, 201, 1)',
         height: '54px'
+    },
+    dbIcon: {
+        color: '#A1A1A1',
+        fontWeight: '400',
+        fontStyle: 'normal',
+        fontSize: '18px'
     }
 };
 
@@ -83,11 +89,13 @@ const reasonCodeMap = {
 
         this.eventsPopoverRefsMap = {};
         this.actionsPopoverRefsMap = {};
+        this.transactionPopoverRefsMap = {};
         this.disputeParticipantsPopoverRefsMap = {};
         this.state = {
             redirect: false,
             eventsPopoverVisibilityMap: {},
             actionsPopoverVisibilityMap: {},
+            transactionPopoverVisibilityMap: {},
             disputeParticipantsPopoverVisibilityMap: {}
         };
     }
@@ -311,9 +319,6 @@ const reasonCodeMap = {
             </OverlayTrigger>
         </div>;
 
-
-        let linkStart = '';
-        let linkEnd = '';
         if (dispute.transaction && !this.props.store.showOnlyVerifyView) {
             return (
                 <td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
@@ -323,8 +328,39 @@ const reasonCodeMap = {
                 </td>
             );
         } else {
+            let popOver = (<Popover id={dispute.disputeId + idx} className="dispute-transaction-popover">
+                <div id={dispute.disputeId + "_transaction_popover" + idx} >
+                    <div style={{ padding: '1px 5px 1px 10px'}}>
+                        <div className="dispute-transation-popover">
+                            <div style={{ float: 'left', width: '23px', height: '20px', marginRight: '8px', marginLeft: '8px'}}> <i className="fa fa-exclamation-circle" style={Object.assign({ fontSize: '16px',color: '#F19500', lineHeight: '18px' })} /></div>
+                            <div style={{ marginLeft: '38px' }}>Transaction&nbsp;<span style={{ fontWeight: 600 }}>{dispute.disputedTransactionId}</span>&nbsp;couldn’t be found in the database. Your data is likely out of sync. Please go to Sync Statistics to fill in the data gaps.</div>
+                        </div>
+                    </div>
+                </div>
+            </Popover>
+            );
+
+            let overlay = (
+                <div className="counter-ct" onClick={() => this.showTransactionPopover(idx, true)} style={{ cursor: 'pointer' }}>
+                    <div style={{ float: 'left', marginRight: '12px' }} ref={ref => this.transactionPopoverRefsMap[idx] = ref} >
+                        <i className="fa fa-database" aria-hidden="true" style={Object.assign({}, fieldProps.dbIcon)} >
+                            <i className="fa fa-exclamation-circle" style={Object.assign({ color: '#F19500', marginLeft: '-4px', fontSize: '14px', position: 'absolute', marginTop: '10px', })} />
+                        </i>
+                    </div>
+                    <Overlay show={this.state.transactionPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showTransactionPopover(idx, false)}
+                        rootClose={true}
+                        placement="right"
+                        container={document.getElementById("root")}
+                        target={() => this.transactionPopoverRefsMap[idx]}>
+                        {popOver}
+                    </Overlay>
+                </div>
+            );
+
             return (
                 <td style={Object.assign({ maxWidth: '130px' }, fieldProps.columns)}>
+                    {overlay}
                     {coreIdComp}
                 </td>
             );
@@ -347,45 +383,40 @@ const reasonCodeMap = {
                                     {this.getEventCountString(dispute.disputedBusinessTransactionIds.length == 0 ? dispute.transaction.eventCount : dispute.disputedBusinessTransactionIds.length)}
                                 </div>);
             eventsPopoverContent = <EventsPopoverContent store={this.props.store} transaction={dispute.transaction} selectedBtIds={dispute.disputedBusinessTransactionIds} />;
+
+            return (
+                <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>
+                    <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
+                        <img
+                            className="counter-img"
+                            src={eventBadge}
+                            ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
+                        {eventCountString}
+                        <Overlay
+                            show={this.state.eventsPopoverVisibilityMap[idx] || false}
+                            onHide={() => this.showEventsPopover(idx, false)}
+                            rootClose={true}
+                            placement="right"
+                            container={document.getElementById("root")}
+                            target={() => this.eventsPopoverRefsMap[idx]}>
+
+                            <Popover id={"events-popover-" + idx} className={eventsPopoverClassName} title={(
+                                <span>
+                                    <img style={{ width: '18px', height: '18px', marginRight: '8px' }} src={Images.EVENT} />
+                                    Events:
+                            </span>
+                            )}>
+                                {eventsPopoverContent}
+                            </Popover>
+
+                        </Overlay>
+                    </div>
+                </td>
+            );
             
         } else {
-            eventsPopoverClassName = null;
-            eventBadge = Images.EVENT_BADGE_ORANGE;
-            eventsPopoverContent = <div className="largePopoverContent">Transaction&nbsp;<span style={{fontWeight: 600}}>{dispute.disputedTransactionId}</span>&nbsp;couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.</div>;
-            eventCountString =  (<div className="counter1">
-                                    <i className="fa fa-exclamation" aria-hidden="true"/>
-                                </div>);
+            return <td style={fieldProps.columns}></td>;
         }
-
-        return (
-            <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>
-                <div className="counter-ct" onClick={() => this.showEventsPopover(idx, true)}>
-                    <img
-                        className="counter-img"
-                        src={eventBadge}
-                        ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
-                        {eventCountString}
-                    <Overlay
-                        show={this.state.eventsPopoverVisibilityMap[idx] || false}
-                        onHide={() => this.showEventsPopover(idx, false)}
-                        rootClose={true}
-                        placement="right"
-                        container={document.getElementById("root")}
-                        target={() => this.eventsPopoverRefsMap[idx]}>
-
-                        <Popover id={"events-popover-" + idx} className={eventsPopoverClassName} title={(
-                            <span>
-                                <img style={{width: '18px',height:'18px', marginRight: '8px'}} src={Images.EVENT}/>
-                                Events:
-                            </span>
-                        )}>
-                            {eventsPopoverContent}
-                        </Popover>
-                            
-                    </Overlay>
-                </div>
-            </td>
-        );
     }
 
 
@@ -424,45 +455,41 @@ const reasonCodeMap = {
                                 </ul> );
             partnerLengthOrExclamation= (<div style={{position: 'absolute', left: '33px', top: '6px', color: 'white', fontSize: '10px'}}>
                                             {this.getPartnerNames(dispute).length}
-                                        </div>);
-        } else {
-            disputeParticipantBadge = Images.DISPUTE_PARTICIPANT_BADGE_ORANGE;
-            participantsContent = <div className="largePopoverContent">Transaction&nbsp;<span style={{fontWeight: 600}}>{dispute.disputedTransactionId}</span>&nbsp;couldn’t be found in the database. This is most likely due to data is out of sync. Please go to Sync Statistics page and fill in the gaps.</div>;
-            partnerLengthOrExclamation= (<div style={{position: 'absolute', left: '35px', top: '6px', color: 'white', fontSize: '10px'}}>
-                                            <i className="fa fa-exclamation" aria-hidden="true"/>
-                                        </div>);
-        }
-
-        let disputeParticipantCell = (
-            <div className="counter-participants" onClick={() => this.showDisputeParticipantsPopover(idx, true)}>
-                <img
-                    style={{width: '25px',height: '25px'}}
-                    src={disputeParticipantBadge}
-                    ref={ref => this.disputeParticipantsPopoverRefsMap[idx] = ref} />
+            </div>);
+            
+            let disputeParticipantCell = (
+                <div className="counter-participants" onClick={() => this.showDisputeParticipantsPopover(idx, true)}>
+                    <img
+                        style={{ width: '25px', height: '25px' }}
+                        src={disputeParticipantBadge}
+                        ref={ref => this.disputeParticipantsPopoverRefsMap[idx] = ref} />
                     {partnerLengthOrExclamation}
 
-                <Overlay
-                    show={this.state.disputeParticipantsPopoverVisibilityMap[idx] || false}
-                    onHide={() => this.showDisputeParticipantsPopover(idx, false)}
-                    rootClose={true}
-                    placement="right"
-                    container={document.getElementById("root")}
-                    target={() => this.disputeParticipantsPopoverRefsMap[idx]}>
+                    <Overlay
+                        show={this.state.disputeParticipantsPopoverVisibilityMap[idx] || false}
+                        onHide={() => this.showDisputeParticipantsPopover(idx, false)}
+                        rootClose={true}
+                        placement="right"
+                        container={document.getElementById("root")}
+                        target={() => this.disputeParticipantsPopoverRefsMap[idx]}>
 
-                    <Popover id={dispute.disputeId+ idx + "_disputeParticipants"} title={(
-                            <span style={{fontWeight: '700',fontSize: '12px',color: '#0085C8'}}>
-                                <i className="fa fa-user" aria-hidden="true" style={{ fontSize: '18px'}}></i>
+                        <Popover id={dispute.disputeId + idx + "_disputeParticipants"} title={(
+                            <span style={{ fontWeight: '700', fontSize: '12px', color: '#0085C8' }}>
+                                <i className="fa fa-user" aria-hidden="true" style={{ fontSize: '18px' }}></i>
                                 &nbsp;&nbsp;&nbsp;&nbsp;Participants
                             </span>
                         )}>
-                        <div id={dispute.disputeId + "_disputeParticipants" + idx} >
-                              {participantsContent}
-                        </div>
-                    </Popover>
-                </Overlay>
-            </div>
-        );
-        return <td style={Object.assign({}, fieldProps.columns, {cursor:'pointer'})}>{disputeParticipantCell}</td>;
+                            <div id={dispute.disputeId + "_disputeParticipants" + idx} >
+                                {participantsContent}
+                            </div>
+                        </Popover>
+                    </Overlay>
+                </div>
+            );
+            return <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer' })}>{disputeParticipantCell}</td>;
+        } else {
+            return <td style={fieldProps.columns}></td>;
+        }
     }
 
     renderDisputeActionsCell(dispute,idx) {
@@ -565,6 +592,12 @@ const reasonCodeMap = {
         let newMap = Object.assign({}, this.state.actionsPopoverVisibilityMap);
         newMap[idx] = show;
         this.setState({ actionsPopoverVisibilityMap: newMap });
+    }
+
+    showTransactionPopover(idx, show) {
+        let newMap = Object.assign({}, this.state.transactionPopoverVisibilityMap);
+        newMap[idx] = show;
+        this.setState({ transactionPopoverVisibilityMap: newMap });
     }
 
     hideActionPopovers() {
