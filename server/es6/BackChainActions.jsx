@@ -956,7 +956,7 @@ export default class BackChainActions {
                 }
                 BackChainActions.displayAlertPopup("Missing MetaTask Extension",
                     ["You need to install ", <a key="error.metamask.missing" href={metaMaskExtensionURL} target='_blank'>MetaMask</a>,
-                        " in order to use Submit or Close Disputes. Please install the extension first and try again."], 'ERROR');
+                        " in order to use Submit or Close Disputes. Please install the extension, refresh your browser and try again."], 'ERROR');
             } else if (error.code == 'error.metamask.locked') {
                 BackChainActions.displayAlertPopup("MetaMask is Locked",
                     ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"], 'ERROR');
@@ -1019,7 +1019,7 @@ export default class BackChainActions {
                 }
                 BackChainActions.displayAlertPopup("Missing MetaTask Extension",
                     ["You need to install ", <a key="error.metamask.missing" href={metaMaskExtensionURL} target='_blank'>MetaMask</a>,
-                    " in order to use Submit or Close Disputes. Please install the extension first and try again."],'ERROR');
+                    " in order to use Submit or Close Disputes. Please install the extension, refresh your browser and try again."],'ERROR');
             } else if(error.code == 'error.metamask.locked') {
                 BackChainActions.displayAlertPopup("MetaMask is Locked",
                 ["Metamask plugin is currently locked. Please unlock the plugin, connect to the proper node with the right account and try later"],'ERROR');
