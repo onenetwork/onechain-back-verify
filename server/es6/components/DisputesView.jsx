@@ -138,7 +138,7 @@ const reasonCodeMap = {
 
     submitDispute(dispute) {
         disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes).visible ?
-            BackChainActions.submitDispute(dispute) 
+            BackChainActions.submitDispute(dispute, true) 
                 : 
             BackChainActions.displayAlertPopup("Dispute Submission Failed", 
             "Allowed dispute submission time for this transaction is elapsed. After creation of transaction, Maximum allowed time to submit dispute is " + this.props.store.disputeSubmissionWindowInMinutes + " Mins.", "ERROR");

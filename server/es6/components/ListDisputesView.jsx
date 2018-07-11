@@ -52,7 +52,7 @@ import { toJS } from 'mobx';
 
 
 	openDisputesPopup() {
-		BackChainActions.clearDisputeTransaction();
+		BackChainActions.clearDisputeIdAndTransaction();
 		BackChainActions.toggleNewDisputeModalView();
 	}
 

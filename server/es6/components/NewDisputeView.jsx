@@ -68,15 +68,13 @@ import { transactionHelper } from '../TransactionHelper';
 		/* Checking If clicked outside of modal body */
     	if (this.modalBodyRef && !this.modalBodyRef.contains(event.target)) {
 			BackChainActions.toggleNewDisputeModalView();
-			BackChainActions.clearDisputeTransaction();
-			BackChainActions.clearDisputeId();
+			BackChainActions.clearDisputeIdAndTransaction();
         }
 	}
 
 	closeModal() {
 		BackChainActions.toggleNewDisputeModalView();
-		BackChainActions.clearDisputeTransaction();
-		BackChainActions.clearDisputeId();
+		BackChainActions.clearDisputeIdAndTransaction();
 	}
 
 	resetMsgs() {
@@ -117,8 +115,7 @@ import { transactionHelper } from '../TransactionHelper';
 			clearTimeout(me.state.searchTnxIdTimeOut);
 		}
 		if(!event.target.value) {
-			BackChainActions.clearDisputeTransaction();
-			BackChainActions.clearDisputeId();
+			BackChainActions.clearDisputeIdAndTransaction();
 			return;
 		}
 		me.setState({
@@ -167,8 +164,7 @@ import { transactionHelper } from '../TransactionHelper';
 		.then(function(response) {
 			if(response.success) {
 				BackChainActions.toggleNewDisputeModalView();
-				BackChainActions.clearDisputeTransaction();
-				BackChainActions.clearDisputeId();
+				BackChainActions.clearDisputeIdAndTransaction();
 				BackChainActions.displayAlertPopup('Dispute Saved Successfully', "Your Dispute Saved as Draft Successfully", "SUCCESS");
 			}
 		}, function(error) {
@@ -198,17 +194,7 @@ import { transactionHelper } from '../TransactionHelper';
 		
 		let isSubmitDisputeWindowStillOpen = disputeHelper.isSubmitDisputeWindowStillOpen(dispute.transaction, this.props.store.disputeSubmissionWindowInMinutes);
 		if(isSubmitDisputeWindowStillOpen.visible) {
-			me.props.store.disputes.unshift(dispute); /*Adding dispute in store because in BackChainActions.submitDispute we need it*/
-			BackChainActions.submitDispute(dispute)
-			.then(function(result) {
-				if(result.submitDisputeSuccess) {
-					BackChainActions.updateDisputeState(dispute.disputeId, 'OPEN');
-					BackChainActions.clearDisputeTransaction();
-					BackChainActions.clearDisputeId();
-				} else {
-					BackChainActions.removeDisputeFromStoreById(dispute.disputeId);
-				}
-			})
+			BackChainActions.submitDispute(dispute, false);
 		} else {
 			me.setState({saveOrSubmitDisputeButtonsDisabled:false});
 				BackChainActions.displayAlertPopup("Dispute Submission Failed", 
