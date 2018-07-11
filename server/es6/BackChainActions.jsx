@@ -239,6 +239,7 @@ export default class BackChainActions {
                                     let newJson = observable({});
                                     newJson.id = id;
                                     newJson.date = date;
+                                    newJson.merklePath = transactionSlice.merklePath;
                                     newJson.transactionSlice = result.result;
                                     store.payload.push(newJson);
                                 }).then(() => ++idx);
@@ -249,6 +250,7 @@ export default class BackChainActions {
                                       let newJson = observable({});
                                       newJson.id = id;
                                       newJson.date = date;
+                                      newJson.merklePath = transactionSlice.merklePath;
                                       newJson.transactionSlice = serializedSlice;
                                       store.payload.push(newJson);
                                   }).then(() => ++idx);
@@ -257,6 +259,7 @@ export default class BackChainActions {
                                 let newJson = observable({});
                                 newJson.id = id;
                                 newJson.date = date;
+                                newJson.merklePath = transactionSlice.merklePath;
                                 newJson.transactionSlice = transaction.transactionSlicesSerialized[j];
                                 store.payload.push(newJson);
                             }
@@ -269,6 +272,7 @@ export default class BackChainActions {
                                     let newJson = observable({});
                                     newJson.id = id;
                                     newJson.date = date;
+                                    newJson.merklePath = transactionSlice.merklePath;
                                     newJson.transactionSlice = result.result;
                                     store.payload.push(newJson);
                                 }).then(() => ++idx);
@@ -279,6 +283,7 @@ export default class BackChainActions {
                                       let newJson = observable({});
                                       newJson.id = id;
                                       newJson.date = date;
+                                      newJson.merklePath = transactionSlice.merklePath;
                                       newJson.transactionSlice = serializedSlice;
                                       store.payload.push(newJson);
                                   }).then(() => ++idx);
@@ -287,6 +292,7 @@ export default class BackChainActions {
                                 let newJson = observable({});
                                 newJson.id = id;
                                 newJson.date = date;
+                                newJson.merklePath = transactionSlice.merklePath;
                                 newJson.transactionSlice = transaction.transactionSlicesSerialized[j] ;
                                 store.payload.push(newJson);
                             }
@@ -426,12 +432,14 @@ export default class BackChainActions {
                     let transaction = transactions[0];
                     transaction.transactionSlicesSerialized = [];
                     let index = transactionHelper.findSliceInTransaction(transaction, payload.transactionSlice);
+                    let deSerializedPayloadSlice = JSON.parse(payload.transactionSlice);
+                    deSerializedPayloadSlice.merklePath = payload.merklePath;
                     if (index >= 0) {
-                        transaction.transactionSlices[index] = JSON.parse(payload.transactionSlice);
+                        transaction.transactionSlices[index] = deSerializedPayloadSlice;
                         transaction.transactionSlicesSerialized[index] = payload.transactionSlice;
                         transaction.trueTransactionSliceHashes[index] = payloadHash;
                     } else {
-                        transaction.transactionSlices.push(JSON.parse(payload.transactionSlice));
+                        transaction.transactionSlices.push(deSerializedPayloadSlice);
                         transaction.transactionSlicesSerialized.push(payload.transactionSlice);
                         transaction.trueTransactionSliceHashes.push(payloadHash);
                         transaction.transactionSliceHashes.push(payloadHash);
@@ -439,6 +447,7 @@ export default class BackChainActions {
                     transArr.push(transaction);
                 } else {
                     const sliceObject = JSON.parse(payload.transactionSlice);
+                    sliceObject.merklePath = payload.merklePath;
                     transArr.push({
                         id: payload.id,
                         date: payload.date,
