@@ -22,6 +22,7 @@ import { disputeHelper } from '../DisputeHelper';
     let me = this;
     BackChainActions.isInitialSyncDone();
     BackChainActions.getSyncStatisticsInfo();
+    BackChainActions.setSyncInitiated(false);
 
     BackChainActions.readBackChainAddressMapping()
     .then(function (result) {

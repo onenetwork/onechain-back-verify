@@ -503,7 +503,6 @@ export default class BackChainActions {
 
     @action
     static startSyncFromCertainDate(authenticationToken, startFromDate, chainOfCustodyUrl) {
-        store.startSync = true;
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
@@ -528,19 +527,19 @@ export default class BackChainActions {
                 store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
                 store.entNameOfLoggedUser = result.enterpriseName;
-                store.startSync = false;
                 store.isInitialSyncDone = true;
                 store.showDisputeActions = true;
+                BackChainActions.setSyncInitiated(true);
                 BackChainActions.displayAlertPopup('Started Synchronization', "Synchronization with One Network's Audit Repository App has succesfully been started."
                 + " This operation may take a while to complete. Please refresh Sync Statisctics page to monitor the process.", 'SUCCESS');
             } else {
-                store.startSync = false;
+                BackChainActions.setSyncInitiated(false);
                 BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
                 + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
             }
         })
         .catch(function (err) {
-            store.startSync = false;
+            BackChainActions.setSyncInitiated(false);
             console.error('Error communicating with PLT: ' + err);
             BackChainActions.displayAlertPopup("Couldn't Start Synchronization", "Synchronization with One Network's Audit Repository App couldn't have been started."
                 + " Please try again and inform administrator about the issue if it continues.", 'ERROR');
@@ -1152,6 +1151,11 @@ export default class BackChainActions {
         }).catch(function (err) {
             console.error('error verifying attachements!');
         });
+    }
+
+    @action
+    static setSyncInitiated(value) {
+        store.syncInitiated = value;
     }
 
 }
