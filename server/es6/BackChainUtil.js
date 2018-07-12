@@ -58,13 +58,13 @@ class BackChainUtil {
                             sha256.update(data)
                         }).on('error', function (err) {
                             console.log("error while unzipping file.");
-                            return resolve(null);
+                            return resolve(false);
                         }).on('end', function () {
                             const hash = sha256.digest('hex')
                             return resolve(hash);
                         }).on('error', function (err) {
                             console.log("error end not found");
-                            return resolve(null);
+                            return resolve(false);
                         })
                     } catch (error) {
                         return resolve(null);
