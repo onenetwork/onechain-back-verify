@@ -222,14 +222,23 @@ import { disputeHelper } from '../DisputeHelper';
                   <Col style={{float:'Left',paddingLeft:'20px'}}>{syncIcon}</Col>
                 </Row>
             </div>);
+
+    let disputeCountCSS = { right: '133px', position: 'absolute', top: '210px' };
+    let counterClassCSS = { fontSize: '10px', position: 'absolute', paddingLeft: '13px', fontStyle: 'normal', color: '#FFFFFF', top: '212px', right: '142px', width: '16px', paddingRight: '3px' };
+    if (this.props.store.openDisputeCountOfLoggedUser.toString().length == 2) {
+      disputeCountCSS.right = '130px';
+    } else if (this.props.store.openDisputeCountOfLoggedUser.toString().length > 2) {
+      counterClassCSS = { fontSize: '9px', marginRight: '3.5px', position: 'absolute', paddingLeft: '13px', fontStyle: 'normal', color: '#FFFFFF', top: '215px', right: '142px', width: '16px', paddingRight: '3px' };
+      disputeCountCSS = { right: '129px', position: 'absolute', top: '208px', width: '26px' };
+    }
     let disputes =
       this.props.store.isInitialSyncDone ? (<div style={{ float: 'right' }}>
         <Link to='#' onClick={this.redirectToListDisputes.bind(this)}>
           <div style={fieldProps.disputes}>
             <div className="mouseOver" style={fieldProps.mouseOver} >
               <i className="fa fa-hand-paper-o" style={{ fontSize: '21px' }}></i>
-              <img src={Images.DISPUTE_NO_IMAGE} style={{ right: '132px', position: 'absolute', top: '210px' }} />
-              <div className="disputes-counter">{this.props.store.openDisputeCountOfLoggedUser}</div>
+              <img src={Images.DISPUTE_NO_IMAGE} style={disputeCountCSS} />
+              <div style={counterClassCSS} className="disputes-counter">{this.props.store.openDisputeCountOfLoggedUser}</div>
               <div style={{ display: 'inline' }}> &nbsp;&nbsp;&nbsp;Disputes</div>
             </div>
           </div>

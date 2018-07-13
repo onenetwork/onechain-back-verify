@@ -224,14 +224,4 @@ a:focus, a:hover {
     border-radius: 6px;
     box-shadow: inset 0 0 0 1px rgba(0, 133, 200, 1);
 }
-.disputes-counter {
-   position: absolute;
-   padding-left: 13px;
-   font-style: normal;
-   font-size: 11px;
-   color: #FFFFFF;
-   top: 212px;
-   right: 142px;
-   width: 16px;
-   padding-right: 3px;
-}
+ 
