@@ -192,7 +192,7 @@ class SyncTransactionTaskHelper {
                                  syncStatisticsInfo.syncStatistics = {
                                      "earliestSyncDateInMillis": null,
                                      "earliestSyncSequenceNo": null,
-                                     "latestSyncDateInMillis": null,
+                                     "latestSyncDateInMillis": Date.now(),
                                      "latestSyncSequenceNo": null,
                                      "gaps": [],
                                      "earliestResetDateInMillis": parseInt(request.fromDate, 10)
