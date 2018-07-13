@@ -273,28 +273,36 @@ import {requestHelper} from '../RequestHelper';
       if (attachmentsData.hasOwnProperty(key)) {
         let attachmentsArray = attachmentsData[key];
         for(let i = 0; i < attachmentsArray.length; i++) {
-          let verificationIcon = null;
-          if(this.props.store.attachmentVerificationMap[this.matchIdWithFileName(attachmentsArray[i].id)] === true) {
+          let verificationIcon = null, documentsRowUI = null;
+          if(this.props.store.attachmentVerificationMap[this.matchIdWithFileName(attachmentsArray[i].id)] === null) {
+            documentsRowUI = (<tr key={attachmentsArray[i].id} style={{borderBottom:'2px solid #ddd', cursor:'default', color: '#E85E5A'}}>
+                                <td style={{lineHeight:'1.3', fontSize: '14px', paddingLeft: '30px', width: '70%', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>
+                                  <i style = {{fontSize: '16px'}} className="fa fa-file-text"/>&nbsp;&nbsp;{attachmentsArray[i].name}
+                                </td>
+                                <td style={{fontWeight:'600'}}>(Missing)</td>
+                                <td/>
+                              </tr>);
+          } else if(this.props.store.attachmentVerificationMap[this.matchIdWithFileName(attachmentsArray[i].id)] === true) {
             verificationIcon = <i style = {{color: '#229978', fontSize: '16px'}} className="fa fa-check-circle"/>;
           } else if(this.props.store.attachmentVerificationMap[this.matchIdWithFileName(attachmentsArray[i].id)] === false) {
             verificationIcon = <i style = {{color: '#E85E5A', fontSize: '16px'}} className="fa fa-exclamation-circle"/>;
           }
-          
-          attachmentsDataUI.push(
-            <tr key={attachmentsArray[i].id} onMouseOver={this.onHoverFileRow.bind(this)} onMouseOut={this.onHoverOutFileRow.bind(this)} onClick={this.downloadFileByName.bind(this, this.matchIdWithFileName(attachmentsArray[i].id), attachmentsArray[i].name)} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
-                <td style={{lineHeight:'1.3', fontSize: '14px', paddingLeft: '30px'}}>
+          attachmentsDataUI.push(documentsRowUI ? documentsRowUI:
+            (<tr key={attachmentsArray[i].id} onMouseOver={this.onHoverFileRow.bind(this)} onMouseOut={this.onHoverOutFileRow.bind(this)} onClick={this.downloadFileByName.bind(this, this.matchIdWithFileName(attachmentsArray[i].id), attachmentsArray[i].name)} style={{borderBottom:'2px solid #ddd', cursor:'pointer'}}>
+                <td style={{lineHeight:'1.3', fontSize: '14px', paddingLeft: '30px', width: '70%', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>
                   <i style = {{color: '#999999', fontSize: '16px'}} className="fa fa-file-text"/>&nbsp;&nbsp;{attachmentsArray[i].name}
                 </td>
+                <td/>
                 <td style={{lineHeight:'1.3', paddingRight: '30px'}}>
                   {verificationIcon}
                 </td>
-            </tr>);
+            </tr>));
         }
       }
     }
     
     return (<div className={"table-responsive"}>
-              <table className={"table"}>
+              <table className={"table"} style={{tableLayout: 'fixed', fontFamily: 'Open Sans'}}>
                   <tbody>
                     {attachmentsDataUI}
                   </tbody>
