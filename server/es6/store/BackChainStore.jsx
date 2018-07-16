@@ -56,6 +56,7 @@ class BackChainStore {
     @observable showDisputeActions = false;
     sliceDataProvidedByAPI = false;
     disputeDataProvidedByAPI = false;
+    @observable metamaskPopupViewActive = false;
 
     @computed get viewsMap() {
         const myEntName = this.entNameOfLoggedUser;

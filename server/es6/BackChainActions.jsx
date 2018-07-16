@@ -916,6 +916,7 @@ export default class BackChainActions {
 
     @action
     static closeDispute(dispute) {
+        store.metamaskPopupViewActive = true;
         metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber) => {
             let disputeBcClient = oneBcClient.createDisputeBcClient({
                 blockchain: 'eth',
@@ -926,6 +927,7 @@ export default class BackChainActions {
             });
             disputeBcClient.closeDispute(dispute.disputeId)
                 .then(function (receipt) {
+                    store.metamaskPopupViewActive = false;
                     if (receipt && receipt.status == 1) {
                         BackChainActions.registerAddress(accountNumber);
                         BackChainActions.updateDisputeState(dispute.disputeId, 'CLOSED');
@@ -936,6 +938,7 @@ export default class BackChainActions {
                     }
                 }).
                 catch(function (error) {
+                    store.metamaskPopupViewActive = false;
                     if (error) {
                         if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
                             BackChainActions.displayAlertPopup("MetaMask Transaction was Denied",
@@ -948,6 +951,7 @@ export default class BackChainActions {
                     }
                 });
         }).catch((error) => {
+            store.metamaskPopupViewActive = false;
             if (error.code == 'error.metamask.missing') {
                 let metaMaskExtensionURL = 'https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn';
                 if (navigator.userAgent.indexOf("Firefox") != -1) {
@@ -972,6 +976,7 @@ export default class BackChainActions {
 
     @action
     static submitDispute(dispute, draftExists) {
+        store.metamaskPopupViewActive = true;
         metaMaskHelper.detectAndReadMetaMaskAccount().then((accountNumber)=>{
             let disputeBcClient = oneBcClient.createDisputeBcClient({
                 blockchain: 'eth',
@@ -982,6 +987,7 @@ export default class BackChainActions {
             });
             disputeBcClient.submitDispute(dispute)
             .then(function(receipt){
+                store.metamaskPopupViewActive = false;
                 if(receipt && receipt.status == 1) {
                     BackChainActions.registerAddress(accountNumber);
                     dispute.disputingParty = accountNumber;
@@ -999,6 +1005,7 @@ export default class BackChainActions {
                 }
             }).
             catch(function(error) {
+                store.metamaskPopupViewActive = false;
                 if (error) {
                     if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
                         BackChainActions.displayAlertPopup("MetaMask Transaction was Denied",
@@ -1011,6 +1018,7 @@ export default class BackChainActions {
                 }
             });
         }).catch((error)=> {
+            store.metamaskPopupViewActive = false;
             if(error.code == 'error.metamask.missing') {
                 let metaMaskExtensionURL = 'https://chrome.google.com/webstore/detail/nkbihfbeogaeaoehlefnkodbefgpgknn';
                 if (navigator.userAgent.indexOf("Firefox") != -1) {

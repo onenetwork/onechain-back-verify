@@ -9,6 +9,7 @@ import { Redirect, Link } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Images from '../Images';
 import AlertPopupView from './AlertPopupView';
+import MetamaskPopupView from './MetamaskPopupView';
 import {disputeHelper} from '../DisputeHelper';
 import { utils } from '../Utils';
 
@@ -103,9 +104,9 @@ const reasonCodeMap = {
     componentDidMount() {
         BackChainActions.processApplicationSettings();
         reaction(
-            () => this.props.store.displayAlertPopup,
+            () => this.props.store.displayAlertPopup || this.props.store.metamaskPopupViewActive,
             () => {
-              if (this.props.store.displayAlertPopup)
+              if (this.props.store.displayAlertPopup || this.props.store.metamaskPopupViewActive)
                     this.hideActionPopovers()
             }
         );
@@ -177,7 +178,8 @@ const reasonCodeMap = {
             return (
                 <div>
                     <Table responsive condensed hover style={fieldProps.table}>
-                        <AlertPopupView store={this.props.store} />    
+                        <AlertPopupView store={this.props.store} />
+                        <MetamaskPopupView store={this.props.store} />
                         {tableHead}
                         {tableBody}
                     </Table>
@@ -520,8 +522,8 @@ const reasonCodeMap = {
                 </Link>
             </Popover>);
             let actionsCell = (
-                <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
-                    <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }} ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                <div className="counter-ct">
+                    <i onClick={() => this.showActionPopover(idx, true)} className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }} ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
                     <Overlay show={this.state.actionsPopoverVisibilityMap[idx] || false}
                             onHide={() => this.showActionPopover(idx, false)}
                             rootClose={true}
@@ -547,8 +549,8 @@ const reasonCodeMap = {
                 </Popover>
                 );
                 actionsCell = (
-                    <div className="counter-ct" onClick={() => this.showActionPopover(idx, true)}>
-                        <i className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }} ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
+                    <div className="counter-ct">
+                        <i onClick={() => this.showActionPopover(idx, true)} className="fa fa-cog" aria-hidden="true" style={{ fontSize: '20px', color: '#0085C8', cursor: 'pointer',paddingTop:'4px' }} ref={ref => this.actionsPopoverRefsMap[idx] = ref} ></i>
                         <Overlay show={this.state.actionsPopoverVisibilityMap[idx] || false}
                                 onHide={() => this.showActionPopover(idx, false)}
                                 rootClose={true}

@@ -7,6 +7,7 @@ import moment from 'moment';
 import { utils } from '../Utils';
 import {disputeHelper} from '../DisputeHelper';
 import { transactionHelper } from '../TransactionHelper';
+import MetamaskPopupView from './MetamaskPopupView';
 
 @observer export default class NewDisputeView extends React.Component {
 
@@ -542,7 +543,7 @@ import { transactionHelper } from '../TransactionHelper';
 						</div>
 					</div>
 				</div>
-			
+				<MetamaskPopupView store={this.props.store} />
 			</div>
 		)
     }
