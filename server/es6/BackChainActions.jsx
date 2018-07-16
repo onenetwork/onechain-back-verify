@@ -1085,8 +1085,6 @@ export default class BackChainActions {
     @action
     static updateDisputeState(disputeId, newState) {
         let currentDisputes = store.disputes;
-        disputeHelper.sortDisputesByAscOrderBasedOnTnxDate(currentDisputes);
-        disputeHelper.orderDisputes(currentDisputes);
         for (let i = 0; currentDisputes && i < currentDisputes.length; i++) {
             if (disputeId == currentDisputes[i].disputeId) {
                 if("OPEN" == newState) {
@@ -1098,6 +1096,8 @@ export default class BackChainActions {
                 break;
             }
         }
+		disputeHelper.sortDisputesByAscOrderBasedOnTnxDate(currentDisputes);
+        disputeHelper.orderDisputes(currentDisputes);
     }
 
     /**
