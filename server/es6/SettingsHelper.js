@@ -56,7 +56,7 @@ class SettingsHelper {
         let earliestSyncSequenceNo = store.syncStatistics.earliestSyncSequenceNo;
         let latestSyncSequenceNo = store.syncStatistics.latestSyncSequenceNo;
         let earliestSyncDateInMillis = store.syncStatistics.earliestSyncDateInMillis;
-        let latestSyncDateInMillis = store.syncStatistics.latestSyncDateInMillis;
+        let latestSyncDateInMillis = store.syncStatistics.latestSyncDateInMillis ? store.syncStatistics.latestSyncDateInMillis : Date.now();
         let earliestResetDateInMillis = store.syncStatistics.earliestResetDateInMillis;
         
         store.syncStatisticsReport.clear();
