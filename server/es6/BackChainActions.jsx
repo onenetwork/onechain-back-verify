@@ -1096,7 +1096,7 @@ export default class BackChainActions {
                 break;
             }
         }
-		disputeHelper.sortDisputesByAscOrderBasedOnTnxDate(currentDisputes);
+        disputeHelper.sortDisputesByAscOrderBasedOnTnxDate(currentDisputes);
         disputeHelper.orderDisputes(currentDisputes);
     }
 
