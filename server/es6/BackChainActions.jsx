@@ -621,10 +621,12 @@ export default class BackChainActions {
                 }).
                 catch(function(error) {
                     BackChainActions.displayAlertPopup("Dispute BackChain Communication Failed", "Could not connect to the dispute backchain, please check dispute backchain contract address and try again.",'ERROR');
+                    console.error(error);
                 });
             })
             .catch(function (error) {
                 BackChainActions.displayAlertPopup("Content BackChain Communication Failed", "Could not connect to the content backchain, please check your settings and try again.",'ERROR');
+                console.error(error);
             });
         } catch(error) {
             BackChainActions.displayAlertPopup("BackChain Communication Failed", "Could not connect to the backchain, please check your settings and try again.",'ERROR');
@@ -928,7 +930,7 @@ export default class BackChainActions {
             disputeBcClient.closeDispute(dispute.disputeId)
                 .then(function (receipt) {
                     store.metamaskPopupViewActive = false;
-                    if (receipt && receipt.status == 1) {
+                    if (receipt && receipt.blockNumber) {
                         BackChainActions.registerAddress(accountNumber);
                         BackChainActions.updateDisputeState(dispute.disputeId, 'CLOSED');
                         BackChainActions.displayAlertPopup('Dispute closed Successfully', "Dispute closed Successfully", "SUCCESS");
@@ -943,7 +945,12 @@ export default class BackChainActions {
                         if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
                             BackChainActions.displayAlertPopup("MetaMask Transaction was Denied",
                             ["You have to approve the transaction in metamask in order to close the Dispute. Please close again and approve the transaction."],'ERROR');
-                        } else {
+                        }
+                        else if(error.message && error.message.indexOf('Be aware that it might still be mined!') > -1) {
+                            BackChainActions.displayAlertPopup("Did Not Receive Confirmation",
+                            ["We did not receive a Transaction Confirmation from the blockchain within the expected timeout threshold.  Your Dispute may or may not have been closed in the blockchain. Please wait 1-2 minutes and refresh the Disputes page.  If your Dispute remains unclosed, try re-submitting the Close operation with a higher Gas Price."],'WARN');
+                        }
+                        else {
                             BackChainActions.displayAlertPopup("Close Dispute Failed",
                             ["Closed Dispute failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
                         }
@@ -988,7 +995,7 @@ export default class BackChainActions {
             disputeBcClient.submitDispute(dispute)
             .then(function(receipt){
                 store.metamaskPopupViewActive = false;
-                if(receipt && receipt.status == 1) {
+                if(receipt && receipt.blockNumber) { //Find a better way to detect receipt.status == 1. Status isn't available
                     BackChainActions.registerAddress(accountNumber);
                     dispute.disputingParty = accountNumber;
                     if(draftExists) {
@@ -1010,7 +1017,12 @@ export default class BackChainActions {
                     if(error.message && error.message.indexOf('User denied transaction signature') > -1) {
                         BackChainActions.displayAlertPopup("MetaMask Transaction was Denied",
                         ["You have to approve the transaction in metamask in order to submit the Dispute. Please submit again and approve the transaction."],'ERROR');
-                    } else {
+                    } 
+                    else if(error.message && error.message.indexOf('Be aware that it might still be mined!') > -1) {
+                        BackChainActions.displayAlertPopup("Did Not Receive Confirmation",
+                        ["We did not receive a Transaction Confirmation from the blockchain within the expected timeout threshold.  Your Dispute may or may not be committed to the blockchain. Please wait 1-2 minutes and refresh the Disputes page.  If you do not see your Dispute, try re-submitting the dispute with a higher Gas Price."],'WARN');
+                    }
+                    else {
                         BackChainActions.displayAlertPopup("Dispute Submission Failed",
                         ["Dispute Submission failed. These could be of various reasons. Please control your metamask connection and try again."],'ERROR');
                     }
