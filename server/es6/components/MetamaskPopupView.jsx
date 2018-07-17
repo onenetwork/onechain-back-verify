@@ -40,17 +40,17 @@ import { observer } from "mobx-react";
                 <div className={"panel panel-default"} style={fieldProps.panel}>
                     <div className={"panel-heading"} style={fieldProps.panelHeading} style={{ backgroundColor: "#75b3df" }}>
                         <div className="panel-title" style={fieldProps.panelTitle} >
-                            Metamask Info
+                            Next Steps
                         </div>
                     </div>
                     <div className={"panel-body"} style={fieldProps.panelBody}>
                         <Row style={{ paddingLeft: '30px' }}>
                             <Col style={{ color: '#75b3df' }} md={1}><i className={'fa fa-info-circle fa-3x fa-fw'}></i></Col>
-                            <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '24px', color: '#333333', fontWeight: '600', lineHeight:'21px' }} md={10}>
+                            <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '24px', color: '#333333', fontWeight: '600', lineHeight:'24px' }} md={10}>
                                 Please Follow Metamask Prompts
                             </Col>
-                            <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '21px', marginBottom: '25px' }} md={10}>
-                                Please follow Metamask prompts to submit your transaction. The communication between Metamask and blockchain may take a few minutes. Please don't close this browser window. You can come back to this window in a little bit to check the results.
+                            <Col style={{ paddingLeft: '35px', paddingTop: '5px', fontSize: '17px', color: '#333333', fontWeight: '400', lineHeight: '24px', marginBottom: '25px' }} md={10}>
+                                Please follow Metamask prompts to submit your transaction. The communication between Metamask and blockchain may take few minutes. Please don't close this browser window. You can come back to this window in a little bit to check the results.
                             </Col>
                         </Row>
                     </div>
