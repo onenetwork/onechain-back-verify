@@ -995,7 +995,7 @@ export default class BackChainActions {
             disputeBcClient.submitDispute(dispute)
             .then(function(receipt){
                 store.metamaskPopupViewActive = false;
-                if(receipt && receipt.blockNumber) { //Find a better way to detect receipt.status == 1. Status isn't available
+                if(receipt && receipt.blockNumber) {
                     BackChainActions.registerAddress(accountNumber);
                     dispute.disputingParty = accountNumber;
                     if(draftExists) {
