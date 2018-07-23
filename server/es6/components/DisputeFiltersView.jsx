@@ -147,11 +147,18 @@ const fieldProps = {
 
     applyFilters() {
         let me = this;
+		let status = [];
         if (!this.disputeFilters.status) {
-            let status = [];
             for (let checkBoxValue of this.selectedCheckboxes.values()) {
                 status.push(checkBoxValue);
             }
+            this.disputeFilters.status = status;
+        }
+        // if no status selected show all the records
+        if( this.disputeFilters.status.length == 0) {  
+            status.push("DRAFT");
+            status.push("OPEN");
+            status.push("CLOSED");
             this.disputeFilters.status = status;
         }
         if (this.refs && this.refs.transactionId) {
