@@ -32,7 +32,7 @@ import { disputeHelper } from '../DisputeHelper';
         .then(function (result) {
           if(result) {
             let disputingPartyAddress = disputeHelper.getDisputingPartyAddress(me.props.store.entNameOfLoggedUser, me.props.store.backChainAddressMapping);
-            if(me.props.store.isInitialSyncDone)
+            if (me.props.store.isInitialSyncDone && me.props.store.providerType != 'hyperledger')
               BackChainActions.getOpenDisputeCount(null, disputingPartyAddress);
             
             let disputeFilters = {
@@ -232,7 +232,7 @@ import { disputeHelper } from '../DisputeHelper';
       disputeCountCSS = { right: '129px', position: 'absolute', top: '208px', width: '26px' };
     }
     let disputes =
-      this.props.store.isInitialSyncDone ? (<div style={{ float: 'right' }}>
+      (this.props.store.isInitialSyncDone && this.props.store.providerType != 'hyperledger') ? (<div style={{ float: 'right' }}>
         <Link to='#' onClick={this.redirectToListDisputes.bind(this)}>
           <div style={fieldProps.disputes}>
             <div className="mouseOver" style={fieldProps.mouseOver} >

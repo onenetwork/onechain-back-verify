@@ -184,10 +184,10 @@ const fieldProps = {
                     <th style={Object.assign({maxWidth: '130px'}, fieldProps.columns)}><span style={{paddingLeft:'27px'}}>Transaction Id</span></th>
                     <th style={fieldProps.columns}>Date/Time</th>
                     <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Events</th>
-                    {this.props.store.isInitialSyncDone === false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Disputes</th>}
+                    {(this.props.store.isInitialSyncDone === false || this.props.store.providerType == 'hyperledger') ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Disputes</th>}
                     <th style={fieldProps.columns}>Executing User</th>
                     {this.renderEnterpriseHeaders(variableViewNames)}
-                    {this.props.store.showDisputeActions === false ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>}
+                    {(this.props.store.showDisputeActions === false || this.props.store.providerType == 'hyperledger') ? null : <th style={Object.assign({}, fieldProps.columns, { width: '6%' })}>Actions</th>}
                 </tr>
             </thead>
         );
@@ -268,11 +268,11 @@ const fieldProps = {
                 {this.renderTransactionIdCell(transaction, idx == this.props.store.transactions.length - 1)}
                 {this.renderTransactionDateCell(transaction)}
                 {this.renderTransactionEventsCell(transaction, idx)}
-                {this.props.store.isInitialSyncDone ===false? null :this.renderTransactionDisputesCell(transaction, idx)}
+                {(this.props.store.isInitialSyncDone === false || this.props.store.providerType == 'hyperledger')? null :this.renderTransactionDisputesCell(transaction, idx)}
                 {this.renderTransactionExecutingUsersCell(transaction)}
                 {this.renderTransactionMyEnterpriseVerifyCell(transaction)}
                 {this.renderTransactionOtherEnterpriseVerifyCells(transaction, variableViewNames)}
-                {this.props.store.showDisputeActions === false  ? null : this.renderTransactionActionsCell(transaction, idx)}
+                {(this.props.store.showDisputeActions === false || this.props.store.providerType == 'hyperledger')  ? null : this.renderTransactionActionsCell(transaction, idx)}
             </tr>
         );
     }

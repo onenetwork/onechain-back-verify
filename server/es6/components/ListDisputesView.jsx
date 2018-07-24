@@ -61,6 +61,8 @@ import { toJS } from 'mobx';
 			return null;
 		} else if(this.props.store.isInitialSetupDone === false) {
 			return <Redirect push to="/setup" />;
+		} else if (this.props.store.providerType == 'hyperledger') {
+			return <Redirect push to="/home" />;
 		}
 
 		let fieldProps = {

@@ -387,6 +387,7 @@ export default class BackChainActions {
                         store.blockChainContractAddress = result.settings.blockChain.contractAddress;
                         store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
                         store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
+                        store.providerType = result.settings.blockChain.providerType;
                     } else {
                         store.isInitialSetupDone = false;
                         store.blockChainUrl = config.blockChainUrl;
