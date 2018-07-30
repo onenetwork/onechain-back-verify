@@ -24,6 +24,8 @@ class Images {
     get DISPUTE_PARTICIPANT_BADGE()     { return this.baseURL + 'disputes-user-badge.svg';          }
     get EVENT_BADGE_ORANGE()            { return this.baseURL + 'event-badge-orange.svg';           }
     get DISPUTE_PARTICIPANT_BADGE_ORANGE()     { return this.baseURL + 'disputes-user-badge-orange.svg';  }
+    get ETHEREUM_ICON()                  { return this.baseURL + 'ethereum-icon.png';                     }
+    get HYPERLEDGER_ICON()               { return this.baseURL + 'hyperledger-icon.png';                  }
 }
 
 const images = new Images()

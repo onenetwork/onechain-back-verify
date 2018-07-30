@@ -6,10 +6,14 @@ import BackChainActions from '../BackChainActions';
 import HeaderView from './HeaderView';
 import AlertPopupView from './AlertPopupView';
 import DisplaySyncView from "./DisplaySyncView"
+import Images from '../Images';
 
 @observer export default class SetupView extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			blockChainTechEnabled:SetupView.blockChainTechEnum.ethereum
+		}
 	}
 
 
@@ -45,6 +49,10 @@ import DisplaySyncView from "./DisplaySyncView"
 		this.props.store.disputeBlockChainContractAddress = event.target.value.trim();
 	}
 	
+	toggleBlockChainTech(techName) {
+		this.setState({blockChainTechEnabled: techName});
+	}
+
 	render() {
 		if (this.props.store.isInitialSetupDone === true) {
         	return <Redirect push to="/home" />;
@@ -91,36 +99,86 @@ import DisplaySyncView from "./DisplaySyncView"
 				fontSize: '18px',
 				width: '96px',
 				height: '42px'
+			},
+			blockChainTechLogo: {
+    			padding: '5px',
+				width: '180px',
+				height: '42px',
+				cursor: 'pointer',
+				color: '#0085C8',
+				fontSize: '18px',
+				position: 'relative',
+				borderRadius: '5px',
+				border: '1px solid #0085C8',
+				boxShadow: 'rgba(0, 0, 0, 0.75) 1px 2px 2px'
+			},
+			blockChainText: {
+				verticalAlign: 'middle'
+			},
+			blockChainSelectArea: {
+				top: '0',
+				right: '0',
+				width: '40px',
+				height: '100%',
+				position: 'absolute',
+				background: '#f2f2f2',
+				borderTopRightRadius: '5px',
+    			borderBottomRightRadius: '5px'
 			}
 		};
 		let panelBody = (<div>
 			<AlertPopupView store={this.props.store} />
 			<p></p>
+			<Row style={Object.assign({}, fieldProps.panelPadding, {paddingBottom: '60px'})}>
+				<Col md={4}><div style={fieldProps.valueLabel}>Technology: </div></Col>
+				<Col md={2}>
+					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.ethereum)} style={this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.ethereum ? Object.assign({},fieldProps.blockChainTechLogo,{fontWeight:'600'}) : fieldProps.blockChainTechLogo}>
+						<img src={Images.ETHEREUM_ICON} />
+						<span style={fieldProps.blockChainText}>Ethereum</span>
+						<div style={fieldProps.blockChainSelectArea}>{this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.ethereum ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+					</div>
+				</Col>
+				<Col md={2}>
+					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.hyperledger)} style={this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.hyperledger ? Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px', fontWeight:'600'}) : Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px'})}>
+						<img src={Images.HYPERLEDGER_ICON} />&nbsp;
+						<span style={fieldProps.blockChainText}>Hyperledger</span>
+						<div style={fieldProps.blockChainSelectArea}>{this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.hyperledger ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+					</div>
+				</Col>
+			</Row>
 			<Row style={fieldProps.panelPadding}>
 				<Col md={4}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={7}>
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl == null ? '' : this.props.store.blockChainUrl}/>
 				</Col>
 			</Row>
-			<Row style={fieldProps.panelPadding}>
-				<Col md={4}><div style={fieldProps.valueLabel}>Content BackChain Contract Address: </div></Col>
-				<Col md={7}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress == null ? '' : this.props.store.blockChainContractAddress} />
-				</Col>
-			</Row>
-			<Row style={fieldProps.panelPadding}>
-				<Col md={4}><div style={fieldProps.valueLabel}>Dispute BackChain Contract Address: </div></Col>
-				<Col md={7}>
-					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.disputeBlockChainContractAddress.bind(this)}  onChange={this.disputeBlockChainContractAddress.bind(this)} placeholder={this.props.store.disputeBlockChainContractAddress} value= {this.props.store.disputeBlockChainContractAddress == null ? '' : this.props.store.disputeBlockChainContractAddress} />
-				</Col>
-			</Row>
+			{this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.ethereum ? 
+				(<div><Row style={fieldProps.panelPadding}>
+					<Col md={4}><div style={fieldProps.valueLabel}>Content BackChain Contract Address: </div></Col>
+					<Col md={7}>
+						<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainContractAddress.bind(this)}  onChange={this.blockChainContractAddress.bind(this)} placeholder={this.props.store.blockChainContractAddress} value= {this.props.store.blockChainContractAddress == null ? '' : this.props.store.blockChainContractAddress} />
+					</Col>
+				</Row>
+				<Row style={fieldProps.panelPadding}>
+					<Col md={4}><div style={fieldProps.valueLabel}>Dispute BackChain Contract Address: </div></Col>
+					<Col md={7}>
+						<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.disputeBlockChainContractAddress.bind(this)}  onChange={this.disputeBlockChainContractAddress.bind(this)} placeholder={this.props.store.disputeBlockChainContractAddress} value= {this.props.store.disputeBlockChainContractAddress == null ? '' : this.props.store.disputeBlockChainContractAddress} />
+					</Col>
+				</Row></div>) :
+				(<div><Row style={fieldProps.panelPadding}>
+					<Col md={4}><div style={fieldProps.valueLabel}>Token: </div></Col>
+					<Col md={7}>
+						<FormControl type="text" style={fieldProps.valueInput} value={''}/>
+					</Col>
+				</Row></div>)
+			}
 			<Row style={fieldProps.panelPadding}>
 				<Col md={4}></Col>
 				<Col md={7}>
 					<div>
-							<button onClick={this.saveInitialConfig.bind(this)} style={fieldProps.buttonStyle} className="btn btn-primary">
+						<button onClick={this.saveInitialConfig.bind(this)} style={fieldProps.buttonStyle} className="btn btn-primary">
 							<span>Enter</span>
-							</button>
+						</button>
 					</div>
 				</Col>
 			</Row>
@@ -128,6 +186,24 @@ import DisplaySyncView from "./DisplaySyncView"
 
 		let panelBodyProd = (<div>
 			<p></p>
+			<Row style={Object.assign({}, fieldProps.panelPadding, {paddingBottom: '60px'})}>
+				<Col md={3}><div style={fieldProps.valueLabel}>Technology: </div></Col>
+				<Col md={2}>
+					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.ethereum)} style={this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.ethereum ? Object.assign({},fieldProps.blockChainTechLogo,{fontWeight:'600'}) : fieldProps.blockChainTechLogo}>
+						<img src={Images.ETHEREUM_ICON} />
+						<span style={fieldProps.blockChainText}>Ethereum</span>
+						<div style={fieldProps.blockChainSelectArea}>{this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.ethereum ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+					</div>
+				</Col>
+				<Col md={2}>
+					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.hyperledger)} style={this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.hyperledger ? Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px', fontWeight:'600'}) : Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px'})}>
+						<img src={Images.HYPERLEDGER_ICON} />&nbsp;
+						<span style={fieldProps.blockChainText}>Hyperledger</span>
+						<div style={fieldProps.blockChainSelectArea}>{this.state.blockChainTechEnabled === SetupView.blockChainTechEnum.hyperledger ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+					</div>
+				</Col>
+			</Row>
+			
 			<Row style={fieldProps.panelPadding}>
 				<Col md={3}><div style={fieldProps.valueLabel}>Blockchain URL: </div></Col>
 				<Col md={7}>
@@ -200,3 +276,4 @@ import DisplaySyncView from "./DisplaySyncView"
 		}
 	}
 }
+SetupView.blockChainTechEnum=Object.freeze({"ethereum":"ethereum", "hyperledger":"hyperledger"});
