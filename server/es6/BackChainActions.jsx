@@ -307,12 +307,14 @@ export default class BackChainActions {
     }
 
     @action
-    static saveBlockChainSettings(url, contractAddress, disputeContractAddress, disputeSubmissionWindowInMinutes) {
+    static saveBlockChainSettings(url, contractAddress, disputeContractAddress, disputeSubmissionWindowInMinutes, providerType, hyperLedgerToken) {
         let params = {
             'url':url,
             'contractAddress': contractAddress,
             'disputeContractAddress': disputeContractAddress,
-            'disputeSubmissionWindowInMinutes': disputeSubmissionWindowInMinutes
+            'disputeSubmissionWindowInMinutes': disputeSubmissionWindowInMinutes,
+            'providerType': providerType,
+            'hyperLedgerToken': hyperLedgerToken
         };
         fetch('/saveBlockChainSettings', {
             method: 'post',
@@ -618,7 +620,7 @@ export default class BackChainActions {
                 disputeBcClient.getDisputeSubmissionWindowInMinutes().
                 then(function(result){
                     store.disputeSubmissionWindowInMinutes = parseInt(result);
-                    BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.disputeSubmissionWindowInMinutes);
+                    BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.disputeSubmissionWindowInMinutes, store.providerType, store.hyperLedgerToken);
                 }).
                 catch(function(error) {
                     BackChainActions.displayAlertPopup("Dispute BackChain Communication Failed", "Could not connect to the dispute backchain, please check dispute backchain contract address and try again.",'ERROR');

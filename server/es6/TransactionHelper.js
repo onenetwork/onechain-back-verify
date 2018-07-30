@@ -90,7 +90,9 @@ class TransactionHelper {
                         'url': config.url,
                         'contractAddress': config.contractAddress,
                         'disputeContractAddress': config.disputeContractAddress,
-                        'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes)
+                        'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes),
+                        'providerType': config.providerType,
+                        'hyperLedgerToken':config.hyperLedgerToken
                     }
                     data = exist;
                 } else {
@@ -100,7 +102,9 @@ class TransactionHelper {
                             'url': config.url,
                             'contractAddress': config.contractAddress,
                             'disputeContractAddress': config.disputeContractAddress,
-                            'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes)
+                            'disputeSubmissionWindowInMinutes': parseInt(config.disputeSubmissionWindowInMinutes),
+                            'providerType': config.providerType,
+                            'hyperLedgerToken':config.hyperLedgerToken
                         }
 
                     };

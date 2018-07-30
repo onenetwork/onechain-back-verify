@@ -51,7 +51,8 @@ class BackChainStore {
     @observable loadingData = false;
     @observable attachmentVerificationMap = observable.map({});
     @observable providerType = null;
-
+    @observable hyperLedgerToken = null;
+    
     // props modified by API
     @observable showDisputeDetailsInPopup = false;
     @observable showDisputeActions = false;
