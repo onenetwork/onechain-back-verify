@@ -2,7 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import {Row,  Col, Button, Panel,Tooltip,OverlayTrigger,Modal} from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
-import BackChainActions from '../BackChainActions';
+import BackChainActions, {BC_TECH_ENUM} from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import AlertPopupView from "./AlertPopupView";
 import '../../public/css/homePage.css';
@@ -32,7 +32,7 @@ import { disputeHelper } from '../DisputeHelper';
         .then(function (result) {
           if(result) {
             let disputingPartyAddress = disputeHelper.getDisputingPartyAddress(me.props.store.entNameOfLoggedUser, me.props.store.backChainAddressMapping);
-            if (me.props.store.isInitialSyncDone && me.props.store.providerType != 'hyperledger')
+            if (me.props.store.isInitialSyncDone && me.props.store.providerType != BC_TECH_ENUM.hyperledger)
               BackChainActions.getOpenDisputeCount(null, disputingPartyAddress);
             
             let disputeFilters = {
@@ -232,7 +232,7 @@ import { disputeHelper } from '../DisputeHelper';
       disputeCountCSS = { right: '129px', position: 'absolute', top: '208px', width: '26px' };
     }
     let disputes =
-      (this.props.store.isInitialSyncDone && this.props.store.providerType != 'hyperledger') ? (<div style={{ float: 'right' }}>
+      (this.props.store.isInitialSyncDone && this.props.store.providerType != BC_TECH_ENUM.hyperledger) ? (<div style={{ float: 'right' }}>
         <Link to='#' onClick={this.redirectToListDisputes.bind(this)}>
           <div style={fieldProps.disputes}>
             <div className="mouseOver" style={fieldProps.mouseOver} >

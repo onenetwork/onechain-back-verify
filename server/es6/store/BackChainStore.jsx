@@ -124,10 +124,11 @@ class BackChainStore {
     @computed get oneContentBcClient() {
         if (this.blockChainUrl != null && this.blockChainContractAddress != null) {
             return oneBcClient.createContentBcClient({
-                blockchain: 'eth',
+                blockchain: this.providerType,
                 url: this.blockChainUrl,
                 contentBackchainContractAddress: this.blockChainContractAddress,
-                disputeBackchainContractAddress: this.disputeBlockChainContractAddress
+                disputeBackchainContractAddress: this.disputeBlockChainContractAddress,
+                token: this.hyperLedgerToken
             });
         } else {
             return null;

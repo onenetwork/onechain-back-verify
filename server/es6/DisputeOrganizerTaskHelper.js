@@ -9,12 +9,13 @@ import oneBcClient from '@onenetwork/one-backchain-client';
 class DisputeOrganizerTaskHelper {
 
     executeTask() {
-        console.log("Deleting old disputes && getting enterprise account number mappings from PLT.");
         settingsHelper.getApplicationSettings()
             .then(result => {
-                this.deleteOldDisputes(result);
                 this.getEnterpriseAccountMapping(result);
-                this.updateDisputeSubmissionTime(result);
+                if(result.blockChain.providerType === 'eth') {
+                    this.deleteOldDisputes(result);
+                    this.updateDisputeSubmissionTime(result);
+                }
                 setTimeout(() => {
                     this.executeTask();
                 }, config.disputeOrganizerIntervalInMillis);
@@ -39,6 +40,7 @@ class DisputeOrganizerTaskHelper {
     }
 
     getEnterpriseAccountMapping(settings) {
+        console.log("Getting enterprise account number mappings from PLT.");
         if (settings && settings.chainOfCustidy && settings.chainOfCustidy.authenticationToken && settings.chainOfCustidy.chainOfCustodyUrl) {
             fetch(backChainUtil.returnValidURL(settings.chainOfCustidy.chainOfCustodyUrl + '/oms/rest/backchain/v1/addresses'), {
                 method: 'get',
@@ -82,6 +84,7 @@ class DisputeOrganizerTaskHelper {
     }
 
     deleteOldDisputes(settings) {
+        console.log("Deleting old disputes");
         let me = this;
         disputeHelper.getDisputes({status:JSON.stringify(['DRAFT'])})
             .then(function (result) {
@@ -107,7 +110,7 @@ class DisputeOrganizerTaskHelper {
 
     updateDisputeSubmissionTime(settings) {
         let disputeBcClient = oneBcClient.createDisputeBcClient({
-            blockchain: 'eth',
+            blockchain: settings.blockChain.providerType,
             url: settings.blockChain.url,
             contentBackchainContractAddress: settings.blockChain.contractAddress,
             disputeBackchainContractAddress: settings.blockChain.disputeContractAddress

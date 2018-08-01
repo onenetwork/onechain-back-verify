@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { observer } from 'mobx-react';
 import { Row, Col, Button, Panel, FormControl,Modal } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
-import BackChainActions from '../BackChainActions';
+import BackChainActions, {BC_TECH_ENUM} from '../BackChainActions';
 import HeaderView from './HeaderView';
 import AlertPopupView from './AlertPopupView';
 import DisplaySyncView from "./DisplaySyncView"
@@ -11,7 +11,7 @@ import Images from '../Images';
 @observer export default class SetupView extends React.Component {
 	constructor(props) {
 		super(props);
-		this.props.store.providerType = SetupView.blockChainTechEnum.ethereum;
+		this.props.store.providerType = BC_TECH_ENUM.ethereum;
 	}
 
 
@@ -24,10 +24,14 @@ import Images from '../Images';
 	}
 
 	saveInitialConfig() {
-		if (this.isEmpty(this.props.store.blockChainUrl) || this.isEmpty(this.props.store.blockChainContractAddress) || this.isEmpty(this.props.store.disputeBlockChainContractAddress)) {
+		if (this.props.store.providerType === BC_TECH_ENUM.ethereum  && (this.isEmpty(this.props.store.blockChainUrl) || this.isEmpty(this.props.store.blockChainContractAddress) || this.isEmpty(this.props.store.disputeBlockChainContractAddress))) {
+			BackChainActions.displayAlertPopup("Missing Required Fields", "Please fill in all the required fields and try again.",'WARN');
+			return;
+		} else if(this.props.store.providerType === BC_TECH_ENUM.hyperledger && (this.isEmpty(this.props.store.blockChainUrl) || this.isEmpty(this.props.store.hyperLedgerToken))) {
 			BackChainActions.displayAlertPopup("Missing Required Fields", "Please fill in all the required fields and try again.",'WARN');
 			return;
 		}
+
 		if (!this.props.store.blockChainUrl.toLowerCase().startsWith("http://") && !this.props.store.blockChainUrl.toLowerCase().startsWith("https://")) {
 			BackChainActions.displayAlertPopup("Invalid BlockChain Url", "Please enter a valid block chain url and try again.",'WARN');
 			return;
@@ -134,17 +138,17 @@ import Images from '../Images';
 			<Row style={Object.assign({}, fieldProps.panelPadding, {paddingBottom: '60px'})}>
 				<Col md={4}><div style={fieldProps.valueLabel}>Technology: </div></Col>
 				<Col md={2}>
-					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.ethereum)} style={this.props.store.providerType === SetupView.blockChainTechEnum.ethereum ? Object.assign({},fieldProps.blockChainTechLogo,{fontWeight:'600'}) : fieldProps.blockChainTechLogo}>
+					<div onClick= {()=>this.toggleBlockChainTech(BC_TECH_ENUM.ethereum)} style={this.props.store.providerType === BC_TECH_ENUM.ethereum ? Object.assign({},fieldProps.blockChainTechLogo,{fontWeight:'600'}) : fieldProps.blockChainTechLogo}>
 						<img src={Images.ETHEREUM_ICON} />
 						<span style={fieldProps.blockChainText}>Ethereum</span>
-						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === SetupView.blockChainTechEnum.ethereum ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === BC_TECH_ENUM.ethereum ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
 					</div>
 				</Col>
 				<Col md={2}>
-					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.hyperledger)} style={this.props.store.providerType === SetupView.blockChainTechEnum.hyperledger ? Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px', fontWeight:'600'}) : Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px'})}>
+					<div onClick= {()=>this.toggleBlockChainTech(BC_TECH_ENUM.hyperledger)} style={this.props.store.providerType === BC_TECH_ENUM.hyperledger ? Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px', fontWeight:'600'}) : Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px'})}>
 						<img src={Images.HYPERLEDGER_ICON} />&nbsp;
 						<span style={fieldProps.blockChainText}>Hyperledger</span>
-						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === SetupView.blockChainTechEnum.hyperledger ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === BC_TECH_ENUM.hyperledger ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
 					</div>
 				</Col>
 			</Row>
@@ -154,7 +158,7 @@ import Images from '../Images';
 					<FormControl type="text" style={fieldProps.valueInput} onKeyPress={this.blockChainUrl.bind(this)}  onChange={this.blockChainUrl.bind(this)} placeholder={this.props.store.blockChainUrl} value={this.props.store.blockChainUrl == null ? '' : this.props.store.blockChainUrl}/>
 				</Col>
 			</Row>
-			{this.props.store.providerType === SetupView.blockChainTechEnum.ethereum ? 
+			{this.props.store.providerType === BC_TECH_ENUM.ethereum ? 
 				(<div><Row style={fieldProps.panelPadding}>
 					<Col md={4}><div style={fieldProps.valueLabel}>Content BackChain Contract Address: </div></Col>
 					<Col md={7}>
@@ -191,17 +195,17 @@ import Images from '../Images';
 			<Row style={Object.assign({}, fieldProps.panelPadding, {paddingBottom: '60px'})}>
 				<Col md={3}><div style={fieldProps.valueLabel}>Technology: </div></Col>
 				<Col md={2}>
-					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.ethereum)} style={this.props.store.providerType === SetupView.blockChainTechEnum.ethereum ? Object.assign({},fieldProps.blockChainTechLogo,{fontWeight:'600'}) : fieldProps.blockChainTechLogo}>
+					<div onClick= {()=>this.toggleBlockChainTech(BC_TECH_ENUM.ethereum)} style={this.props.store.providerType === BC_TECH_ENUM.ethereum ? Object.assign({},fieldProps.blockChainTechLogo,{fontWeight:'600'}) : fieldProps.blockChainTechLogo}>
 						<img src={Images.ETHEREUM_ICON} />
 						<span style={fieldProps.blockChainText}>Ethereum</span>
-						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === SetupView.blockChainTechEnum.ethereum ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === BC_TECH_ENUM.ethereum ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
 					</div>
 				</Col>
 				<Col md={2}>
-					<div onClick= {()=>this.toggleBlockChainTech(SetupView.blockChainTechEnum.hyperledger)} style={this.props.store.providerType === SetupView.blockChainTechEnum.hyperledger ? Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px', fontWeight:'600'}) : Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px'})}>
+					<div onClick= {()=>this.toggleBlockChainTech(BC_TECH_ENUM.hyperledger)} style={this.props.store.providerType === BC_TECH_ENUM.hyperledger ? Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px', fontWeight:'600'}) : Object.assign({},fieldProps.blockChainTechLogo,{marginLeft: '15px', width: '205px'})}>
 						<img src={Images.HYPERLEDGER_ICON} />&nbsp;
 						<span style={fieldProps.blockChainText}>Hyperledger</span>
-						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === SetupView.blockChainTechEnum.hyperledger ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
+						<div style={fieldProps.blockChainSelectArea}>{this.props.store.providerType === BC_TECH_ENUM.hyperledger ? <i className={"fa fa-check"} style={{padding: '10px', fontSize: '20px'}}/> : null}</div>
 					</div>
 				</Col>
 			</Row>
@@ -278,4 +282,3 @@ import Images from '../Images';
 		}
 	}
 }
-SetupView.blockChainTechEnum=Object.freeze({"ethereum":"ethereum", "hyperledger":"hyperledger"});

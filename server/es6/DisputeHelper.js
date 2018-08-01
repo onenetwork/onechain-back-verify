@@ -376,7 +376,7 @@ class DisputeHelper {
         let entName = backChainAccountOfLoggedUser;
         for (let key in backChainAddressMapping) {
             if (backChainAddressMapping.hasOwnProperty(key)) {
-                if (key.toLowerCase() == backChainAccountOfLoggedUser.toLowerCase()) {
+                if (backChainAccountOfLoggedUser && key.toLowerCase() == backChainAccountOfLoggedUser.toLowerCase()) {
                     entName = backChainAddressMapping[key];
                 }
             }

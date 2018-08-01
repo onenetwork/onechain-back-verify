@@ -380,10 +380,19 @@ export default class BackChainActions {
                 fetch('/getApplicationSettings', { method: 'GET'}).then(function(response) {
                     return response.json();
                 }).then(function(result) {
-                    if (result.success && result.settings.blockChain &&
-                        result.settings.blockChain.url && result.settings.blockChain.contractAddress &&
-                        result.settings.blockChain.disputeContractAddress && /*submissionWindow can return as 0 if PLT hasn't submitted a value 0 is considered as false*/
-                        typeof result.settings.blockChain.disputeSubmissionWindowInMinutes != 'undefined') {
+                    let isInitialSetupSaved = false;
+                    let blockChainSettings = result.success ? result.settings.blockChain : null;
+
+                    if(blockChainSettings && blockChainSettings.url) {
+                        /*submissionWindow can return as 0 if PLT hasn't submitted a value 0 is considered as false*/
+                        if(blockChainSettings.providerType === BC_TECH_ENUM.ethereum && blockChainSettings.contractAddress && blockChainSettings.disputeContractAddress && typeof blockChainSettings.disputeSubmissionWindowInMinutes != 'undefined') {
+                            isInitialSetupSaved = true;
+                        } else if(blockChainSettings.providerType === BC_TECH_ENUM.hyperledger && blockChainSettings.hyperLedgerToken) {
+                            isInitialSetupSaved = true;
+                        }
+                    }
+                    
+                    if (isInitialSetupSaved) {
                         store.isInitialSetupDone = true;
                         store.blockChainUrl = result.settings.blockChain.url;
                         store.blockChainContractAddress = result.settings.blockChain.contractAddress;
@@ -601,31 +610,36 @@ export default class BackChainActions {
         //Verify orchestrator first and then getDisputeSubmissionWindows to make sure required things work.
         try {
             let contentBcClient = oneBcClient.createContentBcClient({
-                blockchain: 'eth',
+                blockchain: store.providerType,
                 url: store.blockChainUrl,
                 contentBackchainContractAddress: store.blockChainContractAddress,
-                disputeBackchainContractAddress: store.disputeBlockChainContractAddress
+                disputeBackchainContractAddress: store.disputeBlockChainContractAddress,
+                token: store.hyperLedgerToken
             });
-
+            
             contentBcClient.getOrchestrator()
             .then(function (result) {
-                //Content BackChain credentials are correct and the connection is established. Try it for disputeContentBackChain
-                let disputeBcClient = oneBcClient.createDisputeBcClient({
-                    blockchain: 'eth',
-                    url: store.blockChainUrl,
-                    contentBackchainContractAddress: store.blockChainContractAddress,
-                    disputeBackchainContractAddress: store.disputeBlockChainContractAddress
-                });
+                if(store.providerType === 'eth') {
+                    //Content BackChain credentials are correct and the connection is established. Try it for disputeContentBackChain
+                    let disputeBcClient = oneBcClient.createDisputeBcClient({
+                        blockchain: store.providerType,
+                        url: store.blockChainUrl,
+                        contentBackchainContractAddress: store.blockChainContractAddress,
+                        disputeBackchainContractAddress: store.disputeBlockChainContractAddress
+                    });
 
-                disputeBcClient.getDisputeSubmissionWindowInMinutes().
-                then(function(result){
-                    store.disputeSubmissionWindowInMinutes = parseInt(result);
-                    BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.disputeSubmissionWindowInMinutes, store.providerType, store.hyperLedgerToken);
-                }).
-                catch(function(error) {
-                    BackChainActions.displayAlertPopup("Dispute BackChain Communication Failed", "Could not connect to the dispute backchain, please check dispute backchain contract address and try again.",'ERROR');
-                    console.error(error);
-                });
+                    disputeBcClient.getDisputeSubmissionWindowInMinutes().
+                    then(function(result){
+                        store.disputeSubmissionWindowInMinutes = parseInt(result);
+                        BackChainActions.saveBlockChainSettings(store.blockChainUrl, store.blockChainContractAddress, store.disputeBlockChainContractAddress, store.disputeSubmissionWindowInMinutes, store.providerType, null);
+                    }).
+                    catch(function(error) {
+                        BackChainActions.displayAlertPopup("Dispute BackChain Communication Failed", "Could not connect to the dispute backchain, please check dispute backchain contract address and try again.",'ERROR');
+                        console.error(error);
+                    });
+                } else {
+                    BackChainActions.saveBlockChainSettings(store.blockChainUrl, null, null, null, store.providerType, store.hyperLedgerToken);
+                }
             })
             .catch(function (error) {
                 BackChainActions.displayAlertPopup("Content BackChain Communication Failed", "Could not connect to the content backchain, please check your settings and try again.",'ERROR');
@@ -1182,3 +1196,4 @@ export default class BackChainActions {
     }
 
 }
+export const BC_TECH_ENUM=Object.freeze({"ethereum":"eth", "hyperledger":"hyp"});

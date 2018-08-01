@@ -3,7 +3,7 @@ import {Row, Button} from 'react-bootstrap';
 import { observer } from 'mobx-react';
 import { Link, Redirect } from 'react-router-dom';
 import DisputesView from "./DisputesView";
-import BackChainActions from '../BackChainActions';
+import BackChainActions, {BC_TECH_ENUM} from '../BackChainActions';
 import HeaderView from "./HeaderView";
 import DisputeFiltersView from './DisputeFiltersView';
 import NewDisputeView from './NewDisputeView';
@@ -61,7 +61,7 @@ import { toJS } from 'mobx';
 			return null;
 		} else if(this.props.store.isInitialSetupDone === false) {
 			return <Redirect push to="/setup" />;
-		} else if (this.props.store.providerType == 'hyperledger') {
+		} else if (this.props.store.providerType == BC_TECH_ENUM.hyperledger) {
 			return <Redirect push to="/home" />;
 		}
 
