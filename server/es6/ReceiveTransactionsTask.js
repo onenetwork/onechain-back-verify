@@ -12,8 +12,7 @@ class ReceiveTransactionsTask {
 
     }
 
-    insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl) {
-        let lastSyncTimeInMillis = new Date().getTime();
+    insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl, lastSyncTimeInMillis) {
         let settingsCollection = null;
 
         /* finding settingsCollection, because there could be "blockChain" related setup already present */
@@ -32,7 +31,7 @@ class ReceiveTransactionsTask {
             if(settingsCollection) {
                 settingsCollection.chainOfCustidy = {
                     "authenticationToken" : authenticationToken,
-                    "lastSyncTimeInMillis": lastSyncTimeInMillis,
+                    "lastSyncTimeInMillis": lastSyncTimeInMillis ? lastSyncTimeInMillis : settingsCollection.chainOfCustidy.lastSyncTimeInMillis,
                     "chainOfCustodyUrl": chainOfCustodyUrl,
                     "enterpriseName":settingsCollection.chainOfCustidy.enterpriseName
                 }

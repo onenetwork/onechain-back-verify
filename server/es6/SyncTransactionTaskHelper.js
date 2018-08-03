@@ -43,7 +43,7 @@ class SyncTransactionTaskHelper {
                         && result.chainOfCustidy.authenticationToken
                         && result.chainOfCustidy.chainOfCustodyUrl) {
                         console.info('Chain of Custody data will be synced roughly every ' + config.syncDataIntervalInMillis + ' milliseconds');
-                        this.syncMessages(result.chainOfCustidy.authenticationToken, result.chainOfCustidy.chainOfCustodyUrl);
+                        this.syncMessages(result.chainOfCustidy.authenticationToken, result.chainOfCustidy.chainOfCustodyUrl, result.chainOfCustidy.lastSyncTimeInMillis);
                     }
                 })
                 .catch(err => {
@@ -51,7 +51,7 @@ class SyncTransactionTaskHelper {
                 });
         }
 
-        syncMessages(authenticationToken, chainOfCustodyUrl) {
+        syncMessages(authenticationToken, chainOfCustodyUrl, lastSyncTimeInMillis) {
             if(syncing) {
                 return;
             }
@@ -95,7 +95,7 @@ class SyncTransactionTaskHelper {
                         receiveTransactionsTask.insertMessages(transactionMessages);
                     }
 
-                    let lastSyncTimeInMillis = receiveTransactionsTask.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
+                    receiveTransactionsTask.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl, lastSyncTimeInMillis);
                     if(result.hasMorePages || pendingResets.length > 0 || Object.keys(pendingAttachments).length > 0) {
                         setTimeout(() => {
                             this.syncMessages(authenticationToken, chainOfCustodyUrl);
@@ -147,8 +147,10 @@ class SyncTransactionTaskHelper {
             let updateSyncStatistics = false;
             let baseUrl = request.chainOfCustodyUrl + '/oms/rest/backchain/v1/reset';
             let url;
-            if(request.fromDate) {
-                let dateAsString = moment(new Date(parseInt(request.fromDate, 10))).format('YYYYMMDD');
+            let localToUTCTimeInMillis = null;
+            if (request.fromDate) {
+                localToUTCTimeInMillis = parseInt(request.fromDate, 10) + (-1 * parseInt(request.offset) * 60000);
+                let dateAsString = moment(new Date(localToUTCTimeInMillis)).format('YYYYMMDD');
                 url = backChainUtil.returnValidURL(baseUrl, { fromDate: dateAsString });
                 console.log('Sync from date: ' + dateAsString);
                 updateSyncStatistics = true;
@@ -158,6 +160,7 @@ class SyncTransactionTaskHelper {
                     fromSequence: request.fromSequence,
                     toSequence: request.toSequence
                 });
+                 updateSyncStatistics = true;
                 console.log('Sync gap: ' + request.fromSequence + (request.toSequence ? (" - " + request.toSequence) : ""));
             }
             else {
@@ -184,7 +187,6 @@ class SyncTransactionTaskHelper {
 
                 // update SyncStatistics
                 if (updateSyncStatistics) {
-                    updateSyncStatistics = false;
                     settingsHelper.getSyncStatisticsInfo()
                          .then((syncStatisticsInfo) => {
                              if (syncStatisticsInfo.syncStatisticsExists === false) {
@@ -198,15 +200,18 @@ class SyncTransactionTaskHelper {
                                      "earliestResetDateInMillis": parseInt(request.fromDate, 10)
                                  };
                              } else {
-                                 if (parseInt(request.fromDate, 10) < syncStatisticsInfo.syncStatistics.earliestResetDateInMillis) {
-                                     syncStatisticsInfo.syncStatistics.earliestResetDateInMillis = parseInt(request.fromDate, 10);
-                                     updateSyncStatistics = true;
+                                 if (request.fromDate) {
+                                    if (parseInt(request.fromDate, 10) < syncStatisticsInfo.syncStatistics.earliestResetDateInMillis) {
+                                        syncStatisticsInfo.syncStatistics.earliestResetDateInMillis = parseInt(request.fromDate, 10);
+                                        updateSyncStatistics = true;
+                                    } else {
+                                        updateSyncStatistics = false;
+                                    }
                                  }
                              }
                              if (updateSyncStatistics) {
                                 settingsHelper.updateSyncStatistics(syncStatisticsInfo.syncStatistics);
                              }
-                             
                          })
                          .catch((err) => {
                              console.error("Error occurred while updating SyncStatistics: " + err);
@@ -214,7 +219,7 @@ class SyncTransactionTaskHelper {
                         });
                 }
 
-                return this.updateChainOfCustody(request.authenticationToken, request.chainOfCustodyUrl, result.entName, result => {
+                return this.updateChainOfCustody(request.authenticationToken, request.chainOfCustodyUrl, result.entName, localToUTCTimeInMillis, result => {
                     if(!result) {
                         throw new Error("Response was empty");
                     }
@@ -328,11 +333,12 @@ class SyncTransactionTaskHelper {
             }
         }
 
-        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, callback) {
+        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, offset, callback) {
             pendingResets.unshift({
                 authenticationToken: authenticationToken,
                 chainOfCustodyUrl: chainOfCustodyUrl,
                 fromDate: fromDate,
+                offset: offset,
                 callback: callback
             });
             this.syncMessages(authenticationToken, chainOfCustodyUrl);
@@ -353,16 +359,23 @@ class SyncTransactionTaskHelper {
             this.syncMessages(authenticationToken, chainOfCustodyUrl);
         }
 
-        updateChainOfCustody(authenticationToken, chainOfCustodyUrl, entName, callback) {
+        updateChainOfCustody(authenticationToken, chainOfCustodyUrl, entName, lastSyncTimeInMillis, callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
                 if (err) {
                     logger.error(err);
                 }
 
                 if (result) {
+                    if (!lastSyncTimeInMillis && result.chainOfCustidy) {
+                        lastSyncTimeInMillis = result.chainOfCustidy.lastSyncTimeInMillis;
+                    }
+                    if (lastSyncTimeInMillis && result.chainOfCustidy && lastSyncTimeInMillis > result.chainOfCustidy.lastSyncTimeInMillis) {
+                        lastSyncTimeInMillis = result.chainOfCustidy.lastSyncTimeInMillis;
+                    }
+
                     result.chainOfCustidy = {
                         "authenticationToken": authenticationToken,
-                        "lastSyncTimeInMillis": new Date().getTime(),
+                        "lastSyncTimeInMillis": lastSyncTimeInMillis,
                         "chainOfCustodyUrl": chainOfCustodyUrl,
                         "enterpriseName": entName
                     }
