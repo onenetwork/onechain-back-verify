@@ -518,8 +518,7 @@ export default class BackChainActions {
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
-            'chainOfCustodyUrl': chainOfCustodyUrl,
-            'offset': new Date().getTimezoneOffset()
+            'chainOfCustodyUrl' : chainOfCustodyUrl
         };
         fetch('/startSyncFromCertainDate', {
             method: 'post',
