@@ -12,7 +12,7 @@ class DisputeOrganizerTaskHelper {
         settingsHelper.getApplicationSettings()
             .then(result => {
                 this.getEnterpriseAccountMapping(result);
-                if(result.blockChain.providerType === 'eth') {
+                if(result.blockChain && result.blockChain.providerType === 'eth') {
                     this.deleteOldDisputes(result);
                     this.updateDisputeSubmissionTime(result);
                 }
