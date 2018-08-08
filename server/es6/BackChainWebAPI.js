@@ -10,18 +10,6 @@ import {backChainUtil} from './BackChainUtil';
 import fs from 'fs';
 import zlib from 'zlib';
 
-exports.getLastestSyncedDate = function(req, res) {
-    syncTransactionTaskHelper.getLastestSyncedDate(function(error, result) {
-        if(error) {
-            res.json({success : false});
-        } else {
-            res.json({
-                lastestSyncedDate: result
-            });
-        }
-    });
-};
-
 exports.isInitialSyncDone = function(req, res) {
     syncTransactionTaskHelper.isInitialSyncDone(function(error, result) {
         res.json({
@@ -75,11 +63,11 @@ exports.getApplicationSettings = function(req, res) {
 
 
 exports.startSyncFromCertainDate = function(req, res) {
-    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, (error, result) => {
+    syncTransactionTaskHelper.startSyncFromCertainDate(req.body.authenticationToken, req.body.startFromDate, req.body.chainOfCustodyUrl, req.body.offset, (error, result) => {
         if(error) {
             res.json({success : false});
         } else {
-            res.json(result);
+            res.json(result);res.json(result);
         }
     });
 };

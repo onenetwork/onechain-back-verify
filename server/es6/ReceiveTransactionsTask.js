@@ -13,7 +13,6 @@ class ReceiveTransactionsTask {
     }
 
     insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl) {
-        let lastSyncTimeInMillis = new Date().getTime();
         let settingsCollection = null;
 
         /* finding settingsCollection, because there could be "blockChain" related setup already present */
@@ -32,7 +31,6 @@ class ReceiveTransactionsTask {
             if(settingsCollection) {
                 settingsCollection.chainOfCustidy = {
                     "authenticationToken" : authenticationToken,
-                    "lastSyncTimeInMillis": lastSyncTimeInMillis,
                     "chainOfCustodyUrl": chainOfCustodyUrl,
                     "enterpriseName":settingsCollection.chainOfCustidy.enterpriseName
                 }
@@ -42,7 +40,6 @@ class ReceiveTransactionsTask {
                     "type" : "applicationSettings",
                     chainOfCustidy: {
                         "authenticationToken" : authenticationToken,
-                        "lastSyncTimeInMillis": lastSyncTimeInMillis,
                         "chainOfCustodyUrl": chainOfCustodyUrl
                     }
                 }
@@ -66,8 +63,6 @@ class ReceiveTransactionsTask {
                 }
             });
         });
-
-        return lastSyncTimeInMillis;
     }
 
     insertMessages(transMessages) {

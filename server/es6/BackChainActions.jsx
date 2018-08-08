@@ -35,19 +35,6 @@ export default class BackChainActions {
     }
 
     @action
-    static fetchLastSyncDate() {
-        fetch('/getLastestSyncedDate', {method: 'GET'}).then(function(response) {
-            return response.json();
-        }, function(error) {
-            console.error('error fetching last sync date');
-        }).then(function(result) {
-            if(result && result.success) {
-                store.lastestSyncedDate = moment(result.lastestSyncedDate).fromNow();
-            }
-        })
-    }
-
-    @action
     static isInitialSyncDone() {
         fetch('/isInitialSyncDone', { method: 'GET'}).then(function(response) {
             return response.json();
@@ -408,10 +395,8 @@ export default class BackChainActions {
                     }
                     if(result.success && result.settings.chainOfCustidy &&
                         result.settings.chainOfCustidy.authenticationToken) {
-                        store.lastestSyncedDate = moment(result.settings.chainOfCustidy.lastSyncTimeInMillis).fromNow();
                         store.authenticationToken = result.settings.chainOfCustidy.authenticationToken;
                         store.chainOfCustodyUrl = result.settings.chainOfCustidy.chainOfCustodyUrl;
-                        store.lastSyncTimeInMillis = result.settings.chainOfCustidy.lastSyncTimeInMillis;
                         store.entNameOfLoggedUser = result.settings.chainOfCustidy.enterpriseName;
                       } else {
                           store.authenticationToken = null;
@@ -518,7 +503,8 @@ export default class BackChainActions {
         let params = {
             'authenticationToken': authenticationToken,
             'startFromDate': startFromDate,
-            'chainOfCustodyUrl' : chainOfCustodyUrl
+            'chainOfCustodyUrl': chainOfCustodyUrl,
+            'offset': new Date().getTimezoneOffset()
         };
         fetch('/startSyncFromCertainDate', {
             method: 'post',
@@ -534,11 +520,10 @@ export default class BackChainActions {
         })
         .then(function (result) {
             if(result.success) {
-                store.authenticationToken = result.authenticationToken;
-                store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
-                store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
-                store.chainOfCustodyUrl = result.chainOfCustodyUrl;
-                store.entNameOfLoggedUser = result.enterpriseName;
+                store.authenticationToken = result.chainOfCustidy.authenticationToken;
+                store.chainOfCustodyUrl = result.chainOfCustidy.chainOfCustodyUrl;
+                store.entNameOfLoggedUser = result.chainOfCustidy.enterpriseName;
+                store.earliestResetDateInMillis = result.earliestResetDateInMillis;
                 store.isInitialSyncDone = true;
                 store.showDisputeActions = true;
                 BackChainActions.setSyncInitiated(true);
@@ -583,8 +568,6 @@ export default class BackChainActions {
         .then(function (result) {
             if(result.success) {
                 store.authenticationToken = result.authenticationToken;
-                store.lastSyncTimeInMillis =result.lastSyncTimeInMillis;
-                store.lastestSyncedDate = moment(result.lastSyncTimeInMillis).fromNow();
                 store.chainOfCustodyUrl = result.chainOfCustodyUrl;
                 store.isInitialSyncDone = true;
                 store.showDisputeActions = true;
@@ -669,6 +652,7 @@ export default class BackChainActions {
         .then(function(result) {
             if(result.success) {
                 store.syncStatistics = result.syncStatisticsInfo.syncStatistics;
+                store.earliestResetDateInMillis = result.syncStatisticsInfo.syncStatistics.earliestResetDateInMillis
                 store.syncStatisticsExists = result.syncStatisticsInfo.syncStatisticsExists;                  
             }
             if(generateReportForUI) {

@@ -67,7 +67,7 @@ class SettingsHelper {
                 let gapFromSequenceNo = gap.fromSequenceNo;
                 let gapToSequenceNo = gap.toSequenceNo;
                 let sequenceNoDiff = (new BigNumber(gapFromSequenceNo).minus(new BigNumber(earliestSyncSequenceNo)));
-                if(sequenceNoDiff.isGreaterThan(new BigNumber(0))) {
+                if (sequenceNoDiff.isGreaterThanOrEqualTo(new BigNumber(0))) {
                     store.syncStatisticsReport.push({
                         type : "fullSync", 
                         syncMsg : 'Full Sync', 

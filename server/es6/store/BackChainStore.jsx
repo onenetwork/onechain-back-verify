@@ -2,14 +2,13 @@ import { observable, computed } from 'mobx';
 import oneBcClient from '@onenetwork/one-backchain-client';
 
 class BackChainStore {
-    @observable lastestSyncedDate = null;
     @observable transactionIdSearch = null;
     @observable businessTransactionIdSearch = null;
     @observable searchCriteria = null;
     @observable isInitialSyncDone = null;
     @observable isInitialSetupDone = null;
     @observable authenticationToken = null;
-    @observable lastSyncTimeInMillis = null;
+    @observable earliestResetDateInMillis = null;
     @observable blockChainUrl = null;
     @observable blockChainContractAddress = null;
     @observable disputeBlockChainContractAddress = null;

@@ -95,7 +95,7 @@ class SyncTransactionTaskHelper {
                         receiveTransactionsTask.insertMessages(transactionMessages);
                     }
 
-                    let lastSyncTimeInMillis = receiveTransactionsTask.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
+                    receiveTransactionsTask.insertOrUpdateSettings(authenticationToken, chainOfCustodyUrl);
                     if(result.hasMorePages || pendingResets.length > 0 || Object.keys(pendingAttachments).length > 0) {
                         setTimeout(() => {
                             this.syncMessages(authenticationToken, chainOfCustodyUrl);
@@ -144,14 +144,13 @@ class SyncTransactionTaskHelper {
 
         makeResetRequest() {
             const request = pendingResets.pop();
-            let updateSyncStatistics = false;
             let baseUrl = request.chainOfCustodyUrl + '/oms/rest/backchain/v1/reset';
             let url;
             if(request.fromDate) {
-                let dateAsString = moment(new Date(parseInt(request.fromDate, 10))).format('YYYYMMDD');
+                let localToUTCTimeInMillis = parseInt(request.fromDate, 10) + (-1 * parseInt(request.offset) * 60000);
+                let dateAsString = moment(new Date(localToUTCTimeInMillis)).format('YYYYMMDD');
                 url = backChainUtil.returnValidURL(baseUrl, { fromDate: dateAsString });
                 console.log('Sync from date: ' + dateAsString);
-                updateSyncStatistics = true;
             }
             else if(request.fromSequence) {
                 url = backChainUtil.returnValidURL(baseUrl, {
@@ -183,49 +182,53 @@ class SyncTransactionTaskHelper {
                 }
 
                 // update SyncStatistics
-                if (updateSyncStatistics) {
-                    updateSyncStatistics = false;
-                    settingsHelper.getSyncStatisticsInfo()
-                         .then((syncStatisticsInfo) => {
-                             if (syncStatisticsInfo.syncStatisticsExists === false) {
-                                 updateSyncStatistics = true;
-                                 syncStatisticsInfo.syncStatistics = {
-                                     "earliestSyncDateInMillis": null,
-                                     "earliestSyncSequenceNo": null,
-                                     "latestSyncDateInMillis": null,
-                                     "latestSyncSequenceNo": null,
-                                     "gaps": [],
-                                     "earliestResetDateInMillis": parseInt(request.fromDate, 10)
-                                 };
-                             } else {
-                                 if (parseInt(request.fromDate, 10) < syncStatisticsInfo.syncStatistics.earliestResetDateInMillis) {
-                                     syncStatisticsInfo.syncStatistics.earliestResetDateInMillis = parseInt(request.fromDate, 10);
-                                     updateSyncStatistics = true;
-                                 }
-                             }
-                             if (updateSyncStatistics) {
-                                settingsHelper.updateSyncStatistics(syncStatisticsInfo.syncStatistics);
-                             }
-                             
-                         })
-                         .catch((err) => {
-                             console.error("Error occurred while updating SyncStatistics: " + err);
-                             callback(err, null);
+                let earliestResetDateInMillis = null;
+                let updateSyncStatistics = true;
+                settingsHelper.getSyncStatisticsInfo()
+                    .then((syncStatisticsInfo) => {
+                        if (syncStatisticsInfo.syncStatisticsExists === false) {
+                            earliestResetDateInMillis = parseInt(request.fromDate, 10);
+                            syncStatisticsInfo.syncStatistics = {
+                                "earliestSyncDateInMillis": null,
+                                "earliestSyncSequenceNo": null,
+                                "latestSyncDateInMillis": null,
+                                "latestSyncSequenceNo": null,
+                                "gaps": [],
+                                "earliestResetDateInMillis": earliestResetDateInMillis
+                            };
+                        } else {
+                                earliestResetDateInMillis = syncStatisticsInfo.syncStatistics.earliestResetDateInMillis;
+                                if (request.fromDate) {
+                                    if (parseInt(request.fromDate, 10) < syncStatisticsInfo.syncStatistics.earliestResetDateInMillis) {
+                                        syncStatisticsInfo.syncStatistics.earliestResetDateInMillis = parseInt(request.fromDate, 10);
+                                        earliestResetDateInMillis = syncStatisticsInfo.syncStatistics.earliestResetDateInMillis;
+                                    } else {
+                                        updateSyncStatistics = false;
+                                    }
+                                } 
+                        }
+                        if (updateSyncStatistics) {
+                            settingsHelper.updateSyncStatistics(syncStatisticsInfo.syncStatistics);
+                        }
+
+                        return this.updateChainOfCustody(request.authenticationToken, request.chainOfCustodyUrl, result.entName, result => {
+                            if (!result) {
+                                throw new Error("Response was empty");
+                            }
+                            if (!result.chainOfCustidy) {
+                                throw new Error("Request was not successful: " + JSON.stringify(result));
+                            }
+
+                            result.success = true;
+                            if (request.callback) {
+                                result.earliestResetDateInMillis = earliestResetDateInMillis;
+                                request.callback(null, result);
+                            }
                         });
-                }
-
-                return this.updateChainOfCustody(request.authenticationToken, request.chainOfCustodyUrl, result.entName, result => {
-                    if(!result) {
-                        throw new Error("Response was empty");
-                    }
-                    if(!result.chainOfCustidy) {
-                        throw new Error("Request was not successful: " + JSON.stringify(result));
-                    }
-
-                    result.chainOfCustidy.success = true;
-                    if (request.callback) {
-                        request.callback(null, result.chainOfCustidy);
-                    }
+                    })
+                    .catch((err) => {
+                        console.error("Error occurred while updating SyncStatistics: " + err);
+                        callback(err, null);
                 });
             }).catch(function (err) {
                 console.log(err);
@@ -328,11 +331,12 @@ class SyncTransactionTaskHelper {
             }
         }
 
-        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, callback) {
+        startSyncFromCertainDate(authenticationToken, fromDate, chainOfCustodyUrl, offset, callback) {
             pendingResets.unshift({
                 authenticationToken: authenticationToken,
                 chainOfCustodyUrl: chainOfCustodyUrl,
                 fromDate: fromDate,
+                offset: offset,
                 callback: callback
             });
             this.syncMessages(authenticationToken, chainOfCustodyUrl);
@@ -362,19 +366,16 @@ class SyncTransactionTaskHelper {
                 if (result) {
                     result.chainOfCustidy = {
                         "authenticationToken": authenticationToken,
-                        "lastSyncTimeInMillis": new Date().getTime(),
                         "chainOfCustodyUrl": chainOfCustodyUrl,
                         "enterpriseName": entName
                     }
 
                     let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({}, {$set: result}).then(resultSet => {
-                        if (resultSet.modifiedCount > 0) {
                             console.log("Settings updated successfully");
                             result.success = true;
                             if (callback) {
                                 callback(result);
                             }
-                        }
                     })
                     .catch((err) => {
                         console.error("Error occurred while updating Settings." + err);
@@ -389,40 +390,9 @@ class SyncTransactionTaskHelper {
             });
         }
 
-        getLastestSyncedDate(callback) {
-            let result = dbconnectionManager.getConnection().collection('Settings').findOne({type: 'applicationSettings'}).then((result) => {
-                    if (result && result.chainOfCustidy) {
-                        callback(null, result.chainOfCustidy.lastSyncTimeInMillis);
-                    }
-                })
-                .catch((err) => {
-                    console.error("Error occurred while fetching LastSyncedDate." + err);
-                    callback(err, null);
-                });
-        }
-
-        setLastSyncedDate(lastSyncedDateInMillis) {
-            dbconnectionManager.getConnection().collection('Settings').findOne({ type: 'applicationSettings' }, function (err, result) {
-                if (err) {
-                    logger.error(err);
-                }
-                if(result) {
-                    result.chainOfCustidy.lastSyncTimeInMillis = lastSyncedDateInMillis;
-                    let resultSet = dbconnectionManager.getConnection().collection('Settings').updateOne({type: 'applicationSettings'}, {$set:result}).then((result) => {
-                        if (resultSet.modifiedCount > 0) {
-                            console.log("lastSyncedDateInMillis updated successfully ");
-                        }
-                    })
-                    .catch((err) => {
-                        console.error("Error occurred while updating LastSyncedDate." + err);
-                    });
-                }
-			})
-        }
-
         isInitialSyncDone(callback) {
             dbconnectionManager.getConnection().collection('Settings').findOne({type: 'applicationSettings'}).then((result) => {
-                if (result && result.chainOfCustidy && result.chainOfCustidy.lastSyncTimeInMillis) {
+                if (result && result.chainOfCustidy) {
                     callback(null, true);
                 } else {
                     callback(null, false);
