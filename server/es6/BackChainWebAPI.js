@@ -67,7 +67,7 @@ exports.startSyncFromCertainDate = function(req, res) {
         if(error) {
             res.json({success : false});
         } else {
-            res.json(result);res.json(result);
+            res.json(result);
         }
     });
 };

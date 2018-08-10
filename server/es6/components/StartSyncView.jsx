@@ -16,7 +16,6 @@ import 'react-datetime/css/react-datetime.css';
 
 	componentDidMount = () => { 
 		BackChainActions.toggleDBSyncModalViewActive();
-		// BackChainActions.getSyncStatisticsInfo();
 	}
 
 	render() {
@@ -39,7 +38,7 @@ class SyncForm extends React.Component {
 		super(props);
 		this.state = {
 			showOauthInfo: false,
-			syncDate: this.props.store.earliestResetDateInMillis ? this.props.store.earliestResetDateInMillis : moment().startOf('year').valueOf()
+			syncFromDate: this.props.store.earliestResetDateInMillis ? this.props.store.earliestResetDateInMillis : moment().startOf('year').valueOf()
 		}
 	}
 
@@ -51,7 +50,7 @@ class SyncForm extends React.Component {
 	}
 
 	listenStartFromChanges(date){
-		this.setState({ syncDate : date.valueOf()});
+		this.setState({ syncFromDate : date.valueOf()});
 	}
 
 	listenURLChanges(event){
@@ -63,7 +62,7 @@ class SyncForm extends React.Component {
 	}
 
 	startSync() {
-		if (this.isEmpty(this.props.store.authenticationToken) || this.isEmpty(this.state.syncDate) || this.isEmpty(this.props.store.chainOfCustodyUrl)) {
+		if (this.isEmpty(this.props.store.authenticationToken) || this.isEmpty(this.state.syncFromDate) || this.isEmpty(this.props.store.chainOfCustodyUrl)) {
 			BackChainActions.displayAlertPopup("Missing Required Fields", "All of the fields are required. Please fill all the fields and try again.",'ERROR');
 			return;
 		}
@@ -71,7 +70,7 @@ class SyncForm extends React.Component {
 			BackChainActions.displayAlertPopup("Invalid One Network's Audit Repository Url", "Please enter a valid One Network's Audit Repository url and try again.",'ERROR');
 			return;
 		}
-		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.state.syncDate, this.props.store.chainOfCustodyUrl);
+		BackChainActions.startSyncFromCertainDate(this.props.store.authenticationToken, this.state.syncFromDate, this.props.store.chainOfCustodyUrl);
 	}
 
 	onHover() {
@@ -139,7 +138,7 @@ class SyncForm extends React.Component {
 				</Row><br/>
 				<Row>
 					<Col md={5}>
-						<Datetime defaultValue={this.state.syncDate} inputProps={{ placeholder: "mm/dd/yyyy" }} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false} isValidDate={valid}/>
+						<Datetime defaultValue={this.state.syncFromDate} inputProps={{ placeholder: "mm/dd/yyyy" }} closeOnSelect={true} dateFormat="MM/DD/YYYY" onChange={this.listenStartFromChanges.bind(this)} timeFormat={false} isValidDate={valid}/>
 					</Col>
 				</Row><br/>
 				<Row>
