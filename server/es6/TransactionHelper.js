@@ -326,10 +326,14 @@ class TransactionHelper {
      * @param {*} openDisputeCount 
      */
     assignOpenDisputCountInStore(store, tnxId, openDisputeCount) {
-        for(var i = 0, len = store.transactions.length; i < len ; i++) {
-            if(store.transactions[i].id == tnxId) {
-                store.transactions[i].openDisputeCount = openDisputeCount;
-                break;
+        if(openDisputeCount > 0) {
+            for(var i = 0, len = store.transactions.length; i < len ; i++) {
+                if(store.transactions[i].id == tnxId) {
+                    let tnxToUpdate = store.transactions[i];
+                    tnxToUpdate.openDisputeCount = openDisputeCount;
+                    store.transactions.splice(i, 1, tnxToUpdate);
+                    break;
+                }
             }
         }
     }

@@ -320,8 +320,8 @@ const fieldProps = {
                         className="counter-img"
                         src={Images.EVENT_BADGE}
                         ref={ref => this.eventsPopoverRefsMap[idx] = ref} />
-                    <div className={this.getEventCountCSS(transaction.eventCount)}>
-                        {this.getEventCountString(transaction.eventCount)}
+                    <div className={this.getCountCSS(transaction.eventCount)}>
+                        {this.getCountString(transaction.eventCount)}
                     </div>
                     
                     <Overlay
@@ -359,16 +359,15 @@ const fieldProps = {
     renderTransactionDisputesCell(transaction) {
         const disputeCount = transaction.openDisputeCount;
         return (
-            <td style={Object.assign({}, fieldProps.columns)}>
+            <td style={Object.assign({}, fieldProps.columns, { cursor: 'pointer',paddingLeft:'15px'})}>
                 {disputeCount > 0  ?(
-                    <div style={{ cursor: 'pointer', height: '26px', textAlign: 'center', overflowY: 'hidden',paddingLeft:'5px' }} onClick={this.redirectToListDisputes.bind(this, transaction.id)}>
-                        <i className="fa fa-hand-paper-o" style={{ fontSize: '21px', color: '#A1A1A1', width: '19px' }}></i>     
-                        <img
-                            src={Images.DISPUTE_NO_TRANSACTION_IMAGE}
-                            style={{ height: '17px', width: '23px', position: 'relative', top: '5px', left: '-8px' }}
-                        />
-                        <span className="dispute-counter">{disputeCount}</span>
-                    </div>) :(<div></div>)  
+                    <div className="counter-ct" onClick={this.redirectToListDisputes.bind(this, transaction.id)}>
+                        <img className="counter-img"
+                            src={Images.DISPUTE_NO_TRANSACTION_IMAGE} />
+                            <div className={this.getCountCSS(disputeCount)}>
+                                {this.getCountString(disputeCount)}
+                            </div>
+                    </div>) :(<div></div>)
                 }
             </td>    
         );
@@ -516,8 +515,8 @@ const fieldProps = {
         );
     }
     
-    getEventCountCSS(eventCount) {
-        switch(this.getEventCountString(eventCount).length) {
+    getCountCSS(eventCount) {
+        switch(this.getCountString(eventCount).length) {
             case 1:
                 return "counter1";
             case 2:
@@ -527,7 +526,7 @@ const fieldProps = {
         return "counter3";
     }
 
-    getEventCountString(eventCount) {
+    getCountString(eventCount) {
         if(eventCount >= 1000) {
             return Math.floor(eventCount / 1000) + "k";
         }

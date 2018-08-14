@@ -19,7 +19,7 @@ class Images {
     get EVENT_BADGE()                   { return this.baseURL + 'event-badge.svg';                  }
     get EVENT()                         { return this.baseURL + 'event.svg';                        }
     get DISPUTE_NO_IMAGE()              { return this.baseURL + 'dispute-num-badge.png'; }
-    get DISPUTE_NO_TRANSACTION_IMAGE()  { return this.baseURL + 'dispute-num-badge.png'; }
+    get DISPUTE_NO_TRANSACTION_IMAGE()  { return this.baseURL + 'dispute-num-badge.svg'; }
     get DISPUTE_TRANSACTION_CONTAINER_IMAGE() { return this.baseURL + 'dispute-transation-container.png'; }
     get DISPUTE_PARTICIPANT_BADGE()     { return this.baseURL + 'disputes-user-badge.svg';          }
     get EVENT_BADGE_ORANGE()            { return this.baseURL + 'event-badge-orange.svg';           }
