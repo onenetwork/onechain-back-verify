@@ -226,10 +226,13 @@ class DisputeHelper {
         return new Promise((resolve, reject) => {
             settingsHelper.getApplicationSettings()
                 .then(settings => {
+                    if(settings.blockChain.providerType != 'eth') {
+                        resolve(0); //Hyperledger doesn't support Disputes
+                    }
                     let promisesToWaitOn = [];
                     promisesToWaitOn.push(me.getDraftCount(disputedTransactionId));
                     let disputeBcClient = oneBcClient.createDisputeBcClient({
-                        blockchain: 'eth',
+                        blockchain: settins.blockChain.providerType,
                         url: settings.blockChain.url,
                         contentBackchainContractAddress: settings.blockChain.contractAddress,
                         disputeBackchainContractAddress: settings.blockChain.disputeContractAddress

@@ -325,6 +325,7 @@ export default class BackChainActions {
             store.isInitialSetupDone = false;
             store.blockChainUrl = null;
             store.blockChainContractAddress = null;
+            store.hyperLedgerToken = null;
             store.disputeBlockChainContractAddress = null;
         });
     }
@@ -383,6 +384,7 @@ export default class BackChainActions {
                         store.isInitialSetupDone = true;
                         store.blockChainUrl = result.settings.blockChain.url;
                         store.blockChainContractAddress = result.settings.blockChain.contractAddress;
+                        store.hyperLedgerToken = result.settings.blockChain.hyperLedgerToken;
                         store.disputeBlockChainContractAddress = result.settings.blockChain.disputeContractAddress;
                         store.disputeSubmissionWindowInMinutes = result.settings.blockChain.disputeSubmissionWindowInMinutes;
                         store.providerType = result.settings.blockChain.providerType;

@@ -121,7 +121,8 @@ class BackChainStore {
     }
 
     @computed get oneContentBcClient() {
-        if (this.blockChainUrl != null && this.blockChainContractAddress != null) {
+        if (this.blockChainUrl != null && 
+            (this.blockChainContractAddress != null || this.hyperLedgerToken != null) ) {
             return oneBcClient.createContentBcClient({
                 blockchain: this.providerType,
                 url: this.blockChainUrl,
